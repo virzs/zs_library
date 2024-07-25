@@ -2,7 +2,7 @@ import AttachesTool from '@editorjs/attaches';
 import Checklist from '@editorjs/checklist';
 import CodeTool from '@editorjs/code';
 import Delimiter from '@editorjs/delimiter';
-import EditorJS, { OutputData } from '@editorjs/editorjs';
+import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import ImageTool from '@editorjs/image';
 import InlineCode from '@editorjs/inline-code';
@@ -18,86 +18,7 @@ import Warning from '@editorjs/warning';
 import { css, cx } from '@emotion/css';
 import DragDrop from 'editorjs-drag-drop';
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
-
-/** 附件配置 */
-export interface EditorAttachesConfig {
-  /** 可选的文件上传端点或使用上传器 */
-  endpoint?: string;
-  /** 可选的自定义上传方法或使用端点 */
-  uploader?: (
-    file: File,
-  ) => Promise<{ success: number; file: { url: string } }>;
-  /** (默认值:)POST requestfile中上传文件字段的名称 */
-  field?: string;
-  /** (默认值:)文件选择可以接受的文件类型 */
-  types?: string;
-  /** (默认:)文件上传按钮的占位符 */
-  buttonText?: string;
-  /** (default:)文件上传失败的消息 */
-  errorMessage?: string;
-  /** (default:)对象，带有任何将被添加到request中的自定义头。示例:{}{"X-CSRF-TOKEN": "W5fe2…hR8d1"} */
-  additionalRequestHeaders?: object;
-}
-
-/** 图片配置 */
-export interface EditorImageConfig {
-  /** 上传文件的端点。包含2个字段: byFile -用于上传文件 byUrl -按URL上传 */
-  endpoints?: { byFile?: string; byUrl?: string };
-  /** (默认:)POST请求图片中上传图片字段的名称 */
-  field?: string;
-  /** 使用file selection.image/*可以接受的mime类型的文件 */
-  types?: string;
-  /** 对象，其中包含要随上传请求发送的任何数据 */
-  additionalRequestData?: object;
-  /** 对象的任何自定义头将添加到请求。 */
-  additionalRequestHeaders?: object;
-  /** (默认值:)标题的占位符 */
-  captionPlaceholder?: string;
-  /** 允许覆盖«选择文件»按钮的HTML内容 */
-  buttonContent?: string;
-  /** 可选的自定义上传方式。详情见下文。 */
-  uploader?: {
-    uploadByFile: (file: File) => Promise<{
-      success: number;
-      file: {
-        url: string;
-      };
-    }>;
-    uploadByUrl: (file: File) => Promise<{
-      success: number;
-      file: {
-        url: string;
-      };
-    }>;
-  };
-  /** 数组，其中包含要显示在工具设置菜单中的自定义操作。详情见下文。 */
-  actions?: {
-    name?: string;
-    icon?: string;
-    title?: string;
-    toggle?: boolean;
-    action?: (name: string) => void;
-  }[];
-}
-
-/**  */
-
-/** 编辑器工具配置 */
-export interface EditorToolsConfig {
-  /** 附件 */
-  attaches?: EditorAttachesConfig;
-  /** 图片 */
-  image?: EditorImageConfig;
-}
-
-export interface EditorProps {
-  value: OutputData;
-  onChange?: (data: OutputData) => void;
-  bordered?: boolean;
-  readOnly?: boolean;
-  id?: string;
-  tools?: EditorToolsConfig;
-}
+import { EditorProps } from './interface';
 
 const Editor: FC<EditorProps> = (props) => {
   const {
@@ -107,6 +28,7 @@ const Editor: FC<EditorProps> = (props) => {
     readOnly = false,
     id = 'ZsLibraryEditor',
     tools,
+    placeholder,
   } = props;
 
   const editorRef = useRef<EditorJS | null>(null);
@@ -119,6 +41,7 @@ const Editor: FC<EditorProps> = (props) => {
     if (!editorRef.current) {
       editorRef.current = new EditorJS({
         holder: id,
+        placeholder,
         readOnly,
         tools: {
           /** https://github.com/editor-js/attaches */
@@ -139,13 +62,83 @@ const Editor: FC<EditorProps> = (props) => {
           /** https://github.com/editor-js/warning */
           warning: {
             class: Warning,
-            inlineToolbar: true,
-            shortcut: 'CMD+SHIFT+W',
             config: {
-              titlePlaceholder: '标题',
-              messagePlaceholder: '信息',
+              ...tools?.warning,
             },
           },
+          /** https://github.com/editor-js/nested-list */
+          list: {
+            class: NestedList,
+            config: {
+              ...tools?.list,
+            },
+          },
+          /** https://github.com/editor-js/paragraph */
+          paragraph: {
+            // @ts-ignore
+            class: Paragraph,
+            config: {
+              ...tools?.paragraph,
+            },
+          },
+          /** https://github.com/editor-js/code */
+          code: {
+            class: CodeTool,
+            config: {
+              ...tools?.code,
+            },
+          },
+          /** https://github.com/editor-js/header */
+          header: {
+            // @ts-ignore
+            class: Header,
+            config: {
+              ...tools?.header,
+            },
+          },
+          /** https://github.com/editor-js/inline-code */
+          inlineCode: {
+            class: InlineCode,
+          },
+          /** https://github.com/editor-js/table */
+          table: {
+            class: Table,
+            config: {
+              ...tools?.table,
+            },
+          },
+          /** https://github.com/editor-js/marker */
+          Marker: {
+            class: Marker,
+          },
+          /** https://github.com/editor-js/quote */
+          quote: {
+            class: Quote,
+            config: {
+              ...tools?.quote,
+            },
+          },
+          /** https://github.com/editor-js/raw */
+          raw: {
+            class: RawTool,
+            config: {
+              ...tools?.raw,
+            },
+          },
+          /** https://github.com/editor-js/checklist */
+          checklist: {
+            class: Checklist,
+          },
+          /** https://github.com/editor-js/delimiter */
+          delimiter: Delimiter,
+          /** https://github.com/editor-js/text-variant-tune */
+          textVariant: TextVariantTune,
+          /** https://github.com/editor-js/underline */
+          underline: Underline,
+        },
+        onReady: () => {
+          new DragDrop(editorRef.current);
+          isReady.current = true;
         },
       });
     }
@@ -156,89 +149,14 @@ const Editor: FC<EditorProps> = (props) => {
         editorRef.current = null;
       }
     };
-  }, [id, readOnly]);
+  }, [id, readOnly, tools, placeholder]);
 
   const editor = useMemo(() => {
     return {
       placeholder: '输入/来浏览选项',
       holder: 'editor',
       readOnly: readOnly,
-      tools: {
-        warning: {
-          class: Warning,
-          inlineToolbar: true,
-          shortcut: 'CMD+SHIFT+W',
-          config: {
-            titlePlaceholder: '标题',
-            messagePlaceholder: '信息',
-          },
-        },
-        list: {
-          class: NestedList,
-          inlineToolbar: true,
-          config: {
-            // 默认列表样式:有序或无序，默认为无序
-            defaultStyle: 'unordered',
-          },
-        },
-        paragraph: {
-          class: Paragraph,
-          inlineToolbar: true,
-          // placeholder 占位符。当整个编辑器为空时，将只显示在第一段。
-          // preserveBlank (默认值:false)保存编辑器数据时是否保留空白段落
-        },
-        code: {
-          class: CodeTool,
-          // placeholder 代码工具的占位符字符串
-        },
-        header: {
-          class: Header,
-          inlineToolbar: true,
-          shortcut: 'CMD+SHIFT+H',
-          config: {
-            placeholder: '输入标题',
-            // levels
-            // defaultLevel
-          },
-        },
-        inlineCode: {
-          class: InlineCode,
-          shortcut: 'CMD+SHIFT+M',
-        },
-        table: {
-          class: Table,
-          inlineToolbar: true,
-          config: {
-            rows: 2, // 初始行数。默认为2
-            cols: 3, // 初始列数。默认为2
-            // withHeadings 切换表格标题。默认为False
-          },
-        },
-        Marker: {
-          class: Marker,
-          shortcut: 'CMD+SHIFT+M',
-        },
-        quote: {
-          class: Quote,
-          inlineToolbar: true,
-          shortcut: 'CMD+SHIFT+O',
-          config: {
-            quotePlaceholder: '输入引用',
-            captionPlaceholder: '引用的作者',
-          },
-        },
-        raw: {
-          class: RawTool,
-          // placeholder 占位符。
-        },
-        delimiter: Delimiter,
-        checklist: {
-          class: Checklist,
-          inlineToolbar: true,
-        },
-        textVariant: TextVariantTune,
-        underline: Underline,
-      },
+      tools: {},
       // tunes: ["textVariant"],
       /**
        * Internationalzation config
@@ -359,12 +277,7 @@ const Editor: FC<EditorProps> = (props) => {
           },
         },
       },
-      onReady: () => {
-        new DragDrop(editor);
-        isReady.current = true;
-        console.log('Editor.js is ready to work!');
-      },
-      onChange: (api, event) => {
+      onChange: () => {
         setSaving(true);
       },
     };
