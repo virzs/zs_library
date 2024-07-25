@@ -7,3 +7,5 @@ import { Editor } from 'zs_library';
 
 export default () => <Editor />;
 ```
+
+<API id="Editor"></API>
