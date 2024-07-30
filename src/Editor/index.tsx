@@ -22,30 +22,41 @@ export type BlockNoteViewProps = React.ComponentProps<typeof BlockNoteView>;
 
 export interface EditorProps extends Partial<BlockNoteViewProps> {
   editor?: ReturnType<typeof useCreateBlockNote>;
+  /** 希望隐藏的内容块 */
+  hideSpecs?: (keyof typeof defaultBlockSpecs)[];
 }
-
-const schema = BlockNoteSchema.create({
-  blockSpecs: {
-    ...defaultBlockSpecs,
-    codeBlock: Code,
-  },
-});
-
-const insertCode = (editor: typeof schema.BlockNoteEditor) => ({
-  title: 'Code',
-  onItemClick: () => {
-    insertOrUpdateBlock(editor, {
-      type: 'codeBlock',
-    });
-  },
-  aliases: ['code'],
-  group: 'Other',
-  icon: <RiCodeLine />,
-});
 
 const Editor: FC<EditorProps> = (props) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { editor: propEditor, ...rest } = props;
+  const { editor: propEditor, hideSpecs = [], ...rest } = props;
+
+  const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      // 过滤掉不需要的内容块 filter
+      ...(hideSpecs.length > 0
+        ? Object.fromEntries(
+            Object.entries(defaultBlockSpecs).filter(
+              ([key]) =>
+                !hideSpecs.includes(key as keyof typeof defaultBlockSpecs),
+            ),
+          )
+        : defaultBlockSpecs),
+      codeBlock: Code,
+    },
+  });
+
+  const insertCode = (editor: typeof schema.BlockNoteEditor) => ({
+    title: 'Code',
+    onItemClick: () => {
+      insertOrUpdateBlock(editor, {
+        type: 'codeBlock',
+      });
+    },
+    aliases: ['code'],
+    group: 'Other',
+    icon: <RiCodeLine />,
+  });
+
   const editor = useCreateBlockNote({
     schema,
     dictionary: locales.zh,

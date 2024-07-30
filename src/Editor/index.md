@@ -16,4 +16,12 @@ import { Editor } from 'zs_library';
 export default () => <Editor />;
 ```
 
+## 隐藏内容块
+
+```jsx
+import { Editor } from 'zs_library';
+
+export default () => <Editor hideSpecs={['image', 'video', 'audio', 'file']} />;
+```
+
 <API id="Editor" />
