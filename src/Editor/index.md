@@ -1,3 +1,11 @@
+---
+title: 编辑器
+atomId: Editor
+description: 编辑器组件
+group:
+  title: 数据录入
+---
+
 # 编辑器
 
 ## 基础的编辑器
