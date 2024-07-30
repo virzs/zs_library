@@ -1,7 +1,6 @@
 import { createReactBlockSpec } from '@blocknote/react';
-import { css, cx } from '@emotion/css';
+import { cx } from '@emotion/css';
 import { Menu } from '@mantine/core';
-// import CodeMirror from '@uiw/react-codemirror';
 import 'ace-builds/src-noconflict/ace';
 import 'ace-builds/src-noconflict/ext-beautify';
 import 'ace-builds/src-noconflict/ext-language_tools';
@@ -134,31 +133,14 @@ export const Code = createReactBlockSpec(
           className={cx(
             `ace-${theme.replace('_', '-')}`,
             `ace-${theme.replace('-', '_')}`,
-            css`
-              width: 100%;
-              border-radius: 0.25rem;
-              overflow: hidden;
-            `,
+            'overflow-hidden rounded w-full',
           )}
         >
-          <div
-            className={css`
-              display: flex;
-              justify-content: flex-start;
-              align-items: center;
-              gap: 0.5rem;
-              margin-bottom: 0.25rem;
-            `}
-          >
+          <div className="flex justify-start items-center gap-2 mb-1">
             <Menu withinPortal={false} zIndex={999999}>
               <Menu.Target>
                 <div
-                  className={css`
-                    cursor: pointer;
-                    padding: 4px 8px;
-                    font-size: 0.75rem;
-                    font-weight: bold;
-                  `}
+                  className="cursor-pointer px-2 py-1 text-xs font-bold"
                   contentEditable={false}
                 >
                   {languageTitle ?? language}
@@ -186,12 +168,7 @@ export const Code = createReactBlockSpec(
             <Menu withinPortal={false} zIndex={999999}>
               <Menu.Target>
                 <div
-                  className={css`
-                    cursor: pointer;
-                    padding: 4px 8px;
-                    font-size: 0.75rem;
-                    font-weight: bold;
-                  `}
+                  className="cursor-pointer px-2 py-1 text-xs font-bold"
                   contentEditable={false}
                 >
                   {themeTitle ?? theme}
@@ -219,10 +196,7 @@ export const Code = createReactBlockSpec(
           </div>
           <div>
             <AceEditor
-              className={css`
-                width: 100% !important;
-                min-height: 200px;
-              `}
+              className="!w-full min-h-[200px]"
               enableLiveAutocompletion
               placeholder="请输入代码"
               maxLines={Infinity}
