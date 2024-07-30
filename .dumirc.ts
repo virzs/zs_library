@@ -13,4 +13,6 @@ export default defineConfig({
   resolve: {
     entryFile: './src/index.tsx',
   },
+  plugins: ['@umijs/plugins/dist/tailwindcss'],
+  tailwindcss: {},
 });
