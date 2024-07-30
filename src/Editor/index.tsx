@@ -46,15 +46,16 @@ const Editor: FC<EditorProps> = (props) => {
   });
 
   const insertCode = (editor: typeof schema.BlockNoteEditor) => ({
-    title: 'Code',
+    title: '代码',
+    subtext: '插入代码块',
     onItemClick: () => {
       insertOrUpdateBlock(editor, {
         type: 'codeBlock',
       });
     },
-    aliases: ['code'],
-    group: 'Other',
-    icon: <RiCodeLine />,
+    aliases: ['code', 'codeBlock', '代码', '代码块'],
+    group: '其他',
+    icon: <RiCodeLine size={18} />,
   });
 
   const editor = useCreateBlockNote({
