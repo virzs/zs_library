@@ -75,6 +75,7 @@
     "@umijs/lint": "^4.0.0",
     "@umijs/plugins": "^4.3.10",
     "dumi": "^2.3.0",
+    "dumi-theme-antd-style": "^0.31.0",
     "eslint": "^8.23.0",
     "father": "^4.1.0",
     "husky": "^8.0.1",
