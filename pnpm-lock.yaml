@@ -7,20 +7,22 @@ specifiers:
   '@commitlint/cli': ^17.1.2
   '@commitlint/config-conventional': ^17.1.0
   '@emotion/css': ^11.13.0
+  '@mantine/core': ^7.11.2
   '@remixicon/react': ^4.2.0
   '@types/react': ^18.0.0
   '@types/react-dom': ^18.0.0
   '@umijs/lint': ^4.0.0
+  ace-builds: ^1.35.4
   dumi: ^2.3.0
   eslint: ^8.23.0
   father: ^4.1.0
-  highlight.js: ^11.10.0
   husky: ^8.0.1
   lint-staged: ^13.0.3
   prettier: ^2.7.1
   prettier-plugin-organize-imports: ^3.0.0
   prettier-plugin-packagejson: ^2.2.18
   react: ^18.0.0
+  react-ace: ^12.0.0
   react-dom: ^18.0.0
   stylelint: ^14.9.1
 
@@ -29,8 +31,10 @@ dependencies:
   '@blocknote/mantine': 0.15.3_psuonouaqi5wuc37nxyknoubym
   '@blocknote/react': 0.15.3_nnrd3gsncyragczmpvfhocinkq
   '@emotion/css': 11.13.0
+  '@mantine/core': 7.11.2_psuonouaqi5wuc37nxyknoubym
   '@remixicon/react': 4.2.0_react@18.3.1
-  highlight.js: 11.10.0
+  ace-builds: 1.35.4
+  react-ace: 12.0.0_nnrd3gsncyragczmpvfhocinkq
 
 devDependencies:
   '@commitlint/cli': 17.8.1
@@ -1939,7 +1943,7 @@ packages:
     peerDependencies:
       react: '>=16.3.0'
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.24.8
       hoist-non-react-statics: 3.3.2
       react: 18.3.1
       react-is: 16.13.1
@@ -1963,6 +1967,25 @@ packages:
     dependencies:
       '@floating-ui/react': 0.26.20_nnrd3gsncyragczmpvfhocinkq
       '@mantine/hooks': 7.11.2_react@18.3.1
+      clsx: 2.1.1
+      react: 18.3.1
+      react-dom: 18.3.1_react@18.3.1
+      react-number-format: 5.4.0_nnrd3gsncyragczmpvfhocinkq
+      react-remove-scroll: 2.5.10_3vdbhqr2ncalcx7opnshezpx3q
+      react-textarea-autosize: 8.5.3_3vdbhqr2ncalcx7opnshezpx3q
+      type-fest: 4.23.0
+    transitivePeerDependencies:
+      - '@types/react'
+    dev: false
+
+  /@mantine/core/7.11.2_psuonouaqi5wuc37nxyknoubym:
+    resolution: {integrity: sha512-T64RjdgY8UPAv249miW1lQyPPot1JbCcKKsAZMNQHgcttcxLhrFpKVvglc4/48hdSoxI4LYJPNvqp7zciZmucQ==}
+    peerDependencies:
+      '@mantine/hooks': 7.11.2
+      react: ^18.2.0
+      react-dom: ^18.2.0
+    dependencies:
+      '@floating-ui/react': 0.26.20_nnrd3gsncyragczmpvfhocinkq
       clsx: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1_react@18.3.1
@@ -3388,7 +3411,7 @@ packages:
   /@umijs/history/5.3.1:
     resolution: {integrity: sha512-/e0cEGrR2bIWQD7pRl3dl9dcyRGeC9hoW0OCvUTT/hjY0EfUrkd6G8ZanVghPMpDuY5usxq9GVcvrT8KNXLWvA==}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.24.8
       query-string: 6.14.1
     dev: true
 
@@ -3694,6 +3717,10 @@ packages:
       mime-types: 2.1.35
       negotiator: 0.6.3
     dev: true
+
+  /ace-builds/1.35.4:
+    resolution: {integrity: sha512-r0KQclhZ/uk5a4zOqRYQkJuQuu4vFMiA6VTj54Tk4nI1TUR3iEMMppZkWbNoWEgWwv4ciDloObb9Rf4V55Qgjw==}
+    dev: false
 
   /acorn-jsx/5.3.2_acorn@8.12.1:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -5494,6 +5521,10 @@ packages:
   /detect-node/2.1.0:
     resolution: {integrity: sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==}
     dev: true
+
+  /diff-match-patch/1.0.5:
+    resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
+    dev: false
 
   /diff/4.0.2:
     resolution: {integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==}
@@ -7559,15 +7590,10 @@ packages:
       heti-findandreplacedomtext: 0.5.0
     dev: true
 
-  /highlight.js/11.10.0:
-    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
-    engines: {node: '>=12.0.0'}
-    dev: false
-
   /history/5.3.0:
     resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.24.8
     dev: true
 
   /hmac-drbg/1.0.1:
@@ -8893,11 +8919,9 @@ packages:
 
   /lodash.get/4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
-    dev: true
 
   /lodash.isequal/4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
-    dev: true
 
   /lodash.isfunction/3.0.9:
     resolution: {integrity: sha512-AirXNj15uRIMMPihnkInB4i3NHeb4iBtNg9WRWuK2o31S+ePwwNmDPaTL3o7dTJ+VXNZim7rFs4rxN4YU1oUJw==}
@@ -11641,6 +11665,21 @@ packages:
       strip-json-comments: 2.0.1
     dev: true
 
+  /react-ace/12.0.0_nnrd3gsncyragczmpvfhocinkq:
+    resolution: {integrity: sha512-PstU6CSMfYIJknb4su2Fa0WgLXzq2ufQgR6fjcSWuGT1hGTHkBzuKw+SncV8PuLCdSJBJc1VehPhyeXlWByG/g==}
+    peerDependencies:
+      react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      ace-builds: 1.35.4
+      diff-match-patch: 1.0.5
+      lodash.get: 4.4.2
+      lodash.isequal: 4.5.0
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1_react@18.3.1
+    dev: false
+
   /react-copy-to-clipboard/5.1.0_react@18.3.1:
     resolution: {integrity: sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==}
     peerDependencies:
@@ -11683,7 +11722,7 @@ packages:
       react: ^16.6.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.6.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@babel/runtime': 7.23.6
+      '@babel/runtime': 7.24.8
       invariant: 2.2.4
       prop-types: 15.8.1
       react: 18.3.1
