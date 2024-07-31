@@ -17,7 +17,7 @@ import {
 import { MantineProvider } from '@mantine/core';
 import { RiCodeLine } from '@remixicon/react';
 import React, { FC, useMemo } from 'react';
-import { Code } from './Blocks/Code';
+import { CodeBlock } from './Blocks/CodeBlock';
 
 export type BlockNoteViewProps = React.ComponentProps<typeof BlockNoteView>;
 
@@ -45,7 +45,7 @@ const Editor: FC<EditorProps> = (props) => {
             ),
           )
         : defaultBlockSpecs),
-      codeBlock: Code,
+      codeBlock: CodeBlock,
     },
   });
 
