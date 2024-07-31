@@ -29,10 +29,47 @@ export default () => (
 
 #### 隐藏内容块
 
+设置 `hideSpecs` 隐藏不需要的内容快
+
 ```jsx
 import { Editor } from 'zs_library';
 
 export default () => <Editor hideSpecs={['image', 'video', 'audio', 'file']} />;
+```
+
+### 预览
+
+直接禁用编辑器即可实现预览效果
+
+> **注意** 如果将编辑器内容保存为 markdown 或 html 格式，将会损失部分内容
+
+```jsx
+import { Editor } from 'zs_library';
+import { useState } from 'React';
+
+export default () => {
+  return (
+    <div>
+      <Editor
+        editable={false}
+        value={[
+          {
+            type: 'paragraph',
+            content: 'Hello World!!!',
+          },
+          {
+            type: 'codeBlock',
+            content: '// Hello World\n\nconsole.log("Hello World !!!");',
+            props: {
+              language: 'typescript',
+              theme: 'github_dark',
+            },
+          },
+        ]}
+      />
+    </div>
+  );
+};
 ```
 
 ## 新增的内容块

@@ -32,7 +32,7 @@ export interface EditorProps
 
 const Editor: FC<EditorProps> = (props) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { hideSpecs = [], value, onChange, ...rest } = props;
+  const { hideSpecs = [], value, onChange, editable, ...rest } = props;
 
   const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -75,10 +75,11 @@ const Editor: FC<EditorProps> = (props) => {
     <div>
       <MantineProvider>
         <BlockNoteView
+          editable={editable}
           // @ts-ignore
           editor={editor}
           slashMenu={false}
-          onChange={() => {
+          onChange={async () => {
             onChange?.(editor.document);
           }}
           {...rest}
