@@ -1,5 +1,4 @@
 import {
-  BlockNoteEditor,
   BlockNoteSchema,
   defaultBlockSpecs,
   filterSuggestionItems,
@@ -13,10 +12,11 @@ import '@blocknote/mantine/style.css';
 import {
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
+  useCreateBlockNote,
 } from '@blocknote/react';
 import { MantineProvider } from '@mantine/core';
 import { RiCodeLine } from '@remixicon/react';
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { CodeBlock } from './Blocks/CodeBlock';
 
 export type BlockNoteViewProps = React.ComponentProps<typeof BlockNoteView>;
@@ -29,6 +29,7 @@ export interface EditorProps
   value?: PartialBlock<any>[];
   onChange?: (value: PartialBlock<any>[]) => void;
   uploadFile?: (file: File) => Promise<string>;
+  className?: string;
 }
 
 const Editor: FC<EditorProps> = (props) => {
@@ -39,10 +40,12 @@ const Editor: FC<EditorProps> = (props) => {
     onChange,
     editable,
     uploadFile,
+    className,
     ...rest
   } = props;
 
   const [init, setInit] = useState(false);
+  const [firstChange, setFirstChange] = useState(false);
 
   const specs = {
     // 过滤掉不需要的内容块 filter
@@ -76,33 +79,33 @@ const Editor: FC<EditorProps> = (props) => {
     icon: <RiCodeLine size={18} />,
   });
 
-  const editor = useMemo(() => {
-    return BlockNoteEditor.create({
-      schema,
-      dictionary: locales.zh,
-      uploadFile,
-    });
-  }, [uploadFile, schema]);
+  const editor = useCreateBlockNote({
+    schema,
+    dictionary: locales.zh,
+    uploadFile,
+  });
 
   useEffect(() => {
-    if (!!value && !!editor) {
-      editor.insertBlocks(value, editor.document[0].id);
+    if (!!value?.length && ((!init && !firstChange) || editable === false)) {
+      setInit(true);
       setTimeout(() => {
-        setInit(true);
+        editor.replaceBlocks(editor.document, value);
       }, 0);
     }
-  }, [init, value, editor]);
+  }, [value, editable, editor, init]);
 
   return (
-    <div>
+    <div className={className}>
       <MantineProvider>
         <BlockNoteView
           editable={editable}
           // @ts-ignore
           editor={editor}
           slashMenu={false}
-          onChange={async () => {
+          onChange={() => {
+            // console.log('onChange', editor.document, init);
             onChange?.(editor.document);
+            if (!firstChange) setFirstChange(true);
           }}
           {...rest}
         >

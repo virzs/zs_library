@@ -73,6 +73,45 @@ export default () => {
 };
 ```
 
+### 实时预览
+
+```jsx
+import React from 'react';
+import { Editor } from 'zs_library';
+import { css } from '@emotion/css';
+
+export default () => {
+  const [value, setValue] = React.useState([]);
+  return (
+    <div
+      className={css`
+        width: 100%;
+        display: flex;
+      `}
+    >
+      <Editor
+        className={css`
+          flex-grow: 1;
+          max-width: 50%;
+        `}
+        value={value}
+        onChange={(v) => {
+          setValue(v);
+        }}
+      />
+      <Editor
+        className={css`
+          flex-grow: 1;
+          max-width: 50%;
+        `}
+        editable={false}
+        value={value}
+      />
+    </div>
+  );
+};
+```
+
 ### 上传文件
 
 使用 `uploadFile` 上传文件
