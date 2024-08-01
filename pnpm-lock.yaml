@@ -27,7 +27,6 @@ specifiers:
   react: ^18.0.0
   react-ace: ^12.0.0
   react-dom: ^18.0.0
-  react-toastify: ^10.0.5
   stylelint: ^14.9.1
   tailwindcss: ^3.4.7
 
@@ -41,7 +40,6 @@ dependencies:
   ace-builds: 1.35.4
   framer-motion: 11.3.19_nnrd3gsncyragczmpvfhocinkq
   react-ace: 12.0.0_nnrd3gsncyragczmpvfhocinkq
-  react-toastify: 10.0.5_nnrd3gsncyragczmpvfhocinkq
 
 devDependencies:
   '@commitlint/cli': 17.8.1
@@ -13865,17 +13863,6 @@ packages:
       use-latest: 1.2.1_3vdbhqr2ncalcx7opnshezpx3q
     transitivePeerDependencies:
       - '@types/react'
-    dev: false
-
-  /react-toastify/10.0.5_nnrd3gsncyragczmpvfhocinkq:
-    resolution: {integrity: sha512-mNKt2jBXJg4O7pSdbNUfDdTsK9FIdikfsIE/yUCxbAEXl4HMyJaivrVFcn3Elvt5xvCQYhUZm+hqTIu1UXM3Pw==}
-    peerDependencies:
-      react: '>=18'
-      react-dom: '>=18'
-    dependencies:
-      clsx: 2.1.1
-      react: 18.3.1
-      react-dom: 18.3.1_react@18.3.1
     dev: false
 
   /react/18.3.1:
