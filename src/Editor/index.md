@@ -31,6 +31,8 @@ export default () => (
 
 设置 `hideSpecs` 隐藏不需要的内容快
 
+> **注意** 不要隐藏 `paragraph`，它是编辑器默认的内容快，隐藏后需要为编辑器设置默认的 `value`
+
 ```jsx
 import { Editor } from 'zs_library';
 
@@ -67,6 +69,47 @@ export default () => {
         ]}
       />
     </div>
+  );
+};
+```
+
+### 上传文件
+
+使用 `uploadFile` 上传文件
+
+> **注意** [tmpfiles](https://tmpfiles.org/) 在上传文件后 60 分钟后会删除上传的文件
+
+```jsx
+import { Editor } from 'zs_library';
+
+export default () => {
+  const uploadFile = async (file) => {
+    const body = new FormData();
+    body.append('file', file);
+
+    const ret = await fetch('https://tmpfiles.org/api/v1/upload', {
+      method: 'POST',
+      body: body,
+    });
+    const res = (await ret.json()).data.url.replace(
+      'tmpfiles.org/',
+      'tmpfiles.org/dl/',
+    );
+    return res;
+  };
+
+  return (
+    <Editor
+      uploadFile={uploadFile}
+      hideSpecs={[
+        'heading',
+        'bulletListItem',
+        'numberedListItem',
+        'checkListItem',
+        'table',
+        'codeBlock',
+      ]}
+    />
   );
 };
 ```
