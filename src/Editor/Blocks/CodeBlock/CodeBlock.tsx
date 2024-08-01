@@ -104,12 +104,24 @@ const CodeBlock: FC<ReactCustomBlockRenderProps<any, any, any>> = (props) => {
 
   const editable = editor.isEditable;
 
+  const menuButtonCss = css`
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+  `;
+
   return (
     <div
       className={cx(
         `ace-${theme.replace('_', '-')}`,
         `ace-${theme.replace('-', '_')}`,
-        'overflow-hidden rounded w-full relative',
+        css`
+          overflow: hidden;
+          border-radius: 0.5rem;
+          width: 100%;
+          position: relative;
+        `,
         !editable &&
           css`
             &:hover .code-block-copy {
@@ -121,13 +133,19 @@ const CodeBlock: FC<ReactCustomBlockRenderProps<any, any, any>> = (props) => {
         setCopyed(false);
       }}
     >
-      <div className="inline-flex justify-start items-center mb-1 bg-gray-100 bg-opacity-10 rounded-br">
+      <div
+        className={css`
+          display: inline-flex;
+          justify-content: start;
+          align-items: center;
+          margin-bottom: 0.25rem;
+          background-color: rgba(243, 244, 246, 0.1);
+          border-radius: 0.25rem 0.25rem 0 0;
+        `}
+      >
         <Menu withinPortal={false} zIndex={999999} disabled={!editable}>
           <Menu.Target>
-            <div
-              className="cursor-pointer px-2 py-1 text-xs font-bold"
-              contentEditable={false}
-            >
+            <div className={menuButtonCss} contentEditable={false}>
               {languageTitle ?? language}
             </div>
           </Menu.Target>
@@ -153,10 +171,7 @@ const CodeBlock: FC<ReactCustomBlockRenderProps<any, any, any>> = (props) => {
         {editable && (
           <Menu withinPortal={false} zIndex={999999}>
             <Menu.Target>
-              <div
-                className="cursor-pointer px-2 py-1 text-xs font-bold"
-                contentEditable={false}
-              >
+              <div className={menuButtonCss} contentEditable={false}>
                 {themeTitle ?? theme}
               </div>
             </Menu.Target>
@@ -182,10 +197,34 @@ const CodeBlock: FC<ReactCustomBlockRenderProps<any, any, any>> = (props) => {
         )}
       </div>
       {!editable && (
-        <div className="code-block-copy opacity-0 absolute right-2 top-2 z-10">
+        <div
+          className={cx(
+            'code-block-copy',
+            css`
+              opacity: 0;
+              transition: opacity 0.3s;
+              position: absolute;
+              right: 0.5rem;
+              top: 0.5rem;
+              z-index: 10;
+            `,
+          )}
+        >
           <Tooltip label="复制">
             <UnstyledButton
-              className="hover:bg-gray-100 hover:bg-opacity-10 transition-all cursor-pointer flex justify-center items-center rounded z-10 w-8 h-8"
+              className={css`
+                transition: all 0.3s;
+                cursor: pointer;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 0.25rem;
+                width: 2rem;
+                height: 2rem;
+                &:hover {
+                  background-color: rgba(243, 244, 246, 0.1);
+                }
+              `}
               onClick={() => {
                 navigator.clipboard.writeText(code).then(() => {
                   setCopyed(true);
@@ -210,7 +249,10 @@ const CodeBlock: FC<ReactCustomBlockRenderProps<any, any, any>> = (props) => {
       <div>
         <AceEditor
           readOnly={!editable}
-          className="!w-full min-h-[200px]"
+          className={css`
+            width: 100% !important;
+            min-height: 200px;
+          `}
           enableLiveAutocompletion
           placeholder="请输入代码"
           maxLines={Infinity}
