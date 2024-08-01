@@ -45,7 +45,6 @@ export default () => <Editor hideSpecs={['image', 'video', 'audio', 'file']} />;
 
 ```jsx
 import { Editor } from 'zs_library';
-import { useState } from 'React';
 
 export default () => {
   return (
