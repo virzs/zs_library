@@ -16,7 +16,7 @@ import {
 } from '@blocknote/react';
 import { MantineProvider } from '@mantine/core';
 import { RiCodeLine } from '@remixicon/react';
-import React, { FC, useMemo } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 import { CodeBlock } from './Blocks/CodeBlock';
 
 export type BlockNoteViewProps = React.ComponentProps<typeof BlockNoteView>;
@@ -41,6 +41,8 @@ const Editor: FC<EditorProps> = (props) => {
     uploadFile,
     ...rest
   } = props;
+
+  const [init, setInit] = useState(false);
 
   const specs = {
     // 过滤掉不需要的内容块 filter
@@ -76,13 +78,20 @@ const Editor: FC<EditorProps> = (props) => {
 
   const editor = useMemo(() => {
     return BlockNoteEditor.create({
-      // @ts-ignore
-      initialContent: value,
       schema,
       dictionary: locales.zh,
       uploadFile,
     });
-  }, [value, uploadFile, schema]);
+  }, [uploadFile, schema]);
+
+  useEffect(() => {
+    if (!!value && !!editor) {
+      editor.insertBlocks(value, editor.document[0].id);
+      setTimeout(() => {
+        setInit(true);
+      }, 0);
+    }
+  }, [init, value, editor]);
 
   return (
     <div>
