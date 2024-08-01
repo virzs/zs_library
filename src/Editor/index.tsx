@@ -28,30 +28,42 @@ export interface EditorProps
   /** 由于添加了自定义块，导致类型复杂无法在此处设置 typeof schema.BlockNoteEditor['initialContent'] */
   value?: PartialBlock<any>[];
   onChange?: (value: PartialBlock<any>[]) => void;
+  uploadFile?: (file: File) => Promise<string>;
 }
 
 const Editor: FC<EditorProps> = (props) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { hideSpecs = [], value, onChange, editable, ...rest } = props;
+  const {
+    hideSpecs = [],
+    value,
+    onChange,
+    editable,
+    uploadFile,
+    ...rest
+  } = props;
+
+  const specs = {
+    // 过滤掉不需要的内容块 filter
+    ...defaultBlockSpecs,
+    codeBlock: CodeBlock,
+  };
 
   const schema = BlockNoteSchema.create({
-    blockSpecs: {
-      // 过滤掉不需要的内容块 filter
-      ...(hideSpecs.length > 0
+    blockSpecs:
+      hideSpecs.length > 0
         ? Object.fromEntries(
-            Object.entries(defaultBlockSpecs).filter(
+            Object.entries(specs).filter(
               ([key]) =>
                 !hideSpecs.includes(key as keyof typeof defaultBlockSpecs),
             ),
           )
-        : defaultBlockSpecs),
-      codeBlock: CodeBlock,
-    },
+        : specs,
   });
 
   const insertCode = (editor: typeof schema.BlockNoteEditor) => ({
     title: '代码',
     subtext: '插入代码块',
+    key: 'code_block',
     onItemClick: () => {
       insertOrUpdateBlock(editor, {
         type: 'codeBlock',
@@ -68,8 +80,9 @@ const Editor: FC<EditorProps> = (props) => {
       initialContent: value,
       schema,
       dictionary: locales.zh,
+      uploadFile,
     });
-  }, [value]);
+  }, [value, uploadFile, schema]);
 
   return (
     <div>
@@ -88,7 +101,16 @@ const Editor: FC<EditorProps> = (props) => {
             triggerCharacter={'/'}
             getItems={async (query) =>
               filterSuggestionItems(
-                [...getDefaultReactSlashMenuItems(editor), insertCode(editor)],
+                [
+                  ...getDefaultReactSlashMenuItems(editor),
+                  insertCode(editor),
+                ].filter((i) => {
+                  // @ts-ignore
+                  const key = i.key.replace(/_(\w)/g, (_, c) =>
+                    c.toUpperCase(),
+                  );
+                  return !hideSpecs.some((s) => key.includes(s));
+                }),
                 query,
               )
             }
