@@ -1,6 +1,6 @@
 {
   "name": "zs_library",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A react library developed with dumi",
   "homepage": "https://zs-library.vercel.app",
   "bugs": {
