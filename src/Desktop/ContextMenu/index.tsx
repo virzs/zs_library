@@ -237,7 +237,11 @@ const ContextMenu: FC = () => {
               icon={<RiInformationLine size={20} />}
               title="信息"
               onClick={() => {
-                setShowInfoItemData(contextMenu.data);
+                setShowInfoItemData({
+                  ...contextMenu.data,
+                  pageX: contextMenu.pageX,
+                  pageY: contextMenu.pageY,
+                });
                 hideContextMenu();
               }}
             />

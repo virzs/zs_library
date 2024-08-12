@@ -27,6 +27,7 @@ const Sortable = () => {
   return (
     <>
       <Slider
+        infinite={false}
         dots
         touchMove={false}
         lazyLoad="anticipated"
