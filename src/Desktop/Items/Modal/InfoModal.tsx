@@ -21,6 +21,16 @@ const ItemInfoModal: FC<ItemInfoModalProps> = (props) => {
       onClose={() => {
         onClose();
       }}
+      animation="zoom"
+      maskAnimation="fade"
+      mousePosition={
+        data?.pageX && data?.pageY
+          ? {
+              x: data?.pageX,
+              y: data?.pageY,
+            }
+          : null
+      }
       footer={null}
       title={data?.data?.name ?? '信息'}
     >

@@ -13,6 +13,8 @@ import SortableUtils from './utils';
 interface ContextMenu {
   rect: DOMRect;
   data: any;
+  pageX?: number;
+  pageY?: number;
 }
 
 type ListStatus = 'onMove';
@@ -112,7 +114,7 @@ export const SortableProvider = ({
   };
 
   const getItemRectAndSetContextMenu = (e: any, data: any) => {
-    setContextMenu({ ...e, data });
+    setContextMenu({ ...e, pageX: e.pageX, pageY: e.pageY, data });
     clearTimeout(contextMenuTimer);
   };
 
