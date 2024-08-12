@@ -92,6 +92,8 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
     childrenLength,
   } = props;
 
+  const { contextMenu, setContextMenu } = useSortable();
+
   return (
     <RcTooltip
       placement="bottom"
@@ -103,8 +105,14 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
           border: none;
         }
       `}
-      trigger={['contextMenu']}
       overlay={<ContextMenu />}
+      visible={contextMenu?.data.id === data.id}
+      onVisibleChange={(visible) => {
+        if (!visible) {
+          setContextMenu(null);
+        }
+      }}
+      destroyTooltipOnHide
     >
       <motion.div
         data-id={data.id}
