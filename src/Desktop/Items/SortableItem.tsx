@@ -1,6 +1,9 @@
 import { css, cx } from '@emotion/css';
 import { motion } from 'framer-motion';
+import RcTooltip from 'rc-tooltip';
+import 'rc-tooltip/assets/bootstrap_white.css';
 import React from 'react';
+import ContextMenu from '../ContextMenu';
 import { useSortable } from '../hook';
 import { SortItem, SortItemBaseData } from '../types';
 
@@ -90,16 +93,30 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
   } = props;
 
   return (
-    <motion.div
-      data-id={data.id}
-      data-index={itemIndex}
-      data-parent-ids={parentIds}
-      data-children-length={childrenLength}
-      onClick={onClick}
-      className={cx(disabledDrag && 'drag-disabled', className)}
+    <RcTooltip
+      placement="bottom"
+      overlayClassName={css`
+        background-color: transparent;
+        .rc-tooltip-inner {
+          background-color: transparent;
+          padding: 0;
+          border: none;
+        }
+      `}
+      trigger={['contextMenu']}
+      overlay={<ContextMenu />}
     >
-      {children ?? <SortableItemDefaultContent {...props} />}
-    </motion.div>
+      <motion.div
+        data-id={data.id}
+        data-index={itemIndex}
+        data-parent-ids={parentIds}
+        data-children-length={childrenLength}
+        onClick={onClick}
+        className={cx(disabledDrag && 'drag-disabled', className)}
+      >
+        {children ?? <SortableItemDefaultContent {...props} />}
+      </motion.div>
+    </RcTooltip>
   );
 };
 

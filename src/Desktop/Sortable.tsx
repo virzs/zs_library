@@ -4,7 +4,6 @@ import Slider from 'react-slick';
 import { ReactSortable } from 'react-sortablejs';
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
-import ContextMenu from './ContextMenu';
 import SortableGroupItem from './Items/GroupItem';
 import GroupItemModal from './Items/Modal/GroupItemModal';
 import ItemInfoModal from './Items/Modal/InfoModal';
@@ -149,9 +148,6 @@ const Sortable = () => {
           );
         })}
       </Slider>
-
-      {/* 右键菜单 */}
-      <ContextMenu />
 
       {/* 单个item信息弹窗 */}
       <ItemInfoModal

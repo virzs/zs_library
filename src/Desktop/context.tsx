@@ -112,8 +112,7 @@ export const SortableProvider = ({
   };
 
   const getItemRectAndSetContextMenu = (e: any, data: any) => {
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    setContextMenu({ ...e, rect, data });
+    setContextMenu({ ...e, data });
     clearTimeout(contextMenuTimer);
   };
 

@@ -8,7 +8,7 @@ import {
   RiShareLine,
 } from '@remixicon/react';
 import { AnimatePresence, Variants, motion } from 'framer-motion';
-import React, { FC, useEffect, useRef } from 'react';
+import React, { FC } from 'react';
 import { configMap } from '../config';
 import { useSortable } from '../hook';
 import { SortItemBaseConfig } from '../types';
@@ -92,27 +92,9 @@ const ContextMenu: FC = () => {
     removeItem,
     updateItemConfig,
   } = useSortable();
-  const ref = useRef<HTMLDivElement>(null);
 
-  const { rect, data } = contextMenu ?? {};
-  const { left = 0, bottom = 0, width = 0 } = rect ?? {};
+  const { data } = contextMenu ?? {};
   const { config = {} } = data ?? {};
-
-  // 点击空白处关闭
-  useEffect(() => {
-    const handleDocumentClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        hideContextMenu();
-        return;
-      }
-    };
-
-    document.addEventListener('mousedown', handleDocumentClick);
-
-    return () => {
-      document.removeEventListener('mousedown', handleDocumentClick);
-    };
-  }, [hideContextMenu]);
 
   const getAllSizes = () => {
     const config: SortItemBaseConfig = configMap[contextMenu?.data?.type];
@@ -129,16 +111,6 @@ const ContextMenu: FC = () => {
     <AnimatePresence>
       {contextMenu && (
         <motion.div
-          ref={ref}
-          className={cx(
-            css`
-              position: fixed;
-              transform: translateX(-50%);
-              z-index: 1001;
-              top: ${bottom}px;
-              left: ${left + width / 2}px;
-            `,
-          )}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -152,6 +124,7 @@ const ContextMenu: FC = () => {
               css`
                 border-radius: 0.5rem;
                 overflow: hidden;
+                box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
               `,
             )}
           >
@@ -198,6 +171,7 @@ const ContextMenu: FC = () => {
                         line-height: 1.25rem;
                         gap: 0.5rem;
                         padding-bottom: 0.5rem;
+                        margin: 0;
                       `}
                     >
                       {i.icon} {i.label}
@@ -248,6 +222,7 @@ const ContextMenu: FC = () => {
           <motion.div
             className={cx(
               css`
+                box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
                 display: flex;
                 background-color: white;
                 margin-top: 0.5rem;
