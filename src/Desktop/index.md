@@ -1,0 +1,131 @@
+---
+title: 桌面
+atomId: Desktop
+description: 基于 react-sortablejs 封装实现的桌面组件
+group:
+  title: 布局
+---
+
+## 依赖
+
+```json
+{
+  "uuid": "^10.0.0",
+  "ahooks": "^3.8.0",
+  "@emotion/css": "^11.13.0",
+  "react-sortablejs": "^6.1.4",
+  "sortablejs": "^1.15.2",
+  "framer-motion": "^11.3.19",
+  "react-json-view": "^1.21.3",
+  "react-modal-sheet": "^3.1.0",
+  "rc-dialog": "^9.0.4",
+  "react-slick": "^0.30.2",
+  "slick-carousel": "^1.8.1"
+}
+```
+
+## 功能
+
+- 排序
+- 文件夹
+
+## 代码演示
+
+### 基本用法
+
+```jsx
+import { Desktop } from 'zs_library';
+
+export default () => {
+  const list = [
+    {
+      id: '123',
+      data: {
+        name: '常用',
+      },
+      children: [
+        {
+          id: 1,
+          type: 'group',
+          data: {
+            name: 'one',
+          },
+          config: {
+            col: 2,
+          },
+          children:
+            // 生成20个子项
+            Array(60)
+              .fill(0)
+              .map((_, index) => ({
+                id: 1 + index,
+                type: 'app',
+                data: {
+                  name: `one-${index}`,
+                },
+              })),
+        },
+        {
+          id: 2,
+          type: 'app',
+          data: {
+            name: 'two',
+          },
+        },
+        {
+          id: 3,
+          type: 'app',
+          data: {
+            name: 'three',
+          },
+        },
+        {
+          id: 4,
+          type: 'app',
+          data: {
+            name: 'four',
+          },
+        },
+        {
+          id: 5,
+          type: 'app',
+          data: {
+            name: 'five',
+          },
+        },
+        {
+          id: 6,
+          type: 'app',
+          data: {
+            name: 'six',
+          },
+        },
+        {
+          id: 7,
+          type: 'app',
+          data: {
+            name: 'x',
+          },
+        },
+      ],
+    },
+    {
+      id: '12313eqw',
+      data: {
+        name: '开发',
+      },
+      children: [
+        {
+          id: 90,
+          type: 'app',
+          data: {
+            name: 'x90',
+          },
+        },
+      ],
+    },
+  ];
+
+  return <Desktop list={list} />;
+};
+```
