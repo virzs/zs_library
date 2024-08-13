@@ -177,24 +177,37 @@ export const SortableProvider = <D, C>({
               newChildren = [{ ...parent }];
               parent.data = { name: '文件夹' };
               parent.type = 'group';
-              parent.children = [...newChildren, ...newList];
+              parent.children = [
+                ...newChildren,
+                ...newList.map((item) => ({ ...item })),
+              ];
               parent.id = uuidv4();
+
+              propOnChange?.(_list);
               return _list;
             }
 
             // ! 当前已经是 group 时，直接将 children 更改为最新的 list
-            parent.children = [...SortableUtils.uniqueArray(newList)];
+            parent.children = [
+              ...SortableUtils.uniqueArray(
+                newList.map((item) => ({ ...item })),
+              ),
+            ];
             propOnChange?.(_list);
             return _list;
           } else {
-            return SortableUtils.uniqueArray(newList);
+            return SortableUtils.uniqueArray(
+              newList.map((item) => ({ ...item })),
+            );
           }
         };
 
         return updateChild(_items);
       });
     } else {
-      const _newList = SortableUtils.uniqueArray(newList);
+      const _newList = SortableUtils.uniqueArray(
+        newList.map((item) => ({ ...item })),
+      );
 
       // ! 根节点直接排序
       propOnChange?.(_newList);

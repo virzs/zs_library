@@ -58,7 +58,7 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 1 + index,
+                id: 'sdanka' + 1 + index,
                 type: 'app',
                 data: {
                   name: `one-${index}`,
@@ -274,7 +274,7 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 1 + index,
+                id: 'sdanka' + 1 + index,
                 type: 'app',
                 data: {
                   name: `one-${index}`,
