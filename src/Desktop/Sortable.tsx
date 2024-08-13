@@ -107,6 +107,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
   return (
     <div>
       <Slider
+        arrows={false}
         ref={_sliderRef ?? sliderRef}
         infinite={false}
         dots
