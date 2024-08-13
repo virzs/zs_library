@@ -216,7 +216,14 @@ export default () => {
 
   return (
     <MantineProvider>
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          justifyContent: 'center',
+          marginBottom: '8px',
+        }}
+      >
         <Button variant="filled" onClick={() => handlePositionChange('top')}>
           Top
         </Button>
@@ -237,3 +244,5 @@ export default () => {
   );
 };
 ```
+
+<API id="Desktop" />

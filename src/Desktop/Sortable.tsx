@@ -1,6 +1,6 @@
 import { css, cx } from '@emotion/css';
-import React, { FC, useMemo, useRef } from 'react';
-import Slider from 'react-slick';
+import React, { useMemo, useRef } from 'react';
+import Slider, { Settings } from 'react-slick';
 import { ReactSortable } from 'react-sortablejs';
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
@@ -10,15 +10,28 @@ import ItemInfoModal from './Items/Modal/InfoModal';
 import SortableItem from './Items/SortableItem';
 import { useSortable } from './hook';
 import { ghostClass } from './style';
+import { SortItem } from './types';
 
-export interface SortableProps {
+export interface SortableProps<D, C> {
   className?: string;
   pagingLocation?: 'top' | 'bottom' | 'left' | 'right';
+  pagingDotsBuilder?: (dots: React.ReactNode) => React.JSX.Element;
+  pagingDotBuilder?: (item: SortItem<D, C>, index: number) => React.JSX.Element;
+  sliderRef?: React.RefObject<Slider>;
+  sliderProps?: Omit<Settings, 'appendDots' | 'customPaging'>;
 }
 
-const Sortable: FC<SortableProps> = (props) => {
-  const { pagingLocation = 'bottom', className } = props;
+const Sortable = <D, C>(props: SortableProps<D, C>) => {
+  const {
+    pagingLocation = 'bottom',
+    className,
+    pagingDotBuilder,
+    pagingDotsBuilder,
+    sliderProps,
+    sliderRef: _sliderRef,
+  } = props;
 
+  const sliderRef = useRef<Slider>(null);
   const sliderDotsRef = useRef<HTMLUListElement>(null);
 
   const {
@@ -88,15 +101,30 @@ const Sortable: FC<SortableProps> = (props) => {
   return (
     <div>
       <Slider
+        ref={_sliderRef ?? sliderRef}
         infinite={false}
         dots
         touchMove={false}
         lazyLoad="anticipated"
         className={cx(paginingLocationCss, className)}
         customPaging={(i) => {
-          return <div>{list[i].data?.name}</div>;
+          if (pagingDotBuilder) {
+            return pagingDotBuilder(list[i], i);
+          }
+          return (
+            <div
+              onDragEnter={() => {
+                (_sliderRef ?? sliderRef).current?.slickGoTo(i);
+              }}
+            >
+              {list[i].data?.name}
+            </div>
+          );
         }}
         appendDots={(dots) => {
+          if (pagingDotsBuilder) {
+            return pagingDotsBuilder(dots);
+          }
           return (
             <div>
               <ul
@@ -130,6 +158,7 @@ const Sortable: FC<SortableProps> = (props) => {
             </div>
           );
         }}
+        {...sliderProps}
       >
         {list.map((l) => {
           return (

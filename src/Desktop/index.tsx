@@ -1,12 +1,14 @@
-import React, { FC } from 'react';
+import React from 'react';
 import Sortable, { SortableProps } from './Sortable';
 import { SortableProvider } from './context';
+import { SortItem } from './types';
 
-export interface DesktopProps extends SortableProps {
-  list: any[];
+export interface DesktopProps<D = any, C = any> extends SortableProps<D, C> {
+  list: SortItem<D, C>[];
+  onChange?: (list: SortItem<D, C>[]) => void;
 }
 
-const Desktop: FC<DesktopProps> = (props) => {
+const Desktop = <D, C>(props: DesktopProps<D, C>) => {
   const { list, ...rest } = props;
 
   return (

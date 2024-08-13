@@ -70,15 +70,17 @@ export const SortableContext = createContext<SortableContextProps>({
   setMoveTargetId: () => {},
 });
 
-interface SortableProviderProps {
+interface SortableProviderProps<D, C> {
   children: ReactNode;
-  list?: any[];
+  list?: SortItem<D, C>[];
+  onChange?: (list: SortItem<D, C>[]) => void;
 }
 
-export const SortableProvider = ({
+export const SortableProvider = <D, C>({
   children,
   list: propList = [],
-}: SortableProviderProps) => {
+  onChange: propOnChange,
+}: SortableProviderProps<D, C>) => {
   const [contextMenuTimer, setContextMenuTimer] = useState<NodeJS.Timeout>();
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout>();
   const [listStatus, setListStatus] = useState<ListStatus | null>(null);
@@ -167,6 +169,7 @@ export const SortableProvider = ({
 
           if (_parentIds.length && parent) {
             parent.children = updateChild(parent.children || []);
+            propOnChange?.(_list);
             return _list;
           } else if (parent) {
             let newChildren: SortItem[] = [];
@@ -182,6 +185,7 @@ export const SortableProvider = ({
 
             // ! 当前已经是 group 时，直接将 children 更改为最新的 list
             parent.children = [...SortableUtils.uniqueArray(newList)];
+            propOnChange?.(_list);
             return _list;
           } else {
             return SortableUtils.uniqueArray(newList);
@@ -194,6 +198,7 @@ export const SortableProvider = ({
       const _newList = SortableUtils.uniqueArray(newList);
 
       // ! 根节点直接排序
+      propOnChange?.(_newList);
       setList(_newList);
     }
   };
@@ -214,6 +219,7 @@ export const SortableProvider = ({
 
       updateItem(_list);
 
+      propOnChange?.(_list);
       return _list;
     });
   };
@@ -234,6 +240,7 @@ export const SortableProvider = ({
 
       updateItem(_list);
 
+      propOnChange?.(_list);
       return _list;
     });
   };
@@ -254,6 +261,7 @@ export const SortableProvider = ({
 
       removeItem(_list);
 
+      propOnChange?.(_list);
       return _list;
     });
   };
