@@ -20,6 +20,9 @@ export interface SortableProps<D, C> {
   sliderRef?: React.RefObject<Slider>;
   sliderProps?: Omit<Settings, 'appendDots' | 'customPaging'>;
   onItemClick?: (item: SortItem<D, C>) => void;
+  noLetters?: boolean;
+  itemBuilder?: (item: SortItem<D, C>) => React.ReactNode;
+  itemIconBuilder?: (item: SortItem<D, C>) => React.ReactNode;
 }
 
 const Sortable = <D, C>(props: SortableProps<D, C>) => {
@@ -31,6 +34,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     sliderProps,
     sliderRef: _sliderRef,
     onItemClick,
+    noLetters,
   } = props;
 
   const sliderRef = useRef<Slider>(null);
@@ -230,6 +234,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           itemIndex={index}
                           parentIds={[l.id, item.id]}
                           onClick={onItemClick}
+                          noLetters={noLetters}
                         />
                       );
                       break;
@@ -240,6 +245,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           data={item}
                           itemIndex={index}
                           onClick={onItemClick}
+                          noLetters={noLetters}
                         />
                       );
                       break;

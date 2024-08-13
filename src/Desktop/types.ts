@@ -21,6 +21,7 @@ export interface SortItemBaseConfig {
 
 export interface SortItemBaseData {
   name: string;
+  icon?: string;
 }
 
 export interface SortItem<

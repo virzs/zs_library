@@ -11,7 +11,7 @@ export interface SortableItemProps<D, C> {
   data: SortItem<D, C>;
   className?: string;
   itemIndex: number;
-  showTitle?: boolean;
+  noLetters?: boolean;
   onClick?: (item: SortItem<D, C>) => void;
   disabledDrag?: boolean;
   children?: React.ReactNode;
@@ -22,7 +22,7 @@ export interface SortableItemProps<D, C> {
 export const SortableItemDefaultContent = <D, C>(
   props: SortableItemProps<D, C>,
 ) => {
-  const { data, showTitle } = props;
+  const { data, noLetters = false } = props;
 
   const { contextMenuFuns } = useSortable();
 
@@ -67,11 +67,10 @@ export const SortableItemDefaultContent = <D, C>(
             margin-top: 0.25rem;
             margin-bottom: 0;
           `,
-          showTitle
-            ? ''
-            : css`
-                color: transparent;
-              `,
+          noLetters &&
+            css`
+              color: transparent;
+            `,
         )}
       >
         {name}

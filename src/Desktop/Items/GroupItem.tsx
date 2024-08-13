@@ -11,7 +11,14 @@ interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
 }
 
 const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
-  const { data, className, parentIds, itemIndex, onClick } = props;
+  const {
+    data,
+    className,
+    parentIds,
+    itemIndex,
+    onClick,
+    noLetters = false,
+  } = props;
   const {
     contextMenuFuns,
     setList,
@@ -272,6 +279,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
               color: #fff;
             }
           `,
+          noLetters &&
+            css`
+              color: transparent;
+            `,
         )}
         variants={variants}
         animate={isMove ? 'hidden' : 'visible'}

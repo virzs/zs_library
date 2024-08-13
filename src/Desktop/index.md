@@ -422,4 +422,102 @@ export default () => {
 };
 ```
 
+### 无字模式
+
+无字模式下开启文件夹仍显示名称
+
+```jsx
+import { Desktop } from 'zs_library';
+
+export default () => {
+  const list = [
+    {
+      id: '123',
+      data: {
+        name: '常用',
+      },
+      children: [
+        {
+          id: 2,
+          type: 'app',
+          data: {
+            name: 'two',
+          },
+        },
+        {
+          id: 1,
+          type: 'group',
+          data: {
+            name: 'one',
+          },
+          config: {
+            col: 2,
+            row: 2,
+          },
+          children:
+            // 生成20个子项
+            Array(60)
+              .fill(0)
+              .map((_, index) => ({
+                id: 'sdanka' + 1 + index,
+                type: 'app',
+                data: {
+                  name: `one-${index}`,
+                },
+              })),
+        },
+        {
+          id: 3,
+          type: 'app',
+          data: {
+            name: 'three',
+          },
+        },
+        {
+          id: 4,
+          type: 'app',
+          data: {
+            name: 'four',
+          },
+        },
+        {
+          id: 5,
+          type: 'app',
+          data: {
+            name: 'five',
+          },
+        },
+        {
+          id: 6,
+          type: 'app',
+          data: {
+            name: 'six',
+          },
+        },
+        {
+          id: 7,
+          type: 'app',
+          data: {
+            name: 'x',
+          },
+        },
+      ],
+    },
+  ];
+
+  return (
+    <div>
+      <Desktop
+        list={list}
+        storageKey="CUSTOM_NO_LETTERS"
+        onItemClick={(data) => {
+          setClickData(data);
+        }}
+        noLetters
+      />
+    </div>
+  );
+};
+```
+
 <API id="Desktop" />
