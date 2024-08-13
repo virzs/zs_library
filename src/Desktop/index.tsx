@@ -6,14 +6,15 @@ import { SortItem } from './types';
 export interface DesktopProps<D = any, C = any> extends SortableProps<D, C> {
   list: SortItem<D, C>[];
   onChange?: (list: SortItem<D, C>[]) => void;
+  readonly storageKey?: string;
 }
 
 const Desktop = <D, C>(props: DesktopProps<D, C>) => {
-  const { list, ...rest } = props;
+  const { list, onChange, storageKey, ...rest } = props;
 
   return (
     <div>
-      <SortableProvider list={list}>
+      <SortableProvider list={list} onChange={onChange} storageKey={storageKey}>
         <Sortable {...rest} />
       </SortableProvider>
     </div>

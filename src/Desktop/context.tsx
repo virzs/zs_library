@@ -74,12 +74,14 @@ interface SortableProviderProps<D, C> {
   children: ReactNode;
   list?: SortItem<D, C>[];
   onChange?: (list: SortItem<D, C>[]) => void;
+  readonly storageKey?: string;
 }
 
 export const SortableProvider = <D, C>({
   children,
   list: propList = [],
   onChange: propOnChange,
+  storageKey = 'ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG',
 }: SortableProviderProps<D, C>) => {
   const [contextMenuTimer, setContextMenuTimer] = useState<NodeJS.Timeout>();
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout>();
@@ -100,13 +102,10 @@ export const SortableProvider = <D, C>({
   );
 
   const [init, setInit] = useState(false);
-  const [localList, setLocalList] = useLocalStorageState<any[]>(
-    'ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG',
-    {
-      defaultValue: [],
-      listenStorageChange: true,
-    },
-  );
+  const [localList, setLocalList] = useLocalStorageState<any[]>(storageKey, {
+    defaultValue: [],
+    listenStorageChange: true,
+  });
 
   const hideContextMenu = () => {
     setContextMenu(null);
