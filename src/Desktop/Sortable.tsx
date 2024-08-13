@@ -267,6 +267,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         onClose={() => {
           setOpenGroupItemData(null);
         }}
+        onItemClick={onItemClick}
       />
     </div>
   );

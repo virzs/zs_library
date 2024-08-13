@@ -2,20 +2,21 @@
 
 import { css, cx } from '@emotion/css';
 import Dialog from 'rc-dialog';
-import React, { FC, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { useSortable } from '../../hook';
 import { ghostClass } from '../../style';
 import { SortItem } from '../../types';
 import SortableItem from '../SortableItem';
 
-interface GroupItemModalProps {
+interface GroupItemModalProps<D, C> {
   data: SortItem | null;
   onClose: () => void;
+  onItemClick?: (item: SortItem<D, C>) => void;
 }
 
-const GroupItemModal: FC<GroupItemModalProps> = (props) => {
-  const { data, onClose } = props;
+const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
+  const { data, onClose, onItemClick } = props;
   const {
     list,
     setList,
@@ -186,6 +187,7 @@ const GroupItemModal: FC<GroupItemModalProps> = (props) => {
                 data={item}
                 itemIndex={index}
                 showTitle
+                onClick={onItemClick}
               />
             );
           })}

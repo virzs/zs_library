@@ -11,7 +11,7 @@ interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
 }
 
 const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
-  const { data, className, parentIds, itemIndex } = props;
+  const { data, className, parentIds, itemIndex, onClick } = props;
   const {
     contextMenuFuns,
     setList,
@@ -214,6 +214,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             data.pageX = e.pageX;
             data.pageY = e.pageY;
             setOpenGroupItemData(data);
+          } else {
+            onClick?.(data);
           }
         }}
         {...contextMenuFuns(data)}

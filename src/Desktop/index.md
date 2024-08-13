@@ -346,4 +346,80 @@ export default () => {
 };
 ```
 
+### 点击事件
+
+```jsx
+import { Desktop } from 'zs_library';
+
+export default () => {
+  const list = [
+    {
+      id: '123',
+      data: {
+        name: '常用',
+      },
+      children: [
+        {
+          id: 2,
+          type: 'app',
+          data: {
+            name: 'two',
+          },
+        },
+        {
+          id: 3,
+          type: 'app',
+          data: {
+            name: 'three',
+          },
+        },
+        {
+          id: 4,
+          type: 'app',
+          data: {
+            name: 'four',
+          },
+        },
+        {
+          id: 5,
+          type: 'app',
+          data: {
+            name: 'five',
+          },
+        },
+        {
+          id: 6,
+          type: 'app',
+          data: {
+            name: 'six',
+          },
+        },
+        {
+          id: 7,
+          type: 'app',
+          data: {
+            name: 'x',
+          },
+        },
+      ],
+    },
+  ];
+
+  const [clickData, setClickData] = React.useState(null);
+
+  return (
+    <div>
+      <Desktop
+        list={list}
+        storageKey="CUSTOM_CLICK_METHOD"
+        onItemClick={(data) => {
+          setClickData(data);
+        }}
+      />
+      <p>点击事件结果：{JSON.stringify(clickData)}</p>
+    </div>
+  );
+};
+```
+
 <API id="Desktop" />
