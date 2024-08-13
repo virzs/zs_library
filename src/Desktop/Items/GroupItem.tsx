@@ -1,19 +1,16 @@
 import { css, cx } from '@emotion/css';
 import { motion } from 'framer-motion';
-import React, { FC, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { useSortable } from '../hook';
-import { SortItem } from '../types';
-import SortableItem from './SortableItem';
+import { SortItem, SortItemBaseConfig, SortItemBaseData } from '../types';
+import SortableItem, { SortableItemProps } from './SortableItem';
 
-interface SortableGroupItemProps {
-  data: SortItem;
-  className?: string;
-  parentIds: any[];
-  itemIndex: number;
+interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
+  data: SortItem<D, C>;
 }
 
-const SortableGroupItem: FC<SortableGroupItemProps> = (props) => {
+const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
   const { data, className, parentIds, itemIndex } = props;
   const {
     contextMenuFuns,
@@ -27,7 +24,7 @@ const SortableGroupItem: FC<SortableGroupItemProps> = (props) => {
 
   const { children, data: itemData, config: itemConfig } = data;
 
-  const { row = 1, col = 1 } = itemConfig ?? {};
+  const { row = 1, col = 1 } = (itemConfig ?? {}) as SortItemBaseConfig;
 
   const variants = {
     visible: { opacity: 1, scale: 1 },
@@ -186,7 +183,7 @@ const SortableGroupItem: FC<SortableGroupItemProps> = (props) => {
     <SortableItem
       data={data}
       itemIndex={itemIndex}
-      parentIds={parentIds?.join(',')}
+      parentIds={parentIds}
       childrenLength={children?.length}
       className={cx(
         css`
@@ -277,7 +274,7 @@ const SortableGroupItem: FC<SortableGroupItemProps> = (props) => {
         variants={variants}
         animate={isMove ? 'hidden' : 'visible'}
       >
-        {itemData?.name ?? '文件夹'}
+        {(itemData as SortItemBaseData)?.name ?? '文件夹'}
       </motion.p>
     </SortableItem>
   );

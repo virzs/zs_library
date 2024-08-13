@@ -19,6 +19,7 @@ export interface SortableProps<D, C> {
   pagingDotBuilder?: (item: SortItem<D, C>, index: number) => React.JSX.Element;
   sliderRef?: React.RefObject<Slider>;
   sliderProps?: Omit<Settings, 'appendDots' | 'customPaging'>;
+  onItemClick?: (item: SortItem<D, C>) => void;
 }
 
 const Sortable = <D, C>(props: SortableProps<D, C>) => {
@@ -29,6 +30,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     pagingDotsBuilder,
     sliderProps,
     sliderRef: _sliderRef,
+    onItemClick,
   } = props;
 
   const sliderRef = useRef<Slider>(null);
@@ -227,6 +229,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           data={item}
                           itemIndex={index}
                           parentIds={[l.id, item.id]}
+                          onClick={onItemClick}
                         />
                       );
                       break;
@@ -236,6 +239,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           key={item.id}
                           data={item}
                           itemIndex={index}
+                          onClick={onItemClick}
                         />
                       );
                       break;

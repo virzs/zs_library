@@ -12,10 +12,10 @@ export interface SortableItemProps<D, C> {
   className?: string;
   itemIndex: number;
   showTitle?: boolean;
-  onClick?: () => void;
+  onClick?: (item: SortItem<D, C>) => void;
   disabledDrag?: boolean;
   children?: React.ReactNode;
-  parentIds?: string;
+  parentIds?: (string | number)[];
   childrenLength?: number;
 }
 
@@ -117,9 +117,9 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
       <motion.div
         data-id={data.id}
         data-index={itemIndex}
-        data-parent-ids={parentIds}
+        data-parent-ids={parentIds?.join(',')}
         data-children-length={childrenLength}
-        onClick={onClick}
+        onClick={() => onClick?.(data)}
         className={cx(disabledDrag && 'drag-disabled', className)}
       >
         {children ?? <SortableItemDefaultContent {...props} />}
