@@ -1,18 +1,18 @@
 import React, { FC } from 'react';
-import Sortable from './Sortable';
+import Sortable, { SortableProps } from './Sortable';
 import { SortableProvider } from './context';
 
-export interface DesktopProps {
+export interface DesktopProps extends SortableProps {
   list: any[];
 }
 
 const Desktop: FC<DesktopProps> = (props) => {
-  const { list } = props;
+  const { list, ...rest } = props;
 
   return (
     <div>
       <SortableProvider list={list}>
-        <Sortable />
+        <Sortable {...rest} />
       </SortableProvider>
     </div>
   );

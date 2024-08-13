@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css';
-import React from 'react';
+import React, { FC, useMemo, useRef } from 'react';
 import Slider from 'react-slick';
 import { ReactSortable } from 'react-sortablejs';
 import 'slick-carousel/slick/slick-theme.css';
@@ -11,7 +11,16 @@ import SortableItem from './Items/SortableItem';
 import { useSortable } from './hook';
 import { ghostClass } from './style';
 
-const Sortable = () => {
+export interface SortableProps {
+  className?: string;
+  pagingLocation?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+const Sortable: FC<SortableProps> = (props) => {
+  const { pagingLocation = 'bottom', className } = props;
+
+  const sliderDotsRef = useRef<HTMLUListElement>(null);
+
   const {
     list,
     setList,
@@ -24,18 +33,66 @@ const Sortable = () => {
     setMoveTargetId,
   } = useSortable();
 
+  const paginingLocationCss = useMemo(() => {
+    return {
+      top: css`
+        display: flex;
+        flex-direction: column;
+        .slick-list {
+          order: 1;
+        }
+        .slick-dots {
+          position: static;
+        }
+      `,
+      bottom: css`
+        .slick-dots {
+          position: static;
+        }
+      `,
+      left: css`
+        .slick-dots {
+          position: absolute;
+          width: auto;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          transform: translateX(-100%);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          .slick-dots-default {
+            flex-direction: column;
+          }
+        }
+      `,
+      right: css`
+        .slick-dots {
+          position: absolute;
+          width: auto;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          transform: translateX(100%);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          .slick-dots-default {
+            flex-direction: column;
+          }
+        }
+      `,
+    }[pagingLocation];
+  }, [pagingLocation]);
+
   return (
-    <>
+    <div>
       <Slider
         infinite={false}
         dots
         touchMove={false}
         lazyLoad="anticipated"
-        className={css`
-          .slick-dots {
-            position: static;
-          }
-        `}
+        className={cx(paginingLocationCss, className)}
         customPaging={(i) => {
           return <div>{list[i].data?.name}</div>;
         }}
@@ -43,19 +100,30 @@ const Sortable = () => {
           return (
             <div>
               <ul
-                className={css`
-                  padding: 0.5rem;
-                  display: inline-flex;
-                  justify-content: center;
-                  align-items: center;
-                  gap: 0.5rem;
-                  background-color: rgba(0, 0, 0, 0.1);
-                  border-radius: 0.5rem;
-                  li {
-                    width: auto;
-                    height: auto;
-                  }
-                `}
+                ref={sliderDotsRef}
+                className={cx(
+                  'slick-dots-default',
+                  css`
+                    padding: 0.5rem;
+                    display: inline-flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 0.5rem;
+                    background-color: rgba(0, 0, 0, 0.1);
+                    border-radius: 0.5rem;
+                    .slick-active {
+                      background-color: rgba(0, 0, 0, 0.3);
+                      color: white;
+                      padding: 0.25rem;
+                      border-radius: 0.25rem;
+                    }
+                    li {
+                      margin: 0;
+                      width: auto;
+                      height: auto;
+                    }
+                  `,
+                )}
               >
                 {dots}
               </ul>
@@ -75,6 +143,8 @@ const Sortable = () => {
                     grid-auto-flow: dense;
                     grid-auto-rows: 96px;
                     place-items: center;
+                    justify-content: center;
+                    align-items: center;
                   `,
                 )}
                 animation={150}
@@ -165,7 +235,7 @@ const Sortable = () => {
           setOpenGroupItemData(null);
         }}
       />
-    </>
+    </div>
   );
 };
 
