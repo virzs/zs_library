@@ -167,8 +167,9 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                     `,
               )}
               onClick={(e) => {
+                if (j > 2) return;
                 e.stopPropagation();
-                if (j < 2) onClick?.(i);
+                onClick?.(i);
               }}
             ></motion.div>
           ))}
@@ -210,8 +211,9 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                     `,
               )}
               onClick={(e) => {
+                if (j > 2) return;
                 e.stopPropagation();
-                if (j < 2) onClick?.(i);
+                onClick?.(i);
               }}
             ></motion.div>
           ))}
