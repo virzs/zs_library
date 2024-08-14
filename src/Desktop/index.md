@@ -126,7 +126,7 @@ export default () => {
     },
   ];
 
-  return <Desktop list={list} />;
+  return <Desktop list={list} enableCaching={false} />;
 };
 ```
 
@@ -238,7 +238,11 @@ export default () => {
         </Button>
       </div>
       <div style={{ padding: '0 50px' }}>
-        <Desktop list={list} pagingLocation={pagingLocation} />
+        <Desktop
+          list={list}
+          enableCaching={false}
+          pagingLocation={pagingLocation}
+        />
       </div>
     </MantineProvider>
   );
@@ -246,6 +250,8 @@ export default () => {
 ```
 
 ### 本地存储
+
+默认启用本地存储，如果不需要则设置 `enableCaching = false`
 
 通过设置 `storageKey` 修改本地存储名，如果不设置，则默认 `ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG`
 
@@ -360,6 +366,28 @@ export default () => {
       },
       children: [
         {
+          id: 1,
+          type: 'group',
+          data: {
+            name: 'one',
+          },
+          config: {
+            col: 2,
+            row: 2,
+          },
+          children:
+            // 生成20个子项
+            Array(60)
+              .fill(0)
+              .map((_, index) => ({
+                id: 'sdanka' + 1 + index,
+                type: 'app',
+                data: {
+                  name: `one-${index}`,
+                },
+              })),
+        },
+        {
           id: 2,
           type: 'app',
           data: {
@@ -411,7 +439,7 @@ export default () => {
     <div>
       <Desktop
         list={list}
-        storageKey="CUSTOM_CLICK_METHOD"
+        enableCaching={false}
         onItemClick={(data) => {
           setClickData(data);
         }}
@@ -509,7 +537,7 @@ export default () => {
     <div>
       <Desktop
         list={list}
-        storageKey="CUSTOM_NO_LETTERS"
+        enableCaching={false}
         onItemClick={(data) => {
           setClickData(data);
         }}
@@ -605,28 +633,11 @@ export default () => {
 
   return (
     <div>
+      <Desktop list={list} enableCaching={false} theme="light" />
+      <Desktop list={list} enableCaching={false} theme="dark" />
       <Desktop
         list={list}
-        storageKey="CUSTOM_THEME_LIGHT"
-        onItemClick={(data) => {
-          setClickData(data);
-        }}
-        theme="light"
-      />
-      <Desktop
-        list={list}
-        storageKey="CUSTOM_THEME_DARK"
-        onItemClick={(data) => {
-          setClickData(data);
-        }}
-        theme="dark"
-      />
-      <Desktop
-        list={list}
-        storageKey="CUSTOM_THEME_CUSTOM"
-        onItemClick={(data) => {
-          setClickData(data);
-        }}
+        enableCaching={false}
         theme={{
           token: {
             itemNameColor: 'yellow',
