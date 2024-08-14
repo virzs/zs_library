@@ -12,6 +12,7 @@ import React, { FC } from 'react';
 import { configMap } from '../config';
 import { useSortable } from '../hook';
 import { SortItemBaseConfig } from '../types';
+import SortableUtils from '../utils';
 
 const itemVariants: Variants = {
   menuShow: {
@@ -30,12 +31,18 @@ interface ContextButtonProps {
 
 const ContextButton: FC<ContextButtonProps> = (props) => {
   const { icon, title, onClick } = props;
+  const { theme } = useSortable();
+
+  const { light, dark } = SortableUtils.getTheme(theme);
 
   return (
     <motion.div
       className={css`
         &:hover {
-          background-color: #f3f4f6;
+          background-color: ${light.contextMenuActiveColor};
+          @media (prefers-color-scheme: dark) {
+            background-color: ${dark.contextMenuActiveColor};
+          }
         }
         @media (prefers-color-scheme: dark) {
           color: black;
@@ -91,7 +98,10 @@ const ContextMenu: FC = () => {
     setShowInfoItemData,
     removeItem,
     updateItemConfig,
+    theme,
   } = useSortable();
+
+  const { light, dark } = SortableUtils.getTheme(theme);
 
   const { data } = contextMenu ?? {};
   const { config = {} } = data ?? {};
@@ -124,7 +134,12 @@ const ContextMenu: FC = () => {
               css`
                 border-radius: 0.5rem;
                 overflow: hidden;
-                box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+                background-color: ${light.contextMenuBackgroundColor};
+                box-shadow: 0 0 0.5rem ${light.contextMenuShadowColor};
+                @media (prefers-color-scheme: dark) {
+                  background-color: ${dark.contextMenuBackgroundColor};
+                  box-shadow: 0 0 0.5rem ${dark.contextMenuShadowColor};
+                }
               `,
             )}
           >
@@ -198,13 +213,23 @@ const ContextMenu: FC = () => {
                               line-height: 1.25rem;
                               cursor: pointer;
                               text-align: center;
+                              color: ${light.contextMenuTextColor};
+                              @media (prefers-color-scheme: dark) {
+                                color: ${dark.contextMenuTextColor};
+                              }
                               &:hover {
-                                background-color: #f3f4f6;
+                                background-color: ${light.contextMenuActiveColor};
+                                @media (prefers-color-scheme: dark) {
+                                  background-color: ${dark.contextMenuActiveColor};
+                                }
                               }
                             `,
                             `${config.row}x${config.col}` === it.key &&
                               css`
-                                background-color: #f3f4f6;
+                                background-color: ${light.contextMenuActiveColor};
+                                @media (prefers-color-scheme: dark) {
+                                  background-color: ${dark.contextMenuActiveColor};
+                                }
                               `,
                           )}
                           key={it.key}
@@ -222,9 +247,13 @@ const ContextMenu: FC = () => {
           <motion.div
             className={cx(
               css`
-                box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+                background-color: ${light.contextMenuBackgroundColor};
+                box-shadow: 0 0 0.5rem ${light.contextMenuShadowColor};
+                @media (prefers-color-scheme: dark) {
+                  background-color: ${dark.contextMenuBackgroundColor};
+                  box-shadow: 0 0 0.5rem ${dark.contextMenuShadowColor};
+                }
                 display: flex;
-                background-color: white;
                 margin-top: 0.5rem;
                 border-radius: 0.5rem;
                 overflow: hidden;

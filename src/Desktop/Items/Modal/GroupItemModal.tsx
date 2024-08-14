@@ -7,6 +7,7 @@ import { ReactSortable } from 'react-sortablejs';
 import { useSortable } from '../../hook';
 import { ghostClass } from '../../style';
 import { SortItem } from '../../types';
+import SortableUtils from '../../utils';
 import SortableItem from '../SortableItem';
 
 interface GroupItemModalProps<D, C> {
@@ -24,7 +25,10 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
     setMoveItemId,
     setMoveTargetId,
     updateItem,
+    theme,
   } = useSortable();
+
+  const { light, dark } = SortableUtils.getTheme(theme);
 
   const [name, setName] = useState('文件夹');
 
@@ -99,7 +103,10 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
               }
             }
             .rc-dialog-body {
-              background-color: rgba(255, 255, 255, 0.8);
+              background-color: ${light.groupItemModalBackgroundColor};
+              @media (prefers-color-scheme: dark) {
+                background-color: ${dark.groupItemModalBackgroundColor};
+              }
               border-radius: 0.5rem;
               overflow: hidden;
             }
@@ -186,7 +193,6 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
                 key={item.id}
                 data={item}
                 itemIndex={index}
-                showTitle
                 onClick={onItemClick}
               />
             );

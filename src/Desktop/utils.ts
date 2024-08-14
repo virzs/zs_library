@@ -1,3 +1,5 @@
+import { Theme, themeDark, themeLight } from './theme';
+
 class SortableUtils {
   public static uniqueArray = (array: any[]) =>
     array.reduce((acc, current) => {
@@ -8,6 +10,16 @@ class SortableUtils {
         return acc;
       }
     }, []);
+
+  public static getTheme = (theme?: Theme) => {
+    const tlt = themeLight.token;
+    const tdt = themeDark.token;
+
+    const tl = { ...tlt, ...theme?.token };
+    const dl = { ...tdt, ...theme?.token };
+
+    return { light: tl, dark: dl };
+  };
 }
 
 export default SortableUtils;

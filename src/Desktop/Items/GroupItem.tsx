@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { ReactSortable } from 'react-sortablejs';
 import { useSortable } from '../hook';
 import { SortItem, SortItemBaseConfig, SortItemBaseData } from '../types';
+import SortableUtils from '../utils';
 import SortableItem, { SortableItemProps } from './SortableItem';
 
 interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
@@ -27,7 +28,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     moveItemId,
     moveTargetId,
     setMoveTargetId,
+    theme,
   } = useSortable();
+
+  const { light, dark } = SortableUtils.getTheme(theme);
 
   const { children, data: itemData, config: itemConfig } = data;
 
@@ -54,6 +58,15 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     return moveTargetId === data.id;
   }, [data.id, moveTargetId]);
 
+  const childrenIconCss = css`
+    background-color: ${light.itemIconBackgroundColor};
+    box-shadow: 0 0 0.5rem ${light.itemIconShadowColor};
+    @media (prefers-color-scheme: dark) {
+      background-color: ${dark.itemIconBackgroundColor};
+      box-shadow: 0 0 0.5rem ${dark.itemIconShadowColor};
+    }
+  `;
+
   const sizedContent = () => {
     /** type app */
     if (childrenEmpty) {
@@ -64,10 +77,14 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             css`
               width: 100%;
               height: 100%;
-              background-color: green;
+              background-color: ${light.itemIconBackgroundColor};
               position: absolute;
               left: 0;
               top: 0;
+              border-radius: 0.75rem;
+              @media (prefers-color-scheme: dark) {
+                background-color: ${dark.itemIconBackgroundColor};
+              }
             `,
           )}
         ></motion.div>
@@ -90,12 +107,14 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           {_children?.slice(0, 9).map((i) => (
             <motion.div
               key={i.id}
-              className={css`
-                background-color: green;
-                border-radius: ${col === 1 ? '0.25rem' : '0.5rem'};
-                width: 100%;
-                height: 100%;
-              `}
+              className={cx(
+                childrenIconCss,
+                css`
+                  border-radius: ${col === 1 ? '0.25rem' : '0.5rem'};
+                  width: 100%;
+                  height: 100%;
+                `,
+              )}
             ></motion.div>
           ))}
         </motion.div>
@@ -119,9 +138,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             <motion.div
               key={i.id}
               className={cx(
-                css`
-                  background-color: green;
-                `,
+                childrenIconCss,
                 j < 2
                   ? css`
                       width: 52px;
@@ -161,9 +178,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             <motion.div
               key={i.id}
               className={cx(
-                css`
-                  background-color: green;
-                `,
+                childrenIconCss,
                 j < 2
                   ? css`
                       width: 52px;
@@ -207,8 +222,13 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           css`
             position: relative;
             border-radius: 0.75rem;
-            background-color: orange;
-            overflow: hidden;
+            background-color: ${light.groupItemIconBackgroundColor};
+            box-shadow: 0 0 0.5rem ${light.groupItemIconShadowColor};
+            @media (prefers-color-scheme: dark) {
+              background-color: ${dark.groupItemIconBackgroundColor};
+              box-shadow: 0 0 0.5rem ${dark.groupItemIconShadowColor};
+            }
+            /* overflow: hidden; */
             transition: all 0.3s;
             margin: 0 auto;
             width: ${col * 64 + 32 * (col - 1)}px;
@@ -275,8 +295,9 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             text-align: center;
             margin-top: 0.25rem;
             margin-bottom: 0;
+            color: ${light.itemNameColor};
             @media (prefers-color-scheme: dark) {
-              color: #fff;
+              color: ${dark.itemNameColor};
             }
           `,
           noLetters &&

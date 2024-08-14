@@ -6,6 +6,7 @@ import React from 'react';
 import ContextMenu from '../ContextMenu';
 import { useSortable } from '../hook';
 import { SortItem, SortItemBaseData } from '../types';
+import SortableUtils from '../utils';
 
 export interface SortableItemProps<D, C> {
   data: SortItem<D, C>;
@@ -24,7 +25,9 @@ export const SortableItemDefaultContent = <D, C>(
 ) => {
   const { data, noLetters = false } = props;
 
-  const { contextMenuFuns } = useSortable();
+  const { contextMenuFuns, theme } = useSortable();
+
+  const { light, dark } = SortableUtils.getTheme(theme);
 
   const { data: itemData = {} } = data;
 
@@ -36,14 +39,14 @@ export const SortableItemDefaultContent = <D, C>(
         className={css`
           width: 4rem;
           height: 4rem;
-          background-color: white;
+          background-color: ${light.itemIconBackgroundColor};
           border-radius: 0.75rem;
-          box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+          box-shadow: 0 0 0.5rem ${light.itemIconShadowColor};
           cursor: pointer;
           position: relative;
           @media (prefers-color-scheme: dark) {
-            background-color: #1a1a1a;
-            box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.5);
+            background-color: ${dark.itemIconBackgroundColor};
+            box-shadow: 0 0 0.5rem ${dark.itemIconShadowColor};
           }
         `}
         whileTap={{ scale: 0.9 }}
@@ -56,6 +59,10 @@ export const SortableItemDefaultContent = <D, C>(
             top: 0;
             width: 100%;
             height: 100%;
+            color: ${light.itemNameColor};
+            @media (prefers-color-scheme: dark) {
+              color: ${dark.itemNameColor};
+            }
           `}
           {...contextMenuFuns(data)}
         ></div>
@@ -66,6 +73,10 @@ export const SortableItemDefaultContent = <D, C>(
             text-align: center;
             margin-top: 0.25rem;
             margin-bottom: 0;
+            color: ${light.itemNameColor};
+            @media (prefers-color-scheme: dark) {
+              color: ${dark.itemNameColor};
+            }
           `,
           noLetters &&
             css`

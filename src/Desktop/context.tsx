@@ -3,10 +3,12 @@ import React, {
   ReactNode,
   createContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { Theme, themeDark, themeLight } from './theme';
 import { SortItem } from './types';
 import SortableUtils from './utils';
 
@@ -45,6 +47,7 @@ export interface SortableContextProps {
   /** 当前元素将要移动到的元素id */
   moveTargetId: string | number | null;
   setMoveTargetId: (e: string | number | null) => void;
+  theme?: Theme;
 }
 
 export const SortableContext = createContext<SortableContextProps>({
@@ -68,6 +71,7 @@ export const SortableContext = createContext<SortableContextProps>({
   setMoveItemId: () => {},
   moveTargetId: null,
   setMoveTargetId: () => {},
+  theme: themeLight,
 });
 
 interface SortableProviderProps<D, C> {
@@ -75,6 +79,7 @@ interface SortableProviderProps<D, C> {
   list?: SortItem<D, C>[];
   onChange?: (list: SortItem<D, C>[]) => void;
   readonly storageKey?: string;
+  readonly theme?: 'light' | 'dark' | Theme;
 }
 
 export const SortableProvider = <D, C>({
@@ -82,6 +87,7 @@ export const SortableProvider = <D, C>({
   list: propList = [],
   onChange: propOnChange,
   storageKey = 'ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG',
+  theme: propTheme,
 }: SortableProviderProps<D, C>) => {
   const [contextMenuTimer, setContextMenuTimer] = useState<NodeJS.Timeout>();
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout>();
@@ -310,6 +316,16 @@ export const SortableProvider = <D, C>({
     },
   );
 
+  const theme = useMemo(() => {
+    if (propTheme === 'light') {
+      return themeLight;
+    } else if (propTheme === 'dark') {
+      return themeDark;
+    } else {
+      return propTheme;
+    }
+  }, [propTheme]);
+
   return (
     <SortableContext.Provider
       value={{
@@ -333,6 +349,7 @@ export const SortableProvider = <D, C>({
         setMoveItemId,
         moveTargetId,
         setMoveTargetId,
+        theme,
       }}
     >
       {children}
