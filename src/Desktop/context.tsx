@@ -181,7 +181,8 @@ export const SortableProvider = <D, C>({
             if (
               parent.children?.filter(
                 (i) => !newList.some((k) => k.id === i.id),
-              ).length === 1
+              ).length === 1 &&
+              newList.length === 1
             ) {
               const current = { ...newList[0] };
 
