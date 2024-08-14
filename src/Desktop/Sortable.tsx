@@ -13,15 +13,46 @@ import { ghostClass } from './style';
 import { SortItem } from './types';
 
 export interface SortableProps<D, C> {
+  /**
+   * className
+   */
   className?: string;
+  /**
+   * 分页位置
+   */
   pagingLocation?: 'top' | 'bottom' | 'left' | 'right';
-  pagingDotsBuilder?: (dots: React.ReactNode) => React.JSX.Element;
-  pagingDotBuilder?: (item: SortItem<D, C>, index: number) => React.JSX.Element;
+  /**
+   * slider ref
+   */
   sliderRef?: React.RefObject<Slider>;
+  /**
+   * 自定义 slider 配置
+   * @see https://react-slick.neostack.com/docs/api
+   */
   sliderProps?: Omit<Settings, 'appendDots' | 'customPaging'>;
-  onItemClick?: (item: SortItem<D, C>) => void;
+  /**
+   * 是否不显示名称
+   */
   noLetters?: boolean;
+  /**
+   * 点击 item 事件
+   */
+  onItemClick?: (item: SortItem<D, C>) => void;
+  /**
+   * 自定义分页点容器
+   */
+  pagingDotsBuilder?: (dots: React.ReactNode) => React.JSX.Element;
+  /**
+   * 自定义分页点
+   */
+  pagingDotBuilder?: (item: SortItem<D, C>, index: number) => React.JSX.Element;
+  /**
+   * 自定义 item 渲染
+   */
   itemBuilder?: (item: SortItem<D, C>) => React.ReactNode;
+  /**
+   * 自定义 item 图标渲染
+   */
   itemIconBuilder?: (item: SortItem<D, C>) => React.ReactNode;
 }
 
