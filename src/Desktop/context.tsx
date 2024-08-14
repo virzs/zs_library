@@ -80,6 +80,7 @@ interface SortableProviderProps<D, C> {
   onChange?: (list: SortItem<D, C>[]) => void;
   readonly storageKey?: string;
   readonly theme?: 'light' | 'dark' | Theme;
+  enableCaching: boolean;
 }
 
 export const SortableProvider = <D, C>({
@@ -88,6 +89,7 @@ export const SortableProvider = <D, C>({
   onChange: propOnChange,
   storageKey = 'ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG',
   theme: propTheme,
+  enableCaching = true,
 }: SortableProviderProps<D, C>) => {
   const [contextMenuTimer, setContextMenuTimer] = useState<NodeJS.Timeout>();
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout>();
@@ -171,49 +173,63 @@ export const SortableProvider = <D, C>({
         const updateChild = (_list: SortItem[]): SortItem[] => {
           const parentId = _parentIds.shift();
           const parent = _list.find((item) => item.id === parentId);
+          const parentIndex = _list.findIndex((item) => item.id === parentId);
 
+          /** 当第一个 parentId 匹配到，但剩余 parentIds > 0 表明需要继续向下匹配 */
           if (_parentIds.length && parent) {
+            /** 如果当前数据实际只有一个子数据，则取消 group 状态 */
+            if (
+              parent.children?.filter(
+                (i) => !newList.some((k) => k.id === i.id),
+              ).length === 1
+            ) {
+              const current = { ...newList[0] };
+
+              _list.splice(parentIndex, 1, current);
+
+              propOnChange?.(_list);
+              return _list;
+            }
             parent.children = updateChild(parent.children || []);
+
+            _list.splice(parentIndex, 1, parent);
+
             propOnChange?.(_list);
             return _list;
-          } else if (parent) {
-            let newChildren: SortItem[] = [];
+          }
 
+          /** 当 parentIds = 0 且匹配到，表明当前为实际需要更新的数据 */
+          if (parent) {
+            /** 没有子数据，且有新增数据，则将当前数据更改为 group 类型 */
             if (!parent.children?.length && newList.length) {
-              newChildren = [{ ...parent }];
+              const current = { ...parent };
               parent.data = { name: '文件夹' };
               parent.type = 'group';
-              parent.children = [
-                ...newChildren,
-                ...newList.map((item) => ({ ...item })),
-              ];
+              parent.children = [current, ...newList];
               parent.id = uuidv4();
+
+              _list.splice(parentIndex, 1, parent);
 
               propOnChange?.(_list);
               return _list;
             }
 
             // ! 当前已经是 group 时，直接将 children 更改为最新的 list
-            parent.children = [
-              ...SortableUtils.uniqueArray(
-                newList.map((item) => ({ ...item })),
-              ),
-            ];
+            parent.children = SortableUtils.uniqueArray(newList);
+
+            _list.splice(parentIndex, 1, parent);
+
             propOnChange?.(_list);
             return _list;
-          } else {
-            return SortableUtils.uniqueArray(
-              newList.map((item) => ({ ...item })),
-            );
           }
+
+          return SortableUtils.uniqueArray(newList);
         };
 
-        return updateChild(_items);
+        return SortableUtils.uniqueArray(updateChild(_items));
       });
     } else {
-      const _newList = SortableUtils.uniqueArray(
-        newList.map((item) => ({ ...item })),
-      );
+      const _newList = SortableUtils.uniqueArray(newList);
 
       // ! 根节点直接排序
       propOnChange?.(_newList);
@@ -300,17 +316,19 @@ export const SortableProvider = <D, C>({
   }, [listStatus]);
 
   useEffect(() => {
+    if (!enableCaching) return;
     if (localList?.length && !init) {
       _setList(localList as any);
       setInit(true);
     }
-  }, [localList, init]);
+  }, [localList, init, enableCaching]);
 
   useDebounceEffect(
     () => {
+      if (!enableCaching) return;
       setLocalList(list);
     },
-    [list],
+    [list, enableCaching],
     {
       wait: 1000,
     },

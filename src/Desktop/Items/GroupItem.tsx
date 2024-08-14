@@ -29,6 +29,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     moveTargetId,
     setMoveTargetId,
     theme,
+    listStatus,
   } = useSortable();
 
   const { light, dark } = SortableUtils.getTheme(theme);
@@ -59,6 +60,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
   }, [data.id, moveTargetId]);
 
   const childrenIconCss = css`
+    cursor: pointer;
     background-color: ${light.itemIconBackgroundColor};
     box-shadow: 0 0 0.5rem ${light.itemIconShadowColor};
     @media (prefers-color-scheme: dark) {
@@ -75,6 +77,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           className={cx(
             'sortable-group-item',
             css`
+              cursor: pointer;
               width: 100%;
               height: 100%;
               background-color: ${light.itemIconBackgroundColor};
@@ -87,6 +90,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
               }
             `,
           )}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.(data);
+          }}
         ></motion.div>
       );
     }
@@ -115,6 +122,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                   height: 100%;
                 `,
               )}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick?.(i);
+              }}
             ></motion.div>
           ))}
         </motion.div>
@@ -155,6 +166,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                       grid-row: span 2 / span 2;
                     `,
               )}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (j < 2) onClick?.(i);
+              }}
             ></motion.div>
           ))}
         </motion.div>
@@ -194,6 +209,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                       grid-row: span 2 / span 2;
                     `,
               )}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (j < 2) onClick?.(i);
+              }}
             ></motion.div>
           ))}
         </motion.div>
@@ -220,6 +239,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
         className={cx(
           isMoveTarget ? '!scale-110' : '',
           css`
+            cursor: pointer;
             position: relative;
             border-radius: 0.75rem;
             background-color: ${light.groupItemIconBackgroundColor};
@@ -241,8 +261,6 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             data.pageX = e.pageX;
             data.pageY = e.pageY;
             setOpenGroupItemData(data);
-          } else {
-            onClick?.(data);
           }
         }}
         {...contextMenuFuns(data)}
@@ -270,6 +288,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 top: 0.375rem;
                 width: calc(100% - 0.75rem);
                 height: calc(100% - 0.75rem);
+                pointer-events: ${listStatus === null ? 'none' : 'auto'};
                 > * {
                   opacity: 0;
                 }

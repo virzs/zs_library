@@ -9,10 +9,11 @@ export interface DesktopProps<D = any, C = any> extends SortableProps<D, C> {
   onChange?: (list: SortItem<D, C>[]) => void;
   readonly storageKey?: string;
   theme?: 'light' | 'dark' | Theme;
+  enableCaching: boolean;
 }
 
 const Desktop = <D, C>(props: DesktopProps<D, C>) => {
-  const { list, onChange, storageKey, theme, ...rest } = props;
+  const { list, onChange, storageKey, theme, enableCaching, ...rest } = props;
 
   return (
     <div>
@@ -21,6 +22,7 @@ const Desktop = <D, C>(props: DesktopProps<D, C>) => {
         list={list}
         onChange={onChange}
         storageKey={storageKey}
+        enableCaching={enableCaching}
       >
         <Sortable {...rest} />
       </SortableProvider>

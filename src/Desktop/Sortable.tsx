@@ -124,7 +124,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                 (_sliderRef ?? sliderRef).current?.slickGoTo(i);
               }}
             >
-              {list[i].data?.name}
+              {list[i]?.data?.name}
             </div>
           );
         }}
