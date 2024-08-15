@@ -25,7 +25,7 @@ export interface DesktopProps<D = any, C = any> extends SortableProps<D, C> {
    * 是否启用缓存
    * @default true
    */
-  enableCaching: boolean;
+  enableCaching?: boolean;
 }
 
 const Desktop = <D, C>(props: DesktopProps<D, C>) => {

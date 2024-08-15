@@ -80,7 +80,7 @@ interface SortableProviderProps<D, C> {
   onChange?: (list: SortItem<D, C>[]) => void;
   readonly storageKey?: string;
   readonly theme?: 'light' | 'dark' | Theme;
-  enableCaching: boolean;
+  enableCaching?: boolean;
 }
 
 export const SortableProvider = <D, C>({
