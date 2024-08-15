@@ -642,4 +642,121 @@ export default () => {
 };
 ```
 
+### 渲染图标
+
+组件未提供默认的图标渲染方式，通过 `itemIconBuilder` 设置图标
+
+> ##注意## 如果需要完全自定义渲染，请使用 `itemBuilder`
+
+```jsx
+import { Desktop } from 'zs_library';
+
+export default () => {
+  const list = [
+    {
+      id: '123',
+      data: {
+        name: '常用',
+      },
+      children: [
+        {
+          id: 2,
+          type: 'app',
+          data: {
+            name: 'two',
+          },
+        },
+        {
+          id: 1,
+          type: 'group',
+          data: {
+            name: 'one',
+          },
+          config: {
+            col: 2,
+            row: 2,
+          },
+          children:
+            // 生成20个子项
+            Array(60)
+              .fill(0)
+              .map((_, index) => ({
+                id: 'sdanka' + 1 + index,
+                type: 'app',
+                data: {
+                  name: `one-${index}`,
+                },
+              })),
+        },
+        {
+          id: 3,
+          type: 'app',
+          data: {
+            name: 'three',
+          },
+        },
+        {
+          id: 4,
+          type: 'app',
+          data: {
+            name: 'four',
+          },
+        },
+        {
+          id: 5,
+          type: 'app',
+          data: {
+            name: 'five',
+          },
+        },
+        {
+          id: 6,
+          type: 'app',
+          data: {
+            name: 'six',
+          },
+        },
+        {
+          id: 7,
+          type: 'app',
+          data: {
+            name: 'x',
+          },
+        },
+      ],
+    },
+  ];
+
+  return (
+    <div>
+      <Desktop
+        list={list}
+        enableCaching={false}
+        itemIconBuilder={(data) => {
+          const images = {
+            1: 'https://dailybing.com/api/v1/20240815zh-cnMRK',
+            2: 'https://dailybing.com/api/v1/20240814zh-cnMRK',
+            3: 'https://dailybing.com/api/v1/20240813zh-cnMRK',
+            4: 'https://dailybing.com/api/v1/20240812zh-cnMRK',
+            5: 'https://dailybing.com/api/v1/20240811zh-cnMRK',
+          };
+          return (
+            <img
+              style={{
+                width: '100%',
+                height: '100%',
+              }}
+              src={
+                images[data.id] ??
+                'https://dailybing.com/api/v1/20240815zh-cnMRK'
+              }
+            />
+          );
+        }}
+      />
+    </div>
+  );
+};
+```
+
 <API id="Desktop" />

@@ -14,10 +14,11 @@ interface GroupItemModalProps<D, C> {
   data: SortItem | null;
   onClose: () => void;
   onItemClick?: (item: SortItem<D, C>) => void;
+  itemIconBuilder?: (item: SortItem<D, C>) => React.ReactNode;
 }
 
 const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
-  const { data, onClose, onItemClick } = props;
+  const { data, onClose, onItemClick, itemIconBuilder } = props;
   const {
     list,
     setList,
@@ -194,6 +195,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
                 data={item}
                 itemIndex={index}
                 onClick={onItemClick}
+                itemIconBuilder={itemIconBuilder}
               />
             );
           })}

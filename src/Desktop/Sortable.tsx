@@ -66,6 +66,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     sliderRef: _sliderRef,
     onItemClick,
     noLetters,
+    itemBuilder,
+    itemIconBuilder,
   } = props;
 
   const sliderRef = useRef<Slider>(null);
@@ -256,6 +258,10 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                 {(l.children ?? []).map((item, index) => {
                   let el;
 
+                  if (itemBuilder) {
+                    return itemBuilder(item);
+                  }
+
                   switch (item.type) {
                     case 'group':
                     case 'app':
@@ -267,6 +273,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           parentIds={[l.id, item.id]}
                           onClick={onItemClick}
                           noLetters={noLetters}
+                          itemIconBuilder={itemIconBuilder}
                         />
                       );
                       break;
@@ -278,6 +285,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           itemIndex={index}
                           onClick={onItemClick}
                           noLetters={noLetters}
+                          itemIconBuilder={itemIconBuilder}
                         />
                       );
                       break;
@@ -306,6 +314,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
           setOpenGroupItemData(null);
         }}
         onItemClick={onItemClick}
+        itemIconBuilder={itemIconBuilder}
       />
     </div>
   );

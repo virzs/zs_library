@@ -19,6 +19,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     itemIndex,
     onClick,
     noLetters = false,
+    itemIconBuilder,
   } = props;
   const {
     contextMenuFuns,
@@ -60,6 +61,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
   }, [data.id, moveTargetId]);
 
   const childrenIconCss = css`
+    overflow: hidden;
     cursor: pointer;
     background-color: ${light.itemIconBackgroundColor};
     box-shadow: 0 0 0.5rem ${light.itemIconShadowColor};
@@ -77,6 +79,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           className={cx(
             'sortable-group-item',
             css`
+              overflow: hidden;
               cursor: pointer;
               width: 100%;
               height: 100%;
@@ -94,7 +97,9 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             e.stopPropagation();
             onClick?.(data);
           }}
-        ></motion.div>
+        >
+          {itemIconBuilder?.(data)}
+        </motion.div>
       );
     }
     if ((row === 1 && col === 1) || (row === 2 && col === 2)) {
@@ -126,7 +131,9 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 e.stopPropagation();
                 onClick?.(i);
               }}
-            ></motion.div>
+            >
+              {itemIconBuilder?.(i)}
+            </motion.div>
           ))}
         </motion.div>
       );
@@ -171,7 +178,9 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 e.stopPropagation();
                 onClick?.(i);
               }}
-            ></motion.div>
+            >
+              {itemIconBuilder?.(i)}
+            </motion.div>
           ))}
         </motion.div>
       );
@@ -215,7 +224,9 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 e.stopPropagation();
                 onClick?.(i);
               }}
-            ></motion.div>
+            >
+              {itemIconBuilder?.(i)}
+            </motion.div>
           ))}
         </motion.div>
       );

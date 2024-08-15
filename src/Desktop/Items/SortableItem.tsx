@@ -18,12 +18,13 @@ export interface SortableItemProps<D, C> {
   children?: React.ReactNode;
   parentIds?: (string | number)[];
   childrenLength?: number;
+  itemIconBuilder?: (item: SortItem<D, C>) => React.ReactNode;
 }
 
 export const SortableItemDefaultContent = <D, C>(
   props: SortableItemProps<D, C>,
 ) => {
-  const { data, noLetters = false } = props;
+  const { data, noLetters = false, itemIconBuilder } = props;
 
   const { contextMenuFuns, theme } = useSortable();
 
@@ -44,6 +45,7 @@ export const SortableItemDefaultContent = <D, C>(
           box-shadow: 0 0 0.5rem ${light.itemIconShadowColor};
           cursor: pointer;
           position: relative;
+          overflow: hidden;
           @media (prefers-color-scheme: dark) {
             background-color: ${dark.itemIconBackgroundColor};
             box-shadow: 0 0 0.5rem ${dark.itemIconShadowColor};
@@ -65,7 +67,9 @@ export const SortableItemDefaultContent = <D, C>(
             }
           `}
           {...contextMenuFuns(data)}
-        ></div>
+        >
+          {itemIconBuilder?.(data)}
+        </div>
       </motion.div>
       <motion.p
         className={cx(
