@@ -535,14 +535,7 @@ export default () => {
 
   return (
     <div>
-      <Desktop
-        list={list}
-        enableCaching={false}
-        onItemClick={(data) => {
-          setClickData(data);
-        }}
-        noLetters
-      />
+      <Desktop list={list} enableCaching={false} noLetters />
     </div>
   );
 };
