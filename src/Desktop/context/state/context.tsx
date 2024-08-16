@@ -1,16 +1,8 @@
 import { useDebounceEffect, useLocalStorageState } from 'ahooks';
-import React, {
-  ReactNode,
-  createContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Theme, themeDark, themeLight } from './theme';
-import { SortItem } from './types';
-import SortableUtils from './utils';
+import { SortItem } from '../../types';
+import SortableUtils from '../../utils';
 
 interface ContextMenu {
   rect: DOMRect;
@@ -21,14 +13,14 @@ interface ContextMenu {
 
 type ListStatus = 'onMove';
 
-export interface SortableContextProps {
+export interface SortableState {
   list: SortItem[];
   setList: any;
   contextMenu: ContextMenu | null;
   setContextMenu: (e: ContextMenu | null) => void;
   listStatus: ListStatus | null;
   setListStatus: (e: ListStatus | null) => void;
-  contextMenuFuns: (data: any) => any;
+  contextMenuFuns: (data: any, enable: boolean) => any;
   hideContextMenu: () => void;
   /** 点击右键菜单信息数据 */
   showInfoItemData: SortItem | null;
@@ -47,10 +39,9 @@ export interface SortableContextProps {
   /** 当前元素将要移动到的元素id */
   moveTargetId: string | number | null;
   setMoveTargetId: (e: string | number | null) => void;
-  theme?: Theme;
 }
 
-export const SortableContext = createContext<SortableContextProps>({
+export const SortableStateContext = createContext<SortableState>({
   list: [],
   setList: () => {},
   contextMenu: null,
@@ -71,26 +62,27 @@ export const SortableContext = createContext<SortableContextProps>({
   setMoveItemId: () => {},
   moveTargetId: null,
   setMoveTargetId: () => {},
-  theme: themeLight,
 });
 
-interface SortableProviderProps<D, C> {
-  children: ReactNode;
+export interface SortableStateProviderProps<D, C> {
   list?: SortItem<D, C>[];
   onChange?: (list: SortItem<D, C>[]) => void;
   readonly storageKey?: string;
-  readonly theme?: 'light' | 'dark' | Theme;
   enableCaching?: boolean;
+  children: React.ReactNode;
 }
 
-export const SortableProvider = <D, C>({
-  children,
-  list: propList = [],
-  onChange: propOnChange,
-  storageKey = 'ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG',
-  theme: propTheme,
-  enableCaching = true,
-}: SortableProviderProps<D, C>) => {
+export const SortableStateProvider = <D, C>(
+  props: SortableStateProviderProps<D, C>,
+) => {
+  const {
+    children,
+    list: propList = [],
+    onChange: propOnChange,
+    storageKey = 'ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG',
+    enableCaching = true,
+  } = props;
+
   const [contextMenuTimer, setContextMenuTimer] = useState<NodeJS.Timeout>();
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout>();
   const [listStatus, setListStatus] = useState<ListStatus | null>(null);
@@ -127,7 +119,7 @@ export const SortableProvider = <D, C>({
     clearTimeout(contextMenuTimer);
   };
 
-  const contextMenuFuns = (data: any) => {
+  const contextMenuFuns = (data: any, enable = true) => {
     const { config = {} } = data;
 
     if (config.allowContextMenu === false) {
@@ -137,6 +129,7 @@ export const SortableProvider = <D, C>({
       onMouseDown: (e: any) => {
         setContextMenuTimer(
           setTimeout(() => {
+            if (!enable) return;
             // 解决闭包导致拖拽时右键菜单不消失的问题
             if (listStatusRef.current !== null) return;
             getItemRectAndSetContextMenu(e, data);
@@ -157,6 +150,7 @@ export const SortableProvider = <D, C>({
         setContextMenuTimer(undefined);
       },
       onContextMenu: (e: any) => {
+        if (!enable) return;
         e.preventDefault();
         getItemRectAndSetContextMenu(e, data);
       },
@@ -335,18 +329,8 @@ export const SortableProvider = <D, C>({
     },
   );
 
-  const theme = useMemo(() => {
-    if (propTheme === 'light') {
-      return themeLight;
-    } else if (propTheme === 'dark') {
-      return themeDark;
-    } else {
-      return propTheme;
-    }
-  }, [propTheme]);
-
   return (
-    <SortableContext.Provider
+    <SortableStateContext.Provider
       value={{
         list,
         setList: _setList,
@@ -368,10 +352,9 @@ export const SortableProvider = <D, C>({
         setMoveItemId,
         moveTargetId,
         setMoveTargetId,
-        theme,
       }}
     >
       {children}
-    </SortableContext.Provider>
+    </SortableStateContext.Provider>
   );
 };

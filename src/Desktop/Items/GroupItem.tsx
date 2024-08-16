@@ -2,7 +2,8 @@ import { css, cx } from '@emotion/css';
 import { motion } from 'framer-motion';
 import React, { useMemo } from 'react';
 import { ReactSortable } from 'react-sortablejs';
-import { useSortable } from '../hook';
+import { useSortableConfig } from '../context/config/hooks';
+import { useSortableState } from '../context/state/hooks';
 import { SortItem, SortItemBaseConfig, SortItemBaseData } from '../types';
 import SortableUtils from '../utils';
 import SortableItem, { SortableItemProps } from './SortableItem';
@@ -19,7 +20,6 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     itemIndex,
     onClick,
     noLetters = false,
-    itemIconBuilder,
   } = props;
   const {
     contextMenuFuns,
@@ -29,9 +29,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     moveItemId,
     moveTargetId,
     setMoveTargetId,
-    theme,
     listStatus,
-  } = useSortable();
+  } = useSortableState();
+
+  const { itemIconBuilder, theme, contextMenu } = useSortableConfig();
 
   const { light, dark } = SortableUtils.getTheme(theme);
 
@@ -276,7 +277,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             setOpenGroupItemData(data);
           }
         }}
-        {...contextMenuFuns(data)}
+        {...contextMenuFuns(data, contextMenu !== false)}
       >
         <motion.div
           className={css`

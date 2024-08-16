@@ -4,7 +4,8 @@ import { css, cx } from '@emotion/css';
 import Dialog from 'rc-dialog';
 import React, { useEffect, useState } from 'react';
 import { ReactSortable } from 'react-sortablejs';
-import { useSortable } from '../../hook';
+import { useSortableConfig } from '../../context/config/hooks';
+import { useSortableState } from '../../context/state/hooks';
 import { ghostClass } from '../../style';
 import { SortItem } from '../../types';
 import SortableUtils from '../../utils';
@@ -14,11 +15,10 @@ interface GroupItemModalProps<D, C> {
   data: SortItem | null;
   onClose: () => void;
   onItemClick?: (item: SortItem<D, C>) => void;
-  itemIconBuilder?: (item: SortItem<D, C>) => React.ReactNode;
 }
 
 const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
-  const { data, onClose, onItemClick, itemIconBuilder } = props;
+  const { data, onClose, onItemClick } = props;
   const {
     list,
     setList,
@@ -26,8 +26,9 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
     setMoveItemId,
     setMoveTargetId,
     updateItem,
-    theme,
-  } = useSortable();
+  } = useSortableState();
+
+  const { theme } = useSortableConfig();
 
   const { light, dark } = SortableUtils.getTheme(theme);
 
@@ -195,7 +196,6 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
                 data={item}
                 itemIndex={index}
                 onClick={onItemClick}
-                itemIconBuilder={itemIconBuilder}
               />
             );
           })}

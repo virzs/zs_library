@@ -10,8 +10,9 @@ import {
 import { AnimatePresence, Variants, motion } from 'framer-motion';
 import React, { FC } from 'react';
 import { configMap } from '../config';
-import { useSortable } from '../hook';
-import { SortItemBaseConfig } from '../types';
+import { useSortableConfig } from '../context/config/hooks';
+import { useSortableState } from '../context/state/hooks';
+import { SortItem, SortItemBaseConfig } from '../types';
 import SortableUtils from '../utils';
 
 const itemVariants: Variants = {
@@ -31,7 +32,7 @@ interface ContextButtonProps {
 
 const ContextButton: FC<ContextButtonProps> = (props) => {
   const { icon, title, onClick } = props;
-  const { theme } = useSortable();
+  const { theme } = useSortableConfig();
 
   const { light, dark } = SortableUtils.getTheme(theme);
 
@@ -90,7 +91,27 @@ const ContextButton: FC<ContextButtonProps> = (props) => {
   );
 };
 
-const ContextMenu: FC = () => {
+export interface ContextMenuProps<D, C> {
+  showShareButton?: boolean;
+  showInfoButton?: boolean;
+  showRemoveButton?: boolean;
+  showSizeButton?: boolean;
+  onShareClick?: (item: SortItem<D, C>) => void;
+  onInfoClick?: (item: SortItem<D, C>) => void;
+  onRemoveClick?: (item: SortItem<D, C>, remove: (id: string) => void) => void;
+}
+
+const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
+  const {
+    showInfoButton = true,
+    showRemoveButton = true,
+    showShareButton = true,
+    showSizeButton = true,
+    onInfoClick,
+    onShareClick,
+    onRemoveClick,
+  } = props;
+
   const {
     contextMenu,
     setContextMenu,
@@ -98,8 +119,9 @@ const ContextMenu: FC = () => {
     setShowInfoItemData,
     removeItem,
     updateItemConfig,
-    theme,
-  } = useSortable();
+  } = useSortableState();
+
+  const { theme } = useSortableConfig();
 
   const { light, dark } = SortableUtils.getTheme(theme);
 
@@ -143,7 +165,7 @@ const ContextMenu: FC = () => {
               `,
             )}
           >
-            {config.allowResize !== false && (
+            {showSizeButton && config.allowResize !== false && (
               <motion.ul
                 className={css`
                   background-color: white;
@@ -254,6 +276,8 @@ const ContextMenu: FC = () => {
                   box-shadow: 0 0 0.5rem ${dark.contextMenuShadowColor};
                 }
                 display: flex;
+                justify-content: space-around;
+                align-items: center;
                 margin-top: 0.5rem;
                 border-radius: 0.5rem;
                 overflow: hidden;
@@ -261,27 +285,50 @@ const ContextMenu: FC = () => {
               `,
             )}
           >
-            <ContextButton icon={<RiShareLine size={20} />} title="分享" />
-            <ContextButton
-              icon={<RiInformationLine size={20} />}
-              title="信息"
-              onClick={() => {
-                setShowInfoItemData({
-                  ...contextMenu.data,
-                  pageX: contextMenu.pageX,
-                  pageY: contextMenu.pageY,
-                });
-                hideContextMenu();
-              }}
-            />
-            <ContextButton
-              icon={<RiCloseCircleLine size={20} />}
-              title="移除"
-              onClick={() => {
-                setContextMenu(null);
-                removeItem(contextMenu.data.id);
-              }}
-            />
+            {showShareButton && (
+              <ContextButton
+                icon={<RiShareLine size={20} />}
+                title="分享"
+                onClick={() => {
+                  if (onShareClick) {
+                    onShareClick(contextMenu.data);
+                    return;
+                  }
+                }}
+              />
+            )}
+            {showInfoButton && (
+              <ContextButton
+                icon={<RiInformationLine size={20} />}
+                title="信息"
+                onClick={() => {
+                  if (onInfoClick) {
+                    onInfoClick(contextMenu.data);
+                    return;
+                  }
+                  setShowInfoItemData({
+                    ...contextMenu.data,
+                    pageX: contextMenu.pageX,
+                    pageY: contextMenu.pageY,
+                  });
+                  hideContextMenu();
+                }}
+              />
+            )}
+            {showRemoveButton && (
+              <ContextButton
+                icon={<RiCloseCircleLine size={20} />}
+                title="移除"
+                onClick={() => {
+                  if (onRemoveClick) {
+                    onRemoveClick(contextMenu.data, removeItem);
+                    return;
+                  }
+                  setContextMenu(null);
+                  removeItem(contextMenu.data.id);
+                }}
+              />
+            )}
           </motion.div>
         </motion.div>
       )}

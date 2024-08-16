@@ -4,7 +4,8 @@ import RcTooltip from 'rc-tooltip';
 import 'rc-tooltip/assets/bootstrap_white.css';
 import React from 'react';
 import ContextMenu from '../ContextMenu';
-import { useSortable } from '../hook';
+import { useSortableConfig } from '../context/config/hooks';
+import { useSortableState } from '../context/state/hooks';
 import { SortItem, SortItemBaseData } from '../types';
 import SortableUtils from '../utils';
 
@@ -18,15 +19,15 @@ export interface SortableItemProps<D, C> {
   children?: React.ReactNode;
   parentIds?: (string | number)[];
   childrenLength?: number;
-  itemIconBuilder?: (item: SortItem<D, C>) => React.ReactNode;
 }
 
 export const SortableItemDefaultContent = <D, C>(
   props: SortableItemProps<D, C>,
 ) => {
-  const { data, noLetters = false, itemIconBuilder } = props;
+  const { data, noLetters = false } = props;
 
-  const { contextMenuFuns, theme } = useSortable();
+  const { contextMenuFuns } = useSortableState();
+  const { itemIconBuilder, theme, contextMenu } = useSortableConfig();
 
   const { light, dark } = SortableUtils.getTheme(theme);
 
@@ -66,7 +67,7 @@ export const SortableItemDefaultContent = <D, C>(
               color: ${dark.itemNameColor};
             }
           `}
-          {...contextMenuFuns(data)}
+          {...contextMenuFuns(data, contextMenu !== false)}
         >
           {itemIconBuilder?.(data)}
         </div>
@@ -106,7 +107,8 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
     childrenLength,
   } = props;
 
-  const { contextMenu, setContextMenu } = useSortable();
+  const { contextMenu, setContextMenu } = useSortableState();
+  const { contextMenu: configContextMenu } = useSortableConfig();
 
   return (
     <RcTooltip
@@ -119,7 +121,7 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
           border: none;
         }
       `}
-      overlay={<ContextMenu />}
+      overlay={<ContextMenu {...configContextMenu} />}
       visible={contextMenu?.data.id === data.id}
       onVisibleChange={(visible) => {
         if (!visible) {

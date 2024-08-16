@@ -8,7 +8,8 @@ import SortableGroupItem from './Items/GroupItem';
 import GroupItemModal from './Items/Modal/GroupItemModal';
 import ItemInfoModal from './Items/Modal/InfoModal';
 import SortableItem from './Items/SortableItem';
-import { useSortable } from './hook';
+import { useSortableConfig } from './context/config/hooks';
+import { useSortableState } from './context/state/hooks';
 import { ghostClass } from './style';
 import { SortItem } from './types';
 
@@ -31,43 +32,18 @@ export interface SortableProps<D, C> {
    */
   sliderProps?: Omit<Settings, 'appendDots' | 'customPaging'>;
   /**
-   * 是否不显示名称
-   */
-  noLetters?: boolean;
-  /**
    * 点击 item 事件
    */
   onItemClick?: (item: SortItem<D, C>) => void;
-  /**
-   * 自定义分页点容器
-   */
-  pagingDotsBuilder?: (dots: React.ReactNode) => React.JSX.Element;
-  /**
-   * 自定义分页点
-   */
-  pagingDotBuilder?: (item: SortItem<D, C>, index: number) => React.JSX.Element;
-  /**
-   * 自定义 item 渲染
-   */
-  itemBuilder?: (item: SortItem<D, C>) => React.ReactNode;
-  /**
-   * 自定义 item 图标渲染
-   */
-  itemIconBuilder?: (item: SortItem<D, C>) => React.ReactNode;
 }
 
 const Sortable = <D, C>(props: SortableProps<D, C>) => {
   const {
     pagingLocation = 'bottom',
     className,
-    pagingDotBuilder,
-    pagingDotsBuilder,
     sliderProps,
     sliderRef: _sliderRef,
     onItemClick,
-    noLetters,
-    itemBuilder,
-    itemIconBuilder,
   } = props;
 
   const sliderRef = useRef<Slider>(null);
@@ -83,7 +59,10 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setOpenGroupItemData,
     setMoveItemId,
     setMoveTargetId,
-  } = useSortable();
+  } = useSortableState();
+
+  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } =
+    useSortableConfig();
 
   const paginingLocationCss = useMemo(() => {
     return {
@@ -272,8 +251,6 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           itemIndex={index}
                           parentIds={[l.id, item.id]}
                           onClick={onItemClick}
-                          noLetters={noLetters}
-                          itemIconBuilder={itemIconBuilder}
                         />
                       );
                       break;
@@ -284,8 +261,6 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           data={item}
                           itemIndex={index}
                           onClick={onItemClick}
-                          noLetters={noLetters}
-                          itemIconBuilder={itemIconBuilder}
                         />
                       );
                       break;
@@ -314,7 +289,6 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
           setOpenGroupItemData(null);
         }}
         onItemClick={onItemClick}
-        itemIconBuilder={itemIconBuilder}
       />
     </div>
   );
