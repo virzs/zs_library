@@ -1,5 +1,5 @@
 import React from 'react';
-import Sortable from './Sortable';
+import Sortable, { SortableProps } from './Sortable';
 import {
   SortableConfigProvider,
   SortableConfigProviderProps,
@@ -10,7 +10,8 @@ import {
 } from './context/state/context';
 
 export interface DesktopProps<D = any, C = any>
-  extends Omit<SortableStateProviderProps<D, C>, 'children'>,
+  extends SortableProps<D, C>,
+    Omit<SortableStateProviderProps<D, C>, 'children'>,
     Omit<SortableConfigProviderProps<D, C>, 'children'> {}
 
 const Desktop = <D, C>(props: DesktopProps<D, C>) => {
@@ -49,13 +50,11 @@ const Desktop = <D, C>(props: DesktopProps<D, C>) => {
   };
 
   return (
-    <div>
-      <SortableStateProvider<D, C> {...state}>
-        <SortableConfigProvider<D, C> {...config}>
-          <Sortable<D, C> {...rest} />
-        </SortableConfigProvider>
-      </SortableStateProvider>
-    </div>
+    <SortableStateProvider<D, C> {...state}>
+      <SortableConfigProvider<D, C> {...config}>
+        <Sortable<D, C> {...rest} />
+      </SortableConfigProvider>
+    </SortableStateProvider>
   );
 };
 

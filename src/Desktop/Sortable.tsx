@@ -13,15 +13,19 @@ import { useSortableState } from './context/state/hooks';
 import { ghostClass } from './style';
 import { SortItem } from './types';
 
+export interface Pagination {
+  position?: 'top' | 'bottom' | 'left' | 'right';
+}
+
 export interface SortableProps<D, C> {
   /**
    * className
    */
   className?: string;
   /**
-   * 分页位置
+   * 分页
    */
-  pagingLocation?: 'top' | 'bottom' | 'left' | 'right';
+  pagination?: Pagination | false;
   /**
    * slider ref
    */
@@ -39,7 +43,7 @@ export interface SortableProps<D, C> {
 
 const Sortable = <D, C>(props: SortableProps<D, C>) => {
   const {
-    pagingLocation = 'bottom',
+    pagination = { position: 'bottom' },
     className,
     sliderProps,
     sliderRef: _sliderRef,
@@ -65,6 +69,10 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     useSortableConfig();
 
   const paginingLocationCss = useMemo(() => {
+    if (pagination === false) {
+      return {};
+    }
+
     return {
       top: css`
         display: flex;
@@ -113,8 +121,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
           }
         }
       `,
-    }[pagingLocation];
-  }, [pagingLocation]);
+    }[pagination.position ?? 'bottom'];
+  }, [pagination]);
 
   return (
     <div>
@@ -143,6 +151,9 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         appendDots={(dots) => {
           if (pagingDotsBuilder) {
             return pagingDotsBuilder(dots);
+          }
+          if (pagination === false) {
+            return <div></div>;
           }
           return (
             <div>

@@ -65,9 +65,21 @@ export const SortableStateContext = createContext<SortableState>({
 });
 
 export interface SortableStateProviderProps<D, C> {
+  /**
+   * 列表数据
+   */
   list?: SortItem<D, C>[];
+  /**
+   * 列表数据变更事件
+   */
   onChange?: (list: SortItem<D, C>[]) => void;
+  /**
+   * 本地存储 key
+   */
   readonly storageKey?: string;
+  /**
+   * 是否启用缓存
+   */
   enableCaching?: boolean;
   children: React.ReactNode;
 }

@@ -130,9 +130,11 @@ export default () => {
 };
 ```
 
-### 自定义分页位置
+### 分页配置
 
 > **注意** 如果使用自定义分页，不要设置分页位置
+
+#### 自定义分页位置
 
 ```jsx
 import React from 'react';
@@ -241,11 +243,90 @@ export default () => {
         <Desktop
           list={list}
           enableCaching={false}
-          pagingLocation={pagingLocation}
+          pagination={{ position: pagingLocation }}
         />
       </div>
     </MantineProvider>
   );
+};
+```
+
+#### 隐藏分页
+
+```jsx
+import React from 'react';
+import { Desktop } from 'zs_library';
+
+export default () => {
+  const list = [
+    {
+      id: '123',
+      data: {
+        name: '常用',
+      },
+      children: [
+        {
+          id: 2,
+          type: 'app',
+          data: {
+            name: 'two',
+          },
+        },
+        {
+          id: 3,
+          type: 'app',
+          data: {
+            name: 'three',
+          },
+        },
+        {
+          id: 4,
+          type: 'app',
+          data: {
+            name: 'four',
+          },
+        },
+        {
+          id: 5,
+          type: 'app',
+          data: {
+            name: 'five',
+          },
+        },
+        {
+          id: 6,
+          type: 'app',
+          data: {
+            name: 'six',
+          },
+        },
+        {
+          id: 7,
+          type: 'app',
+          data: {
+            name: 'x',
+          },
+        },
+      ],
+    },
+    {
+      id: '12313eqw',
+      data: {
+        name: '开发',
+      },
+      children: [
+        {
+          id: 90,
+          type: 'app',
+          data: {
+            name: 'x90',
+          },
+        },
+      ],
+    },
+  ];
+
+  return <Desktop list={list} enableCaching={false} pagination={false} />;
 };
 ```
 
