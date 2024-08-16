@@ -759,4 +759,194 @@ export default () => {
 };
 ```
 
+### 禁用菜单
+
+设置 `contextMenu = false` 关闭右键菜单
+
+```jsx
+import { Desktop } from 'zs_library';
+
+export default () => {
+  const list = [
+    {
+      id: '123',
+      data: {
+        name: '常用',
+      },
+      children: [
+        {
+          id: 2,
+          type: 'app',
+          data: {
+            name: 'two',
+          },
+        },
+        {
+          id: 1,
+          type: 'group',
+          data: {
+            name: 'one',
+          },
+          config: {
+            col: 2,
+            row: 2,
+          },
+          children:
+            // 生成20个子项
+            Array(60)
+              .fill(0)
+              .map((_, index) => ({
+                id: 'sdanka' + 1 + index,
+                type: 'app',
+                data: {
+                  name: `one-${index}`,
+                },
+              })),
+        },
+        {
+          id: 3,
+          type: 'app',
+          data: {
+            name: 'three',
+          },
+        },
+        {
+          id: 4,
+          type: 'app',
+          data: {
+            name: 'four',
+          },
+        },
+        {
+          id: 5,
+          type: 'app',
+          data: {
+            name: 'five',
+          },
+        },
+        {
+          id: 6,
+          type: 'app',
+          data: {
+            name: 'six',
+          },
+        },
+        {
+          id: 7,
+          type: 'app',
+          data: {
+            name: 'x',
+          },
+        },
+      ],
+    },
+  ];
+
+  return (
+    <div>
+      <Desktop list={list} enableCaching={false} contextMenu={false} />
+    </div>
+  );
+};
+```
+
+### 自定义菜单
+
+具体内容参考类型定义
+
+```jsx
+import { Desktop } from 'zs_library';
+
+export default () => {
+  const list = [
+    {
+      id: '123',
+      data: {
+        name: '常用',
+      },
+      children: [
+        {
+          id: 2,
+          type: 'app',
+          data: {
+            name: 'two',
+          },
+        },
+        {
+          id: 1,
+          type: 'group',
+          data: {
+            name: 'one',
+          },
+          config: {
+            col: 2,
+            row: 2,
+          },
+          children:
+            // 生成20个子项
+            Array(60)
+              .fill(0)
+              .map((_, index) => ({
+                id: 'sdanka' + 1 + index,
+                type: 'app',
+                data: {
+                  name: `one-${index}`,
+                },
+              })),
+        },
+        {
+          id: 3,
+          type: 'app',
+          data: {
+            name: 'three',
+          },
+        },
+        {
+          id: 4,
+          type: 'app',
+          data: {
+            name: 'four',
+          },
+        },
+        {
+          id: 5,
+          type: 'app',
+          data: {
+            name: 'five',
+          },
+        },
+        {
+          id: 6,
+          type: 'app',
+          data: {
+            name: 'six',
+          },
+        },
+        {
+          id: 7,
+          type: 'app',
+          data: {
+            name: 'x',
+          },
+        },
+      ],
+    },
+  ];
+
+  return (
+    <div>
+      <Desktop
+        list={list}
+        enableCaching={false}
+        contextMenu={{
+          showShareButton: false,
+        }}
+      />
+    </div>
+  );
+};
+```
+
+## API
+
 <API id="Desktop" />
