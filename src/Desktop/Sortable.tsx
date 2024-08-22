@@ -63,6 +63,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setOpenGroupItemData,
     setMoveItemId,
     setMoveTargetId,
+    addItem,
   } = useSortableState();
 
   const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } =
@@ -125,15 +126,36 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
   }, [pagination]);
 
   return (
-    <div>
+    <>
       <Slider
+        useCSS
+        useTransform
         arrows={false}
         ref={_sliderRef ?? sliderRef}
         infinite={false}
         dots
         touchMove={false}
         lazyLoad="anticipated"
-        className={cx(paginingLocationCss, className)}
+        className={cx(
+          paginingLocationCss,
+          css`
+            .slick-track {
+              display: flex;
+              align-items: stretch;
+            }
+            .slick-slide {
+              display: flex;
+              align-self: stretch;
+              height: unset;
+              > div {
+                display: flex;
+                align-self: stretch;
+                width: 100%;
+              }
+            }
+          `,
+          className,
+        )}
         customPaging={(i) => {
           if (pagingDotBuilder) {
             return pagingDotBuilder(list[i], i);
@@ -192,7 +214,23 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
       >
         {list.map((l) => {
           return (
-            <div key={l.id}>
+            <div
+              key={l.id}
+              onDrop={(e) => {
+                e.preventDefault();
+                const data = e.dataTransfer.getData('text/plain');
+                if (data !== '') {
+                  try {
+                    addItem(JSON.parse(data), [l.id]);
+                  } catch (e) {
+                    console.log('drag error', e);
+                  }
+                }
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+              }}
+            >
               <ReactSortable
                 className={cx(
                   css`
@@ -301,7 +339,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         }}
         onItemClick={onItemClick}
       />
-    </div>
+    </>
   );
 };
 

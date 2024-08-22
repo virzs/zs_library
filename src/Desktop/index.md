@@ -1028,6 +1028,150 @@ export default () => {
 };
 ```
 
+### 拖拽添加
+
+支持外部元素拖拽添加，需要手动设置数据类型，组件会自动为这个数据添加其他参数
+
+> **注意** 当前存在限制，仅允许拖拽到当前分页，无法拖拽到当前分页下的文件夹中
+
+```jsx
+import { Desktop } from 'zs_library';
+
+export default () => {
+  const needDragInData = [
+    {
+      name: '谷歌',
+      url: 'https://google.com',
+    },
+    {
+      name: '必应',
+      url: 'https://cn.bing.com',
+    },
+  ];
+
+  const list = [
+    {
+      id: '123',
+      data: {
+        name: '常用',
+      },
+      children: [
+        {
+          id: 2,
+          type: 'app',
+          data: {
+            name: 'two',
+          },
+        },
+        {
+          id: 1,
+          type: 'group',
+          data: {
+            name: 'one',
+          },
+          config: {
+            col: 2,
+            row: 2,
+          },
+          children:
+            // 生成20个子项
+            Array(60)
+              .fill(0)
+              .map((_, index) => ({
+                id: 'sdanka' + 1 + index,
+                type: 'app',
+                data: {
+                  name: `one-${index}`,
+                },
+              })),
+        },
+        {
+          id: 3,
+          type: 'app',
+          data: {
+            name: 'three',
+          },
+        },
+        {
+          id: 4,
+          type: 'app',
+          data: {
+            name: 'four',
+          },
+        },
+        {
+          id: 5,
+          type: 'app',
+          data: {
+            name: 'five',
+          },
+        },
+        {
+          id: 6,
+          type: 'app',
+          data: {
+            name: 'six',
+          },
+        },
+        {
+          id: 7,
+          type: 'app',
+          data: {
+            name: 'x',
+          },
+        },
+      ],
+    },
+    {
+      id: 'xcajd',
+      data: {
+        name: '新分类',
+      },
+    },
+  ];
+
+  const handleDragStart = (e, data) => {
+    e.dataTransfer.setData(
+      'text/plain',
+      JSON.stringify({
+        type: 'app',
+        data,
+      }),
+    );
+  };
+
+  return (
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '1rem',
+        }}
+      >
+        {needDragInData.map((i) => {
+          return (
+            <div
+              style={{
+                cursor: 'pointer',
+                padding: '1rem',
+                border: '1px solid gray',
+                borderRadius: '0.25rem',
+              }}
+              draggable
+              onDragStart={(e) => handleDragStart(e, i)}
+            >
+              {i.name}
+            </div>
+          );
+        })}
+      </div>
+      <Desktop list={list} enableCaching={false} />
+    </div>
+  );
+};
+```
+
 ## API
 
 <API id="Desktop" />

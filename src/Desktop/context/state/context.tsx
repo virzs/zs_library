@@ -1,6 +1,7 @@
 import { useDebounceEffect, useLocalStorageState } from 'ahooks';
 import React, { createContext, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { configMap } from '../../config';
 import { SortItem } from '../../types';
 import SortableUtils from '../../utils';
 
@@ -33,6 +34,7 @@ export interface SortableState {
   updateItem: (id: string | number, data: any) => void;
   updateItemConfig: (id: string | number, config: any) => void;
   removeItem: (id: string) => void;
+  addItem: (data: SortItem, parentIds: (string | number)[]) => void;
   /** 当前移动的元素id */
   moveItemId: string | null;
   setMoveItemId: (e: string | null) => void;
@@ -58,6 +60,7 @@ export const SortableStateContext = createContext<SortableState>({
   updateItem: () => {},
   updateItemConfig: () => {},
   removeItem: () => {},
+  addItem: () => {},
   moveItemId: null,
   setMoveItemId: () => {},
   moveTargetId: null,
@@ -307,6 +310,42 @@ export const SortableStateProvider = <D, C>(
     });
   };
 
+  const addItem = (data: SortItem, parentIds: (string | number)[]) => {
+    const _list = [...list];
+
+    // 根据 parentIds 递归查找，放置到对应的父级下
+    const addToChild = (list: SortItem[], parentIds: (string | number)[]) => {
+      const parentId = parentIds.shift();
+      const parent = list.find((item) => item.id === parentId);
+      const parentIndex = list.findIndex((item) => item.id === parentId);
+
+      if (!parent) {
+        return list;
+      } else {
+        if (parentIds.length) {
+          parent.children = addToChild(parent.children || [], parentIds);
+        } else {
+          const type = data?.type ?? 'app';
+
+          parent.children = [
+            ...(parent.children ?? []),
+            {
+              ...data,
+              id: uuidv4(),
+              config: data?.config ?? configMap[type],
+            },
+          ];
+        }
+
+        list.splice(parentIndex, 1, parent);
+
+        return list;
+      }
+    };
+
+    setList(addToChild(_list, parentIds));
+  };
+
   useEffect(() => {
     if (propList?.length > 0 && list.length === 0) {
       _setList(propList);
@@ -360,6 +399,7 @@ export const SortableStateProvider = <D, C>(
         updateItemConfig,
         updateItem,
         removeItem,
+        addItem,
         moveItemId,
         setMoveItemId,
         moveTargetId,
