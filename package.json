@@ -1,7 +1,7 @@
 {
   "name": "zs_library",
-  "version": "0.2.3",
-  "description": "A react library developed with dumi",
+  "version": "0.2.4",
+  "private": true,
   "homepage": "https://zs-library.vercel.app",
   "bugs": {
     "url": "https://github.com/virzs/zs_library/issues"
@@ -12,8 +12,14 @@
   },
   "license": "MIT",
   "author": "v",
-  "main": ".eslintrc.js",
-  "module": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
     "doc": "docs"
@@ -22,86 +28,64 @@
     "dist"
   ],
   "scripts": {
-    "build": "father build",
-    "build:watch": "father dev",
-    "dev": "dumi dev",
-    "docs:build": "dumi build",
-    "docs:preview": "dumi preview",
-    "doctor": "father doctor",
-    "lint": "npm run lint:es && npm run lint:css",
-    "lint:css": "stylelint \"{src,test}/**/*.{css,less}\"",
-    "lint:es": "eslint \"{src,test}/**/*.{js,jsx,ts,tsx}\"",
-    "prepare": "husky install && dumi setup",
-    "prepublishOnly": "father doctor && npm run build",
-    "start": "npm run dev"
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "lint-staged": {
-    "*.{md,json}": [
-      "prettier --write --no-error-on-unmatched-pattern"
-    ],
-    "*.{css,less}": [
-      "stylelint --fix",
-      "prettier --write"
-    ],
-    "*.{js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --parser=typescript --write"
-    ]
+    "build": "tsc -b && vite build",
+    "dev": "vite",
+    "docs:build": "rspress build",
+    "docs:dev": "rspress dev --host 0.0.0.0 --port 4372",
+    "docs:preview": "rspress preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@blocknote/core": "^0.15.6",
     "@blocknote/mantine": "^0.15.6",
     "@blocknote/react": "^0.15.6",
+    "@codexteam/ajax": "^4.2.0",
+    "@editorjs/dom": "^1.0.0",
+    "@editorjs/editorjs": "^2.30.5",
     "@emotion/css": "^11.13.0",
-    "@mantine/core": "^7.11.2",
+    "@mantine/core": "^7.12.2",
     "@remixicon/react": "^4.2.0",
-    "ace-builds": "^1.35.4",
-    "ahooks": "^3.8.0",
-    "framer-motion": "^11.3.19",
-    "rc-dialog": "^9.0.4",
+    "ahooks": "^3.8.1",
+    "editorjs-drag-drop": "^1.1.14",
+    "editorjs-undo": "^2.0.28",
+    "framer-motion": "^11.5.4",
+    "rc-dialog": "^9.6.0",
     "rc-tooltip": "^6.2.0",
-    "react-ace": "^12.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-json-view": "^1.21.3",
     "react-modal-sheet": "^3.1.0",
     "react-slick": "^0.30.2",
     "react-sortablejs": "^6.1.4",
+    "remixicon": "^4.3.0",
     "slick-carousel": "^1.8.1",
-    "sortablejs": "^1.15.2",
+    "sortablejs": "^1.15.3",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.1.2",
-    "@commitlint/config-conventional": "^17.1.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@eslint/js": "^9.9.0",
+    "@rspress/plugin-playground": "^1.29.0",
+    "@rspress/plugin-preview": "^1.30.0",
+    "@rspress/plugin-typedoc": "^1.29.0",
+    "@types/node": "^22.5.4",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "@types/react-slick": "^0.23.13",
-    "@types/uuid": "^10.0.0",
-    "@umijs/lint": "^4.0.0",
-    "dumi": "^2.3.0",
-    "dumi-theme-antd-style": "^0.31.0",
-    "eslint": "^8.23.0",
-    "father": "^4.1.0",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.3",
-    "prettier": "^2.7.1",
-    "prettier-plugin-organize-imports": "^3.0.0",
-    "prettier-plugin-packagejson": "^2.2.18",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "stylelint": "^14.9.1"
-  },
-  "peerDependencies": {
-    "react": ">=16.9.0",
-    "react-dom": ">=16.9.0"
+    "@vitejs/plugin-react": "^4.3.1",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^9.9.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.9",
+    "globals": "^15.9.0",
+    "rollup": "^4.21.2",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "rspress": "^1.29.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.0.1",
+    "vite": "^5.4.1",
+    "vite-plugin-dts": "^4.1.0",
+    "vite-plugin-libcss": "^1.1.1"
   },
   "publishConfig": {
     "access": "public"
