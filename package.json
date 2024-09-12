@@ -33,7 +33,8 @@
     "docs:build": "rspress build",
     "docs:dev": "rspress dev --host 0.0.0.0 --port 4372",
     "docs:preview": "rspress preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@blocknote/core": "^0.15.6",
