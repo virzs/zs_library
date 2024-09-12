@@ -98,5 +98,10 @@
   },
   "authors": [
     "virs2018@outlook.com"
-  ]
+  ],
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  }
 }
