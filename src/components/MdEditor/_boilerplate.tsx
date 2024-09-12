@@ -5,6 +5,7 @@ import {
   CodeToggle,
   CreateLink,
   diffSourcePlugin,
+  DiffSourceToggleWrapper,
   frontmatterPlugin,
   headingsPlugin,
   imagePlugin,
@@ -40,7 +41,7 @@ export async function expressImageUploadHandler(image: File) {
 export const ALL_PLUGINS = [
   toolbarPlugin({
     toolbarContents: () => (
-      <>
+      <DiffSourceToggleWrapper options={["rich-text", "source"]}>
         <UndoRedo />
         <BoldItalicUnderlineToggles />
         <CodeToggle />
@@ -52,9 +53,10 @@ export const ALL_PLUGINS = [
         <InsertCodeBlock />
         <InsertFrontmatter />
         <InsertThematicBreak />
-      </>
+      </DiffSourceToggleWrapper>
     ),
   }),
+  diffSourcePlugin({ viewMode: "rich-text" }),
   listsPlugin(),
   quotePlugin(),
   headingsPlugin(),
@@ -81,6 +83,5 @@ export const ALL_PLUGINS = [
       "": "Unspecified",
     },
   }),
-  diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "boo" }),
   markdownShortcutPlugin(),
 ];

@@ -13,15 +13,14 @@ const MdEditor: FC = () => {
   const [markdown, setMarkdown] = useState("");
 
   return (
-    <div className="markdown-body">
-      <MDXEditor
-        markdown={markdown}
-        onChange={(v) => {
-          setMarkdown(v);
-        }}
-        plugins={ALL_PLUGINS}
-      />
-    </div>
+    <MDXEditor
+      contentEditableClassName="markdown-body"
+      markdown={markdown}
+      onChange={(v) => {
+        setMarkdown(v);
+      }}
+      plugins={ALL_PLUGINS}
+    />
   );
 };
 
