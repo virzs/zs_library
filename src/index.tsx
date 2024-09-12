@@ -1,1 +1,1 @@
-export { Desktop, Editor } from "./components";
+export { Desktop, MdEditor } from "./components";

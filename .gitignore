@@ -12,6 +12,7 @@ dist
 dist-ssr
 doc_build
 *.local
+stats.html
 
 # Editor directories and files
 .vscode/*

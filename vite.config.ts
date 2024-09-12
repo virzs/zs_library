@@ -13,7 +13,7 @@ export default defineConfig({
       tsconfigPath: "./tsconfig.app.json",
     }),
     visualizer({ open: false }),
-    libCss(),
+    // libCss(),
   ],
   css: {
     preprocessorOptions: {

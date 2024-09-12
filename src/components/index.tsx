@@ -1,2 +1,2 @@
-export { default as Desktop } from './Desktop';
-export { default as Editor } from './Editor';
+export { default as Desktop } from "./Desktop";
+export { default as MdEditor } from "./MdEditor";
