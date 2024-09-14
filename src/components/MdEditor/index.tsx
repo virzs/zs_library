@@ -1,18 +1,116 @@
-import { MDXEditor, MDXEditorProps } from "@mdxeditor/editor";
+import {
+  MDXEditor,
+  MDXEditorProps,
+  BoldItalicUnderlineToggles,
+  codeBlockPlugin,
+  codeMirrorPlugin,
+  CodeToggle,
+  CreateLink,
+  diffSourcePlugin,
+  DiffSourceToggleWrapper,
+  frontmatterPlugin,
+  headingsPlugin,
+  imagePlugin,
+  InsertCodeBlock,
+  InsertFrontmatter,
+  InsertImage,
+  InsertTable,
+  InsertThematicBreak,
+  linkDialogPlugin,
+  linkPlugin,
+  listsPlugin,
+  ListsToggle,
+  markdownShortcutPlugin,
+  quotePlugin,
+  Separator,
+  StrikeThroughSupSubToggles,
+  tablePlugin,
+  thematicBreakPlugin,
+  toolbarPlugin,
+  UndoRedo,
+  ImageUploadHandler,
+  ImagePreviewHandler,
+  ViewMode,
+  HEADING_LEVEL,
+  ConditionalContents,
+  InsertAdmonition,
+  EditorInFocus,
+  DirectiveNode,
+  directivesPlugin,
+  AdmonitionDirectiveDescriptor,
+} from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 // import "github-markdown-css/github-markdown.css";
 import { FC, useEffect, useState } from "react";
-import { ALL_PLUGINS } from "./_boilerplate";
 import { $t } from "./i18n";
+
+type Extension =
+  | {
+      extension: Extension;
+    }
+  | readonly Extension[];
+
+export interface ImagePluginConfig {
+  imageUploadHandler?: ImageUploadHandler;
+  imageAutocompleteSuggestions?: string[];
+  disableImageResize?: boolean;
+  disableImageSettingsButton?: boolean;
+  imagePreviewHandler?: ImagePreviewHandler;
+  ImageDialog?: FC<object> | (() => JSX.Element);
+}
+
+export interface DiffSourcePluginConfig {
+  viewMode?: ViewMode;
+  diffMarkdown?: string;
+  codeMirrorExtensions?: Extension[];
+  readOnlyDiff?: boolean;
+}
+
+export interface HeadingPluginConfig {
+  allowedHeadingLevels?: readonly HEADING_LEVEL[];
+}
+
+export interface LinkPluginConfig {
+  validateUrl?: (url: string) => boolean;
+  disableAutoLink?: boolean;
+}
+
+export interface MdEditorPluginConfig {
+  image?: ImagePluginConfig;
+  diffSource?: DiffSourcePluginConfig;
+  headings?: HeadingPluginConfig;
+  link?: LinkPluginConfig;
+}
 
 export interface MdEditorProps
   extends Omit<MDXEditorProps, "markdown" | "onChange"> {
   value?: string;
   onChange?: (value: string) => void;
+  pluginConfig?: MdEditorPluginConfig;
+}
+
+function whenInAdmonition(editorInFocus: EditorInFocus | null) {
+  const node = editorInFocus?.rootNode;
+  if (!node || node.getType() !== "directive") {
+    return false;
+  }
+
+  return ["note", "tip", "danger", "info", "caution"].includes(
+    (node as DirectiveNode).getMdastNode().name
+  );
 }
 
 const MdEditor: FC<MdEditorProps> = (props) => {
-  const { value, onChange, translation, ...rest } = props;
+  const { value, onChange, translation, pluginConfig, ...rest } = props;
+
+  const {
+    image,
+    diffSource = {
+      viewMode: "rich-text",
+    },
+    headings,
+    link,
+  } = pluginConfig ?? {};
 
   const [markdown, setMarkdown] = useState("");
 
@@ -36,7 +134,95 @@ const MdEditor: FC<MdEditorProps> = (props) => {
         }
       }}
       translation={translation ?? $t}
-      plugins={ALL_PLUGINS}
+      plugins={[
+        toolbarPlugin({
+          toolbarContents: () => (
+            <DiffSourceToggleWrapper options={["rich-text", "source"]}>
+              {/* 撤销&重做 */}
+              <UndoRedo />
+
+              <Separator />
+
+              {/* 粗体&斜体&下划线 */}
+              <BoldItalicUnderlineToggles />
+              {/* 内联代码 */}
+              <CodeToggle />
+
+              <Separator />
+
+              {/* 删除线&上标&下标 */}
+              <StrikeThroughSupSubToggles />
+
+              <Separator />
+
+              {/* 无序列表&有序列表&任务列表 */}
+              <ListsToggle />
+
+              <Separator />
+
+              {/* 创建链接 */}
+              <CreateLink />
+              {/* 插入图片 */}
+              <InsertImage />
+
+              <Separator />
+
+              {/* 插入表格 */}
+              <InsertTable />
+              {/* 插入主图换行 */}
+              <InsertThematicBreak />
+
+              <Separator />
+
+              {/* 插入代码块 */}
+              <InsertCodeBlock />
+              {/* 插入警告 */}
+              <ConditionalContents
+                options={[
+                  {
+                    when: (editorInFocus) => !whenInAdmonition(editorInFocus),
+                    contents: () => (
+                      <>
+                        <Separator />
+                        <InsertAdmonition />
+                      </>
+                    ),
+                  },
+                ]}
+              />
+
+              <Separator />
+
+              {/* 插入元数据 */}
+              <InsertFrontmatter />
+            </DiffSourceToggleWrapper>
+          ),
+        }),
+        diffSourcePlugin(diffSource),
+        listsPlugin(),
+        quotePlugin(),
+        headingsPlugin(headings),
+        linkPlugin(link),
+        linkDialogPlugin(),
+        imagePlugin(image),
+        tablePlugin(),
+        thematicBreakPlugin(),
+        frontmatterPlugin(),
+        codeBlockPlugin({ defaultCodeBlockLanguage: "" }),
+        codeMirrorPlugin({
+          codeBlockLanguages: {
+            js: "JavaScript",
+            css: "CSS",
+            txt: "Plain Text",
+            tsx: "TypeScript",
+            "": "Unspecified",
+          },
+        }),
+        markdownShortcutPlugin(),
+        directivesPlugin({
+          directiveDescriptors: [AdmonitionDirectiveDescriptor],
+        }),
+      ]}
       {...rest}
     />
   );
