@@ -38,6 +38,8 @@ import {
   DirectiveNode,
   directivesPlugin,
   AdmonitionDirectiveDescriptor,
+  CodeBlockEditorDescriptor,
+  DirectiveDescriptor,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 // import "github-markdown-css/github-markdown.css";
@@ -75,11 +77,29 @@ export interface LinkPluginConfig {
   disableAutoLink?: boolean;
 }
 
+export interface CodeBlockPluginConfig {
+  codeBlockEditorDescriptors?: CodeBlockEditorDescriptor[];
+  defaultCodeBlockLanguage?: string | undefined;
+}
+
+export interface CodeMirrorPluginConfig {
+  codeBlockLanguages: Record<string, string>;
+  codeMirrorExtensions?: Extension[];
+  autoLoadLanguageSupport?: boolean;
+}
+
+export interface DirectivePluginConfig {
+  directiveDescriptors: DirectiveDescriptor[];
+}
+
 export interface MdEditorPluginConfig {
   image?: ImagePluginConfig;
   diffSource?: DiffSourcePluginConfig;
   headings?: HeadingPluginConfig;
   link?: LinkPluginConfig;
+  codeBlock?: CodeBlockPluginConfig;
+  codeMirror?: CodeMirrorPluginConfig;
+  directives?: DirectivePluginConfig;
 }
 
 export interface MdEditorProps
@@ -110,6 +130,19 @@ const MdEditor: FC<MdEditorProps> = (props) => {
     },
     headings,
     link,
+    codeBlock,
+    codeMirror = {
+      codeBlockLanguages: {
+        js: "JavaScript",
+        css: "CSS",
+        txt: "Plain Text",
+        tsx: "TypeScript",
+        "": "Unspecified",
+      },
+    },
+    directives = {
+      directiveDescriptors: [AdmonitionDirectiveDescriptor],
+    },
   } = pluginConfig ?? {};
 
   const [markdown, setMarkdown] = useState("");
@@ -208,20 +241,10 @@ const MdEditor: FC<MdEditorProps> = (props) => {
         tablePlugin(),
         thematicBreakPlugin(),
         frontmatterPlugin(),
-        codeBlockPlugin({ defaultCodeBlockLanguage: "" }),
-        codeMirrorPlugin({
-          codeBlockLanguages: {
-            js: "JavaScript",
-            css: "CSS",
-            txt: "Plain Text",
-            tsx: "TypeScript",
-            "": "Unspecified",
-          },
-        }),
+        codeBlockPlugin(codeBlock),
+        codeMirrorPlugin(codeMirror),
         markdownShortcutPlugin(),
-        directivesPlugin({
-          directiveDescriptors: [AdmonitionDirectiveDescriptor],
-        }),
+        directivesPlugin(directives),
       ]}
       {...rest}
     />
