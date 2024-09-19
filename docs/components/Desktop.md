@@ -1,10 +1,6 @@
----
-title: 桌面
-atomId: Desktop
-description: 基于 react-sortablejs 封装实现的桌面组件
-group:
-  title: 布局
----
+# 桌面
+
+基于 react-sortablejs 封装实现的桌面组件
 
 ## 依赖
 
@@ -34,21 +30,21 @@ group:
 ### 基本用法
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -58,8 +54,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -67,59 +63,59 @@ export default () => {
         },
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
     },
     {
-      id: '12313eqw',
+      id: "12313eqw",
       data: {
-        name: '开发',
+        name: "开发",
       },
       children: [
         {
           id: 90,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x90',
+            name: "x90",
           },
         },
       ],
@@ -137,80 +133,80 @@ export default () => {
 #### 自定义分页位置
 
 ```jsx
-import React from 'react';
-import { Button, MantineProvider } from '@mantine/core';
-import { Desktop } from 'zs_library';
+import React from "react";
+import { Button, MantineProvider } from "@mantine/core";
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
     },
     {
-      id: '12313eqw',
+      id: "12313eqw",
       data: {
-        name: '开发',
+        name: "开发",
       },
       children: [
         {
           id: 90,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x90',
+            name: "x90",
           },
         },
       ],
     },
   ];
 
-  const [pagingLocation, setPagingLocation] = React.useState('bottom');
+  const [pagingLocation, setPagingLocation] = React.useState("bottom");
 
   const handlePositionChange = (position) => {
     setPagingLocation(position);
@@ -220,26 +216,26 @@ export default () => {
     <MantineProvider>
       <div
         style={{
-          display: 'flex',
-          gap: '8px',
-          justifyContent: 'center',
-          marginBottom: '8px',
+          display: "flex",
+          gap: "8px",
+          justifyContent: "center",
+          marginBottom: "8px",
         }}
       >
-        <Button variant="filled" onClick={() => handlePositionChange('top')}>
+        <Button variant="filled" onClick={() => handlePositionChange("top")}>
           Top
         </Button>
-        <Button variant="filled" onClick={() => handlePositionChange('bottom')}>
+        <Button variant="filled" onClick={() => handlePositionChange("bottom")}>
           Bottom
         </Button>
-        <Button variant="filled" onClick={() => handlePositionChange('left')}>
+        <Button variant="filled" onClick={() => handlePositionChange("left")}>
           Left
         </Button>
-        <Button variant="filled" onClick={() => handlePositionChange('right')}>
+        <Button variant="filled" onClick={() => handlePositionChange("right")}>
           Right
         </Button>
       </div>
-      <div style={{ padding: '0 50px' }}>
+      <div style={{ padding: "0 50px" }}>
         <Desktop
           list={list}
           enableCaching={false}
@@ -254,72 +250,72 @@ export default () => {
 #### 隐藏分页
 
 ```jsx
-import React from 'react';
-import { Desktop } from 'zs_library';
+import React from "react";
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
     },
     {
-      id: '12313eqw',
+      id: "12313eqw",
       data: {
-        name: '开发',
+        name: "开发",
       },
       children: [
         {
           id: 90,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x90',
+            name: "x90",
           },
         },
       ],
@@ -337,21 +333,21 @@ export default () => {
 通过设置 `storageKey` 修改本地存储名，如果不设置，则默认 `ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG`
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -361,8 +357,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -370,59 +366,59 @@ export default () => {
         },
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
     },
     {
-      id: '12313eqw',
+      id: "12313eqw",
       data: {
-        name: '开发',
+        name: "开发",
       },
       children: [
         {
           id: 90,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x90',
+            name: "x90",
           },
         },
       ],
@@ -436,21 +432,22 @@ export default () => {
 ### 点击事件
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { useState } from "react";
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -461,8 +458,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -470,51 +467,51 @@ export default () => {
         },
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
     },
   ];
 
-  const [clickData, setClickData] = React.useState(null);
+  const [clickData, setClickData] = useState(null);
 
   return (
     <div>
@@ -536,28 +533,28 @@ export default () => {
 无字模式下开启文件夹仍显示名称
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -568,8 +565,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -577,37 +574,37 @@ export default () => {
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
@@ -627,28 +624,28 @@ export default () => {
 通过 `theme` 设置主题或自定义
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -659,8 +656,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -668,37 +665,37 @@ export default () => {
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
@@ -714,7 +711,7 @@ export default () => {
         enableCaching={false}
         theme={{
           token: {
-            itemNameColor: 'yellow',
+            itemNameColor: "yellow",
           },
         }}
       />
@@ -730,28 +727,28 @@ export default () => {
 > ##注意## 如果需要完全自定义渲染，请使用 `itemBuilder`
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -762,8 +759,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -771,37 +768,37 @@ export default () => {
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
@@ -815,21 +812,21 @@ export default () => {
         enableCaching={false}
         itemIconBuilder={(data) => {
           const images = {
-            1: 'https://dailybing.com/api/v1/20240815zh-cnMRK',
-            2: 'https://dailybing.com/api/v1/20240814zh-cnMRK',
-            3: 'https://dailybing.com/api/v1/20240813zh-cnMRK',
-            4: 'https://dailybing.com/api/v1/20240812zh-cnMRK',
-            5: 'https://dailybing.com/api/v1/20240811zh-cnMRK',
+            1: "https://dailybing.com/api/v1/20240815zh-cnMRK",
+            2: "https://dailybing.com/api/v1/20240814zh-cnMRK",
+            3: "https://dailybing.com/api/v1/20240813zh-cnMRK",
+            4: "https://dailybing.com/api/v1/20240812zh-cnMRK",
+            5: "https://dailybing.com/api/v1/20240811zh-cnMRK",
           };
           return (
             <img
               style={{
-                width: '100%',
-                height: '100%',
+                width: "100%",
+                height: "100%",
               }}
               src={
                 images[data.id] ??
-                'https://dailybing.com/api/v1/20240815zh-cnMRK'
+                "https://dailybing.com/api/v1/20240815zh-cnMRK"
               }
             />
           );
@@ -845,28 +842,28 @@ export default () => {
 设置 `contextMenu = false` 关闭右键菜单
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -877,8 +874,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -886,37 +883,37 @@ export default () => {
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
@@ -936,28 +933,28 @@ export default () => {
 具体内容参考类型定义
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { Desktop } from "zs_library";
 
 export default () => {
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -968,8 +965,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -977,37 +974,37 @@ export default () => {
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
@@ -1035,39 +1032,39 @@ export default () => {
 > **注意** 当前存在限制，仅允许拖拽到当前分页，无法拖拽到当前分页下的文件夹中
 
 ```jsx
-import { Desktop } from 'zs_library';
+import { Desktop } from "zs_library";
 
 export default () => {
   const needDragInData = [
     {
-      name: '谷歌',
-      url: 'https://google.com',
+      name: "谷歌",
+      url: "https://google.com",
     },
     {
-      name: '必应',
-      url: 'https://cn.bing.com',
+      name: "必应",
+      url: "https://cn.bing.com",
     },
   ];
 
   const list = [
     {
-      id: '123',
+      id: "123",
       data: {
-        name: '常用',
+        name: "常用",
       },
       children: [
         {
           id: 2,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'two',
+            name: "two",
           },
         },
         {
           id: 1,
-          type: 'group',
+          type: "group",
           data: {
-            name: 'one',
+            name: "one",
           },
           config: {
             col: 2,
@@ -1078,8 +1075,8 @@ export default () => {
             Array(60)
               .fill(0)
               .map((_, index) => ({
-                id: 'sdanka' + 1 + index,
-                type: 'app',
+                id: "sdanka" + 1 + index,
+                type: "app",
                 data: {
                   name: `one-${index}`,
                 },
@@ -1087,56 +1084,56 @@ export default () => {
         },
         {
           id: 3,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'three',
+            name: "three",
           },
         },
         {
           id: 4,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'four',
+            name: "four",
           },
         },
         {
           id: 5,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'five',
+            name: "five",
           },
         },
         {
           id: 6,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'six',
+            name: "six",
           },
         },
         {
           id: 7,
-          type: 'app',
+          type: "app",
           data: {
-            name: 'x',
+            name: "x",
           },
         },
       ],
     },
     {
-      id: 'xcajd',
+      id: "xcajd",
       data: {
-        name: '新分类',
+        name: "新分类",
       },
     },
   ];
 
   const handleDragStart = (e, data) => {
     e.dataTransfer.setData(
-      'text/plain',
+      "text/plain",
       JSON.stringify({
-        type: 'app',
+        type: "app",
         data,
-      }),
+      })
     );
   };
 
@@ -1144,19 +1141,19 @@ export default () => {
     <div>
       <div
         style={{
-          display: 'flex',
-          gap: '0.5rem',
-          marginBottom: '1rem',
+          display: "flex",
+          gap: "0.5rem",
+          marginBottom: "1rem",
         }}
       >
         {needDragInData.map((i) => {
           return (
             <div
               style={{
-                cursor: 'pointer',
-                padding: '1rem',
-                border: '1px solid gray',
-                borderRadius: '0.25rem',
+                cursor: "pointer",
+                padding: "1rem",
+                border: "1px solid gray",
+                borderRadius: "0.25rem",
               }}
               draggable
               onDragStart={(e) => handleDragStart(e, i)}
