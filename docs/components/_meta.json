@@ -1,0 +1,17 @@
+[
+  { "label": "组件总览", "type": "file", "name": "index" },
+  {
+    "type": "dir",
+    "name": "layout",
+    "label": "布局",
+    "collapsible": true,
+    "collapsed": false
+  },
+  {
+    "type": "dir",
+    "name": "data_entry",
+    "label": "数据录入",
+    "collapsible": true,
+    "collapsed": false
+  }
+]

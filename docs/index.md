@@ -1,18 +1,15 @@
-# Hello World
+---
+pageType: home
 
-```jsx
-import React, { useState } from "react";
-import { MdEditor } from "zs_library";
-
-export default () => {
-  const [value, setValue] = useState([]);
-
-  console.log(value);
-
-  return (
-    <div>
-      <MdEditor />
-    </div>
-  );
-};
-```
+hero:
+  name: zs_library
+  text: 文档工程解决方案
+  tagline: 个人项目关联的业务组件库
+  actions:
+    - theme: brand
+      text: 介绍
+      link: /guide/start/introduction
+    - theme: alt
+      text: 快速开始
+      link: /guide/start/getting-started
+---
