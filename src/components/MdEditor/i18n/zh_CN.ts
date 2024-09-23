@@ -112,4 +112,7 @@ export default {
   contentArea: {
     editableMarkdown: "可编辑的 Markdown",
   },
+  image: {
+    delete: "删除图片",
+  },
 } as Translation;
