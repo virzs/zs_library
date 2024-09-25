@@ -9,13 +9,17 @@ import React, { useState } from "react";
 import { MdEditor } from "zs_library";
 
 export default () => {
-  const [value, setValue] = useState([]);
+  const [value, setValue] = useState("");
 
   console.log(value);
 
   return (
     <div>
-      <MdEditor />
+      <MdEditor
+        onChange={(v) => {
+          setValue(v);
+        }}
+      />
     </div>
   );
 };
@@ -23,20 +27,23 @@ export default () => {
 
 ## 上传图片
 
-使用 [tmpfiles](https://tmpfiles.org/) api 上传，1小时后会自动删除
+使用 [tmpfiles](https://tmpfiles.org/) api 上传，1 小时后会自动删除
 
 ```jsx
 import React, { useState } from "react";
 import { MdEditor } from "zs_library";
 
 export default () => {
-  const [value, setValue] = useState([]);
+  const [value, setValue] = useState("");
 
   console.log(value);
 
   return (
     <div>
       <MdEditor
+        onChange={(v) => {
+          setValue(v);
+        }}
         pluginConfig={{
           image: {
             imageUploadHandler: async (file) => {
