@@ -42,9 +42,10 @@ import {
   DirectiveDescriptor,
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
-// import "github-markdown-css/github-markdown.css";
+import "github-markdown-css/github-markdown.css";
 import { FC, useEffect, useState } from "react";
 import { $t } from "./i18n";
+import { css, cx } from "@emotion/css";
 
 type Extension =
   | {
@@ -155,7 +156,44 @@ const MdEditor: FC<MdEditorProps> = (props) => {
 
   return (
     <MDXEditor
-      contentEditableClassName="markdown-body"
+      contentEditableClassName={cx(
+        "markdown-body",
+        css`
+          table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            width: 100%;
+            display: table;
+            th[data-tool-cell],
+            td[data-tool-cell] {
+              padding: 0;
+              border: none;
+            }
+            tr {
+              border-top: 0;
+            }
+            thead {
+              th {
+                padding: 0;
+                border: none;
+              }
+            }
+            tfoot {
+              th {
+                padding: 0;
+                border: none;
+              }
+            }
+            [class*="_addRowButton"],
+            [class*="_addColumnButton"],
+            [class*="_tableColumnEditorTrigger"],
+            [class*="_iconButton"] {
+              cursor: pointer;
+              transition: all 0.3s;
+            }
+          }
+        `
+      )}
       markdown={markdown}
       onChange={(v) => {
         // ! 如果没有传入 value 和 onChange，那么内部维护 markdown 的状态
