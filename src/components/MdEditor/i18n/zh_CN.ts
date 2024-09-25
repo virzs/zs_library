@@ -108,6 +108,10 @@ export default {
   codeBlock: {
     language: "代码块语言",
     selectLanguage: "选择代码块语言",
+    inlineLanguage: "代码块语言",
+  },
+  codeblock: {
+    delete: "删除代码块",
   },
   contentArea: {
     editableMarkdown: "可编辑的 Markdown",
