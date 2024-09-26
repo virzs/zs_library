@@ -3,6 +3,7 @@ import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import autoExternal from "rollup-plugin-auto-external";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,7 +13,7 @@ export default defineConfig({
       tsconfigPath: "./tsconfig.app.json",
     }),
     visualizer({ open: false }),
-    // libCss(),
+    autoExternal(),
   ],
   css: {
     preprocessorOptions: {
@@ -27,22 +28,22 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, "src/index.tsx"),
       name: "zs_library",
-      formats: ["es"],
-      fileName: "index",
+      formats: ["es", "umd"],
+      fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      // external: ['react', 'react-dom'],
-      external: (id) => /node_modules/.test(id),
+      // external 交由 rollup-plugin-auto-external 处理
+      // external: [/node_modules/],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
         },
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            return "vendor";
-          }
-        },
+        // manualChunks(id) {
+        //   if (id.includes("node_modules")) {
+        //     return "vendor";
+        //   }
+        // },
       },
     },
     terserOptions: {
