@@ -42,6 +42,8 @@ export default defineConfig({
           globals: {
             react: "React",
             "react-dom": "ReactDOM",
+            "@mdxeditor/editor": "MDXEditor",
+            lexical: "Lexical",
           },
         },
         {
@@ -51,6 +53,8 @@ export default defineConfig({
           globals: {
             react: "React",
             "react-dom": "ReactDOM",
+            "@mdxeditor/editor": "MDXEditor",
+            lexical: "Lexical",
           },
         },
       ],
