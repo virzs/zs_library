@@ -159,6 +159,9 @@ const MdEditor: FC<MdEditorProps> = (props) => {
       contentEditableClassName={cx(
         "markdown-body",
         css`
+          p {
+            margin-bottom: 0;
+          }
           table {
             border-spacing: 0;
             border-collapse: collapse;
