@@ -34,17 +34,26 @@ export default defineConfig({
     rollupOptions: {
       // external 交由 rollup-plugin-auto-external 处理
       // external: [/node_modules/],
-      output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
+      output: [
+        {
+          format: "es",
+          name: "zs_library",
+          intro: 'import "./style.css";',
+          globals: {
+            react: "React",
+            "react-dom": "ReactDOM",
+          },
         },
-        // manualChunks(id) {
-        //   if (id.includes("node_modules")) {
-        //     return "vendor";
-        //   }
-        // },
-      },
+        {
+          format: "umd",
+          name: "zs_library",
+          intro: 'require("./style.css");',
+          globals: {
+            react: "React",
+            "react-dom": "ReactDOM",
+          },
+        },
+      ],
     },
     terserOptions: {
       compress: {

@@ -22,6 +22,8 @@
 
     /* 新增配置 */
     "declaration": true, // 生成类型声明文件
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": true,
     "outDir": "dist", // 指定输出目录
     "baseUrl": "./",
     "paths": {

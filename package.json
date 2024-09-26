@@ -1,6 +1,6 @@
 {
   "name": "zs_library",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "homepage": "https://zs-library.vercel.app",
   "bugs": {
     "url": "https://github.com/virzs/zs_library/issues"
@@ -16,7 +16,8 @@
     ".": {
       "import": "./dist/index.es.js",
       "require": "./dist/index.umd.js"
-    }
+    },
+    "./style.css": "./dist/style.css"
   },
   "main": "dist/index.umd.js",
   "module": "dist/index.es.js",
