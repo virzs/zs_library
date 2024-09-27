@@ -32,20 +32,18 @@ import {
   ImagePreviewHandler,
   ViewMode,
   HEADING_LEVEL,
-  ConditionalContents,
-  InsertAdmonition,
-  EditorInFocus,
-  DirectiveNode,
   directivesPlugin,
   AdmonitionDirectiveDescriptor,
   CodeBlockEditorDescriptor,
   DirectiveDescriptor,
+  MDXEditorMethods,
 } from "@mdxeditor/editor";
-import "@mdxeditor/editor/style.css";
 import "github-markdown-css/github-markdown.css";
-import { FC, useEffect, useState } from "react";
+import "@mdxeditor/editor/style.css";
+import { FC, useEffect, useRef, useState } from "react";
 import { $t } from "./i18n";
-import { css, cx } from "@emotion/css";
+import MDXEditorPreview from "./preview";
+import { markdownEditorStyle, markdownStyle } from "./style";
 
 type Extension =
   | {
@@ -110,19 +108,10 @@ export interface MdEditorProps
   pluginConfig?: MdEditorPluginConfig;
 }
 
-function whenInAdmonition(editorInFocus: EditorInFocus | null) {
-  const node = editorInFocus?.rootNode;
-  if (!node || node.getType() !== "directive") {
-    return false;
-  }
-
-  return ["note", "tip", "danger", "info", "caution"].includes(
-    (node as DirectiveNode).getMdastNode().name
-  );
-}
-
-const MdEditor: FC<MdEditorProps> = (props) => {
+const PrivMdEditor: FC<MdEditorProps> = (props) => {
   const { value, onChange, translation, pluginConfig, ...rest } = props;
+
+  const ref = useRef<MDXEditorMethods>(null);
 
   const {
     image,
@@ -149,54 +138,17 @@ const MdEditor: FC<MdEditorProps> = (props) => {
   const [markdown, setMarkdown] = useState("");
 
   useEffect(() => {
-    if (value !== undefined) {
+    if (value !== undefined && ref.current) {
+      ref.current?.setMarkdown(value);
       setMarkdown(value);
     }
-  }, [value]);
+  }, [value, ref]);
 
   return (
     <MDXEditor
-      contentEditableClassName={cx(
-        "markdown-body",
-        css`
-          p {
-            margin-bottom: 0;
-          }
-          table {
-            border-spacing: 0;
-            border-collapse: collapse;
-            width: 100%;
-            display: table;
-            th[data-tool-cell],
-            td[data-tool-cell] {
-              padding: 0;
-              border: none;
-            }
-            tr {
-              border-top: 0;
-            }
-            thead {
-              th {
-                padding: 0;
-                border: none;
-              }
-            }
-            tfoot {
-              th {
-                padding: 0;
-                border: none;
-              }
-            }
-            [class*="_addRowButton"],
-            [class*="_addColumnButton"],
-            [class*="_tableColumnEditorTrigger"],
-            [class*="_iconButton"] {
-              cursor: pointer;
-              transition: all 0.3s;
-            }
-          }
-        `
-      )}
+      ref={ref}
+      className={markdownEditorStyle}
+      contentEditableClassName={markdownStyle}
       markdown={markdown}
       onChange={(v) => {
         // ! 如果没有传入 value 和 onChange，那么内部维护 markdown 的状态
@@ -250,20 +202,6 @@ const MdEditor: FC<MdEditorProps> = (props) => {
 
               {/* 插入代码块 */}
               <InsertCodeBlock />
-              {/* 插入警告 */}
-              <ConditionalContents
-                options={[
-                  {
-                    when: (editorInFocus) => !whenInAdmonition(editorInFocus),
-                    contents: () => (
-                      <>
-                        <Separator />
-                        <InsertAdmonition />
-                      </>
-                    ),
-                  },
-                ]}
-              />
 
               <Separator />
 
@@ -291,5 +229,13 @@ const MdEditor: FC<MdEditorProps> = (props) => {
     />
   );
 };
+
+export type MdEditorType = typeof PrivMdEditor & {
+  Preview: typeof MDXEditorPreview;
+};
+
+const MdEditor: MdEditorType = PrivMdEditor as MdEditorType;
+
+MdEditor.Preview = MDXEditorPreview;
 
 export default MdEditor;
