@@ -5,6 +5,10 @@
 
 个人业务组件库 React
 
+## 编码规范
+
+参考 [Angular coding style guide](https://angular.dev/style-guide#file-structure-conventions)
+
 ## LICENSE
 
 MIT
