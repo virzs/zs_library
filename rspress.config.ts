@@ -7,4 +7,5 @@ export default defineConfig({
   title: "zs_library",
   description: "个人业务相关的组件库",
   plugins: [pluginPreview()],
+  ssg: false,
 });
