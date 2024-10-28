@@ -1,13 +1,13 @@
-import { css, cx } from '@emotion/css';
-import Dialog from 'rc-dialog';
-import { useEffect, useState } from 'react';
-import { ReactSortable } from 'react-sortablejs';
-import { useSortableConfig } from '../../context/config/hooks';
-import { useSortableState } from '../../context/state/hooks';
-import { ghostClass } from '../../style';
-import { SortItem } from '../../types';
-import SortableUtils from '../../utils';
-import SortableItem from '../SortableItem';
+import { css, cx } from "@emotion/css";
+import Dialog from "rc-dialog";
+import { useEffect, useState } from "react";
+import { ReactSortable } from "react-sortablejs";
+import { useSortableConfig } from "../../context/config/hooks";
+import { useSortableState } from "../../context/state/hooks";
+import { ghostClass } from "../../style";
+import { SortItem } from "../../types";
+import SortableUtils from "../../utils";
+import SortableItem from "../sortable-item";
 
 interface GroupItemModalProps<D, C> {
   data: SortItem | null;
@@ -30,7 +30,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
 
   const { light, dark } = SortableUtils.getTheme(theme);
 
-  const [name, setName] = useState('文件夹');
+  const [name, setName] = useState("文件夹");
 
   const _children = [...(data?.children ?? [])];
 
@@ -87,7 +87,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
       footer={null}
       closable={false}
       className={cx(
-        'group-item-modal',
+        "group-item-modal",
         css`
           .rc-dialog-content {
             background-color: transparent;
@@ -111,7 +111,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
               overflow: hidden;
             }
           }
-        `,
+        `
       )}
       width={600}
       destroyOnClose
@@ -127,6 +127,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
           const relatedTarget = e.relatedTarget;
           if (!relatedTarget) return;
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if (!e.currentTarget.contains(relatedTarget as any)) {
             // 鼠标确实离开了当前元素
             setTimeout(() => {
@@ -144,7 +145,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
             grid-auto-flow: dense;
             grid-auto-rows: 96px;
           `}
-          group={{ name: 'nested', pull: true, put: false }}
+          group={{ name: "nested", pull: true, put: false }}
           animation={150}
           fallbackOnBody
           list={data?.children ?? []}
@@ -170,7 +171,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
           }}
           onMove={() => {
             setMoveTargetId(null);
-            setListStatus('onMove');
+            setListStatus("onMove");
             return true;
           }}
           onStart={(e) => {
@@ -178,7 +179,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
             if (dataset?.id) {
               setMoveItemId(dataset.id);
             }
-            setListStatus('onMove');
+            setListStatus("onMove");
           }}
           onEnd={() => {
             setMoveItemId(null);

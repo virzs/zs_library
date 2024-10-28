@@ -1,20 +1,20 @@
-import { css, cx } from '@emotion/css';
-import React, { useMemo, useRef } from 'react';
-import Slider, { Settings } from 'react-slick';
-import { ReactSortable } from 'react-sortablejs';
-import 'slick-carousel/slick/slick-theme.css';
-import 'slick-carousel/slick/slick.css';
-import SortableGroupItem from './Items/GroupItem';
-import GroupItemModal from './Items/Modal/GroupItemModal';
-import ItemInfoModal from './Items/Modal/InfoModal';
-import SortableItem from './Items/SortableItem';
-import { useSortableConfig } from './context/config/hooks';
-import { useSortableState } from './context/state/hooks';
-import { ghostClass } from './style';
-import { SortItem } from './types';
+import { css, cx } from "@emotion/css";
+import React, { useMemo, useRef } from "react";
+import Slider, { Settings } from "react-slick";
+import { ReactSortable } from "react-sortablejs";
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
+import SortableGroupItem from "./items/group-item";
+import GroupItemModal from "./items/modal/group-item-modal";
+import ItemInfoModal from "./items/modal/info-modal";
+import { ghostClass } from "./style";
+import { SortItem } from "./types";
+import { useSortableState } from "./context/state/hooks";
+import { useSortableConfig } from "./context/config/hooks";
+import SortableItem from "./items/sortable-item";
 
 export interface Pagination {
-  position?: 'top' | 'bottom' | 'left' | 'right';
+  position?: "top" | "bottom" | "left" | "right";
 }
 
 export interface SortableProps<D, C> {
@@ -34,7 +34,7 @@ export interface SortableProps<D, C> {
    * 自定义 slider 配置
    * @see https://react-slick.neostack.com/docs/api
    */
-  sliderProps?: Omit<Settings, 'appendDots' | 'customPaging'>;
+  sliderProps?: Omit<Settings, "appendDots" | "customPaging">;
   /**
    * 点击 item 事件
    */
@@ -43,7 +43,7 @@ export interface SortableProps<D, C> {
 
 const Sortable = <D, C>(props: SortableProps<D, C>) => {
   const {
-    pagination = { position: 'bottom' },
+    pagination = { position: "bottom" },
     className,
     sliderProps,
     sliderRef: _sliderRef,
@@ -122,7 +122,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
           }
         }
       `,
-    }[pagination.position ?? 'bottom'];
+    }[pagination.position ?? "bottom"];
   }, [pagination]);
 
   return (
@@ -154,7 +154,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               }
             }
           `,
-          className,
+          className
         )}
         customPaging={(i) => {
           if (pagingDotBuilder) {
@@ -182,7 +182,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               <ul
                 ref={sliderDotsRef}
                 className={cx(
-                  'slick-dots-default',
+                  "slick-dots-default",
                   css`
                     padding: 0.5rem;
                     display: inline-flex;
@@ -202,7 +202,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       width: auto;
                       height: auto;
                     }
-                  `,
+                  `
                 )}
               >
                 {dots}
@@ -218,12 +218,12 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               key={l.id}
               onDrop={(e) => {
                 e.preventDefault();
-                const data = e.dataTransfer.getData('text/plain');
-                if (data !== '') {
+                const data = e.dataTransfer.getData("text/plain");
+                if (data !== "") {
                   try {
                     addItem(JSON.parse(data), [l.id]);
                   } catch (e) {
-                    console.log('drag error', e);
+                    console.log("drag error", e);
                   }
                 }
               }}
@@ -242,7 +242,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                     place-items: center;
                     justify-content: center;
                     align-items: center;
-                  `,
+                  `
                 )}
                 animation={150}
                 fallbackOnBody
@@ -252,7 +252,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                 setList={(e) => setList(e, [l.id])}
                 filter=".drag-disabled"
                 onMove={(e) => {
-                  setListStatus('onMove');
+                  setListStatus("onMove");
                   const { dragged, related } = e;
                   const draggedData = dragged.dataset;
                   const relatedData = related.dataset;
@@ -263,7 +263,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                     (Object.keys(relatedData).length === 0 ||
                       relatedData.parentIds) &&
                     Number(draggedData.childrenLength) > 0 &&
-                    related.classList.contains('sortable-group-item')
+                    related.classList.contains("sortable-group-item")
                   ) {
                     return false;
                   }
@@ -274,7 +274,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   if (dataset?.id) {
                     setMoveItemId(dataset.id);
                   }
-                  setListStatus('onMove');
+                  setListStatus("onMove");
                 }}
                 onEnd={() => {
                   setMoveItemId(null);
@@ -291,8 +291,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   }
 
                   switch (item.type) {
-                    case 'group':
-                    case 'app':
+                    case "group":
+                    case "app":
                       el = (
                         <SortableGroupItem
                           key={item.id}

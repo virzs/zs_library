@@ -1,17 +1,18 @@
-import Sortable, { SortableProps } from './Sortable';
+import Sortable, { SortableProps } from "./sortable";
 import {
   SortableConfigProvider,
   SortableConfigProviderProps,
-} from './context/config/context';
+} from "./context/config/context";
 import {
   SortableStateProvider,
   SortableStateProviderProps,
-} from './context/state/context';
+} from "./context/state/context";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface DesktopProps<D = any, C = any>
   extends SortableProps<D, C>,
-    Omit<SortableStateProviderProps<D, C>, 'children'>,
-    Omit<SortableConfigProviderProps<D, C>, 'children'> {}
+    Omit<SortableStateProviderProps<D, C>, "children">,
+    Omit<SortableConfigProviderProps<D, C>, "children"> {}
 
 const Desktop = <D, C>(props: DesktopProps<D, C>) => {
   const {
@@ -30,14 +31,14 @@ const Desktop = <D, C>(props: DesktopProps<D, C>) => {
     ...rest
   } = props;
 
-  const state: Omit<SortableStateProviderProps<D, C>, 'children'> = {
+  const state: Omit<SortableStateProviderProps<D, C>, "children"> = {
     list,
     onChange,
     storageKey,
     enableCaching,
   };
 
-  const config: Omit<SortableConfigProviderProps<D, C>, 'children'> = {
+  const config: Omit<SortableConfigProviderProps<D, C>, "children"> = {
     theme: theme,
     noLetters: noLetters,
     contextMenu: contextMenu,

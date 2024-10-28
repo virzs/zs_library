@@ -1,7 +1,7 @@
-import React, { createContext, useMemo } from 'react';
-import { ContextMenuProps } from '../../ContextMenu';
-import { Theme, themeDark, themeLight } from '../../theme';
-import { SortItem } from '../../types';
+import React, { createContext, useMemo } from "react";
+import { Theme, themeDark, themeLight } from "../../theme";
+import { ContextMenuProps } from "../../context-menu";
+import { SortItem } from "../../types";
 
 /**
  * 需要跨多个组件传递的配置，使用 context 传递
@@ -41,25 +41,26 @@ export interface SortableConfig<D, C> {
   contextMenuBuilder?: (data: SortItem<D, C>) => ContextMenuProps<D, C>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const SortableConfigContext = createContext<SortableConfig<any, any>>(
-  {},
+  {}
 );
 
 export interface SortableConfigProviderProps<D, C>
-  extends Omit<SortableConfig<D, C>, 'theme'> {
-  readonly theme?: 'light' | 'dark' | Theme;
+  extends Omit<SortableConfig<D, C>, "theme"> {
+  readonly theme?: "light" | "dark" | Theme;
   children: React.ReactNode;
 }
 
 export const SortableConfigProvider = <D, C>(
-  props: SortableConfigProviderProps<D, C>,
+  props: SortableConfigProviderProps<D, C>
 ) => {
   const { children, theme: propTheme, ...rest } = props;
 
   const theme = useMemo(() => {
-    if (propTheme === 'light') {
+    if (propTheme === "light") {
       return themeLight;
-    } else if (propTheme === 'dark') {
+    } else if (propTheme === "dark") {
       return themeDark;
     } else {
       return propTheme;

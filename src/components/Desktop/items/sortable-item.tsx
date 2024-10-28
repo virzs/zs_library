@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import RcTooltip from 'rc-tooltip';
 import 'rc-tooltip/assets/bootstrap_white.css';
 import React from 'react';
-import ContextMenu from '../ContextMenu';
+import ContextMenu from '../context-menu';
 import { useSortableConfig } from '../context/config/hooks';
 import { useSortableState } from '../context/state/hooks';
 import { SortItem, SortItemBaseData } from '../types';

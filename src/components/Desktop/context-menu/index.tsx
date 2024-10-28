@@ -1,29 +1,29 @@
-import { css, cx } from '@emotion/css';
+import { css, cx } from "@emotion/css";
 import {
   RiCloseCircleLine,
   RiInformationLine,
   RiPencilRuler2Line,
   RiShareLine,
-} from '@remixicon/react';
-import { AnimatePresence, Variants, motion } from 'framer-motion';
-import { FC } from 'react';
-import { configMap } from '../config';
-import { useSortableConfig } from '../context/config/hooks';
-import { useSortableState } from '../context/state/hooks';
-import { SortItem, SortItemBaseConfig } from '../types';
-import SortableUtils from '../utils';
+} from "@remixicon/react";
+import { AnimatePresence, Variants, motion } from "framer-motion";
+import { FC, ReactNode } from "react";
+import { configMap } from "../config";
+import { useSortableConfig } from "../context/config/hooks";
+import { useSortableState } from "../context/state/hooks";
+import SortableUtils from "../utils";
+import { SortItem, SortItemBaseConfig } from "../types";
 
 const itemVariants: Variants = {
   menuShow: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring', stiffness: 300, damping: 24 },
+    transition: { type: "spring", stiffness: 300, damping: 24 },
   },
   menuHide: { opacity: 0, y: 20, transition: { duration: 0.2 } },
 };
 
 interface ContextButtonProps {
-  icon: any;
+  icon: ReactNode;
   title: string;
   onClick?: () => void;
 }
@@ -61,14 +61,14 @@ const ContextButton: FC<ContextButtonProps> = (props) => {
     >
       <motion.div
         className={cx(
-          'py-1.5 px-3 rounded-lg',
+          "py-1.5 px-3 rounded-lg",
           css`
             padding-top: 0.375rem;
             padding-bottom: 0.375rem;
             padding-left: 0.75rem;
             padding-right: 0.75rem;
             border-radius: 0.5rem;
-          `,
+          `
         )}
         whileTap={{ scale: 0.9 }}
       >
@@ -78,7 +78,7 @@ const ContextButton: FC<ContextButtonProps> = (props) => {
               margin-bottom: 0.375rem;
               display: flex;
               justify-content: center;
-            `,
+            `
           )}
         >
           {icon}
@@ -160,7 +160,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                   background-color: ${dark.contextMenuBackgroundColor};
                   box-shadow: 0 0 0.5rem ${dark.contextMenuShadowColor};
                 }
-              `,
+              `
             )}
           >
             {showSizeButton && config.allowResize !== false && (
@@ -173,14 +173,14 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               >
                 {[
                   {
-                    label: '修改大小',
-                    key: 'size',
+                    label: "修改大小",
+                    key: "size",
                     icon: <RiPencilRuler2Line size={14} />,
                     items: getAllSizes().map((size) => ({
                       label: size,
                       key: size,
                       onClick: () => {
-                        const [row, col] = size.split('x').map(Number);
+                        const [row, col] = size.split("x").map(Number);
                         updateItemConfig(contextMenu.data.id, {
                           row,
                           col,
@@ -221,7 +221,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                       {i.items.map((it) => (
                         <motion.div
                           className={cx(
-                            'py-1 px-2 hover:bg-gray-100 rounded transition-all cursor-pointer text-center text-sm',
+                            "py-1 px-2 hover:bg-gray-100 rounded transition-all cursor-pointer text-center text-sm",
                             css`
                               padding-top: 0.25rem;
                               padding-bottom: 0.25rem;
@@ -250,7 +250,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                                 @media (prefers-color-scheme: dark) {
                                   background-color: ${dark.contextMenuActiveColor};
                                 }
-                              `,
+                              `
                           )}
                           key={it.key}
                           onClick={it.onClick}
@@ -280,7 +280,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                 border-radius: 0.5rem;
                 overflow: hidden;
                 padding: 0.25rem;
-              `,
+              `
             )}
           >
             {showShareButton && (
