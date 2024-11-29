@@ -33,6 +33,7 @@ export default defineConfig({
     rollupOptions: {
       // external 交由 rollup-plugin-auto-external 处理
       // external: [/node_modules/],
+      external: ["react", /^react\/.*/, "react-dom", /react-dom\/.*/],
       output: [
         {
           format: "es",
