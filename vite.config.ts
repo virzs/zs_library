@@ -37,7 +37,7 @@ export default defineConfig({
         {
           format: "es",
           name: "zs_library",
-          intro: 'import "./style.css";',
+          intro: 'import "./zs_library.css";',
           globals: {
             react: "React",
             "react-dom": "ReactDOM",
@@ -48,7 +48,7 @@ export default defineConfig({
         {
           format: "umd",
           name: "zs_library",
-          intro: 'require("./style.css");',
+          intro: 'require("./zs_library.css");',
           globals: {
             react: "React",
             "react-dom": "ReactDOM",
