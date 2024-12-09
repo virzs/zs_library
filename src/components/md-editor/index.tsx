@@ -40,10 +40,18 @@ import {
 } from "@mdxeditor/editor";
 import "github-markdown-css/github-markdown.css";
 import "@mdxeditor/editor/style.css";
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, JSX, useEffect, useRef, useState } from "react";
 import { $t } from "./i18n";
 import MDXEditorPreview from "./preview";
-import { markdownEditorStyle, markdownStyle } from "./style";
+import {
+  githubMarkdownDarkStyle,
+  githubMarkdownLightStyle,
+  markdownEditorDarkStyle,
+  markdownEditorStyle,
+  markdownStyle,
+} from "./style";
+import { cx } from "@emotion/css";
+import { isDarkScheme } from "./utils";
 
 type Extension =
   | {
@@ -106,10 +114,20 @@ export interface MdEditorProps
   value?: string;
   onChange?: (value: string) => void;
   pluginConfig?: MdEditorPluginConfig;
+  className?: string;
+  theme?: "light" | "dark" | "auto";
 }
 
 const PrivMdEditor: FC<MdEditorProps> = (props) => {
-  const { value, onChange, translation, pluginConfig, ...rest } = props;
+  const {
+    value,
+    onChange,
+    translation,
+    pluginConfig,
+    className,
+    theme = "auto",
+    ...rest
+  } = props;
 
   const ref = useRef<MDXEditorMethods>(null);
 
@@ -147,7 +165,14 @@ const PrivMdEditor: FC<MdEditorProps> = (props) => {
   return (
     <MDXEditor
       ref={ref}
-      className={markdownEditorStyle}
+      className={cx(
+        markdownEditorStyle,
+        isDarkScheme(theme) ? markdownEditorDarkStyle : "",
+        isDarkScheme(theme)
+          ? githubMarkdownDarkStyle
+          : githubMarkdownLightStyle,
+        className
+      )}
       contentEditableClassName={markdownStyle}
       markdown={markdown}
       onChange={(v) => {
