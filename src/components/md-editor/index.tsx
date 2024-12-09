@@ -109,12 +109,32 @@ export interface MdEditorPluginConfig {
   directives?: DirectivePluginConfig;
 }
 
+/**
+ * Markdown 编辑器
+ */
 export interface MdEditorProps
   extends Omit<MDXEditorProps, "markdown" | "onChange"> {
+  /**
+   * Markdown 内容
+   */
   value?: string;
+  /**
+   * Markdown 内容变化时的回调
+   * @param value Markdown 内容
+   * @returns
+   */
   onChange?: (value: string) => void;
+  /**
+   * 编辑器插件配置
+   */
   pluginConfig?: MdEditorPluginConfig;
+  /**
+   * 自定义类名
+   */
   className?: string;
+  /**
+   * 主题，可选值为 `light`、`dark`、`auto`
+   */
   theme?: "light" | "dark" | "auto";
 }
 
