@@ -1171,4 +1171,4 @@ export default () => {
 
 ## API
 
-<API id="Desktop" />
+<API moduleName="desktop" />

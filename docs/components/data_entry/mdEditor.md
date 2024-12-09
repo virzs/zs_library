@@ -214,3 +214,7 @@ export default () => {
   );
 };
 ```
+
+## API
+
+<API moduleName="editor" />

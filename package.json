@@ -70,6 +70,7 @@
     "@commitlint/cli": "^19.6.0",
     "@commitlint/config-conventional": "^19.6.0",
     "@eslint/js": "^9.16.0",
+    "@rspress/plugin-api-docgen": "^1.37.4",
     "@rspress/plugin-playground": "^1.37.4",
     "@rspress/plugin-preview": "^1.37.4",
     "@rspress/plugin-typedoc": "^1.37.4",
