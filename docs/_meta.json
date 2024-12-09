@@ -8,9 +8,5 @@
     "text": "组件",
     "link": "/components/",
     "activeMatch": "^/components/"
-  },
-  {
-    "text": "API",
-    "link": "/api/"
   }
 ]
