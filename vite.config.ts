@@ -17,7 +17,6 @@ export default defineConfig({
   ],
   css: {
     preprocessorOptions: {
-      css: {},
       scss: {
         api: "modern-compiler",
       },
@@ -34,11 +33,12 @@ export default defineConfig({
     rollupOptions: {
       // external 交由 rollup-plugin-auto-external 处理
       // external: [/node_modules/],
+      external: ["react", /^react\/.*/, "react-dom", /react-dom\/.*/],
       output: [
         {
           format: "es",
           name: "zs_library",
-          intro: 'import "./style.css";',
+          intro: 'import "./zs_library.css";',
           globals: {
             react: "React",
             "react-dom": "ReactDOM",
@@ -49,7 +49,7 @@ export default defineConfig({
         {
           format: "umd",
           name: "zs_library",
-          intro: 'require("./style.css");',
+          intro: 'require("./zs_library.css");',
           globals: {
             react: "React",
             "react-dom": "ReactDOM",

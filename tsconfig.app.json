@@ -29,7 +29,8 @@
     "paths": {
       "zs_library": ["src"],
       "zs_library/*": ["src/*", "*"]
-    }
+    },
+    "forceConsistentCasingInFileNames": true // 强制文件名大小写一致
   },
   "include": ["src", "src/**/*"]
 }

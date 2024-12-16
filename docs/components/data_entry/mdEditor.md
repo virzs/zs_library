@@ -137,3 +137,84 @@ console.log('Hello World');
   );
 };
 ```
+
+## 主题
+
+自动 `auto`，默认根据特定条件自动切换
+
+``` html
+<html style="color-scheme: light;"></html>
+<html style="color-scheme: dark;"></html>
+```
+
+``` css
+@media (prefers-color-scheme: dark) {}
+```
+
+```jsx
+import React, { useState } from "react";
+import { MdEditor } from "zs_library";
+
+export default () => {
+  const [value, setValue] = useState("");
+
+  return (
+    <div>
+      <MdEditor
+        theme="auto"
+        onChange={(v) => {
+          setValue(v);
+        }}
+      />
+    </div>
+  );
+};
+```
+
+浅色 `light`
+
+```jsx
+import React, { useState } from "react";
+import { MdEditor } from "zs_library";
+
+export default () => {
+  const [value, setValue] = useState("");
+
+  return (
+    <div>
+      <MdEditor
+        theme="light"
+        onChange={(v) => {
+          setValue(v);
+        }}
+      />
+    </div>
+  );
+};
+```
+
+深色 `dark`
+
+```jsx
+import React, { useState } from "react";
+import { MdEditor } from "zs_library";
+
+export default () => {
+  const [value, setValue] = useState("");
+
+  return (
+    <div>
+      <MdEditor
+        theme="dark"
+        onChange={(v) => {
+          setValue(v);
+        }}
+      />
+    </div>
+  );
+};
+```
+
+## API
+
+<API moduleName="editor" />
