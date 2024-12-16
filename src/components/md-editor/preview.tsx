@@ -14,7 +14,7 @@ import rehypeRaw from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { isDarkScheme } from "./utils";
-import Image from "rc-image";
+import Image, { ImageProps } from "rc-image";
 import {
   RiAnticlockwise2Line,
   RiArrowLeftLine,
@@ -32,10 +32,11 @@ export interface MDXEditorPreviewProps {
   children?: string;
   className?: string;
   theme?: "light" | "dark" | "auto";
+  imageProps?: ImageProps;
 }
 
 const MDXEditorPreview: FC<MDXEditorPreviewProps> = (props) => {
-  const { children = "", className, theme = "auto" } = props;
+  const { children = "", className, theme = "auto", imageProps } = props;
 
   return (
     <div
@@ -69,7 +70,6 @@ const MDXEditorPreview: FC<MDXEditorPreviewProps> = (props) => {
             );
           },
           img(props) {
-            console.log("🚀 ~ image ~ props:", props);
             return (
               <Image
                 {...props}
@@ -94,6 +94,7 @@ const MDXEditorPreview: FC<MDXEditorPreviewProps> = (props) => {
                 className={css`
                   cursor: zoom-in;
                 `}
+                {...imageProps}
               />
             );
           },
