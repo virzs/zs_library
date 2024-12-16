@@ -14,7 +14,7 @@ import rehypeRaw from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { isDarkScheme } from "./utils";
-import Image, { ImageProps } from "rc-image";
+import Image, { ImagePreviewType, ImageProps } from "rc-image";
 import {
   RiAnticlockwise2Line,
   RiArrowLeftLine,
@@ -70,31 +70,34 @@ const MDXEditorPreview: FC<MDXEditorPreviewProps> = (props) => {
             );
           },
           img(props) {
+            const { preview, ...rest } = imageProps ?? ({} as ImageProps);
             return (
               <Image
                 {...props}
-                preview={{
-                  icons: {
-                    rotateLeft: <RiAnticlockwise2Line />,
-                    rotateRight: <RiClockwise2Line />,
-                    zoomIn: <RiZoomInLine />,
-                    zoomOut: <RiZoomOutLine />,
-                    close: <RiCloseLine />,
-                    left: <RiArrowLeftLine />,
-                    right: <RiArrowRightLine />,
-                    flipX: <RiArrowLeftRightLine />,
-                    flipY: <RiArrowUpDownLine />,
-                  },
-                  onVisibleChange: (visible) => {
-                    console.log("visible", visible);
-                  },
-                  zIndex: 9999,
-                  mask: "",
-                }}
+                preview={
+                  preview instanceof Boolean
+                    ? preview
+                    : {
+                        icons: {
+                          rotateLeft: <RiAnticlockwise2Line />,
+                          rotateRight: <RiClockwise2Line />,
+                          zoomIn: <RiZoomInLine />,
+                          zoomOut: <RiZoomOutLine />,
+                          close: <RiCloseLine />,
+                          left: <RiArrowLeftLine />,
+                          right: <RiArrowRightLine />,
+                          flipX: <RiArrowLeftRightLine />,
+                          flipY: <RiArrowUpDownLine />,
+                        },
+                        zIndex: 9999,
+                        mask: " ",
+                        ...(preview as ImagePreviewType),
+                      }
+                }
                 className={css`
                   cursor: zoom-in;
                 `}
-                {...imageProps}
+                {...rest}
               />
             );
           },
