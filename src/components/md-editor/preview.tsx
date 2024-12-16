@@ -89,7 +89,7 @@ const MDXEditorPreview: FC<MDXEditorPreviewProps> = (props) => {
                     console.log("visible", visible);
                   },
                   zIndex: 9999,
-                  mask: "",
+                  mask: " ",
                 }}
                 className={css`
                   cursor: zoom-in;
