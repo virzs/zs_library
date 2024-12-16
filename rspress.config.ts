@@ -18,4 +18,7 @@ export default defineConfig({
     }),
   ],
   ssg: false,
+  mediumZoom: {
+    selector: ".rspress-doc img:not(.rspress-preview-card img)",
+  },
 });
