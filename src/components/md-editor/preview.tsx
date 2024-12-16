@@ -2,7 +2,7 @@ import { FC } from "react";
 import "github-markdown-css/github-markdown.css";
 import "@mdxeditor/editor/style.css";
 import Markdown from "react-markdown";
-import { cx } from "@emotion/css";
+import { css, cx } from "@emotion/css";
 import {
   githubMarkdownDarkStyle,
   githubMarkdownLightStyle,
@@ -14,6 +14,19 @@ import rehypeRaw from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { isDarkScheme } from "./utils";
+import Image from "rc-image";
+import {
+  RiAnticlockwise2Line,
+  RiArrowLeftLine,
+  RiArrowLeftRightLine,
+  RiArrowRightLine,
+  RiArrowUpDownLine,
+  RiClockwise2Line,
+  RiCloseLine,
+  RiZoomInLine,
+  RiZoomOutLine,
+} from "@remixicon/react";
+import "rc-image/assets/index.css";
 
 export interface MDXEditorPreviewProps {
   children?: string;
@@ -53,6 +66,35 @@ const MDXEditorPreview: FC<MDXEditorPreviewProps> = (props) => {
               <code {...rest} className={className}>
                 {children}
               </code>
+            );
+          },
+          img(props) {
+            console.log("🚀 ~ image ~ props:", props);
+            return (
+              <Image
+                {...props}
+                preview={{
+                  icons: {
+                    rotateLeft: <RiAnticlockwise2Line />,
+                    rotateRight: <RiClockwise2Line />,
+                    zoomIn: <RiZoomInLine />,
+                    zoomOut: <RiZoomOutLine />,
+                    close: <RiCloseLine />,
+                    left: <RiArrowLeftLine />,
+                    right: <RiArrowRightLine />,
+                    flipX: <RiArrowLeftRightLine />,
+                    flipY: <RiArrowUpDownLine />,
+                  },
+                  onVisibleChange: (visible) => {
+                    console.log("visible", visible);
+                  },
+                  zIndex: 9999,
+                  mask: "",
+                }}
+                className={css`
+                  cursor: zoom-in;
+                `}
+              />
             );
           },
         }}
