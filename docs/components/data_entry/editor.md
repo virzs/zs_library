@@ -29,11 +29,11 @@ export default () => {
 ### 渲染 Json 为 Html
 
 ```jsx
-import { Preview } from "zs_library";
+import { Editor } from "zs_library";
 
 export default () => {
   return (
-    <Preview
+    <Editor.Preview
       json={{
         type: "doc",
         content: [
