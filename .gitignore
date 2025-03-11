@@ -25,3 +25,5 @@ docs/api
 *.njsproj
 *.sln
 *.sw?
+
+.history
