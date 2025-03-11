@@ -3,6 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { HIGHLIGHT_COLORS, TEXT_COLORS } from "../lib/colors";
 import { RiArrowDropDownLine, RiCheckLine } from "@remixicon/react";
+import Tooltip from "../ui/tooltip";
 
 interface ColorSelectorProps {
   open: boolean;
@@ -23,21 +24,22 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
 
   return (
     <Popover modal={true} open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <Button size="sm" className="gap-1 rounded-md pr-0" variant="ghost">
-          <span
-            className="rounded-sm px-1"
-            style={{
-              color: activeColorItem?.color,
-              backgroundColor: activeHighlightItem?.color,
-            }}
-          >
-            A
-          </span>
-          <RiArrowDropDownLine />
-        </Button>
-      </PopoverTrigger>
-
+      <Tooltip overlay="文本颜色" placement="top">
+        <PopoverTrigger asChild>
+          <Button size="sm" className="gap-1 rounded-md pr-0" variant="ghost">
+            <span
+              className="rounded-sm px-1"
+              style={{
+                color: activeColorItem?.color,
+                backgroundColor: activeHighlightItem?.color,
+              }}
+            >
+              A
+            </span>
+            <RiArrowDropDownLine />
+          </Button>
+        </PopoverTrigger>
+      </Tooltip>
       <PopoverContent
         sideOffset={5}
         className="my-1 flex max-h-80 w-48 flex-col overflow-hidden overflow-y-auto rounded border p-1 shadow-xl "

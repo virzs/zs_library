@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css";
 import { RiAddLine, RiDraggable } from "@remixicon/react";
 import { useEditor } from "novel";
 import { Button } from "../ui/button";
+import Tooltip from "../ui/tooltip";
 
 const DragHandle = () => {
   const { editor } = useEditor();
@@ -56,22 +57,42 @@ const DragHandle = () => {
         `
       )}
     >
-      <Button
-        size="icon"
-        variant="ghost"
-        className="w-auto h-auto p-0.5"
-        onClick={onAddClick}
+      <Tooltip
+        placement="bottom"
+        overlay={
+          <div>
+            点击<span className="text-muted-foreground">以在下方添加快</span>
+          </div>
+        }
       >
-        <RiAddLine className="cursor-pointer" size={22} />
-      </Button>
-      <Button
-        size="icon"
-        variant="ghost"
-        className="w-auto h-auto p-0.5"
-        onClick={onDraggableClick}
+        <Button
+          size="icon"
+          variant="ghost"
+          className="w-auto h-auto p-0.5"
+          onClick={onAddClick}
+        >
+          <RiAddLine className="cursor-pointer" size={22} />
+        </Button>
+      </Tooltip>
+      <Tooltip
+        placement="bottom"
+        overlay={
+          <div>
+            <div>
+              拖动<span className="text-muted-foreground">以移动</span>
+            </div>
+          </div>
+        }
       >
-        <RiDraggable size={22} />
-      </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="w-auto h-auto p-0.5"
+          onClick={onDraggableClick}
+        >
+          <RiDraggable size={22} />
+        </Button>
+      </Tooltip>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { NODE_SELECTOR_ITEMS } from "../lib/nodes";
 import { RiArrowDropDownLine, RiCheckLine } from "@remixicon/react";
+import Tooltip from "../ui/tooltip";
 
 interface NodeSelectorProps {
   open: boolean;
@@ -21,15 +22,17 @@ export const NodeSelector = ({ open, onOpenChange }: NodeSelectorProps) => {
 
   return (
     <Popover modal={true} open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger
-        asChild
-        className="rounded-md border-none hover:bg-accent focus:ring-0 pr-0"
-      >
-        <Button size="sm" variant="ghost">
-          <span className="whitespace-nowrap text-sm">{activeItem.name}</span>
-          <RiArrowDropDownLine />
-        </Button>
-      </PopoverTrigger>
+      <Tooltip overlay="转换成" placement="top">
+        <PopoverTrigger
+          asChild
+          className="rounded-md border-none hover:bg-accent focus:ring-0 pr-0"
+        >
+          <Button size="sm" variant="ghost">
+            <span className="whitespace-nowrap text-sm">{activeItem.name}</span>
+            <RiArrowDropDownLine />
+          </Button>
+        </PopoverTrigger>
+      </Tooltip>
       <PopoverContent sideOffset={5} align="start" className="w-48 p-1">
         <p className="mb-2 text-sm text-secondary-foreground">转换成</p>{" "}
         {/* Convert to */}

@@ -9,6 +9,7 @@ import { EditorBubbleItem, useEditor } from "novel";
 import { Button } from "../ui/button";
 import { cx } from "@emotion/css";
 import { SelectorItem } from "../lib/nodes";
+import Tooltip from "../ui/tooltip";
 
 export const TextButtons = () => {
   const { editor } = useEditor();
@@ -54,18 +55,20 @@ export const TextButtons = () => {
             item.command(editor);
           }}
         >
-          <Button
-            size="sm"
-            className="rounded-md"
-            variant="ghost"
-            type="button"
-          >
-            <item.icon
-              className={cx("h-4 w-4", {
-                "text-blue-500": item.isActive(editor),
-              })}
-            />
-          </Button>
+          <Tooltip overlay={item.name} placement="top">
+            <Button
+              size="sm"
+              className="rounded-md"
+              variant="ghost"
+              type="button"
+            >
+              <item.icon
+                className={cx("h-4 w-4", {
+                  "text-blue-500": item.isActive(editor),
+                })}
+              />
+            </Button>
+          </Tooltip>
         </EditorBubbleItem>
       ))}
     </div>

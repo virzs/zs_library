@@ -6,6 +6,7 @@ import { PopoverContent } from "../ui/popover";
 import { cx } from "@emotion/css";
 import { getUrlFromString } from "../lib/url-utils";
 import { RiCheckLine, RiDeleteBinLine, RiLink } from "@remixicon/react";
+import Tooltip from "../ui/tooltip";
 
 interface LinkSelectorProps {
   open: boolean;
@@ -24,24 +25,29 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
 
   return (
     <Popover modal={true} open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <Button
-          size="sm"
-          variant="ghost"
-          className="gap-2 rounded-md border-none"
-        >
-          <p className="text-base">
-            <RiLink size={16} />
-          </p>
-          <p
-            className={cx("underline decoration-stone-400 underline-offset-4", {
-              "text-blue-500": editor.isActive("link"),
-            })}
+      <Tooltip overlay="添加链接" placement="top">
+        <PopoverTrigger asChild>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="gap-2 rounded-md border-none"
           >
-            链接 {/* Link */}
-          </p>
-        </Button>
-      </PopoverTrigger>
+            <p className="text-base">
+              <RiLink size={16} />
+            </p>
+            <p
+              className={cx(
+                "underline decoration-stone-400 underline-offset-4",
+                {
+                  "text-blue-500": editor.isActive("link"),
+                }
+              )}
+            >
+              链接 {/* Link */}
+            </p>
+          </Button>
+        </PopoverTrigger>
+      </Tooltip>
       <PopoverContent align="start" className="w-60 p-0" sideOffset={10}>
         <form
           onSubmit={(e) => {

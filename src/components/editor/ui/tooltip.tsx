@@ -1,42 +1,26 @@
 "use client";
 
-import * as React from "react";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import { css } from "@emotion/css";
+import RcTooltip from "rc-tooltip";
+import { TooltipProps } from "rc-tooltip/lib/Tooltip";
 
-const {
-  Provider: TooltipProvider,
-  Root: TooltipRoot,
-  Trigger: TooltipTrigger,
-  Portal,
-  Content: TooltipContent,
-  Arrow: TooltipArrow,
-} = TooltipPrimitive;
-
-const Tooltip = React.forwardRef<
-  React.ComponentRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ trigger, content, ...props }, ref) => (
-  <TooltipProvider>
-    <TooltipRoot>
-      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-      <Portal>
-        <TooltipContent
-          sideOffset={5}
-          ref={ref}
-          className="p-2 rounded-md bg-background border border-muted"
-          {...props}
-        >
-          {content}
-        </TooltipContent>
-      </Portal>
-    </TooltipRoot>
-  </TooltipProvider>
-));
-
-export {
-  TooltipProvider,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipArrow,
+const Tooltip = (props: TooltipProps) => {
+  return (
+    <RcTooltip
+      classNames={{
+        root: css`
+          background-color: transparent;
+          padding: 0;
+          .rc-tooltip-content {
+            border: none;
+          }
+        `,
+        body: "!p-2 !rounded-md !bg-background !border !border-muted !text-secondary-foreground",
+      }}
+      showArrow={false}
+      {...props}
+    />
+  );
 };
+
+export default Tooltip;
