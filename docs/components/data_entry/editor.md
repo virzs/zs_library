@@ -9,11 +9,24 @@ import React, { useState } from "react";
 import { Editor } from "zs_library";
 
 export default () => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState({
+    type: "doc",
+    content: [
+      {
+        type: "heading",
+        attrs: { level: 2 },
+        content: [{ type: "text", text: "Introducing Novel" }],
+      },
+    ],
+  });
+
+  console.log("🚀 ~ value:", value);
 
   return (
     <div>
       <Editor
+        initialContent={value}
+        onChange={setValue}
         uploadImageProps={{
           action: "https://tmpfiles.org/api/v1/upload",
           onSuccess: (res) => {
