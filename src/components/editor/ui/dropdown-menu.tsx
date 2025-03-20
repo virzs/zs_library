@@ -1,23 +1,25 @@
 import { ComponentRef, forwardRef, ReactNode } from "react";
 import RcDropdown, { DropdownProps } from "rc-dropdown";
-import RcMenu from "rc-menu";
+import RcMenu, { MenuProps, MenuItemProps } from "rc-menu";
 import { css, cx } from "@emotion/css";
-import { RiArrowRightSLine } from "@remixicon/react";
+import { RiArrowRightSLine, RiCheckLine } from "@remixicon/react";
 
 import "rc-dropdown/assets/index.css";
 import "rc-menu/assets/index.css";
 
-export interface MenuItem {
+export interface MenuItem extends Omit<MenuItemProps, "children" | "type"> {
   key: string;
   icon?: ReactNode;
   label?: string;
   className?: string;
   type?: string;
   children?: MenuItem[];
-  onClick?: () => void;
+  isActive?: boolean;
 }
 
-interface DropdownMenuProps extends DropdownProps {
+interface DropdownMenuProps
+  extends DropdownProps,
+    Omit<MenuProps, "builtinPlacements" | "children" | "type" | "items"> {
   items: MenuItem[];
 }
 
@@ -34,9 +36,11 @@ const DropdownMenu = forwardRef<
           "gap-2 !p-1.5 text-sm hover:bg-accent focus:ring-0 rounded-md cursor-pointer",
           item.className
         )}
+        itemIcon={item.isActive ? <RiCheckLine size={16} /> : undefined}
       >
         {item.icon}
         {item.label}
+        <div className="flex-1"></div>
       </RcMenu.Item>
     );
   };
@@ -101,6 +105,7 @@ const DropdownMenu = forwardRef<
               }
             `
           )}
+          {...rest}
         >
           {items.map((item) => {
             if (item.type === "divider") {

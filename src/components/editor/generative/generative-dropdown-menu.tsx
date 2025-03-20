@@ -8,6 +8,7 @@ import { DropdownMenu, MenuItem } from "../ui/dropdown-menu";
 import { DropdownProps } from "rc-dropdown";
 import { useEditor } from "novel";
 import { NodeSelection } from "@tiptap/pm/state";
+import { NODE_SELECTOR_ITEMS } from "../lib/nodes";
 
 const GenerativeDropdownMenu: FC<DropdownProps> = ({ children, ...rest }) => {
   const { editor } = useEditor();
@@ -45,10 +46,19 @@ const GenerativeDropdownMenu: FC<DropdownProps> = ({ children, ...rest }) => {
     }
   };
 
-  const subMenuItems: MenuItem[] = [
-    { key: "copy", icon: <RiFileCopyLine size={16} />, label: "复制" },
-    { key: "paste", icon: <RiFileCopyLine size={16} />, label: "粘贴" },
-  ];
+  // 转换节点类型菜单项
+  const transformMenuItems: MenuItem[] = NODE_SELECTOR_ITEMS.map((item) => ({
+    key: `transform-${item.name}`,
+    icon: <item.icon size={16} />,
+    label: item.name,
+    onClick: () => {
+      if (!editor) return;
+      if (editor.state.selection instanceof NodeSelection) {
+        item.command(editor);
+      }
+    },
+    isActive: item.isActive(editor),
+  }));
 
   const menuItems: MenuItem[] = [
     {
@@ -56,7 +66,7 @@ const GenerativeDropdownMenu: FC<DropdownProps> = ({ children, ...rest }) => {
       type: "submenu",
       icon: <RiRepeatLine size={16} />,
       label: "转换成",
-      children: subMenuItems,
+      children: transformMenuItems,
     },
     {
       key: "duplicate",
