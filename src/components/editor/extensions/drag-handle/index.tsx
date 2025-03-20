@@ -221,10 +221,32 @@ export function DragHandlePlugin(
     isNodeSelected = true; // 设置节点已被选中
   }
 
-  // 检查当前是否有节点被选中
+  // 更新拖拽按钮可见性的函数
   function updateHandleVisibility(view: EditorView) {
     const selection = view.state.selection;
+
+    // 更新节点选中状态
     isNodeSelected = selection instanceof NodeSelection;
+
+    // 检查当前选中的节点是否仍然存在
+    if (isNodeSelected && dragHandleElement?.dataset.nodePos) {
+      const selectedNodePos = parseInt(dragHandleElement.dataset.nodePos, 10);
+      try {
+        // 尝试解析该位置，如果节点已被删除将抛出错误
+        const $pos = view.state.doc.resolve(selectedNodePos);
+        // 检查解析出的位置是否有效，以及该位置是否仍然有节点
+        const isValidPos =
+          $pos && $pos.parent && $pos.parent.type.name !== "doc";
+        if (!isValidPos) {
+          isNodeSelected = false;
+          hideDragHandle();
+        }
+      } catch {
+        // 位置无效，节点可能已被删除
+        isNodeSelected = false;
+        hideDragHandle();
+      }
+    }
 
     // 如果有节点被选中且拖拽按钮可见，则不隐藏拖拽按钮
     if (
@@ -233,6 +255,8 @@ export function DragHandlePlugin(
       !dragHandleElement.classList.contains("hide")
     ) {
       showDragHandle();
+    } else if (!isNodeSelected) {
+      hideDragHandle();
     }
   }
 
@@ -458,6 +482,36 @@ export function DragHandlePlugin(
         dragend: (view) => {
           view.dom.classList.remove("dragging");
         },
+      },
+    },
+    // 简化对文档变化的监听
+    state: {
+      init() {
+        return {};
+      },
+      apply(tr, value, _oldState, newState) {
+        // 只在文档变化时检查当前选中的块是否存在
+        if (
+          tr.docChanged &&
+          dragHandleElement &&
+          dragHandleElement.dataset.nodePos
+        ) {
+          const nodePos = parseInt(dragHandleElement.dataset.nodePos, 10);
+          try {
+            // 尝试解析该位置，如果节点已被删除将抛出错误
+            const $pos = newState.doc.resolve(nodePos);
+            // 如果该位置已不再有效，则隐藏拖拽图标
+            if (!$pos || $pos.parent.type.name === "doc") {
+              isNodeSelected = false;
+              hideDragHandle();
+            }
+          } catch {
+            // 位置无效，节点已被删除
+            isNodeSelected = false;
+            hideDragHandle();
+          }
+        }
+        return value;
       },
     },
   });
