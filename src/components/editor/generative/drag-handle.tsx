@@ -3,6 +3,7 @@ import { RiAddLine, RiDraggable } from "@remixicon/react";
 import { useEditor } from "novel";
 import { Button } from "../ui/button";
 import Tooltip from "../ui/tooltip";
+import GenerativeDropdownMenu from "./generative-dropdown-menu";
 
 const DragHandle = () => {
   const { editor } = useEditor();
@@ -43,8 +44,6 @@ const DragHandle = () => {
     }
   };
 
-  const onDraggableClick = () => {};
-
   return (
     <div
       className={cx(
@@ -74,25 +73,22 @@ const DragHandle = () => {
           <RiAddLine className="cursor-pointer" size={22} />
         </Button>
       </Tooltip>
-      <Tooltip
-        placement="bottom"
-        overlay={
-          <div>
+      <GenerativeDropdownMenu>
+        <Tooltip
+          placement="bottom"
+          overlay={
             <div>
-              拖动<span className="text-muted-foreground">以移动</span>
+              <div>
+                拖动<span className="text-muted-foreground">以移动</span>
+              </div>
             </div>
-          </div>
-        }
-      >
-        <Button
-          size="icon"
-          variant="ghost"
-          className="w-auto h-auto p-0.5"
-          onClick={onDraggableClick}
+          }
         >
-          <RiDraggable size={22} />
-        </Button>
-      </Tooltip>
+          <Button size="icon" variant="ghost" className="w-auto h-auto p-0.5">
+            <RiDraggable size={22} />
+          </Button>
+        </Tooltip>
+      </GenerativeDropdownMenu>
     </div>
   );
 };

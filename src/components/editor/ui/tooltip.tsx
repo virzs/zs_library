@@ -3,6 +3,7 @@
 import { css } from "@emotion/css";
 import RcTooltip from "rc-tooltip";
 import { TooltipProps } from "rc-tooltip/lib/Tooltip";
+import "rc-tooltip/assets/bootstrap.css";
 
 const Tooltip = (props: TooltipProps) => {
   return (
