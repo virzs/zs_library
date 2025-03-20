@@ -14,6 +14,7 @@ export interface MenuItem {
   className?: string;
   type?: string;
   children?: MenuItem[];
+  onClick?: () => void;
 }
 
 interface DropdownMenuProps extends DropdownProps {
@@ -27,6 +28,7 @@ const DropdownMenu = forwardRef<
   const renderMenuItem = (item: MenuItem) => {
     return (
       <RcMenu.Item
+        onClick={item.onClick}
         key={item.key}
         className={cx(
           "gap-2 !p-1.5 text-sm hover:bg-accent focus:ring-0 rounded-md cursor-pointer",
