@@ -107,6 +107,8 @@ export function DragHandlePlugin(
   options: GlobalDragHandleOptions & { pluginKey: string }
 ) {
   let listType = "";
+  let isNodeSelected = false; // 添加标记，表示当前是否有节点被选中
+
   function handleDragStart(event: DragEvent, view: EditorView) {
     view.focus();
 
@@ -210,12 +212,39 @@ export function DragHandlePlugin(
     }
   }
 
+  // 选中节点的函数
+  function selectNode(view: EditorView, nodePos: number) {
+    const pos = calcNodePos(nodePos, view);
+    const nodeSelection = NodeSelection.create(view.state.doc, pos);
+    view.dispatch(view.state.tr.setSelection(nodeSelection));
+    view.focus();
+    isNodeSelected = true; // 设置节点已被选中
+  }
+
+  // 检查当前是否有节点被选中
+  function updateHandleVisibility(view: EditorView) {
+    const selection = view.state.selection;
+    isNodeSelected = selection instanceof NodeSelection;
+
+    // 如果有节点被选中且拖拽按钮可见，则不隐藏拖拽按钮
+    if (
+      isNodeSelected &&
+      dragHandleElement &&
+      !dragHandleElement.classList.contains("hide")
+    ) {
+      showDragHandle();
+    }
+  }
+
   function hideHandleOnEditorOut(event: MouseEvent) {
     if (!(event.target instanceof Element)) return;
 
     const relatedTarget = event.relatedTarget as HTMLElement;
     if (!relatedTarget) {
-      hideDragHandle();
+      if (!isNodeSelected) {
+        // 如果没有节点被选中，才隐藏拖拽按钮
+        hideDragHandle();
+      }
       return;
     }
 
@@ -229,7 +258,7 @@ export function DragHandlePlugin(
       relatedTarget.closest(".tiptap") ||
       relatedTarget.classList.contains("tiptap");
 
-    if (!isDragHandle && !isInsideEditor) {
+    if (!isDragHandle && !isInsideEditor && !isNodeSelected) {
       hideDragHandle();
     }
   }
@@ -250,6 +279,21 @@ export function DragHandlePlugin(
       }
 
       dragHandleElement.addEventListener("dragstart", onDragHandleDragStart);
+
+      // 点击拖拽按钮时选中对应的块
+      function onDragHandleClick(e: MouseEvent) {
+        if (!handleBySelector) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        const nodePos = dragHandleElement?.dataset.nodePos;
+        if (nodePos) {
+          selectNode(view, parseInt(nodePos, 10));
+        }
+      }
+
+      dragHandleElement.addEventListener("click", onDragHandleClick);
 
       function onDragHandleDrag(e: DragEvent) {
         hideDragHandle();
@@ -283,6 +327,7 @@ export function DragHandlePlugin(
             "dragstart",
             onDragHandleDragStart
           );
+          dragHandleElement?.removeEventListener("click", onDragHandleClick);
           dragHandleElement = null;
           view?.dom?.parentElement?.removeEventListener(
             "mouseout",
@@ -316,7 +361,10 @@ export function DragHandlePlugin(
             node.matches(excludedTagList) ||
             notDragging
           ) {
-            hideDragHandle();
+            if (!isNodeSelected) {
+              // 如果没有节点被选中，才隐藏拖拽按钮
+              hideDragHandle();
+            }
             return;
           }
 
@@ -352,10 +400,20 @@ export function DragHandlePlugin(
           showDragHandle();
         },
         keydown: () => {
-          hideDragHandle();
+          if (!isNodeSelected) {
+            // 如果没有节点被选中，才隐藏拖拽按钮
+            hideDragHandle();
+          }
         },
         mousewheel: () => {
-          hideDragHandle();
+          if (!isNodeSelected) {
+            // 如果没有节点被选中，才隐藏拖拽按钮
+            hideDragHandle();
+          }
+        },
+        // 在选择状态变化时更新拖拽按钮的状态
+        selectionChange: (view) => {
+          updateHandleVisibility(view);
         },
         // dragging class is used for CSS
         dragstart: (view) => {
