@@ -1,2 +1,3 @@
 import "./index.css";
-export { Desktop, MdEditor, Markdown, Dock } from "./components";
+import "./i18n";
+export { Desktop, MdEditor, Markdown, Dock, Editor } from "./components";
