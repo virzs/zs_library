@@ -1,6 +1,6 @@
 {
   "name": "zs_library",
-  "version": "0.4.1",
+  "version": "0.4.10",
   "homepage": "https://zs-library.virs.xyz/",
   "bugs": {
     "url": "https://github.com/virzs/zs_library/issues"
@@ -14,14 +14,12 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.umd.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
-    "./style.css": "./dist/zs_library.css"
+    "./style.css": "./dist/index.css"
   },
-  "main": "dist/index.umd.js",
-  "module": "dist/index.es.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
     "doc": "docs"
@@ -126,7 +124,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.17.0",
-    "vite": "^6.2.0",
+    "vite": "^6.3.3",
     "vite-plugin-dts": "^4.5.0",
     "vite-plugin-libcss": "^1.1.1"
   },
@@ -137,8 +135,8 @@
     "virs2018@outlook.com"
   ],
   "peerDependencies": {
-    "react": "^17.0.0 || ^18.0.0",
-    "react-dom": "^17.0.0 || ^18.0.0"
+    "react": ">=18.0.0 <19.0.0",
+    "react-dom": ">=18.0.0 <19.0.0"
   },
   "pnpm": {
     "overrides": {
