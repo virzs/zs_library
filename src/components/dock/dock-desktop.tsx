@@ -1,5 +1,6 @@
 import {
   AnimatePresence,
+  HTMLMotionProps,
   motion,
   MotionValue,
   useMotionValue,
@@ -7,15 +8,34 @@ import {
   useTransform,
 } from "framer-motion";
 import { cn } from "./utils";
-import { FC, useRef, useState } from "react";
+import {
+  ElementType,
+  FC,
+  MouseEvent,
+  ReactNode,
+  useRef,
+  useState,
+} from "react";
 import { DockItem } from ".";
 
-interface IconContainerProps extends DockItem {
+export interface DesktopIconContainerProps
+  extends DockItem,
+    Partial<Omit<HTMLMotionProps<"div">, "title" | "children">> {
   mouseX: MotionValue;
+  children?: ReactNode;
+  as?: ElementType;
 }
 
-const IconContainer: FC<IconContainerProps> = (props) => {
-  const { mouseX, title, icon, href } = props;
+export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
+  const {
+    mouseX,
+    title,
+    icon,
+    href,
+    children,
+    as: Component = motion.div,
+    ...rest
+  } = props;
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -63,15 +83,16 @@ const IconContainer: FC<IconContainerProps> = (props) => {
 
   const [hovered, setHovered] = useState(false);
 
-  return (
-    <a href={href}>
-      <motion.div
-        ref={ref}
-        style={{ width, height }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        className="aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 flex items-center justify-center relative"
-      >
+  const ele = (
+    <Component
+      ref={ref}
+      style={{ width, height }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 flex items-center justify-center relative"
+      {...rest}
+    >
+      {title && (
         <AnimatePresence>
           {hovered && (
             <motion.div
@@ -84,39 +105,61 @@ const IconContainer: FC<IconContainerProps> = (props) => {
             </motion.div>
           )}
         </AnimatePresence>
-        <motion.div
-          style={{ width: widthIcon, height: heightIcon }}
-          className="flex items-center justify-center"
-        >
-          {icon}
-        </motion.div>
+      )}
+      <motion.div
+        style={{ width: widthIcon, height: heightIcon }}
+        className="flex items-center justify-center"
+      >
+        {children || icon}
       </motion.div>
-    </a>
+    </Component>
   );
+
+  if (!href) return ele;
+
+  return <a href={href}></a>;
 };
 
 export interface DockDesktopProps {
   className?: string;
-  items: DockItem[];
+  items?: DockItem[];
+  itemBuilder?: (item: DockItem, mouseX: MotionValue) => ReactNode;
+  children?: ReactNode;
+  mouseX?: MotionValue;
+  as?: ElementType;
 }
 
 const DockDesktop: FC<DockDesktopProps> = (props) => {
-  const { items, className } = props;
+  const {
+    items = [],
+    className,
+    itemBuilder,
+    children,
+    mouseX: propMouseX,
+    as: Component = motion.div,
+  } = props;
 
-  const mouseX = useMotionValue(Infinity);
+  const privMoveX = useMotionValue(Infinity);
+
+  const mouseX = propMouseX ?? privMoveX;
   return (
-    <motion.div
-      onMouseMove={(e) => mouseX.set(e.pageX)}
+    <Component
+      onMouseMove={(e: MouseEvent<HTMLElement>) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
         "mx-auto hidden md:flex h-16 gap-4 items-end  rounded-2xl bg-gray-50 dark:bg-neutral-900 px-4 pb-3",
         className
       )}
     >
-      {items.map((item) => (
-        <IconContainer mouseX={mouseX} key={item.title} {...item} />
-      ))}
-    </motion.div>
+      {children ||
+        items.map((item) =>
+          itemBuilder ? (
+            itemBuilder(item, mouseX)
+          ) : (
+            <DesktopIconContainer mouseX={mouseX} key={item.title} {...item} />
+          )
+        )}
+    </Component>
   );
 };
 
