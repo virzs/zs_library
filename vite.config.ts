@@ -38,6 +38,14 @@ export default defineConfig({
         /^@radix-ui\/.*/,
         /^@emotion\/.*/,
         "framer-motion",
+        "prosemirror-state",
+        "prosemirror-transform",
+        "prosemirror-model",
+        "prosemirror-view",
+        "react-syntax-highlighter",
+        /^react-syntax-highlighter($|\/.*)/,
+        /^react-syntax-highlighter\/dist\/esm\/styles\/prism\/.*$/,
+        /^react-syntax-highlighter\/dist\/esm\/styles\/hljs\/.*$/,
       ],
       output: [
         {
