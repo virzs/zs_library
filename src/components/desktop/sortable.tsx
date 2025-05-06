@@ -159,7 +159,17 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         )}
         customPaging={(i) => {
           if (pagingDotBuilder) {
-            return pagingDotBuilder(list[i], i);
+            const content = pagingDotBuilder(list[i], i);
+
+            return React.cloneElement(content, {
+              onDragEnter: (e: React.DragEvent) => {
+                (_sliderRef ?? sliderRef).current?.slickGoTo(i);
+                // 保留原有的onDragEnter事件
+                if (content.props && content.props.onDragEnter) {
+                  content.props.onDragEnter(e);
+                }
+              },
+            });
           }
           return (
             <div
