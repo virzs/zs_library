@@ -1168,7 +1168,3 @@ export default () => {
   );
 };
 ```
-
-## API
-
-<API moduleName="desktop" />
