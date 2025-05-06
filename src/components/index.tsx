@@ -32,5 +32,18 @@ export { default as SortableUtils } from "./desktop/utils";
 
 export { default as MdEditor } from "./md-editor";
 export { default as Markdown } from "./md-editor/preview";
+
 export { default as Dock } from "./dock";
+export {
+  default as DockDesktop,
+  DesktopIconContainer as DockDesktopItem,
+} from "./dock/dock-desktop";
+export {
+  default as DockMobile,
+  MobileIconContainer as DockMobileItem,
+} from "./dock/dock-mobile";
+export { useMotionValue as useDockDesktopMouseX } from "framer-motion";
+export type { DesktopIconContainerProps as DockDesktopItemProps } from "./dock/dock-desktop";
+export type { MobileIconContainerProps as DockMobileItemProps } from "./dock/dock-mobile";
+
 export { default as Editor } from "./editor";
