@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface SortItemBaseConfig {
   /** 最大行数 default 2 */
   maxRow?: number;
@@ -26,10 +27,10 @@ export interface SortItemBaseData {
 
 export interface SortItem<
   D = any & SortItemBaseData,
-  C = any & SortItemBaseConfig,
+  C = any & SortItemBaseConfig
 > {
   id: string | number;
-  type: 'app' | 'group';
+  type: "app" | "group";
   data?: D;
   config?: C;
   children?: SortItem<D, C>[];

@@ -12,6 +12,7 @@ import { SortItem } from "./types";
 import { useSortableState } from "./context/state/hooks";
 import { useSortableConfig } from "./context/config/hooks";
 import SortableItem from "./items/sortable-item";
+import SortableUtils from "./utils";
 
 export interface Pagination {
   position?: "top" | "bottom" | "left" | "right";
@@ -219,7 +220,9 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               onDrop={(e) => {
                 e.preventDefault();
                 const data = e.dataTransfer.getData("text/plain");
-                if (data !== "") {
+                const quickCheckJsonResult = SortableUtils.quickJSONCheck(data);
+
+                if (quickCheckJsonResult) {
                   try {
                     addItem(JSON.parse(data), [l.id]);
                   } catch (e) {
