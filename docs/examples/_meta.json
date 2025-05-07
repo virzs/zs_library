@@ -1,7 +1,8 @@
 [
+  { "label": "组件总览", "type": "file", "name": "index" },
   {
     "type": "dir",
-    "name": "desktop&dock",
-    "label": "桌面与任务栏"
+    "name": "desktop",
+    "label": "桌面"
   }
 ]

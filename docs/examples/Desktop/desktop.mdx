@@ -1,6 +1,29 @@
-# Desktop & Dock
+# Desktop 与 Dock 组件相结合
 
-`Desktop`与`Dock`组件相结合
+:::warning
+
+🤖 此文档由 AI 生成
+
+:::
+
+本示例展示了如何将 Desktop 组件和 Dock 组件结合使用，创建一个带有动态交互效果的桌面式界面。通过将 Dock 组件用作 Desktop 的分页指示器，我们可以创建一个类似于 macOS 或现代操作系统的用户界面体验。
+
+## 功能特点
+
+- **动态交互**：Dock 组件上的图标会根据鼠标位置产生缩放动画效果
+- **自定义分页指示器**：使用 Dock 组件作为 Desktop 的分页导航
+- **分类展示**：内容以分类方式组织，便于浏览和管理
+- **响应式设计**：适应不同屏幕尺寸的界面布局
+
+## 实现原理
+
+这个示例使用了以下关键技术点：
+
+1. 使用 `pagingDotBuilder` 和 `pagingDotsBuilder` 属性自定义 Desktop 的分页指示器
+2. 利用 `useDockDesktopMouseX` 钩子捕获鼠标位置，用于 Dock 组件的动画效果
+3. 通过 Emotion CSS 自定义样式，确保组件间的视觉统一性
+
+## 代码演示
 
 ```jsx direction=vertical
 import {
@@ -191,3 +214,39 @@ function Index() {
 
 export default Index;
 ```
+
+## 核心组件说明
+
+### Desktop 组件
+
+`Desktop` 组件是一个高度可定制的桌面式界面组件，主要特点包括：
+
+- **项目管理**：支持拖拽排序、分组和文件夹管理
+- **主题配置**：提供浅色和深色主题，也支持自定义主题
+- **本地存储**：可以保存用户的排序和组织配置
+- **事件处理**：提供点击、右键菜单等交互事件
+
+### DockDesktop 组件
+
+`DockDesktop` 组件模拟了 macOS Dock 的交互效果：
+
+- **动态缩放**：图标会根据鼠标位置动态缩放
+- **悬停提示**：鼠标悬停时显示标题提示
+- **自定义图标**：支持各种图标类型，包括图片、SVG 和文本
+
+### 组件间的集成
+
+在本示例中，两个组件的集成通过以下方式实现：
+
+1. Desktop 的 `pagingDotBuilder` 返回 `DockDesktopItem` 组件
+2. Desktop 的 `pagingDotsBuilder` 返回 `DockDesktop` 组件
+3. 通过共享鼠标位置状态（`mouseX`）实现统一的动画效果
+
+## 使用场景
+
+这种组合方式特别适合于：
+
+- 应用启动器界面
+- 内容展示与管理系统
+- 需要分类展示大量内容的界面
+- 希望提供现代化桌面体验的 Web 应用
