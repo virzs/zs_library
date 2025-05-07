@@ -1,4 +1,5 @@
 import { pluginPreview } from "@rspress/plugin-preview";
+import { pluginPlayground } from "@rspress/plugin-playground";
 import { defineConfig } from "rspress/config";
 
 export default defineConfig({
@@ -6,7 +7,7 @@ export default defineConfig({
   root: "docs",
   title: "zs_library",
   description: "个人业务相关的组件库",
-  plugins: [pluginPreview()],
+  plugins: [pluginPreview(), pluginPlayground()],
   ssg: false,
   mediumZoom: {
     selector: ".rspress-doc img:not(.rspress-preview-card img)",

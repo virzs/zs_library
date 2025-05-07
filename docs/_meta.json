@@ -8,5 +8,10 @@
     "text": "组件",
     "link": "/components/",
     "activeMatch": "^/components/"
+  },
+  {
+    "text": "高级示例",
+    "link": "/examples/",
+    "activeMatch": "^/examples/"
   }
 ]
