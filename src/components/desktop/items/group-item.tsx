@@ -1,12 +1,12 @@
-import { css, cx } from '@emotion/css';
-import { motion } from 'framer-motion';
-import React, { useMemo } from 'react';
-import { ReactSortable } from 'react-sortablejs';
-import { useSortableConfig } from '../context/config/hooks';
-import { useSortableState } from '../context/state/hooks';
-import { SortItem, SortItemBaseConfig, SortItemBaseData } from '../types';
-import SortableUtils from '../utils';
-import SortableItem, { SortableItemProps } from './sortable-item';
+import { css, cx } from "@emotion/css";
+import { motion } from "framer-motion";
+import React, { useMemo } from "react";
+import { ReactSortable } from "react-sortablejs";
+import { useSortableConfig } from "../context/config/hooks";
+import { useSortableState } from "../context/state/hooks";
+import { SortItem, SortItemBaseConfig, SortItemBaseData } from "../types";
+import SortableUtils from "../utils";
+import SortableItem, { SortableItemProps } from "./sortable-item";
 
 interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
   data: SortItem<D, C>;
@@ -78,7 +78,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
       return (
         <motion.div
           className={cx(
-            'sortable-group-item',
+            "sortable-group-item",
             css`
               overflow: hidden;
               cursor: pointer;
@@ -92,7 +92,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
               @media (prefers-color-scheme: dark) {
                 background-color: ${dark.itemIconBackgroundColor};
               }
-            `,
+            `
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -112,8 +112,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             height: 100%;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             grid-template-rows: repeat(3, minmax(0, 1fr));
-            padding: ${col === 1 ? '0.125rem' : '0.25rem'};
-            gap: ${col === 1 ? '0.125rem' : '0.5rem'};
+            padding: ${col === 1 ? "0.125rem" : "0.25rem"};
+            gap: ${col === 1 ? "0.125rem" : "0.5rem"};
             place-items: center;
           `}
         >
@@ -123,10 +123,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
               className={cx(
                 childrenIconCss,
                 css`
-                  border-radius: ${col === 1 ? '0.25rem' : '0.5rem'};
+                  border-radius: ${col === 1 ? "0.25rem" : "0.5rem"};
                   width: 100%;
                   height: 100%;
-                `,
+                `
               )}
               onClick={(e) => {
                 e.stopPropagation();
@@ -172,7 +172,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                       border-radius: 0.375rem;
                       grid-column: span 2 / span 2;
                       grid-row: span 2 / span 2;
-                    `,
+                    `
               )}
               onClick={(e) => {
                 if (j > 2) return;
@@ -218,7 +218,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                       height: 1.5rem;
                       grid-column: span 2 / span 2;
                       grid-row: span 2 / span 2;
-                    `,
+                    `
               )}
               onClick={(e) => {
                 if (j > 2) return;
@@ -245,13 +245,13 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           grid-row: span ${row};
           grid-column: span ${col};
         `,
-        className,
+        className
       )}
     >
       <motion.div
         whileTap={{ scale: 0.9 }}
         className={cx(
-          isMoveTarget ? '!scale-110' : '',
+          isMoveTarget ? "!scale-110" : "",
           css`
             cursor: pointer;
             position: relative;
@@ -267,7 +267,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             margin: 0 auto;
             width: ${col * 64 + 32 * (col - 1)}px;
             height: ${row * 64 + 32 * (row - 1)}px;
-          `,
+          `
         )}
         onClick={(e: React.MouseEvent) => {
           if (!childrenEmpty && !longPressTriggered) {
@@ -294,7 +294,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           {/* 需要设置宽高小于父元素，否则在拖拽时会始终响应子列表 */}
           <ReactSortable
             className={cx(
-              'sortable-group-item',
+              "sortable-group-item",
               css`
                 position: absolute;
                 cursor: pointer;
@@ -302,13 +302,13 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 top: 0.375rem;
                 width: calc(100% - 0.75rem);
                 height: calc(100% - 0.75rem);
-                pointer-events: ${listStatus === null ? 'none' : 'auto'};
+                pointer-events: ${listStatus === null ? "none" : "auto"};
                 > * {
                   opacity: 0;
                 }
-              `,
+              `
             )}
-            group={{ name: 'nested', pull: false, put: true }}
+            group={{ name: "nested", pull: false, put: true }}
             animation={150}
             fallbackOnBody
             list={children ?? []}
@@ -324,10 +324,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
       </motion.div>
       <motion.p
         className={cx(
+          "whitespace-nowrap text-ellipsis overflow-hidden text-center mt-1 mb-0 max-w-16",
           css`
-            text-align: center;
-            margin-top: 0.25rem;
-            margin-bottom: 0;
             color: ${light.itemNameColor};
             @media (prefers-color-scheme: dark) {
               color: ${dark.itemNameColor};
@@ -336,12 +334,12 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           noLetters &&
             css`
               color: transparent;
-            `,
+            `
         )}
         variants={variants}
-        animate={isMove ? 'hidden' : 'visible'}
+        animate={isMove ? "hidden" : "visible"}
       >
-        {(itemData as SortItemBaseData)?.name ?? '文件夹'}
+        {(itemData as SortItemBaseData)?.name ?? "文件夹"}
       </motion.p>
     </SortableItem>
   );
