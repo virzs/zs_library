@@ -207,6 +207,10 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                         gap: 0.5rem;
                         padding-bottom: 0.5rem;
                         margin: 0;
+                        color: ${light.contextMenuTextColor};
+                        @media (prefers-color-scheme: dark) {
+                          color: ${dark.contextMenuTextColor};
+                        }
                       `}
                     >
                       {i.icon} {i.label}

@@ -1,13 +1,13 @@
-import { css, cx } from '@emotion/css';
-import { motion } from 'framer-motion';
-import RcTooltip from 'rc-tooltip';
-import 'rc-tooltip/assets/bootstrap_white.css';
-import React from 'react';
-import ContextMenu from '../context-menu';
-import { useSortableConfig } from '../context/config/hooks';
-import { useSortableState } from '../context/state/hooks';
-import { SortItem, SortItemBaseData } from '../types';
-import SortableUtils from '../utils';
+import { css, cx } from "@emotion/css";
+import { motion } from "framer-motion";
+import RcTooltip from "rc-tooltip";
+import "rc-tooltip/assets/bootstrap_white.css";
+import React from "react";
+import ContextMenu from "../context-menu";
+import { useSortableConfig } from "../context/config/hooks";
+import { useSortableState } from "../context/state/hooks";
+import { SortItem, SortItemBaseData } from "../types";
+import SortableUtils from "../utils";
 
 export interface SortableItemProps<D, C> {
   data: SortItem<D, C>;
@@ -22,7 +22,7 @@ export interface SortableItemProps<D, C> {
 }
 
 export const SortableItemDefaultContent = <D, C>(
-  props: SortableItemProps<D, C>,
+  props: SortableItemProps<D, C>
 ) => {
   const { data, noLetters = false } = props;
 
@@ -74,10 +74,8 @@ export const SortableItemDefaultContent = <D, C>(
       </motion.div>
       <motion.p
         className={cx(
+          "whitespace-nowrap text-ellipsis overflow-hidden text-center mt-1 mb-0 max-w-16",
           css`
-            text-align: center;
-            margin-top: 0.25rem;
-            margin-bottom: 0;
             color: ${light.itemNameColor};
             @media (prefers-color-scheme: dark) {
               color: ${dark.itemNameColor};
@@ -86,7 +84,7 @@ export const SortableItemDefaultContent = <D, C>(
           noLetters &&
             css`
               color: transparent;
-            `,
+            `
         )}
       >
         {name}
@@ -133,10 +131,10 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
       <motion.div
         data-id={data.id}
         data-index={itemIndex}
-        data-parent-ids={parentIds?.join(',')}
+        data-parent-ids={parentIds?.join(",")}
         data-children-length={childrenLength}
         onClick={() => onClick?.(data)}
-        className={cx(disabledDrag && 'drag-disabled', className)}
+        className={cx(disabledDrag && "drag-disabled", className)}
       >
         {children ?? <SortableItemDefaultContent {...props} />}
       </motion.div>

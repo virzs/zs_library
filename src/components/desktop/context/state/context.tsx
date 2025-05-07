@@ -1,9 +1,11 @@
-import { useDebounceEffect, useLocalStorageState } from 'ahooks';
-import React, { createContext, useEffect, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { configMap } from '../../config';
-import { SortItem } from '../../types';
-import SortableUtils from '../../utils';
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useDebounceEffect, useLocalStorageState } from "ahooks";
+import React, { createContext, useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { configMap } from "../../config";
+import { SortItem } from "../../types";
+import SortableUtils from "../../utils";
 
 interface ContextMenu {
   rect: DOMRect;
@@ -12,7 +14,7 @@ interface ContextMenu {
   pageY?: number;
 }
 
-type ListStatus = 'onMove';
+type ListStatus = "onMove";
 
 export interface SortableState {
   list: SortItem[];
@@ -88,13 +90,13 @@ export interface SortableStateProviderProps<D, C> {
 }
 
 export const SortableStateProvider = <D, C>(
-  props: SortableStateProviderProps<D, C>,
+  props: SortableStateProviderProps<D, C>
 ) => {
   const {
     children,
     list: propList = [],
     onChange: propOnChange,
-    storageKey = 'ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG',
+    storageKey = "ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG",
     enableCaching = true,
   } = props;
 
@@ -105,15 +107,15 @@ export const SortableStateProvider = <D, C>(
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
   const [list, setList] = useState<any[]>([]);
   const [showInfoItemData, setShowInfoItemData] = useState<SortItem | null>(
-    null,
+    null
   );
   const [openGroupItemData, setOpenGroupItemData] = useState<SortItem | null>(
-    null,
+    null
   );
   const [longPressTriggered, setLongPressTriggered] = useState(false);
   const [moveItemId, setMoveItemId] = useState<string | null>(null);
   const [moveTargetId, setMoveTargetId] = useState<string | number | null>(
-    null,
+    null
   );
 
   const [init, setInit] = useState(false);
@@ -148,14 +150,14 @@ export const SortableStateProvider = <D, C>(
             // 解决闭包导致拖拽时右键菜单不消失的问题
             if (listStatusRef.current !== null) return;
             getItemRectAndSetContextMenu(e, data);
-          }, 800),
+          }, 800)
         );
         setLongPressTriggered(false);
         setPressTimer(
           setTimeout(() => {
             setLongPressTriggered(true);
             // 这里处理长按事件
-          }, 800),
+          }, 800)
         );
       },
       onMouseUp: () => {
@@ -189,7 +191,7 @@ export const SortableStateProvider = <D, C>(
             /** 如果当前数据实际只有一个子数据，则取消 group 状态 */
             if (
               parent.children?.filter(
-                (i) => !newList.some((k) => k.id === i.id),
+                (i) => !newList.some((k) => k.id === i.id)
               ).length === 1 &&
               newList.length === 1
             ) {
@@ -213,8 +215,8 @@ export const SortableStateProvider = <D, C>(
             /** 没有子数据，且有新增数据，则将当前数据更改为 group 类型 */
             if (!parent.children?.length && newList.length) {
               const current = { ...parent };
-              parent.data = { name: '文件夹' };
-              parent.type = 'group';
+              parent.data = { name: "文件夹" };
+              parent.type = "group";
               parent.children = [current, ...newList];
               parent.id = uuidv4();
 
@@ -325,7 +327,7 @@ export const SortableStateProvider = <D, C>(
         if (parentIds.length) {
           parent.children = addToChild(parent.children || [], parentIds);
         } else {
-          const type = data?.type ?? 'app';
+          const type = data?.type ?? "app";
 
           parent.children = [
             ...(parent.children ?? []),
@@ -377,7 +379,7 @@ export const SortableStateProvider = <D, C>(
     [list, enableCaching],
     {
       wait: 1000,
-    },
+    }
   );
 
   return (

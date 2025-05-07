@@ -1,0 +1,8 @@
+[
+  { "label": "组件总览", "type": "file", "name": "index" },
+  {
+    "type": "dir",
+    "name": "desktop",
+    "label": "桌面"
+  }
+]

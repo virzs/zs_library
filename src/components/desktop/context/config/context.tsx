@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useMemo } from "react";
 import { Theme, themeDark, themeLight } from "../../theme";
 import { ContextMenuProps } from "../../context-menu";
