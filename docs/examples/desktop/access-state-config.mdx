@@ -1,0 +1,125 @@
+# 访问 Desktop 组件的状态和配置
+
+:::warning
+
+🤖 此文档由 AI 生成
+
+:::
+
+本示例展示如何使用`ref`从外部访问 Desktop 组件的状态(`state`)和配置(`config`)实例。
+
+```jsx direction=vertical
+import React, { useRef, useEffect, useState } from "react";
+import { Desktop } from "zs_library";
+
+const App = () => {
+  // 创建一个ref来存储Desktop组件的句柄
+  const desktopRef = useRef(null);
+  const [list, setList] = useState([]);
+
+  // 初始数据
+  const initialList = [
+    {
+      id: "1",
+      type: "app",
+      data: { name: "项目1" },
+      children: [
+        {
+          id: 2,
+          type: "app",
+          data: {
+            name: "App1",
+          },
+        },
+      ],
+    },
+    {
+      id: "2",
+      type: "app",
+      data: { name: "项目2" },
+      children: [],
+    },
+  ];
+
+  // 使用useEffect演示如何访问state和config
+  useEffect(() => {
+    // 确保ref已被赋值
+    if (desktopRef.current) {
+      // 访问state实例
+      console.log("当前列表数据:", desktopRef.current.state.list);
+
+      // 访问config实例
+      console.log("当前主题配置:", desktopRef.current.config.theme);
+
+      // 可以调用state中的方法，比如添加新项目
+      const addNewItem = () => {
+        if (desktopRef.current) {
+          desktopRef.current.state.addItem(
+            {
+              id: "new-item",
+              type: "app",
+              data: { name: "新项目" },
+            },
+            ["1"] // 添加到id为1的项目下
+          );
+        }
+      };
+
+      // 模拟点击按钮添加项目
+      // 注释掉以防止自动执行
+      // addNewItem();
+    }
+  }, []);
+
+  // 手动添加项目的函数，可以绑定到按钮上
+  const handleAddItem = () => {
+    if (desktopRef.current) {
+      desktopRef.current.state.addItem(
+        {
+          id: "new-item-" + Date.now(),
+          type: "app",
+          data: { name: "App " + new Date().toLocaleTimeString() },
+        },
+        ["1"] // 添加到id为1的项目下
+      );
+
+      // 打印当前列表
+      console.log("更新后的列表:", desktopRef.current.state.list);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: 300 }}>
+      <button style={{ marginBottom: 20 }} onClick={handleAddItem}>
+        添加新项目到项目1
+      </button>
+
+      <Desktop
+        ref={desktopRef}
+        list={!!list.length ? list : initialList}
+        onChange={(newList) => {
+          console.log("列表已更新:", newList);
+          setList(newList);
+        }}
+        theme="light"
+        enableCaching={false}
+      />
+    </div>
+  );
+};
+
+export default App;
+```
+
+## 使用场景
+
+通过访问组件的内部状态和配置，可以实现以下功能：
+
+1. **动态添加或修改项目** - 可以在外部组件中动态控制 Desktop 的数据
+2. **获取当前状态** - 例如获取当前选中的项目、排序状态等
+3. **修改配置** - 可以修改主题、排序方式等配置
+4. **创建高级功能** - 如撤销/重做、数据同步等
+
+## 实现原理
+
+这个功能的实现基于 React 的`forwardRef`和`useEffect`机制，通过在 Desktop 组件内部创建一个特殊的访问器组件，该组件使用 Context hooks 获取当前的 state 和 config 实例，并通过`ref`传递给父组件。
