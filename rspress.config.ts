@@ -12,4 +12,13 @@ export default defineConfig({
   mediumZoom: {
     selector: ".rspress-doc img:not(.rspress-preview-card img)",
   },
+  themeConfig: {
+    socialLinks: [
+      {
+        icon: "github",
+        mode: "link",
+        content: "https://github.com/virzs/zs_library",
+      },
+    ],
+  },
 });
