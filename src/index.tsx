@@ -30,6 +30,8 @@ export {
 } from "./components";
 
 export type {
+  DesktopHandle,
+  DesktopProps,
   DesktopSortableProps,
   DesktopSortableConfigProviderProps,
   DesktopSortableStateProviderProps,

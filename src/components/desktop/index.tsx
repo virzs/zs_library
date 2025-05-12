@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { forwardRef, useEffect } from "react";
+import React, { forwardRef, JSX, useEffect } from "react";
 import Sortable, { SortableProps } from "./sortable";
 import {
   SortableConfigProvider,
@@ -93,6 +93,8 @@ const Desktop = forwardRef(
       </SortableStateProvider>
     );
   }
-);
+) as <D = any, C = any>(
+  props: DesktopProps<D, C> & { ref?: React.ForwardedRef<DesktopHandle<D, C>> }
+) => JSX.Element;
 
 export default Desktop;
