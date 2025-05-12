@@ -1,7 +1,13 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useDebounceEffect, useLocalStorageState } from "ahooks";
-import React, { createContext, useEffect, useRef, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 import { configMap } from "../../config";
 import { SortItem } from "../../types";
@@ -37,6 +43,9 @@ export interface SortableState {
   updateItemConfig: (id: string | number, config: any) => void;
   removeItem: (id: string) => void;
   addItem: (data: SortItem, parentIds: (string | number)[]) => void;
+  addRootItem: (data: SortItem) => void;
+  updateRootItem: (id: string | number, data: any) => void;
+  removeRootItem: (id: string | number) => void;
   /** 当前移动的元素id */
   moveItemId: string | null;
   setMoveItemId: (e: string | null) => void;
@@ -63,6 +72,9 @@ export const SortableStateContext = createContext<SortableState>({
   updateItemConfig: () => {},
   removeItem: () => {},
   addItem: () => {},
+  addRootItem: () => {},
+  updateRootItem: () => {},
+  removeRootItem: () => {},
   moveItemId: null,
   setMoveItemId: () => {},
   moveTargetId: null,
@@ -174,51 +186,36 @@ export const SortableStateProvider = <D, C>(
     };
   };
 
-  const _setList = (newList: SortItem[], parentIds?: string[]) => {
-    const _parentIds = [...(parentIds || [])];
+  const _setList = useCallback(
+    (newList: SortItem[], parentIds?: string[]) => {
+      const _parentIds = [...(parentIds || [])];
 
-    if (_parentIds.length > 0) {
-      setList((oldList: SortItem[]) => {
-        const _items = [...oldList];
+      if (_parentIds.length > 0) {
+        setList((oldList: SortItem[]) => {
+          const _items = [...oldList];
 
-        const updateChild = (_list: SortItem[]): SortItem[] => {
-          const parentId = _parentIds.shift();
-          const parent = _list.find((item) => item.id === parentId);
-          const parentIndex = _list.findIndex((item) => item.id === parentId);
+          const updateChild = (_list: SortItem[]): SortItem[] => {
+            const parentId = _parentIds.shift();
+            const parent = _list.find((item) => item.id === parentId);
+            const parentIndex = _list.findIndex((item) => item.id === parentId);
 
-          /** 当第一个 parentId 匹配到，但剩余 parentIds > 0 表明需要继续向下匹配 */
-          if (_parentIds.length && parent) {
-            /** 如果当前数据实际只有一个子数据，则取消 group 状态 */
-            if (
-              parent.children?.filter(
-                (i) => !newList.some((k) => k.id === i.id)
-              ).length === 1 &&
-              newList.length === 1
-            ) {
-              const current = { ...newList[0] };
+            /** 当第一个 parentId 匹配到，但剩余 parentIds > 0 表明需要继续向下匹配 */
+            if (_parentIds.length && parent) {
+              /** 如果当前数据实际只有一个子数据，则取消 group 状态 */
+              if (
+                parent.children?.filter(
+                  (i) => !newList.some((k) => k.id === i.id)
+                ).length === 1 &&
+                newList.length === 1
+              ) {
+                const current = { ...newList[0] };
 
-              _list.splice(parentIndex, 1, current);
+                _list.splice(parentIndex, 1, current);
 
-              propOnChange?.(_list);
-              return _list;
-            }
-            parent.children = updateChild(parent.children || []);
-
-            _list.splice(parentIndex, 1, parent);
-
-            propOnChange?.(_list);
-            return _list;
-          }
-
-          /** 当 parentIds = 0 且匹配到，表明当前为实际需要更新的数据 */
-          if (parent) {
-            /** 没有子数据，且有新增数据，则将当前数据更改为 group 类型 */
-            if (!parent.children?.length && newList.length) {
-              const current = { ...parent };
-              parent.data = { name: "文件夹" };
-              parent.type = "group";
-              parent.children = [current, ...newList];
-              parent.id = uuidv4();
+                propOnChange?.(_list);
+                return _list;
+              }
+              parent.children = updateChild(parent.children || []);
 
               _list.splice(parentIndex, 1, parent);
 
@@ -226,28 +223,46 @@ export const SortableStateProvider = <D, C>(
               return _list;
             }
 
-            // ! 当前已经是 group 时，直接将 children 更改为最新的 list
-            parent.children = SortableUtils.uniqueArray(newList);
+            /** 当 parentIds = 0 且匹配到，表明当前为实际需要更新的数据 */
+            if (parent) {
+              /** 没有子数据，且有新增数据，则将当前数据更改为 group 类型 */
+              if (!parent.children?.length && newList.length) {
+                const current = { ...parent };
+                parent.data = { name: "文件夹" };
+                parent.type = "group";
+                parent.children = [current, ...newList];
+                parent.id = uuidv4();
 
-            _list.splice(parentIndex, 1, parent);
+                _list.splice(parentIndex, 1, parent);
 
-            propOnChange?.(_list);
-            return _list;
-          }
+                propOnChange?.(_list);
+                return _list;
+              }
 
-          return SortableUtils.uniqueArray(newList);
-        };
+              // ! 当前已经是 group 时，直接将 children 更改为最新的 list
+              parent.children = SortableUtils.uniqueArray(newList);
 
-        return SortableUtils.uniqueArray(updateChild(_items));
-      });
-    } else {
-      const _newList = SortableUtils.uniqueArray(newList);
+              _list.splice(parentIndex, 1, parent);
 
-      // ! 根节点直接排序
-      propOnChange?.(_newList);
-      setList(_newList);
-    }
-  };
+              propOnChange?.(_list);
+              return _list;
+            }
+
+            return SortableUtils.uniqueArray(newList);
+          };
+
+          return SortableUtils.uniqueArray(updateChild(_items));
+        });
+      } else {
+        const _newList = SortableUtils.uniqueArray(newList);
+
+        // ! 根节点直接排序
+        propOnChange?.(_newList);
+        setList(_newList);
+      }
+    },
+    [propOnChange]
+  );
 
   const updateItemConfig = (id: string | number, config: any) => {
     setList((prevList) => {
@@ -348,6 +363,56 @@ export const SortableStateProvider = <D, C>(
     setList(addToChild(_list, parentIds));
   };
 
+  /**
+   * 添加根级别的项目
+   * @param data SortItem数据
+   */
+  const addRootItem = (data: SortItem) => {
+    setList((prevList) => {
+      const type = data?.type ?? "app";
+      const newItem = {
+        ...data,
+        id: uuidv4(),
+        config: data?.config ?? configMap[type],
+      };
+
+      const newList = [...prevList, newItem];
+      propOnChange?.(newList);
+      return newList;
+    });
+  };
+
+  /**
+   * 修改根级别的项目
+   * @param id 项目ID
+   * @param data 新的数据
+   */
+  const updateRootItem = (id: string | number, data: any) => {
+    setList((prevList) => {
+      const newList = [...prevList];
+      const index = newList.findIndex((item) => item.id === id);
+
+      if (index !== -1) {
+        newList[index] = { ...newList[index], ...data };
+        propOnChange?.(newList);
+      }
+
+      return newList;
+    });
+  };
+
+  /**
+   * 删除根级别的项目
+   * @param id 项目ID
+   */
+  const removeRootItem = (id: string | number) => {
+    setList((prevList) => {
+      const newList = prevList.filter((item) => item.id !== id);
+      propOnChange?.(newList);
+      return newList;
+    });
+  };
+
   useEffect(() => {
     if (propList?.length > 0 && list.length === 0) {
       _setList(propList);
@@ -362,14 +427,13 @@ export const SortableStateProvider = <D, C>(
     }
     // eslint-disable-next-line
   }, [listStatus]);
-
   useEffect(() => {
     if (!enableCaching) return;
     if (localList?.length && !init) {
       _setList(localList as any);
       setInit(true);
     }
-  }, [localList, init, enableCaching]);
+  }, [localList, init, enableCaching, _setList]);
 
   useDebounceEffect(
     () => {
@@ -402,6 +466,9 @@ export const SortableStateProvider = <D, C>(
         updateItem,
         removeItem,
         addItem,
+        addRootItem,
+        updateRootItem,
+        removeRootItem,
         moveItemId,
         setMoveItemId,
         moveTargetId,

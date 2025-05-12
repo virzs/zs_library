@@ -1,6 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 export { default as Desktop } from "./desktop";
 
+export type { DesktopHandle, DesktopProps } from "./desktop";
+
 export { default as DesktopSortable } from "./desktop/sortable";
 export type { SortableProps as DesktopSortableProps } from "./desktop/sortable";
 
