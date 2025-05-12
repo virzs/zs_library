@@ -10,6 +10,9 @@ export interface DockItem {
   icon?: ReactNode;
   title?: string;
   href?: string;
+  componentClassName?: string;
+  titleClassName?: string;
+  childrenClassName?: string;
 }
 
 // Desktop item builder 类型
