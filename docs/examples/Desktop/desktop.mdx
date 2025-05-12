@@ -203,6 +203,21 @@ function Index() {
           return (
             <DockDesktop mouseX={mouseX} as="ul">
               {dots}
+              <DockDesktopItem
+                componentClassName={cx(
+                  "cursor-pointer bg-slate-500 rounded-full",
+                  css`
+                    background-color: rgb(100 116 139 / 0.5);
+                  `
+                )}
+                mouseX={mouseX}
+                title="添加"
+                onClick={() => {
+                  alert("点击了添加");
+                }}
+              >
+                添加
+              </DockDesktopItem>
             </DockDesktop>
           );
         }}
