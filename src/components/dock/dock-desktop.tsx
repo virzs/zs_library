@@ -22,7 +22,13 @@ export interface DesktopIconContainerProps
   extends DockItem,
     Partial<Omit<HTMLMotionProps<"div">, "title" | "children">> {
   mouseX: MotionValue;
-  children?: ReactNode;
+  children?:
+    | ReactNode
+    | ((params: {
+        widthIcon: MotionValue<number>;
+        heightIcon: MotionValue<number>;
+        fontSizeTransform: MotionValue<string>;
+      }) => ReactNode);
   as?: ElementType;
   componentClassName?: string;
   titleClassName?: string;
@@ -75,7 +81,6 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
     stiffness: 150,
     damping: 12,
   });
-
   const widthIcon = useSpring(widthTransformIcon, {
     mass: 0.1,
     stiffness: 150,
@@ -86,6 +91,9 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
     stiffness: 150,
     damping: 12,
   });
+
+  // 创建一个用于字体大小的动态值
+  const fontSizeTransform = useTransform(widthIcon, (value) => `${value}px`);
 
   const [hovered, setHovered] = useState(false);
 
@@ -119,10 +127,16 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
         </AnimatePresence>
       )}
       <motion.div
-        style={{ width: widthIcon, height: heightIcon }}
+        style={{
+          width: widthIcon,
+          height: heightIcon,
+          fontSize: fontSizeTransform,
+        }}
         className={cn("flex items-center justify-center", childrenClassName)}
       >
-        {children || icon}
+        {typeof children === "function"
+          ? children({ widthIcon, heightIcon, fontSizeTransform })
+          : children || icon}
       </motion.div>
     </Component>
   );

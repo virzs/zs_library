@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css";
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import Slider, { Settings } from "react-slick";
 import { ReactSortable } from "react-sortablejs";
 import "slick-carousel/slick/slick-theme.css";
@@ -53,6 +53,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
   const sliderRef = useRef<Slider>(null);
   const sliderDotsRef = useRef<HTMLUListElement>(null);
+
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const {
     list,
@@ -159,7 +161,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         )}
         customPaging={(i) => {
           if (pagingDotBuilder) {
-            const content = pagingDotBuilder(list[i], i);
+            const content = pagingDotBuilder(list[i], i, activeSlide === i);
 
             return React.cloneElement(content, {
               onDragEnter: (e: React.DragEvent) => {
@@ -182,6 +184,10 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
           );
         }}
         appendDots={(dots) => {
+          // Fix: react-slick bug 当只有一个 slide 时 dots 不显示
+          if (dots instanceof Array) {
+            delete dots[dots.length - 1];
+          }
           if (pagingDotsBuilder) {
             return pagingDotsBuilder(dots);
           }
@@ -220,6 +226,9 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               </ul>
             </div>
           );
+        }}
+        beforeChange={(_, next) => {
+          setActiveSlide(next);
         }}
         {...sliderProps}
       >
@@ -334,6 +343,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             </div>
           );
         })}
+        <div></div>
       </Slider>
 
       {/* 单个item信息弹窗 */}
