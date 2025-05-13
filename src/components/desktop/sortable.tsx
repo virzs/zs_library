@@ -184,6 +184,10 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
           );
         }}
         appendDots={(dots) => {
+          // Fix: react-slick bug 当只有一个 slide 时 dots 不显示
+          if (dots instanceof Array) {
+            delete dots[dots.length - 1];
+          }
           if (pagingDotsBuilder) {
             return pagingDotsBuilder(dots);
           }
@@ -339,6 +343,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             </div>
           );
         })}
+        <div></div>
       </Slider>
 
       {/* 单个item信息弹窗 */}
