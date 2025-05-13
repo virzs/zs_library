@@ -125,7 +125,7 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
             </motion.div>
           )}
         </AnimatePresence>
-      )}{" "}
+      )}
       <motion.div
         style={{
           width: widthIcon,
