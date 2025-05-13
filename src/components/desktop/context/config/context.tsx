@@ -23,11 +23,13 @@ export interface SortableConfig<D, C> {
   /**
    * 自定义分页点容器
    */
-  pagingDotsBuilder?: (dots: React.ReactNode) => React.JSX.Element;
-  /**
+  pagingDotsBuilder?: (dots: React.ReactNode) => React.JSX.Element;  /**
    * 自定义分页点
+   * @param item 分页项数据
+   * @param index 分页项索引
+   * @param isActive 是否为当前选中页
    */
-  pagingDotBuilder?: (item: SortItem<D, C>, index: number) => React.JSX.Element;
+  pagingDotBuilder?: (item: SortItem<D, C>, index: number, isActive: boolean) => React.JSX.Element;
   /**
    * 自定义 item 渲染
    */
