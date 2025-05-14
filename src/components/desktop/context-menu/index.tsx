@@ -33,17 +33,20 @@ const ContextButton: FC<ContextButtonProps> = (props) => {
 
   return (
     <motion.div
-      className={css`
-        &:hover {
-          background-color: ${theme.token.contextMenuActiveColor};
-        }
-        font-size: 0.75rem;
-        line-height: 1rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        user-select: none;
-        border-radius: 0.5rem;
-      `}
+      className={cx(
+        "text-black",
+        css`
+          &:hover {
+            background-color: ${theme.token.contextMenuActiveColor};
+          }
+          font-size: 0.75rem;
+          line-height: 1rem;
+          cursor: pointer;
+          transition: all 0.3s;
+          user-select: none;
+          border-radius: 0.5rem;
+        `
+      )}
       onClick={(e) => {
         e.stopPropagation();
         onClick?.();
