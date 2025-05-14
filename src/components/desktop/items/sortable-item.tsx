@@ -7,7 +7,6 @@ import ContextMenu from "../context-menu";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseData } from "../types";
-import SortableUtils from "../utils";
 
 export interface SortableItemProps<D, C> {
   data: SortItem<D, C>;
@@ -29,8 +28,6 @@ export const SortableItemDefaultContent = <D, C>(
   const { contextMenuFuns } = useSortableState();
   const { itemIconBuilder, theme, contextMenu } = useSortableConfig();
 
-  const { light, dark } = SortableUtils.getTheme(theme);
-
   const { data: itemData = {} } = data;
 
   const { name } = itemData as D & SortItemBaseData;
@@ -41,16 +38,12 @@ export const SortableItemDefaultContent = <D, C>(
         className={css`
           width: 4rem;
           height: 4rem;
-          background-color: ${light.itemIconBackgroundColor};
+          background-color: ${theme.token.itemIconBackgroundColor};
           border-radius: 0.75rem;
-          box-shadow: 0 0 0.5rem ${light.itemIconShadowColor};
+          box-shadow: 0 0 0.5rem ${theme.token.itemIconShadowColor};
           cursor: pointer;
           position: relative;
           overflow: hidden;
-          @media (prefers-color-scheme: dark) {
-            background-color: ${dark.itemIconBackgroundColor};
-            box-shadow: 0 0 0.5rem ${dark.itemIconShadowColor};
-          }
         `}
         whileTap={{ scale: 0.9 }}
       >
@@ -62,10 +55,7 @@ export const SortableItemDefaultContent = <D, C>(
             top: 0;
             width: 100%;
             height: 100%;
-            color: ${light.itemNameColor};
-            @media (prefers-color-scheme: dark) {
-              color: ${dark.itemNameColor};
-            }
+            color: ${theme.token.itemNameColor};
           `}
           {...contextMenuFuns(data, contextMenu !== false)}
         >
@@ -76,10 +66,7 @@ export const SortableItemDefaultContent = <D, C>(
         className={cx(
           "whitespace-nowrap text-ellipsis overflow-hidden text-center mt-1 mb-0 max-w-16",
           css`
-            color: ${light.itemNameColor};
-            @media (prefers-color-scheme: dark) {
-              color: ${dark.itemNameColor};
-            }
+            color: ${theme.token.itemNameColor};
           `,
           noLetters &&
             css`

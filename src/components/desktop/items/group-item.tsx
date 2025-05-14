@@ -5,7 +5,6 @@ import { ReactSortable } from "react-sortablejs";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseConfig, SortItemBaseData } from "../types";
-import SortableUtils from "../utils";
 import SortableItem, { SortableItemProps } from "./sortable-item";
 
 interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
@@ -33,8 +32,6 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
   } = useSortableState();
 
   const { itemIconBuilder, theme, contextMenu } = useSortableConfig();
-
-  const { light, dark } = SortableUtils.getTheme(theme);
 
   const { children, data: itemData, config: itemConfig } = data;
 
@@ -64,12 +61,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
   const childrenIconCss = css`
     overflow: hidden;
     cursor: pointer;
-    background-color: ${light.itemIconBackgroundColor};
-    box-shadow: 0 0 0.5rem ${light.itemIconShadowColor};
-    @media (prefers-color-scheme: dark) {
-      background-color: ${dark.itemIconBackgroundColor};
-      box-shadow: 0 0 0.5rem ${dark.itemIconShadowColor};
-    }
+    background-color: ${theme.token.itemIconBackgroundColor};
+    box-shadow: 0 0 0.5rem ${theme.token.itemIconShadowColor};
   `;
 
   const sizedContent = () => {
@@ -84,14 +77,11 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
               cursor: pointer;
               width: 100%;
               height: 100%;
-              background-color: ${light.itemIconBackgroundColor};
+              background-color: ${theme.token.itemIconBackgroundColor};
               position: absolute;
               left: 0;
               top: 0;
               border-radius: 0.75rem;
-              @media (prefers-color-scheme: dark) {
-                background-color: ${dark.itemIconBackgroundColor};
-              }
             `
           )}
           onClick={(e) => {
@@ -256,12 +246,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             cursor: pointer;
             position: relative;
             border-radius: 0.75rem;
-            background-color: ${light.groupItemIconBackgroundColor};
-            box-shadow: 0 0 0.5rem ${light.groupItemIconShadowColor};
-            @media (prefers-color-scheme: dark) {
-              background-color: ${dark.groupItemIconBackgroundColor};
-              box-shadow: 0 0 0.5rem ${dark.groupItemIconShadowColor};
-            }
+            background-color: ${theme.token.groupItemIconBackgroundColor};
+            box-shadow: 0 0 0.5rem ${theme.token.groupItemIconShadowColor};
             /* overflow: hidden; */
             transition: all 0.3s;
             margin: 0 auto;
@@ -326,10 +312,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
         className={cx(
           "whitespace-nowrap text-ellipsis overflow-hidden text-center mt-1 mb-0 max-w-16",
           css`
-            color: ${light.itemNameColor};
-            @media (prefers-color-scheme: dark) {
-              color: ${dark.itemNameColor};
-            }
+            color: ${theme.token.itemNameColor};
           `,
           noLetters &&
             css`
