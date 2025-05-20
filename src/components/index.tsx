@@ -49,3 +49,6 @@ export type { DesktopIconContainerProps as DockDesktopItemProps } from "./dock/d
 export type { MobileIconContainerProps as DockMobileItemProps } from "./dock/dock-mobile";
 
 export { default as Editor } from "./editor";
+
+export { default as GeoMap } from "./map-view";
+export type { GeoMapProps } from "./map-view";
