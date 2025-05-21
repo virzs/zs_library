@@ -24,6 +24,7 @@
 
 - 排序
 - 文件夹
+- 自定义追加元素
 
 ## 代码演示
 
@@ -1168,3 +1169,80 @@ export default () => {
   );
 };
 ```
+
+### 自定义额外项目
+
+通过 `extraItems` 属性可以在桌面中添加额外项目，将显示在子项列表内部的末尾。您可以使用它添加一个或多个额外项目，例如"添加"按钮或其他自定义功能。这些项目将作为网格中的项显示，与其他项目一起排列。
+
+```jsx
+import React from "react";
+import { Desktop } from "zs_library";
+
+export default () => {
+  const list = [
+    {
+      id: "123",
+      data: {
+        name: "常用",
+      },
+      children: [
+        {
+          id: 1,
+          type: "group",
+          data: {
+            name: "文件夹",
+          },
+          children: [],
+        },
+        {
+          id: 2,
+          type: "app",
+          data: {
+            name: "应用",
+          },
+        },
+      ],
+    },
+    {
+      id: "456",
+      data: {
+        name: "工作",
+      },
+      children: [],
+    },
+  ];
+
+  const handleAddItem = (listItem) => {
+    console.log("添加项目到:", listItem.id);
+    // 这里可以实现添加新项目的逻辑
+  };
+
+  return (
+    <Desktop
+      list={list}
+      enableCaching={false}
+      extraItems={(listItem) => (
+        <div
+          className="drag-disabled"
+          style={{
+            width: "96px",
+            height: "96px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer",
+            backgroundColor: "black",
+            color: "white",
+            borderRadius: "8px",
+          }}
+          onClick={() => handleAddItem(listItem)}
+        >
+          自定义元素
+        </div>
+      )}
+    />
+  );
+};
+```
+
+额外项目将显示在网格内容的末尾，您可以使用它来实现添加新项目、显示更多信息或任何其他自定义功能。

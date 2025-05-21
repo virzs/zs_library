@@ -40,7 +40,30 @@ export interface SortableProps<D, C> {
    * 点击 item 事件
    */
   onItemClick?: (item: SortItem<D, C>) => void;
+  /**
+   * 自定义额外项目，将显示在子项列表末尾
+   */
+  extraItems?: (listItem: SortItem<D, C>) => React.ReactNode;
 }
+
+// 创建一个安全的渲染包装组件
+const SafeExtraItems = <D, C>({
+  renderFn,
+  item,
+}: {
+  renderFn?: (item: SortItem<D, C>) => React.ReactNode;
+  item: SortItem<D, C>;
+}) => {
+  if (!renderFn) return null;
+
+  try {
+    const content = renderFn(item);
+    return <>{content}</>;
+  } catch (error) {
+    console.error("Error in SafeExtraItems:", error);
+    return null;
+  }
+};
 
 const Sortable = <D, C>(props: SortableProps<D, C>) => {
   const {
@@ -49,6 +72,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     sliderProps,
     sliderRef: _sliderRef,
     onItemClick,
+    extraItems,
   } = props;
 
   const sliderRef = useRef<Slider>(null);
@@ -339,6 +363,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
                   return el;
                 })}
+                <SafeExtraItems<D, C> renderFn={extraItems} item={l} />
               </ReactSortable>
             </div>
           );
