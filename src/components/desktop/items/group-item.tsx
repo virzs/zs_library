@@ -7,7 +7,7 @@ import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseConfig, SortItemBaseData } from "../types";
 import SortableItem, { SortableItemProps } from "./sortable-item";
 
-interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
+export interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
   data: SortItem<D, C>;
 }
 

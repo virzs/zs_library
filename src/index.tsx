@@ -6,6 +6,8 @@ export {
   // Desktop相关
   Desktop,
   DesktopSortable,
+  DesktopAppItem,
+  DesktopGroupItem,
   DesktopSortableConfigProvider,
   DesktopSortableStateProvider,
   desktopAppConfig,
@@ -33,6 +35,8 @@ export {
 export type {
   DesktopHandle,
   DesktopProps,
+  DesktopAppItemProps,
+  DesktopGroupItemProps,
   DesktopSortableProps,
   DesktopSortableConfigProviderProps,
   DesktopSortableStateProviderProps,
