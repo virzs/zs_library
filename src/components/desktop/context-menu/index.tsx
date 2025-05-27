@@ -10,7 +10,6 @@ import { FC, ReactNode } from "react";
 import { configMap } from "../config";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
-import SortableUtils from "../utils";
 import { SortItem, SortItemBaseConfig } from "../types";
 
 const itemVariants: Variants = {
@@ -32,27 +31,22 @@ const ContextButton: FC<ContextButtonProps> = (props) => {
   const { icon, title, onClick } = props;
   const { theme } = useSortableConfig();
 
-  const { light, dark } = SortableUtils.getTheme(theme);
-
   return (
     <motion.div
-      className={css`
-        &:hover {
-          background-color: ${light.contextMenuActiveColor};
-          @media (prefers-color-scheme: dark) {
-            background-color: ${dark.contextMenuActiveColor};
+      className={cx(
+        "text-black",
+        css`
+          &:hover {
+            background-color: ${theme.token.contextMenuActiveColor};
           }
-        }
-        @media (prefers-color-scheme: dark) {
-          color: black;
-        }
-        font-size: 0.75rem;
-        line-height: 1rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        user-select: none;
-        border-radius: 0.5rem;
-      `}
+          font-size: 0.75rem;
+          line-height: 1rem;
+          cursor: pointer;
+          transition: all 0.3s;
+          user-select: none;
+          border-radius: 0.5rem;
+        `
+      )}
       onClick={(e) => {
         e.stopPropagation();
         onClick?.();
@@ -121,8 +115,6 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
   const { theme } = useSortableConfig();
 
-  const { light, dark } = SortableUtils.getTheme(theme);
-
   const { data } = contextMenu ?? {};
   const { config = {} } = data ?? {};
 
@@ -154,12 +146,8 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               css`
                 border-radius: 0.5rem;
                 overflow: hidden;
-                background-color: ${light.contextMenuBackgroundColor};
-                box-shadow: 0 0 0.5rem ${light.contextMenuShadowColor};
-                @media (prefers-color-scheme: dark) {
-                  background-color: ${dark.contextMenuBackgroundColor};
-                  box-shadow: 0 0 0.5rem ${dark.contextMenuShadowColor};
-                }
+                background-color: ${theme.token.contextMenuBackgroundColor};
+                box-shadow: 0 0 0.5rem ${theme.token.contextMenuShadowColor};
               `
             )}
           >
@@ -207,10 +195,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                         gap: 0.5rem;
                         padding-bottom: 0.5rem;
                         margin: 0;
-                        color: ${light.contextMenuTextColor};
-                        @media (prefers-color-scheme: dark) {
-                          color: ${dark.contextMenuTextColor};
-                        }
+                        color: ${theme.token.contextMenuTextColor};
                       `}
                     >
                       {i.icon} {i.label}
@@ -237,23 +222,16 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                               line-height: 1.25rem;
                               cursor: pointer;
                               text-align: center;
-                              color: ${light.contextMenuTextColor};
-                              @media (prefers-color-scheme: dark) {
-                                color: ${dark.contextMenuTextColor};
-                              }
+                              color: ${theme.token.contextMenuTextColor};
                               &:hover {
-                                background-color: ${light.contextMenuActiveColor};
-                                @media (prefers-color-scheme: dark) {
-                                  background-color: ${dark.contextMenuActiveColor};
-                                }
+                                background-color: ${theme.token
+                                  .contextMenuActiveColor};
                               }
                             `,
                             `${config.row}x${config.col}` === it.key &&
                               css`
-                                background-color: ${light.contextMenuActiveColor};
-                                @media (prefers-color-scheme: dark) {
-                                  background-color: ${dark.contextMenuActiveColor};
-                                }
+                                background-color: ${theme.token
+                                  .contextMenuActiveColor};
                               `
                           )}
                           key={it.key}
@@ -271,12 +249,8 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
           <motion.div
             className={cx(
               css`
-                background-color: ${light.contextMenuBackgroundColor};
-                box-shadow: 0 0 0.5rem ${light.contextMenuShadowColor};
-                @media (prefers-color-scheme: dark) {
-                  background-color: ${dark.contextMenuBackgroundColor};
-                  box-shadow: 0 0 0.5rem ${dark.contextMenuShadowColor};
-                }
+                background-color: ${theme.token.contextMenuBackgroundColor};
+                box-shadow: 0 0 0.5rem ${theme.token.contextMenuShadowColor};
                 display: flex;
                 justify-content: space-around;
                 align-items: center;

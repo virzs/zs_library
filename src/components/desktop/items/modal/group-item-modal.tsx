@@ -6,7 +6,6 @@ import { useSortableConfig } from "../../context/config/hooks";
 import { useSortableState } from "../../context/state/hooks";
 import { ghostClass } from "../../style";
 import { SortItem } from "../../types";
-import SortableUtils from "../../utils";
 import SortableItem from "../sortable-item";
 
 interface GroupItemModalProps<D, C> {
@@ -27,8 +26,6 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
   } = useSortableState();
 
   const { theme } = useSortableConfig();
-
-  const { light, dark } = SortableUtils.getTheme(theme);
 
   const [name, setName] = useState("文件夹");
 
@@ -64,9 +61,6 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
             font-size: 1.25rem;
             line-height: 1.75rem;
             color: white;
-            @media (prefers-color-scheme: dark) {
-              color: black;
-            }
             &:focus {
               outline: none;
             }
@@ -103,10 +97,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
               }
             }
             .rc-dialog-body {
-              background-color: ${light.groupItemModalBackgroundColor};
-              @media (prefers-color-scheme: dark) {
-                background-color: ${dark.groupItemModalBackgroundColor};
-              }
+              background-color: ${theme.token.groupItemIconBackgroundColor};
               border-radius: 0.5rem;
               overflow: hidden;
             }

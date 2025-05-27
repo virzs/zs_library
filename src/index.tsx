@@ -6,6 +6,8 @@ export {
   // Desktop相关
   Desktop,
   DesktopSortable,
+  DesktopAppItem,
+  DesktopGroupItem,
   DesktopSortableConfigProvider,
   DesktopSortableStateProvider,
   desktopAppConfig,
@@ -27,11 +29,14 @@ export {
   MdEditor,
   Markdown,
   Editor,
+  GeoMap,
 } from "./components";
 
 export type {
   DesktopHandle,
   DesktopProps,
+  DesktopAppItemProps,
+  DesktopGroupItemProps,
   DesktopSortableProps,
   DesktopSortableConfigProviderProps,
   DesktopSortableStateProviderProps,

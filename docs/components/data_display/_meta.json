@@ -1,0 +1,4 @@
+[
+  { "label": "Markdown 标记语言", "type": "file", "name": "markdown" },
+  { "label": "GeoMap 地理地图", "type": "file", "name": "geomap" }
+]

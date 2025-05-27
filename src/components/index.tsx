@@ -6,6 +6,12 @@ export type { DesktopHandle, DesktopProps } from "./desktop";
 export { default as DesktopSortable } from "./desktop/sortable";
 export type { SortableProps as DesktopSortableProps } from "./desktop/sortable";
 
+export { default as DesktopGroupItem } from "./desktop/items/group-item";
+export type { SortableGroupItemProps as DesktopGroupItemProps } from "./desktop/items/group-item";
+
+export { default as DesktopAppItem } from "./desktop/items/sortable-item";
+export type { SortableItemProps as DesktopAppItemProps } from "./desktop/items/sortable-item";
+
 export { SortableConfigProvider as DesktopSortableConfigProvider } from "./desktop/context/config/context";
 export type { SortableConfigProviderProps as DesktopSortableConfigProviderProps } from "./desktop/context/config/context";
 
@@ -49,3 +55,6 @@ export type { DesktopIconContainerProps as DockDesktopItemProps } from "./dock/d
 export type { MobileIconContainerProps as DockMobileItemProps } from "./dock/dock-mobile";
 
 export { default as Editor } from "./editor";
+
+export { default as GeoMap } from "./map-view";
+export type { GeoMapProps } from "./map-view";

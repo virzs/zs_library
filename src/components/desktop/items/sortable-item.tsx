@@ -3,11 +3,10 @@ import { motion } from "framer-motion";
 import RcTooltip from "rc-tooltip";
 import "rc-tooltip/assets/bootstrap_white.css";
 import React from "react";
-import ContextMenu from "../context-menu";
+import ContextMenu, { ContextMenuProps } from "../context-menu";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseData } from "../types";
-import SortableUtils from "../utils";
 
 export interface SortableItemProps<D, C> {
   data: SortItem<D, C>;
@@ -19,21 +18,35 @@ export interface SortableItemProps<D, C> {
   children?: React.ReactNode;
   parentIds?: (string | number)[];
   childrenLength?: number;
+  contextMenuProps?: false | Partial<ContextMenuProps<D, C>>;
+  icon?: React.ReactNode;
 }
 
 export const SortableItemDefaultContent = <D, C>(
   props: SortableItemProps<D, C>
 ) => {
-  const { data, noLetters = false } = props;
-
+  const { data, noLetters = false, icon } = props;
   const { contextMenuFuns } = useSortableState();
-  const { itemIconBuilder, theme, contextMenu } = useSortableConfig();
+  const {
+    itemIconBuilder: configItemIconBuilder,
+    theme,
+    contextMenu,
+  } = useSortableConfig();
 
-  const { light, dark } = SortableUtils.getTheme(theme);
-
+  // 优先使用props中传递的icon，如果没有则使用配置中的itemIconBuilder
   const { data: itemData = {} } = data;
 
   const { name } = itemData as D & SortItemBaseData;
+
+  // 渲染图标内容
+  const renderIcon = () => {
+    if (icon) return icon;
+    if (!configItemIconBuilder) return null;
+    if (typeof configItemIconBuilder === "function") {
+      return configItemIconBuilder(data);
+    }
+    return configItemIconBuilder;
+  };
 
   return (
     <>
@@ -41,16 +54,12 @@ export const SortableItemDefaultContent = <D, C>(
         className={css`
           width: 4rem;
           height: 4rem;
-          background-color: ${light.itemIconBackgroundColor};
+          background-color: ${theme.token.itemIconBackgroundColor};
           border-radius: 0.75rem;
-          box-shadow: 0 0 0.5rem ${light.itemIconShadowColor};
+          box-shadow: 0 0 0.5rem ${theme.token.itemIconShadowColor};
           cursor: pointer;
           position: relative;
           overflow: hidden;
-          @media (prefers-color-scheme: dark) {
-            background-color: ${dark.itemIconBackgroundColor};
-            box-shadow: 0 0 0.5rem ${dark.itemIconShadowColor};
-          }
         `}
         whileTap={{ scale: 0.9 }}
       >
@@ -62,24 +71,18 @@ export const SortableItemDefaultContent = <D, C>(
             top: 0;
             width: 100%;
             height: 100%;
-            color: ${light.itemNameColor};
-            @media (prefers-color-scheme: dark) {
-              color: ${dark.itemNameColor};
-            }
+            color: ${theme.token.itemNameColor};
           `}
           {...contextMenuFuns(data, contextMenu !== false)}
         >
-          {itemIconBuilder?.(data)}
+          {renderIcon()}
         </div>
       </motion.div>
       <motion.p
         className={cx(
           "whitespace-nowrap text-ellipsis overflow-hidden text-center mt-1 mb-0 max-w-16",
           css`
-            color: ${light.itemNameColor};
-            @media (prefers-color-scheme: dark) {
-              color: ${dark.itemNameColor};
-            }
+            color: ${theme.token.itemNameColor};
           `,
           noLetters &&
             css`
@@ -103,10 +106,43 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
     children,
     parentIds,
     childrenLength,
+    contextMenuProps,
   } = props;
 
   const { contextMenu, setContextMenu } = useSortableState();
   const { contextMenu: configContextMenu } = useSortableConfig();
+
+  // 确定是否禁用上下文菜单
+  const disableContextMenu =
+    contextMenuProps === false ||
+    (contextMenuProps === undefined && configContextMenu === false);
+
+  // 合并配置中的contextMenu和props中的contextMenuProps
+  const mergedContextMenuProps =
+    contextMenuProps === false
+      ? false
+      : typeof contextMenuProps === "object"
+      ? contextMenuProps
+      : configContextMenu;
+
+  // 渲染内容元素
+  const renderContent = () => (
+    <motion.div
+      data-id={data.id}
+      data-index={itemIndex}
+      data-parent-ids={parentIds?.join(",")}
+      data-children-length={childrenLength}
+      onClick={() => onClick?.(data)}
+      className={cx(disabledDrag && "drag-disabled", className)}
+    >
+      {children ?? <SortableItemDefaultContent {...props} />}
+    </motion.div>
+  );
+
+  // 如果禁用上下文菜单，直接渲染内容而不使用RcTooltip
+  if (disableContextMenu) {
+    return renderContent();
+  }
 
   return (
     <RcTooltip
@@ -119,7 +155,7 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
           border: none;
         }
       `}
-      overlay={<ContextMenu {...configContextMenu} />}
+      overlay={<ContextMenu {...mergedContextMenuProps} />}
       visible={contextMenu?.data.id === data.id}
       onVisibleChange={(visible) => {
         if (!visible) {
@@ -128,16 +164,7 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
       }}
       destroyTooltipOnHide
     >
-      <motion.div
-        data-id={data.id}
-        data-index={itemIndex}
-        data-parent-ids={parentIds?.join(",")}
-        data-children-length={childrenLength}
-        onClick={() => onClick?.(data)}
-        className={cx(disabledDrag && "drag-disabled", className)}
-      >
-        {children ?? <SortableItemDefaultContent {...props} />}
-      </motion.div>
+      {renderContent()}
     </RcTooltip>
   );
 };

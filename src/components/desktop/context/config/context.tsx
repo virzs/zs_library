@@ -8,7 +8,7 @@ import { SortItem } from "../../types";
  * 需要跨多个组件传递的配置，使用 context 传递
  */
 export interface SortableConfig<D, C> {
-  theme?: Theme;
+  theme: Theme;
   /**
    * 是否不显示名称
    */
@@ -23,13 +23,18 @@ export interface SortableConfig<D, C> {
   /**
    * 自定义分页点容器
    */
-  pagingDotsBuilder?: (dots: React.ReactNode) => React.JSX.Element;  /**
+  pagingDotsBuilder?: (dots: React.ReactNode) => React.JSX.Element;
+  /**
    * 自定义分页点
    * @param item 分页项数据
    * @param index 分页项索引
    * @param isActive 是否为当前选中页
    */
-  pagingDotBuilder?: (item: SortItem<D, C>, index: number, isActive: boolean) => React.JSX.Element;
+  pagingDotBuilder?: (
+    item: SortItem<D, C>,
+    index: number,
+    isActive: boolean
+  ) => React.JSX.Element;
   /**
    * 自定义 item 渲染
    */
@@ -45,9 +50,9 @@ export interface SortableConfig<D, C> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const SortableConfigContext = createContext<SortableConfig<any, any>>(
-  {}
-);
+export const SortableConfigContext = createContext<SortableConfig<any, any>>({
+  theme: themeLight,
+});
 
 export interface SortableConfigProviderProps<D, C>
   extends Omit<SortableConfig<D, C>, "theme"> {
@@ -66,7 +71,7 @@ export const SortableConfigProvider = <D, C>(
     } else if (propTheme === "dark") {
       return themeDark;
     } else {
-      return propTheme;
+      return propTheme ?? themeLight;
     }
   }, [propTheme]);
 
