@@ -104,29 +104,60 @@ export const Editor: FC<EditorProps> = (props) => {
       name,
       onSuccess,
       onError,
+      customUploadFn,
     } = uploadImageProps;
-
     return createImageUpload({
-      onUpload: (file) => {
-        const body = new FormData();
-        body.append(name || "file", file);
+      onUpload: async (file) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let promise: Promise<Response | any>; // 如果提供了完全自定义的上传函数，使用它来获取promise
+        if (customUploadFn) {
+          promise = customUploadFn(file);
+        } else {
+          // 使用默认的上传逻辑
+          const body = new FormData();
+          body.append(name || "file", file);
 
-        const promise = fetch(action, {
-          method: method || "POST",
-          headers: {
-            ...headers,
-          },
-          body,
-        });
+          promise = fetch(action, {
+            method: method || "POST",
+            headers: {
+              ...headers,
+            },
+            body,
+          });
+        } // 统一的结果处理逻辑（自定义上传和默认上传使用相同的处理方式）
         return new Promise((resolve, reject) => {
           promise
             .then(async (res) => {
               if (onSuccess) {
-                const json = await res.json();
+                const json = customUploadFn ? res : await res.json();
                 resolve(onSuccess(json));
                 return;
               }
 
+              if (customUploadFn) {
+                // 自定义上传的默认处理：如果返回的是对象且包含url字段，提取url
+                if (typeof res === "object" && res !== null && "url" in res) {
+                  resolve((res as { url: string }).url);
+                  return;
+                }
+                // 如果返回的对象有嵌套的 data.url 结构（如 tmpfiles.org）
+                if (
+                  typeof res === "object" &&
+                  res !== null &&
+                  "data" in res &&
+                  typeof res.data === "object" &&
+                  res.data !== null &&
+                  "url" in res.data
+                ) {
+                  resolve((res.data as { url: string }).url);
+                  return;
+                }
+                // 否则直接返回结果（假设是URL字符串）
+                resolve(res);
+                return;
+              }
+
+              // 默认上传的处理
               if (res.status === 200) {
                 const { url } = (await res.json()) as { url: string };
                 const image = new Image();

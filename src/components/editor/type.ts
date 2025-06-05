@@ -23,11 +23,6 @@ export interface EditorUploadImageProps {
    */
   name?: string;
   /**
-   * 上传请求时是否携带 cookie
-   * @default false
-   */
-  withCredentials?: boolean;
-  /**
    * 上传文件之前的钩子，参数为上传的文件，若返回 false 停止上传
    * @param file
    * @returns
@@ -48,7 +43,13 @@ export interface EditorUploadImageProps {
   /**
    * 上传图片失败后的回调
    */
-  onError?: (e: Error) => void;
+  onError?: (e: Error) => void;  /**
+   * 完全自定义的上传函数，相当于 fetch 的 Promise
+   * @param file 要上传的文件
+   * @returns Promise，resolve时返回响应数据（可以是Response对象、URL字符串或包含url字段的对象）
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  customUploadFn?: (file: File) => Promise<any>;
 }
 
 export interface EditorProps {
