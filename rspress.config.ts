@@ -7,7 +7,12 @@ export default defineConfig({
   root: "docs",
   title: "zs_library",
   description: "个人业务相关的组件库",
-  plugins: [pluginPreview(), pluginPlayground()],
+  plugins: [
+    pluginPreview(),
+    pluginPlayground({
+      defaultDirection: "vertical",
+    }),
+  ],
   ssg: false,
   mediumZoom: {
     selector: ".rspress-doc img:not(.rspress-preview-card img)",
