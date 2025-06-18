@@ -146,13 +146,16 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
 
   return (
     <RcTooltip
+      showArrow={false}
       placement="bottom"
       overlayClassName={css`
         background-color: transparent;
+        padding: 0;
         .rc-tooltip-inner {
           background-color: transparent;
           padding: 0;
           border: none;
+          box-shadow: none;
         }
       `}
       overlay={<ContextMenu {...mergedContextMenuProps} />}
