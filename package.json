@@ -75,7 +75,7 @@
     "rc-dropdown": "^4.2.1",
     "rc-image": "^7.11.0",
     "rc-menu": "^9.16.1",
-    "rc-tooltip": "^6.3.1",
+    "rc-tooltip": "^6.4.0",
     "react-i18next": "^15.4.0",
     "react-json-view": "^1.21.3",
     "react-map-gl": "^8.0.4",
