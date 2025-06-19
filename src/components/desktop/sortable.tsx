@@ -4,14 +4,15 @@ import Slider, { Settings } from "react-slick";
 import { ReactSortable } from "react-sortablejs";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import { useSortableConfig } from "./context/config/hooks";
+import { useSortableState } from "./context/state/hooks";
+import { mainDragContainerStyle, mainDragConfig } from "./drag-styles";
 import SortableGroupItem from "./items/group-item";
 import GroupItemModal from "./items/modal/group-item-modal";
 import ItemInfoModal from "./items/modal/info-modal";
+import SortableItem from "./items/sortable-item";
 import { ghostClass } from "./style";
 import { SortItem } from "./types";
-import { useSortableState } from "./context/state/hooks";
-import { useSortableConfig } from "./context/config/hooks";
-import SortableItem from "./items/sortable-item";
 import SortableUtils from "./utils";
 
 export interface Pagination {
@@ -276,27 +277,11 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               onDragOver={(e) => {
                 e.preventDefault();
               }}
-            >
-              <ReactSortable
-                className={cx(
-                  css`
-                    display: grid;
-                    transition: all 0.3s;
-                    grid-template-columns: repeat(auto-fill, 96px);
-                    grid-auto-flow: dense;
-                    grid-auto-rows: 96px;
-                    place-items: center;
-                    justify-content: center;
-                    align-items: center;
-                  `
-                )}
-                animation={150}
-                fallbackOnBody
-                swapThreshold={0.65}
-                group="nested"
+            >              <ReactSortable
+                className={cx(mainDragContainerStyle)}
+                {...mainDragConfig}
                 list={l.children ?? []}
                 setList={(e) => setList(e, [l.id])}
-                filter=".drag-disabled"
                 onMove={(e) => {
                   setListStatus("onMove");
                   const { dragged, related } = e;
