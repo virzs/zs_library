@@ -277,7 +277,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               onDragOver={(e) => {
                 e.preventDefault();
               }}
-            >              <ReactSortable
+            >
+              <ReactSortable
                 className={cx(mainDragContainerStyle)}
                 {...mainDragConfig}
                 list={l.children ?? []}
