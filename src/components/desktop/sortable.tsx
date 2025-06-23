@@ -11,6 +11,8 @@ import SortableGroupItem from "./items/group-item";
 import GroupItemModal from "./items/modal/group-item-modal";
 import ItemInfoModal from "./items/modal/info-modal";
 import SortableItem from "./items/sortable-item";
+import Pagination from "./pagination";
+import { createCustomPagingDot } from "./pagination/utils";
 import { ghostClass } from "./style";
 import { SortItem } from "./types";
 import SortableUtils from "./utils";
@@ -77,7 +79,6 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
   } = props;
 
   const sliderRef = useRef<Slider>(null);
-  const sliderDotsRef = useRef<HTMLUListElement>(null);
 
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -184,72 +185,38 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
           `,
           className
         )}
-        customPaging={(i) => {
-          if (pagingDotBuilder) {
-            const content = pagingDotBuilder(list[i], i, activeSlide === i);
-
-            return React.cloneElement(content, {
-              onDragEnter: (e: React.DragEvent) => {
-                (_sliderRef ?? sliderRef).current?.slickGoTo(i);
-                // 保留原有的onDragEnter事件
-                if (content.props && content.props.onDragEnter) {
-                  content.props.onDragEnter(e);
-                }
-              },
-            });
-          }
+        customPaging={createCustomPagingDot(
+          list,
+          activeSlide,
+          pagingDotBuilder
+        )}
+        appendDots={(dots: React.ReactNode[]) => {
           return (
-            <div
-              onDragEnter={() => {
-                (_sliderRef ?? sliderRef).current?.slickGoTo(i);
+            <Pagination
+              activeSlide={activeSlide}
+              onDragEnter={(index) => {
+                (_sliderRef ?? sliderRef).current?.slickGoTo(index);
               }}
-            >
-              {list[i]?.data?.name}
-            </div>
-          );
-        }}
-        appendDots={(dots) => {
-          // Fix: react-slick bug 当只有一个 slide 时 dots 不显示
-          if (dots instanceof Array) {
-            delete dots[dots.length - 1];
-          }
-          if (pagingDotsBuilder) {
-            return pagingDotsBuilder(dots);
-          }
-          if (pagination === false) {
-            return <div></div>;
-          }
-          return (
-            <div>
-              <ul
-                ref={sliderDotsRef}
-                className={cx(
-                  "slick-dots-default",
-                  css`
-                    padding: 0.5rem;
-                    display: inline-flex;
-                    justify-content: center;
-                    align-items: center;
-                    gap: 0.5rem;
-                    background-color: rgba(0, 0, 0, 0.1);
-                    border-radius: 0.5rem;
-                    .slick-active {
-                      background-color: rgba(0, 0, 0, 0.3);
-                      color: white;
-                      padding: 0.25rem;
-                      border-radius: 0.25rem;
-                    }
-                    li {
-                      margin: 0;
-                      width: auto;
-                      height: auto;
-                    }
-                  `
-                )}
-              >
-                {dots}
-              </ul>
-            </div>
+              onClick={(index) => {
+                (_sliderRef ?? sliderRef).current?.slickGoTo(index);
+              }}
+              pagingDotsBuilder={pagingDotsBuilder}
+              slickDots={dots}
+              disabled={pagination === false}
+              className={cx(
+                "slick-dots-default",
+                css`
+                  .slick-dots-default {
+                    flex-direction: ${pagination &&
+                    typeof pagination === "object" &&
+                    (pagination.position === "left" ||
+                      pagination.position === "right")
+                      ? "column"
+                      : "row"};
+                  }
+                `
+              )}
+            />
           );
         }}
         beforeChange={(_, next) => {
