@@ -1,8 +1,7 @@
-import Dialog from 'rc-dialog';
-import 'rc-dialog/assets/index.css';
-import { FC } from 'react';
-import ReactJson from 'react-json-view';
-import { SortItem } from '../../types';
+import { FC } from "react";
+import ReactJson from "react-json-view";
+import { SortItem } from "../../types";
+import BaseModal from "./base-modal";
 
 export interface ItemInfoModalProps {
   data: SortItem | null;
@@ -16,13 +15,10 @@ const ItemInfoModal: FC<ItemInfoModalProps> = (props) => {
   const { data, onClose } = props;
 
   return (
-    <Dialog
+    <BaseModal
       visible={!!data}
-      onClose={() => {
-        onClose();
-      }}
-      animation="zoom"
-      maskAnimation="fade"
+      onClose={onClose}
+      title={`${data?.data?.name}开发者信息`}
       mousePosition={
         data?.pageX && data?.pageY
           ? {
@@ -31,18 +27,13 @@ const ItemInfoModal: FC<ItemInfoModalProps> = (props) => {
             }
           : null
       }
-      footer={null}
-      title={data?.data?.name ?? '信息'}
     >
       {data && (
-        <div>
-          <div className="mb-2">开发者信息</div>
-          <div className="p-2 rounded-md bg-[#272822]">
-            <ReactJson src={data as object} theme="monokai" />
-          </div>
+        <div className="p-2 rounded-md bg-[#272822]">
+          <ReactJson src={data as object} theme="monokai" />
         </div>
       )}
-    </Dialog>
+    </BaseModal>
   );
 };
 
