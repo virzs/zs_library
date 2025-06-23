@@ -4,6 +4,7 @@ import { configMap } from "../config";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseConfig } from "../types";
 import {
+  RiApps2Line,
   RiIndeterminateCircleLine,
   RiInformationLine,
   RiShare2Line,
@@ -33,7 +34,7 @@ interface MenuItemProps {
 const MenuItem: React.FC<MenuItemProps> = ({
   icon,
   text,
-  color = "#007aff",
+  color = "black",
   textColor = "#1d1d1f",
   onClick,
   index,
@@ -139,6 +140,7 @@ const SizeMenuItem: React.FC<SizeMenuItemProps> = ({
         cursor: default;
       `}
     >
+      <RiApps2Line size={18} color="black" />
       <motion.div
         className={css`
           flex: 1;
@@ -190,56 +192,6 @@ const SizeMenuItem: React.FC<SizeMenuItemProps> = ({
           </motion.div>
         ))}
       </motion.div>
-      <motion.div
-        className={css`
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          color: #8e8e93;
-          width: 18px;
-          height: 18px;
-        `}
-      >
-        <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
-          <rect
-            x="3"
-            y="3"
-            width="7"
-            height="7"
-            rx="1.5"
-            stroke="currentColor"
-            strokeWidth="1.2"
-          />
-          <rect
-            x="12"
-            y="3"
-            width="7"
-            height="7"
-            rx="1.5"
-            stroke="currentColor"
-            strokeWidth="1.2"
-          />
-          <rect
-            x="3"
-            y="12"
-            width="7"
-            height="7"
-            rx="1.5"
-            stroke="currentColor"
-            strokeWidth="1.2"
-          />
-          <rect
-            x="12"
-            y="12"
-            width="7"
-            height="7"
-            rx="1.5"
-            stroke="currentColor"
-            strokeWidth="1.2"
-          />
-        </svg>
-      </motion.div>
     </motion.div>
   );
 };
@@ -277,6 +229,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
   const { data } = contextMenu ?? {};
   const { config = {} } = data ?? {};
+
   const getAllSizes = () => {
     const config: SortItemBaseConfig = configMap[contextMenu?.data?.type];
     const dimensions = [];
@@ -323,7 +276,6 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                 border: 0.75px solid rgba(255, 255, 255, 0.3);
               `}
             >
-              {" "}
               {/* 移除 - 第一个选项 */}
               {showRemoveButton && (
                 <MenuItem
