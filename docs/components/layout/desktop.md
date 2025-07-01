@@ -123,7 +123,17 @@ export default () => {
     },
   ];
 
-  return <Desktop list={list} enableCaching={false} />;
+  return (
+    <div
+      style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        height: "500px",
+        padding: "20px",
+      }}
+    >
+      <Desktop list={list} enableCaching={false} />
+    </div>
+  );
 };
 ```
 
