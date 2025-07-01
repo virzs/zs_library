@@ -4,13 +4,7 @@ import { ReactSortable } from "react-sortablejs";
 import { mainDragConfig } from "./drag-styles";
 import SortableItem from "./items/sortable-item";
 import { SortItem } from "./types";
-
-// 启动台图标SVG
-const LaunchpadIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor">
-    <path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z" />
-  </svg>
-);
+import { RiApps2Line } from "@remixicon/react";
 
 export interface DockProps {
   /**
@@ -55,7 +49,6 @@ const Dock: React.FC<DockProps> = ({
   items = [],
   position = "bottom",
   className,
-  onItemClick,
   itemBuilder,
   showLaunchpad = true,
   onLaunchpadClick,
@@ -84,18 +77,6 @@ const Dock: React.FC<DockProps> = ({
       `}
   `;
 
-  const handleItemClick = (item: SortItem) => {
-    if (item.onClick) {
-      item.onClick();
-    }
-    if (onItemClick) {
-      onItemClick(item);
-    }
-    if (item.href) {
-      window.open(item.href, "_blank");
-    }
-  };
-
   const renderDockItem = (item: SortItem, index: number) => {
     if (itemBuilder) {
       return itemBuilder(item, index);
@@ -107,14 +88,32 @@ const Dock: React.FC<DockProps> = ({
   // 创建启动台按钮项目
   const launchpadItem: SortItem = {
     id: "__launchpad__",
-    icon: <LaunchpadIcon />,
-    title: "启动台",
-    onClick: onLaunchpadClick,
+    type: "app",
   };
 
-  const launchpadButton = showLaunchpad
-    ? renderDockItem(launchpadItem, -1)
-    : null;
+  const launchpadButton = showLaunchpad ? (
+    <SortableItem
+      data={launchpadItem}
+      itemIndex={-1}
+      onClick={onLaunchpadClick}
+      icon={
+        <div
+          className={css`
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+          `}
+        >
+          <RiApps2Line />
+        </div>
+      }
+      disabledDrag
+    />
+  ) : null;
 
   if (!items.length && !showLaunchpad) {
     return null;
