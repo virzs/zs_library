@@ -208,7 +208,7 @@ export const modalDragConfig = {
  */
 export const mainDragConfig = {
   group: "desktop",
-    ...commonDragConfig,
+  ...commonDragConfig,
   swapThreshold: 0.65,
   filter: ".drag-disabled",
 };
