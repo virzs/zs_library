@@ -84,72 +84,6 @@ const Dock: React.FC<DockProps> = ({
       `}
   `;
 
-  const dockItemStyle = css`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    &:active {
-      transform: translateY(-2px);
-    }
-
-    .dock-item-icon {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      svg {
-        width: 100%;
-        height: 100%;
-      }
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        border-radius: 6px;
-      }
-    }
-
-    .dock-item-title {
-      position: absolute;
-      bottom: -32px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-
-    &:hover .dock-item-title {
-      opacity: 1;
-    }
-  `;
-
   const handleItemClick = (item: SortItem) => {
     if (item.onClick) {
       item.onClick();
@@ -178,7 +112,9 @@ const Dock: React.FC<DockProps> = ({
     onClick: onLaunchpadClick,
   };
 
-  const launchpadButton = showLaunchpad ? renderDockItem(launchpadItem, -1) : null;
+  const launchpadButton = showLaunchpad
+    ? renderDockItem(launchpadItem, -1)
+    : null;
 
   if (!items.length && !showLaunchpad) {
     return null;
@@ -208,7 +144,9 @@ const Dock: React.FC<DockProps> = ({
           height: 100%;
           display: flex;
           gap: 12px;
-          ${position === "top" || position === "bottom" ? `flex-direction: row;` : `flex-direction: column;`}
+          ${position === "top" || position === "bottom"
+            ? `flex-direction: row;`
+            : `flex-direction: column;`}
         `}
       >
         {items.map((item, index) => renderDockItem(item, index))}
