@@ -34,9 +34,14 @@ export interface SortItem<
   data?: D;
   config?: C;
   children?: SortItem<D, C>[];
+  /** 区分数据类型：page表示分页数据，dock表示dock数据 */
+  dataType?: "page" | "dock";
   /** 下面的参数为组件内部处理时自动添加，不影响数据 */
   parentIds?: (string | number)[];
   /** groupItem 点击时的坐标，用于打开弹窗时从坐标处打开 */
   pageX?: number;
   pageY?: number;
 }
+
+// 类型别名，保持向后兼容
+export type SortableItemData = SortItem;

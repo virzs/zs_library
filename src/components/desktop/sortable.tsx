@@ -4,15 +4,23 @@ import Slider, { Settings } from "react-slick";
 import { ReactSortable } from "react-sortablejs";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
+import { useSortableConfig } from "./context/config/hooks";
+import { useSortableState } from "./context/state/hooks";
+import DragTriggerPagination, {
+  DragTriggerPaginationRef,
+} from "./drag-trigger-pagination";
+import { mainDragContainerStyle, mainDragConfig } from "./drag-styles";
 import SortableGroupItem from "./items/group-item";
 import GroupItemModal from "./items/modal/group-item-modal";
 import ItemInfoModal from "./items/modal/info-modal";
+import SortableItem from "./items/sortable-item";
+import Pagination from "./pagination";
+import { createCustomPagingDot } from "./pagination/utils";
 import { ghostClass } from "./style";
 import { SortItem } from "./types";
-import { useSortableState } from "./context/state/hooks";
-import { useSortableConfig } from "./context/config/hooks";
-import SortableItem from "./items/sortable-item";
 import SortableUtils from "./utils";
+import Dock, { DockProps } from "./dock";
+import LaunchpadModal from "./launchpad-modal";
 
 export interface Pagination {
   position?: "top" | "bottom" | "left" | "right";
@@ -44,6 +52,31 @@ export interface SortableProps<D, C> {
    * 自定义额外项目，将显示在子项列表末尾
    */
   extraItems?: (listItem: SortItem<D, C>) => React.ReactNode;
+  /**
+   * dock 配置
+   */
+  dock?: {
+    /**
+     * 是否显示 dock
+     */
+    enabled?: boolean;
+    /**
+     * dock 位置
+     */
+    position?: "top" | "bottom" | "left" | "right";
+    /**
+     * dock 样式类名
+     */
+    className?: string;
+    /**
+     * 自定义 dock 项目渲染
+     */
+    itemBuilder?: DockProps["itemBuilder"];
+    /**
+     * 是否显示启动台按钮
+     */
+    showLaunchpad?: boolean;
+  };
 }
 
 // 创建一个安全的渲染包装组件
@@ -73,12 +106,20 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     sliderRef: _sliderRef,
     onItemClick,
     extraItems,
+    dock = {
+      enabled: true,
+      position: "bottom",
+      showLaunchpad: true,
+    },
   } = props;
 
   const sliderRef = useRef<Slider>(null);
-  const sliderDotsRef = useRef<HTMLUListElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragTriggerPaginationRef = useRef<DragTriggerPaginationRef>(null);
 
   const [activeSlide, setActiveSlide] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showLaunchpad, setShowLaunchpad] = useState(false);
 
   const {
     list,
@@ -91,10 +132,21 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setMoveItemId,
     setMoveTargetId,
     addItem,
+    dragItem,
+    setDragItem,
   } = useSortableState();
 
   const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } =
     useSortableConfig();
+
+  // 从list中过滤出dock数据和分页数据
+  const dockItems = useMemo(() => {
+    return list.filter((item) => item.dataType === "dock");
+  }, [list]);
+
+  const pageItems = useMemo(() => {
+    return list.filter((item) => item.dataType !== "dock");
+  }, [list]);
 
   const paginingLocationCss = useMemo(() => {
     if (pagination === false) {
@@ -152,224 +204,323 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     }[pagination.position ?? "bottom"];
   }, [pagination]);
 
+  // Dock 布局样式
+  const dockLayoutCss = useMemo(() => {
+    if (!dock.enabled) {
+      return {};
+    }
+
+    const position = dock.position ?? "bottom";
+
+    return {
+      top: css`
+        display: flex;
+        flex-direction: column;
+        .dock-container {
+          order: 0;
+          padding: 16px;
+        }
+        .sortable-container {
+          order: 1;
+          flex: 1;
+        }
+      `,
+      bottom: css`
+        display: flex;
+        flex-direction: column;
+        .sortable-container {
+          order: 0;
+          flex: 1;
+        }
+        .dock-container {
+          order: 1;
+          padding: 16px;
+        }
+      `,
+      left: css`
+        display: flex;
+        flex-direction: row;
+        .dock-container {
+          order: 0;
+          padding: 16px;
+          display: flex;
+          align-items: center;
+        }
+        .sortable-container {
+          order: 1;
+          flex: 1;
+        }
+      `,
+      right: css`
+        display: flex;
+        flex-direction: row;
+        .sortable-container {
+          order: 0;
+          flex: 1;
+        }
+        .dock-container {
+          order: 1;
+          padding: 16px;
+          display: flex;
+          align-items: center;
+        }
+      `,
+    }[position];
+  }, [dock]);
+
   return (
     <>
-      <Slider
-        useCSS
-        useTransform
-        arrows={false}
-        ref={_sliderRef ?? sliderRef}
-        infinite={false}
-        dots
-        touchMove={false}
-        lazyLoad="anticipated"
+      <div
+        ref={containerRef}
         className={cx(
-          paginingLocationCss,
           css`
-            .slick-track {
-              display: flex;
-              align-items: stretch;
-            }
-            .slick-slide {
-              display: flex;
-              align-self: stretch;
-              height: unset;
-              > div {
-                display: flex;
-                align-self: stretch;
-                width: 100%;
-              }
-            }
+            position: relative;
+            width: 100%;
+            height: 100%;
           `,
-          className
+          dockLayoutCss
         )}
-        customPaging={(i) => {
-          if (pagingDotBuilder) {
-            const content = pagingDotBuilder(list[i], i, activeSlide === i);
-
-            return React.cloneElement(content, {
-              onDragEnter: (e: React.DragEvent) => {
-                (_sliderRef ?? sliderRef).current?.slickGoTo(i);
-                // 保留原有的onDragEnter事件
-                if (content.props && content.props.onDragEnter) {
-                  content.props.onDragEnter(e);
-                }
-              },
-            });
+        onDragOver={(e) => {
+          e.preventDefault();
+          // 触发拖拽移动处理
+          if (dragTriggerPaginationRef.current) {
+            dragTriggerPaginationRef.current.handleDragMove(e);
           }
-          return (
-            <div
-              onDragEnter={() => {
-                (_sliderRef ?? sliderRef).current?.slickGoTo(i);
-              }}
-            >
-              {list[i]?.data?.name}
-            </div>
-          );
         }}
-        appendDots={(dots) => {
-          // Fix: react-slick bug 当只有一个 slide 时 dots 不显示
-          if (dots instanceof Array) {
-            delete dots[dots.length - 1];
-          }
-          if (pagingDotsBuilder) {
-            return pagingDotsBuilder(dots);
-          }
-          if (pagination === false) {
-            return <div></div>;
-          }
-          return (
-            <div>
-              <ul
-                ref={sliderDotsRef}
-                className={cx(
-                  "slick-dots-default",
-                  css`
-                    padding: 0.5rem;
-                    display: inline-flex;
-                    justify-content: center;
-                    align-items: center;
-                    gap: 0.5rem;
-                    background-color: rgba(0, 0, 0, 0.1);
-                    border-radius: 0.5rem;
-                    .slick-active {
-                      background-color: rgba(0, 0, 0, 0.3);
-                      color: white;
-                      padding: 0.25rem;
-                      border-radius: 0.25rem;
-                    }
-                    li {
-                      margin: 0;
-                      width: auto;
-                      height: auto;
-                    }
-                  `
-                )}
-              >
-                {dots}
-              </ul>
-            </div>
-          );
-        }}
-        beforeChange={(_, next) => {
-          setActiveSlide(next);
-        }}
-        {...sliderProps}
       >
-        {list.map((l) => {
-          return (
-            <div
-              key={l.id}
-              onDrop={(e) => {
-                e.preventDefault();
-                const data = e.dataTransfer.getData("text/plain");
-                const quickCheckJsonResult = SortableUtils.quickJSONCheck(data);
-
-                if (quickCheckJsonResult) {
-                  try {
-                    addItem(JSON.parse(data), [l.id]);
-                  } catch (e) {
-                    console.log("drag error", e);
+        {/* Dock 组件 */}
+        {dock.enabled && (
+          <div className="dock-container">
+            <Dock
+              items={dockItems}
+              position={dock.position}
+              className={dock.className}
+              onItemClick={onItemClick}
+              itemBuilder={dock.itemBuilder}
+              showLaunchpad={dock.showLaunchpad}
+              onLaunchpadClick={() => setShowLaunchpad(true)}
+              onDockItemsChange={(newDockItems) => {
+                // 更新dock数据到list中
+                const updatedList = list
+                  .filter((item) => item.dataType !== "dock")
+                  .concat(
+                    newDockItems.map((item) => ({
+                      ...item,
+                      dataType: "dock" as const,
+                    }))
+                  );
+                setList(updatedList);
+              }}
+              onDrop={() => {
+                if (dragItem) {
+                  // 添加到 dock
+                  if (dockItems.every((i) => i.id !== dragItem.id)) {
+                    // 将拖拽项标记为dock数据并直接更新到list中
+                    const dockItem = { ...dragItem, dataType: "dock" as const };
+                    // 从原列表中移除该项目，然后添加dock项目
+                    const updatedList = list
+                      .filter((item) => item.id !== dragItem.id)
+                      .concat([dockItem]);
+                    setList(updatedList);
                   }
                 }
+                setDragItem(null);
               }}
-              onDragOver={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <ReactSortable
-                className={cx(
-                  css`
-                    display: grid;
-                    transition: all 0.3s;
-                    grid-template-columns: repeat(auto-fill, 96px);
-                    grid-auto-flow: dense;
-                    grid-auto-rows: 96px;
-                    place-items: center;
-                    justify-content: center;
-                    align-items: center;
-                  `
-                )}
-                animation={150}
-                fallbackOnBody
-                swapThreshold={0.65}
-                group="nested"
-                list={l.children ?? []}
-                setList={(e) => setList(e, [l.id])}
-                filter=".drag-disabled"
-                onMove={(e) => {
-                  setListStatus("onMove");
-                  const { dragged, related } = e;
-                  const draggedData = dragged.dataset;
-                  const relatedData = related.dataset;
-                  setMoveTargetId(null);
-                  // 限制只有一层
-                  // sortable-group-item 标记为文件夹
-                  if (
-                    (Object.keys(relatedData).length === 0 ||
-                      relatedData.parentIds) &&
-                    Number(draggedData.childrenLength) > 0 &&
-                    related.classList.contains("sortable-group-item")
-                  ) {
-                    return false;
-                  }
-                  return true;
-                }}
-                onStart={(e) => {
-                  const dataset = e.item.dataset;
-                  if (dataset?.id) {
-                    setMoveItemId(dataset.id);
-                  }
-                  setListStatus("onMove");
-                }}
-                onEnd={() => {
-                  setMoveItemId(null);
-                  setMoveTargetId(null);
-                  setListStatus(null);
-                }}
-                ghostClass={ghostClass}
-              >
-                {(l.children ?? []).map((item, index) => {
-                  let el;
+            />
+          </div>
+        )}
 
-                  if (itemBuilder) {
-                    return itemBuilder(item);
-                  }
+        {/* Sortable 容器 */}
+        <div className="sortable-container">
+          {/* 拖拽触发分页组件 */}
+          <DragTriggerPagination
+            ref={dragTriggerPaginationRef}
+            isDragging={isDragging}
+            activeSlide={activeSlide}
+            totalSlides={pageItems.length}
+            sliderRef={(_sliderRef ?? sliderRef) as React.RefObject<Slider>}
+            containerRef={containerRef as React.RefObject<HTMLDivElement>}
+          />
 
-                  switch (item.type) {
-                    case "group":
-                    case "app":
-                      el = (
-                        <SortableGroupItem
-                          key={item.id}
-                          data={item}
-                          itemIndex={index}
-                          parentIds={[l.id, item.id]}
-                          onClick={onItemClick}
-                        />
-                      );
-                      break;
-                    default:
-                      el = (
-                        <SortableItem
-                          key={item.id}
-                          data={item}
-                          itemIndex={index}
-                          onClick={onItemClick}
-                        />
-                      );
-                      break;
+          <Slider
+            useCSS
+            useTransform
+            arrows={false}
+            ref={_sliderRef ?? sliderRef}
+            infinite={false}
+            dots
+            touchMove={false}
+            lazyLoad="anticipated"
+            className={cx(
+              paginingLocationCss,
+              css`
+                .slick-track {
+                  display: flex;
+                  align-items: stretch;
+                }
+                .slick-slide {
+                  display: flex;
+                  align-self: stretch;
+                  height: unset;
+                  > div {
+                    display: flex;
+                    align-self: stretch;
+                    width: 100%;
                   }
+                }
+              `,
+              className
+            )}
+            customPaging={createCustomPagingDot(
+              pageItems,
+              activeSlide,
+              pagingDotBuilder
+            )}
+            appendDots={(dots: React.ReactNode[]) => {
+              return (
+                <Pagination
+                  activeSlide={activeSlide}
+                  onDragEnter={(index) => {
+                    (_sliderRef ?? sliderRef).current?.slickGoTo(index);
+                  }}
+                  onClick={(index) => {
+                    (_sliderRef ?? sliderRef).current?.slickGoTo(index);
+                  }}
+                  pagingDotsBuilder={pagingDotsBuilder}
+                  slickDots={dots}
+                  disabled={pagination === false}
+                  className={cx(
+                    "slick-dots-default",
+                    css`
+                      .slick-dots-default {
+                        flex-direction: ${pagination &&
+                        typeof pagination === "object" &&
+                        (pagination.position === "left" ||
+                          pagination.position === "right")
+                          ? "column"
+                          : "row"};
+                      }
+                    `
+                  )}
+                />
+              );
+            }}
+            beforeChange={(_, next) => {
+              setActiveSlide(next);
+            }}
+            {...sliderProps}
+          >
+            {pageItems.map((l) => {
+              return (
+                <div
+                  key={l.id}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const data = e.dataTransfer.getData("text/plain");
+                    const quickCheckJsonResult =
+                      SortableUtils.quickJSONCheck(data);
 
-                  return el;
-                })}
-                <SafeExtraItems<D, C> renderFn={extraItems} item={l} />
-              </ReactSortable>
-            </div>
-          );
-        })}
-        <div></div>
-      </Slider>
+                    if (quickCheckJsonResult) {
+                      try {
+                        addItem(JSON.parse(data), [l.id]);
+                      } catch (e) {
+                        console.log("drag error", e);
+                      }
+                    }
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  <ReactSortable
+                    className={cx(mainDragContainerStyle)}
+                    {...mainDragConfig}
+                    list={l.children ?? []}
+                    setList={(e) => setList(e, [l.id])}
+                    onMove={(e) => {
+                      setListStatus("onMove");
+                      const { dragged, related } = e;
+                      const draggedData = dragged.dataset;
+                      const relatedData = related.dataset;
+                      setMoveTargetId(null);
+                      // 限制只有一层
+                      // sortable-group-item 标记为文件夹
+                      if (
+                        (Object.keys(relatedData).length === 0 ||
+                          relatedData.parentIds) &&
+                        Number(draggedData.childrenLength) > 0 &&
+                        related.classList.contains("sortable-group-item")
+                      ) {
+                        return false;
+                      }
+                      return true;
+                    }}
+                    onStart={(e) => {
+                      const dataset = e.item.dataset;
+                      if (dataset?.id) {
+                        setMoveItemId(dataset.id);
+                      }
+                      setListStatus("onMove");
+                      setIsDragging(true);
+
+                      // 设置拖拽数据
+                      const item = l.children?.find((i) => i.id === dataset.id);
+                      if (item) {
+                        setDragItem(item);
+                      }
+                    }}
+                    onEnd={() => {
+                      setMoveItemId(null);
+                      setMoveTargetId(null);
+                      setListStatus(null);
+                      setIsDragging(false);
+                      setDragItem(null);
+                    }}
+                    ghostClass={ghostClass}
+                  >
+                    {(l.children ?? []).map((item, index) => {
+                      let el;
+
+                      if (itemBuilder) {
+                        return itemBuilder(item);
+                      }
+
+                      switch (item.type) {
+                        case "group":
+                        case "app":
+                          el = (
+                            <SortableGroupItem
+                              key={item.id}
+                              data={item}
+                              itemIndex={index}
+                              parentIds={[l.id, item.id]}
+                              onClick={onItemClick}
+                            />
+                          );
+                          break;
+                        default:
+                          el = (
+                            <SortableItem
+                              key={item.id}
+                              data={item}
+                              itemIndex={index}
+                              onClick={onItemClick}
+                            />
+                          );
+                          break;
+                      }
+
+                      return el;
+                    })}
+                    <SafeExtraItems<D, C> renderFn={extraItems} item={l} />
+                  </ReactSortable>
+                </div>
+              );
+            })}
+            <div></div>
+          </Slider>
+        </div>
+      </div>
 
       {/* 单个item信息弹窗 */}
       <ItemInfoModal
@@ -387,6 +538,15 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         }}
         onItemClick={onItemClick}
       />
+
+      {/* 启动台模态框 */}
+      {showLaunchpad && (
+        <LaunchpadModal
+          visible={showLaunchpad}
+          onClose={() => setShowLaunchpad(false)}
+          onItemClick={onItemClick}
+        />
+      )}
     </>
   );
 };

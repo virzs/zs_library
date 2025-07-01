@@ -123,7 +123,7 @@ importers:
         specifier: ^9.16.1
         version: 9.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-tooltip:
-        specifier: ^6.3.1
+        specifier: ^6.4.0
         version: 6.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: '>=18.0.0 <19.0.0'

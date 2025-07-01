@@ -1,12 +1,12 @@
-import { css, cx } from "@emotion/css";
-import Dialog from "rc-dialog";
 import { useEffect, useState } from "react";
 import { ReactSortable } from "react-sortablejs";
-import { useSortableConfig } from "../../context/config/hooks";
 import { useSortableState } from "../../context/state/hooks";
+import { dragContainerStyle, modalDragConfig } from "../../drag-styles";
 import { ghostClass } from "../../style";
 import { SortItem } from "../../types";
 import SortableItem from "../sortable-item";
+import BaseModal from "./base-modal";
+import EditableTitle from "./editable-title";
 
 interface GroupItemModalProps<D, C> {
   data: SortItem | null;
@@ -25,8 +25,6 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
     updateItem,
   } = useSortableState();
 
-  const { theme } = useSortableConfig();
-
   const [name, setName] = useState("文件夹");
 
   const _children = [...(data?.children ?? [])];
@@ -36,14 +34,44 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
     setName(data.data?.name);
   }, [data]);
 
-  return (
-    <Dialog
-      visible={!!data}
-      onClose={() => {
+  const handleTitleChange = (newName: string) => {
+    setName(newName);
+  };
+
+  const handleTitleBlur = () => {
+    if (!data) return;
+    updateItem(data.id!, {
+      ...data.data,
+      name,
+    });
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // 获取鼠标指针进入的元素
+    const relatedTarget = e.relatedTarget;
+    if (!relatedTarget) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!e.currentTarget.contains(relatedTarget as any)) {
+      // 鼠标确实离开了当前元素
+      setTimeout(() => {
         onClose();
-      }}
-      animation="zoom"
-      maskAnimation="fade"
+      }, 500);
+    }
+  };
+
+  return (
+    <BaseModal
+      visible={!!data}
+      onClose={onClose}
+      title={
+        <EditableTitle
+          value={name}
+          onChange={handleTitleChange}
+          onBlur={handleTitleBlur}
+          placeholder="文件夹"
+        />
+      }
       mousePosition={
         data?.pageX && data?.pageY
           ? {
@@ -52,93 +80,11 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
             }
           : null
       }
-      title={
-        <input
-          className={css`
-            background-color: transparent;
-            border-style: none;
-            text-align: center;
-            font-size: 1.25rem;
-            line-height: 1.75rem;
-            color: white;
-            &:focus {
-              outline: none;
-            }
-          `}
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
-          onBlur={() => {
-            if (!data) return;
-            updateItem(data.id!, {
-              ...data.data,
-              name,
-            });
-          }}
-        />
-      }
-      footer={null}
-      closable={false}
-      className={cx(
-        "group-item-modal",
-        css`
-          .rc-dialog-content {
-            background-color: transparent;
-            box-shadow: none;
-            padding: 0;
-            .rc-dialog-header {
-              text-align: center;
-              background-color: transparent;
-              margin-bottom: 1rem;
-              border-bottom: none;
-              .ant-modal-name {
-                color: #fff;
-              }
-            }
-            .rc-dialog-body {
-              background-color: ${theme.token.groupItemIconBackgroundColor};
-              border-radius: 0.5rem;
-              overflow: hidden;
-            }
-          }
-        `
-      )}
-      width={600}
-      destroyOnClose
     >
-      <div
-        className={css`
-          overflow-y: auto;
-          max-height: 60vh;
-          padding: 1.25rem 0;
-        `}
-        onDragLeave={(e) => {
-          // 获取鼠标指针进入的元素
-          const relatedTarget = e.relatedTarget;
-          if (!relatedTarget) return;
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (!e.currentTarget.contains(relatedTarget as any)) {
-            // 鼠标确实离开了当前元素
-            setTimeout(() => {
-              onClose();
-            }, 500);
-          }
-        }}
-      >
+      <div onDragLeave={handleDragLeave}>
         <ReactSortable
-          className={css`
-            display: grid;
-            gap: 1rem;
-            place-items: center;
-            grid-template-columns: repeat(auto-fill, 96px);
-            grid-auto-flow: dense;
-            grid-auto-rows: 96px;
-          `}
-          group={{ name: "nested", pull: true, put: false }}
-          animation={150}
-          fallbackOnBody
+          className={dragContainerStyle}
+          {...modalDragConfig}
           list={data?.children ?? []}
           setList={(x) => {
             const xIds = x.map((item) => item.id);
@@ -191,7 +137,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
           })}
         </ReactSortable>
       </div>
-    </Dialog>
+    </BaseModal>
   );
 };
 

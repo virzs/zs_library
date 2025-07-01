@@ -1,8 +1,7 @@
 import { css, cx } from "@emotion/css";
 import { motion } from "framer-motion";
 import RcTooltip from "rc-tooltip";
-import "rc-tooltip/assets/bootstrap_white.css";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ContextMenu, { ContextMenuProps } from "../context-menu";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
@@ -112,6 +111,25 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
   const { contextMenu, setContextMenu } = useSortableState();
   const { contextMenu: configContextMenu } = useSortableConfig();
 
+  // 添加延迟状态来控制 Tooltip 的显示，以确保关闭动画能够正常播放
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  // 监听 contextMenu 变化，控制 Tooltip 的显示和隐藏
+  useEffect(() => {
+    const shouldShow = contextMenu?.data.id === data.id;
+
+    if (shouldShow) {
+      // 立即显示
+      setTooltipVisible(true);
+    } else {
+      // 延迟隐藏，给退出动画时间
+      const timer = setTimeout(() => {
+        setTooltipVisible(false);
+      }, 300); // 增加延迟时间，确保 spring 动画有足够时间完成
+
+      return () => clearTimeout(timer);
+    }
+  }, [contextMenu?.data.id, data.id]);
+
   // 确定是否禁用上下文菜单
   const disableContextMenu =
     contextMenuProps === false ||
@@ -146,17 +164,20 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
 
   return (
     <RcTooltip
+      showArrow={false}
       placement="bottom"
       overlayClassName={css`
         background-color: transparent;
+        padding: 0;
         .rc-tooltip-inner {
           background-color: transparent;
           padding: 0;
           border: none;
+          box-shadow: none;
         }
       `}
       overlay={<ContextMenu {...mergedContextMenuProps} />}
-      visible={contextMenu?.data.id === data.id}
+      visible={tooltipVisible}
       onVisibleChange={(visible) => {
         if (!visible) {
           setContextMenu(null);

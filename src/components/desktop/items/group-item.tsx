@@ -19,6 +19,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     itemIndex,
     onClick,
     noLetters = false,
+    disabledDrag = false,
   } = props;
   const {
     contextMenuFuns,
@@ -298,12 +299,13 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             animation={150}
             fallbackOnBody
             list={children ?? []}
-            setList={(x) => setList(x, parentIds)}
+            setList={(x) => !disabledDrag && setList(x, parentIds)}
             // 只能移入，文件夹中的不能响应拖拽事件
             filter={() => true}
+            disabled={disabledDrag}
             data-id={data.id}
             onChange={() => {
-              setMoveTargetId(data.id);
+              !disabledDrag && setMoveTargetId(data.id);
             }}
           ></ReactSortable>
         </motion.div>
