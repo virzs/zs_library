@@ -207,8 +207,8 @@ export const modalDragConfig = {
  * 针对主界面拖拽操作优化的配置
  */
 export const mainDragConfig = {
-  ...commonDragConfig,
-  group: "nested",
+  group: "desktop",
+    ...commonDragConfig,
   swapThreshold: 0.65,
   filter: ".drag-disabled",
 };

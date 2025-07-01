@@ -52,6 +52,9 @@ export interface SortableState {
   /** 当前元素将要移动到的元素id */
   moveTargetId: string | number | null;
   setMoveTargetId: (e: string | number | null) => void;
+  /** 当前拖拽的元素 */
+  dragItem: SortItem | null;
+  setDragItem: (e: SortItem | null) => void;
 }
 
 export const SortableStateContext = createContext<SortableState>({
@@ -79,6 +82,8 @@ export const SortableStateContext = createContext<SortableState>({
   setMoveItemId: () => {},
   moveTargetId: null,
   setMoveTargetId: () => {},
+  dragItem: null,
+  setDragItem: () => {},
 });
 
 export interface SortableStateProviderProps<D, C> {
@@ -129,6 +134,7 @@ export const SortableStateProvider = <D, C>(
   const [moveTargetId, setMoveTargetId] = useState<string | number | null>(
     null
   );
+  const [dragItem, setDragItem] = useState<SortItem | null>(null);
 
   const [init, setInit] = useState(false);
   const [localList, setLocalList] = useLocalStorageState<any[]>(storageKey, {
@@ -350,6 +356,7 @@ export const SortableStateProvider = <D, C>(
               ...data,
               id: uuidv4(),
               config: data?.config ?? configMap[type],
+              dataType: data?.dataType ?? 'page',
             },
           ];
         }
@@ -374,6 +381,7 @@ export const SortableStateProvider = <D, C>(
         ...data,
         id: uuidv4(),
         config: data?.config ?? configMap[type],
+        dataType: data?.dataType ?? 'page',
       };
 
       const newList = [...prevList, newItem];
@@ -473,6 +481,8 @@ export const SortableStateProvider = <D, C>(
         setMoveItemId,
         moveTargetId,
         setMoveTargetId,
+        dragItem,
+        setDragItem,
       }}
     >
       {children}

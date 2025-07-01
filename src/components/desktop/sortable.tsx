@@ -19,7 +19,7 @@ import { createCustomPagingDot } from "./pagination/utils";
 import { ghostClass } from "./style";
 import { SortItem } from "./types";
 import SortableUtils from "./utils";
-import Dock, { DockItem, DockProps } from "./dock";
+import Dock, { DockProps } from "./dock";
 import LaunchpadModal from "./launchpad-modal";
 
 export interface Pagination {
@@ -65,17 +65,9 @@ export interface SortableProps<D, C> {
      */
     position?: "top" | "bottom" | "left" | "right";
     /**
-     * dock 项目列表
-     */
-    items?: DockItem[];
-    /**
      * dock 样式类名
      */
     className?: string;
-    /**
-     * dock 项目点击事件
-     */
-    onItemClick?: (item: DockItem) => void;
     /**
      * 自定义 dock 项目渲染
      */
@@ -117,7 +109,6 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     dock = {
       enabled: true,
       position: "bottom",
-      items: [],
       showLaunchpad: true,
     },
   } = props;
@@ -141,10 +132,21 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setMoveItemId,
     setMoveTargetId,
     addItem,
+    dragItem,
+    setDragItem,
   } = useSortableState();
 
   const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } =
     useSortableConfig();
+
+  // 从list中过滤出dock数据和分页数据
+  const dockItems = useMemo(() => {
+    return list.filter((item) => item.dataType === "dock");
+  }, [list]);
+
+  const pageItems = useMemo(() => {
+    return list.filter((item) => item.dataType !== "dock");
+  }, [list]);
 
   const paginingLocationCss = useMemo(() => {
     if (pagination === false) {
@@ -290,13 +292,40 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         {dock.enabled && (
           <div className="dock-container">
             <Dock
-              items={dock.items}
+              items={dockItems}
               position={dock.position}
               className={dock.className}
-              onItemClick={dock.onItemClick}
+              onItemClick={onItemClick}
               itemBuilder={dock.itemBuilder}
               showLaunchpad={dock.showLaunchpad}
               onLaunchpadClick={() => setShowLaunchpad(true)}
+              onDockItemsChange={(newDockItems) => {
+                // 更新dock数据到list中
+                const updatedList = list
+                  .filter((item) => item.dataType !== "dock")
+                  .concat(
+                    newDockItems.map((item) => ({
+                      ...item,
+                      dataType: "dock" as const,
+                    }))
+                  );
+                setList(updatedList);
+              }}
+              onDrop={() => {
+                if (dragItem) {
+                  // 添加到 dock
+                  if (dockItems.every((i) => i.id !== dragItem.id)) {
+                    // 将拖拽项标记为dock数据并直接更新到list中
+                    const dockItem = { ...dragItem, dataType: "dock" as const };
+                    // 从原列表中移除该项目，然后添加dock项目
+                    const updatedList = list
+                      .filter((item) => item.id !== dragItem.id)
+                      .concat([dockItem]);
+                    setList(updatedList);
+                  }
+                }
+                setDragItem(null);
+              }}
             />
           </div>
         )}
@@ -308,7 +337,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             ref={dragTriggerPaginationRef}
             isDragging={isDragging}
             activeSlide={activeSlide}
-            totalSlides={list.length}
+            totalSlides={pageItems.length}
             sliderRef={(_sliderRef ?? sliderRef) as React.RefObject<Slider>}
             containerRef={containerRef as React.RefObject<HTMLDivElement>}
           />
@@ -343,7 +372,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               className
             )}
             customPaging={createCustomPagingDot(
-              list,
+              pageItems,
               activeSlide,
               pagingDotBuilder
             )}
@@ -381,7 +410,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             }}
             {...sliderProps}
           >
-            {list.map((l) => {
+            {pageItems.map((l) => {
               return (
                 <div
                   key={l.id}
@@ -433,12 +462,19 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       }
                       setListStatus("onMove");
                       setIsDragging(true);
+
+                      // 设置拖拽数据
+                      const item = l.children?.find((i) => i.id === dataset.id);
+                      if (item) {
+                        setDragItem(item);
+                      }
                     }}
                     onEnd={() => {
                       setMoveItemId(null);
                       setMoveTargetId(null);
                       setListStatus(null);
                       setIsDragging(false);
+                      setDragItem(null);
                     }}
                     ghostClass={ghostClass}
                   >

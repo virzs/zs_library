@@ -1,5 +1,9 @@
 import React from "react";
 import { css, cx } from "@emotion/css";
+import { ReactSortable } from "react-sortablejs";
+import { mainDragConfig } from "./drag-styles";
+import SortableItem from "./items/sortable-item";
+import { SortItem } from "./types";
 
 // 启动台图标SVG
 const LaunchpadIcon = () => (
@@ -8,38 +12,11 @@ const LaunchpadIcon = () => (
   </svg>
 );
 
-export interface DockItem {
-  /**
-   * 唯一标识
-   */
-  id: string;
-  /**
-   * 图标
-   */
-  icon?: React.ReactNode;
-  /**
-   * 标题
-   */
-  title?: string;
-  /**
-   * 链接
-   */
-  href?: string;
-  /**
-   * 点击事件
-   */
-  onClick?: () => void;
-  /**
-   * 自定义数据
-   */
-  data?: any;
-}
-
 export interface DockProps {
   /**
    * dock 项目列表
    */
-  items?: DockItem[];
+  items?: SortItem[];
   /**
    * dock 位置
    */
@@ -51,11 +28,11 @@ export interface DockProps {
   /**
    * dock 项目点击事件
    */
-  onItemClick?: (item: DockItem) => void;
+  onItemClick?: (item: SortItem) => void;
   /**
    * 自定义项目渲染
    */
-  itemBuilder?: (item: DockItem, index: number) => React.ReactNode;
+  itemBuilder?: (item: SortItem, index: number) => React.ReactNode;
   /**
    * 是否显示启动台按钮
    */
@@ -64,6 +41,14 @@ export interface DockProps {
    * 启动台按钮点击事件
    */
   onLaunchpadClick?: () => void;
+  /**
+   * 拖放事件
+   */
+  onDrop?: () => void;
+  /**
+   * dock 项目列表变更事件
+   */
+  onDockItemsChange?: (items: SortItem[]) => void;
 }
 
 const Dock: React.FC<DockProps> = ({
@@ -74,6 +59,8 @@ const Dock: React.FC<DockProps> = ({
   itemBuilder,
   showLaunchpad = true,
   onLaunchpadClick,
+  onDrop,
+  onDockItemsChange,
 }) => {
   const dockContainerStyle = css`
     display: flex;
@@ -163,7 +150,7 @@ const Dock: React.FC<DockProps> = ({
     }
   `;
 
-  const handleItemClick = (item: DockItem) => {
+  const handleItemClick = (item: SortItem) => {
     if (item.onClick) {
       item.onClick();
     }
@@ -175,42 +162,58 @@ const Dock: React.FC<DockProps> = ({
     }
   };
 
-  const renderDockItem = (item: DockItem, index: number) => {
+  const renderDockItem = (item: SortItem, index: number) => {
     if (itemBuilder) {
       return itemBuilder(item, index);
     }
 
-    return (
-      <div
-        key={item.id}
-        className={dockItemStyle}
-        onClick={() => handleItemClick(item)}
-        title={item.title}
-      >
-        {item.icon && <div className="dock-item-icon">{item.icon}</div>}
-        {item.title && <div className="dock-item-title">{item.title}</div>}
-      </div>
-    );
+    return <SortableItem data={item} itemIndex={index} />;
   };
 
   // 创建启动台按钮项目
-  const launchpadItem: DockItem = {
+  const launchpadItem: SortItem = {
     id: "__launchpad__",
     icon: <LaunchpadIcon />,
     title: "启动台",
     onClick: onLaunchpadClick,
   };
 
-  // 合并启动台按钮和用户项目
-  const allItems = showLaunchpad ? [launchpadItem, ...items] : items;
+  const launchpadButton = showLaunchpad ? renderDockItem(launchpadItem, -1) : null;
 
-  if (!allItems.length) {
+  if (!items.length && !showLaunchpad) {
     return null;
   }
 
   return (
-    <div className={cx(dockContainerStyle, className)}>
-      {allItems.map((item, index) => renderDockItem(item, index))}
+    <div
+      className={cx(dockContainerStyle, className)}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        if (onDrop) {
+          onDrop();
+        }
+      }}
+    >
+      <ReactSortable
+        list={items}
+        setList={(newItems) => {
+          if (onDockItemsChange) {
+            onDockItemsChange(newItems);
+          }
+        }}
+        {...mainDragConfig}
+        className={css`
+          width: 100%;
+          height: 100%;
+          display: flex;
+          gap: 12px;
+          ${position === "top" || position === "bottom" ? `flex-direction: row;` : `flex-direction: column;`}
+        `}
+      >
+        {items.map((item, index) => renderDockItem(item, index))}
+      </ReactSortable>
+      {launchpadButton}
     </div>
   );
 };
