@@ -204,6 +204,8 @@ export interface ContextMenuProps<D, C> {
   onShareClick?: (item: SortItem<D, C>) => void;
   onInfoClick?: (item: SortItem<D, C>) => void;
   onRemoveClick?: (item: SortItem<D, C>, remove: (id: string) => void) => void;
+  animationOrigin?: string;
+  isOpen?: boolean;
 }
 
 const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
@@ -212,6 +214,8 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     showRemoveButton = true,
     showShareButton = true,
     showSizeButton = true,
+    animationOrigin = "center",
+    isOpen = true,
     onInfoClick,
     onShareClick,
     onRemoveClick,
@@ -242,17 +246,22 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   };
   return (
     <AnimatePresence>
-      {contextMenu && (
+      {contextMenu && isOpen && (
         <HoverContext.Provider value={{ hoveredIndex, setHoveredIndex }}>
           <motion.div
-            initial={{ opacity: 0, scale: 0.85, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: 12 }}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.6 }}
             transition={{
               type: "spring",
               stiffness: 500,
               damping: 35,
               mass: 0.6,
+              // 关闭动画更快
+              exit: {
+                duration: 0.15,
+                ease: "easeInOut"
+              }
             }}
             onMouseDown={(e) => {
               e.stopPropagation();
@@ -261,6 +270,9 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
             className={css`
               position: relative;
             `}
+            style={{
+              transformOrigin: animationOrigin,
+            }}
           >
             <motion.div
               className={css`

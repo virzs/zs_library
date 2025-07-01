@@ -13,6 +13,7 @@ import {
 } from "./context/state/context";
 import { useSortableState } from "./context/state/hooks";
 import { useSortableConfig } from "./context/config/hooks";
+import GlobalContextMenu from "./context-menu/portal";
 
 export interface DesktopProps<D = any, C = any>
   extends SortableProps<D, C>,
@@ -89,6 +90,7 @@ const Desktop = forwardRef(
         <SortableConfigProvider<D, C> {...configProps}>
           <StateAndConfigAccessor />
           <Sortable<D, C> {...rest} />
+          <GlobalContextMenu<D, C> />
         </SortableConfigProvider>
       </SortableStateProvider>
     );
