@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import { ReactSortable } from "react-sortablejs";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
-import { SortItem, SortItemBaseConfig, SortItemBaseData } from "../types";
+import { SortItem, SortItemBaseConfig } from "../types";
 import ItemName from "./item-name";
 import SortableItem, { SortableItemProps } from "./sortable-item";
 
@@ -19,7 +19,6 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     setList,
     setOpenGroupItemData,
     longPressTriggered,
-    moveItemId,
     moveTargetId,
     setMoveTargetId,
     listStatus,
@@ -27,7 +26,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
 
   const { itemIconBuilder, theme, contextMenu } = useSortableConfig();
 
-  const { children, data: itemData, config: itemConfig } = data;
+  const { children, config: itemConfig } = data;
 
   const { row = 1, col = 1 } = (itemConfig ?? {}) as SortItemBaseConfig;
 
@@ -156,6 +155,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                   : css`
                       width: 1.5rem;
                       height: 1.5rem;
+                      border-radius: 0.375rem;
                       grid-column: span 2 / span 2;
                       grid-row: span 2 / span 2;
                     `
