@@ -60,7 +60,7 @@ const Dock: React.FC<DockProps> = ({
       return itemBuilder(item, index);
     }
 
-    return <SortableItem data={item} itemIndex={index} />;
+    return <SortableItem data={item} itemIndex={index} noLetters />;
   };
 
   // 创建启动台按钮项目
@@ -97,20 +97,10 @@ const Dock: React.FC<DockProps> = ({
   return (
     <div
       className={cx(
-        "zs-flex zs-justify-center zs-items-center zs-rounded-2xl py-2 px-4 zs-backdrop-blur-xl zs-bg-white zs-bg-opacity-80",
+        "zs-flex zs-justify-center zs-items-center zs-rounded-2xl py-2 px-4 zs-backdrop-blur-xl zs-bg-white zs-bg-opacity-80 zs-gap-3 zs-border zs-border-white zs-border-opacity-20",
+        position === "top" || position === "bottom" ? "zs-flex-row" : "zs-flex-col",
         css`
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-
-          ${position === "top" || position === "bottom"
-            ? `
-        flex-direction: row;
-        gap: 12px;
-      `
-            : `
-        flex-direction: column;
-        gap: 12px;
-      `}
         `,
         className
       )}
@@ -139,6 +129,14 @@ const Dock: React.FC<DockProps> = ({
       >
         {items.map((item, index) => renderDockItem(item, index))}
       </ReactSortable>
+      {showLaunchpad && (
+        <div
+          className={cx(
+            "zs-flex zs-bg-white zs-bg-opacity-30",
+            position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1"
+          )}
+        />
+      )}
       {launchpadButton}
     </div>
   );
