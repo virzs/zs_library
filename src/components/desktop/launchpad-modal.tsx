@@ -29,7 +29,24 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
       return [];
     }
 
-    return list.flatMap((page: SortItem<D, C>) => (page.children ? page.children.map((child) => ({ ...child })) : []));
+    return list.flatMap((page: SortItem<D, C>) => {
+      if (!page.children) return [];
+
+      // 递归获取所有app类型的item
+      const getApps = (items: SortItem<D, C>[]): SortItem<D, C>[] => {
+        return items.flatMap((item) => {
+          if (item.type === "app") {
+            return [{ ...item }];
+          }
+          if (item.type === "group" && item.children) {
+            return getApps(item.children);
+          }
+          return [];
+        });
+      };
+
+      return getApps(page.children);
+    });
   }, [list]);
 
   const contentStyle = css`
