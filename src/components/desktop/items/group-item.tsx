@@ -5,6 +5,7 @@ import { ReactSortable } from "react-sortablejs";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseConfig, SortItemBaseData } from "../types";
+import ItemName from "./item-name";
 import SortableItem, { SortableItemProps } from "./sortable-item";
 
 export interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
@@ -30,20 +31,11 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
 
   const { row = 1, col = 1 } = (itemConfig ?? {}) as SortItemBaseConfig;
 
-  const variants = {
-    visible: { opacity: 1, scale: 1 },
-    hidden: { opacity: 0, scale: 0.95 },
-  };
-
   // 是否为空
   const childrenEmpty = (children?.length ?? 0) === 0;
 
   // 截取前 9 个
   const _children = !childrenEmpty ? [...(children ?? [])]?.slice(0, 9) : [data];
-
-  const isMove = useMemo(() => {
-    return moveItemId === data.id.toString();
-  }, [data.id, moveItemId]);
 
   const isMoveTarget = useMemo(() => {
     return moveTargetId === data.id;
@@ -261,22 +253,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           ></ReactSortable>
         </motion.div>
       </motion.div>
-      <motion.p
-        className={cx(
-          "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-absolute zs-left-0 zs-right-0",
-          css`
-            color: ${theme.token.itemNameColor};
-          `,
-          noLetters &&
-            css`
-              color: transparent;
-            `
-        )}
-        variants={variants}
-        animate={isMove ? "hidden" : "visible"}
-      >
-        {(itemData as SortItemBaseData)?.name ?? "文件夹"}
-      </motion.p>
+      <ItemName data={data} noLetters={noLetters} defaultName="文件夹" />
     </SortableItem>
   );
 };

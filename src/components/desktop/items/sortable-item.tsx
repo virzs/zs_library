@@ -5,6 +5,7 @@ import { ContextMenuProps } from "../context-menu";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseData } from "../types";
+import ItemName from "./item-name";
 
 export interface SortableItemProps<D, C> {
   data: SortItem<D, C>;
@@ -66,20 +67,7 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
           {renderIcon()}
         </div>
       </motion.div>
-      <motion.p
-        className={cx(
-          "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-max-w-16 zs-absolute zs-left-0 zs-right-0",
-          css`
-            color: ${theme.token.itemNameColor};
-          `,
-          noLetters &&
-            css`
-              color: transparent;
-            `
-        )}
-      >
-        {name}
-      </motion.p>
+      <ItemName data={data} noLetters={noLetters} name={name} />
     </>
   );
 };
