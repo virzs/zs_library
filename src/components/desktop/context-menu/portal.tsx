@@ -1,19 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import {
-  useFloating,
-  autoUpdate,
-  offset,
-  flip,
-  shift,
-  FloatingPortal,
-} from "@floating-ui/react";
+import { useFloating, autoUpdate, offset, flip, shift, FloatingPortal } from "@floating-ui/react";
 import { useSortableState } from "../context/state/hooks";
 import ContextMenu, { ContextMenuProps } from "./index";
 
 // 常量定义
 const CONSTANTS = {
   GAP: 8,
-  TITLE_HEIGHT: 14,
   ESTIMATED_MENU_WIDTH: 200,
   ESTIMATED_MENU_HEIGHT: 200,
   ANIMATION_DELAY: 200,
@@ -44,40 +36,27 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
       left: rect.left,
       right: rect.right,
       top: rect.top + window.scrollY,
-      bottom: rect.bottom + window.scrollY - CONSTANTS.TITLE_HEIGHT,
+      bottom: rect.bottom + window.scrollY,
       width: rect.width,
-      height: rect.height - CONSTANTS.TITLE_HEIGHT,
+      height: rect.height,
     }),
     []
   );
 
   // 应用边界约束的工具函数
-  const applyBoundaryConstraints = useCallback(
-    (left: number, top: number, menuWidth: number, menuHeight: number) => {
-      const viewport = getViewportBounds();
-      const gap = CONSTANTS.GAP;
+  const applyBoundaryConstraints = useCallback((left: number, top: number, menuWidth: number, menuHeight: number) => {
+    const viewport = getViewportBounds();
+    const gap = CONSTANTS.GAP;
 
-      return {
-        left: Math.max(
-          viewport.left + gap,
-          Math.min(left, viewport.right - menuWidth - gap)
-        ),
-        top: Math.max(
-          viewport.top + gap,
-          Math.min(top, viewport.bottom - menuHeight - gap)
-        ),
-      };
-    },
-    []
-  );
+    return {
+      left: Math.max(viewport.left + gap, Math.min(left, viewport.right - menuWidth - gap)),
+      top: Math.max(viewport.top + gap, Math.min(top, viewport.bottom - menuHeight - gap)),
+    };
+  }, []);
 
   // 计算菜单位置的核心逻辑
   const calculateMenuPosition = useCallback(
-    (
-      iconRect: ReturnType<typeof calculateIconRect>,
-      menuWidth: number,
-      menuHeight: number
-    ) => {
+    (iconRect: ReturnType<typeof calculateIconRect>, menuWidth: number, menuHeight: number) => {
       const gap = CONSTANTS.GAP;
       let left = iconRect.right + gap;
       let top = iconRect.top;
@@ -222,16 +201,10 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
         // 获取菜单元素的实际尺寸
         const menuElement = refs.floating.current;
-        const menuWidth =
-          menuElement?.offsetWidth || CONSTANTS.ESTIMATED_MENU_WIDTH;
-        const menuHeight =
-          menuElement?.offsetHeight || CONSTANTS.ESTIMATED_MENU_HEIGHT;
+        const menuWidth = menuElement?.offsetWidth || CONSTANTS.ESTIMATED_MENU_WIDTH;
+        const menuHeight = menuElement?.offsetHeight || CONSTANTS.ESTIMATED_MENU_HEIGHT;
 
-        const { left, top } = calculateMenuPosition(
-          iconRect,
-          menuWidth,
-          menuHeight
-        );
+        const { left, top } = calculateMenuPosition(iconRect, menuWidth, menuHeight);
 
         // 重新计算动画原点（使用实际尺寸）
         const preciseOrigin = calculateAnimationOrigin(left, top, iconRect);
@@ -240,14 +213,7 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
         setCalculatedPosition({ left, top });
       });
     }
-  }, [
-    isOpen,
-    contextMenu,
-    refs,
-    shouldRender,
-    calculateIconRect,
-    calculateMenuPosition,
-  ]);
+  }, [isOpen, contextMenu, refs, shouldRender, calculateIconRect, calculateMenuPosition]);
 
   // 添加点击外部关闭的逻辑
   useEffect(() => {
@@ -303,11 +269,7 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
           e.stopPropagation();
         }}
       >
-        <ContextMenu
-          {...props}
-          animationOrigin={animationOrigin}
-          isOpen={isOpen}
-        />
+        <ContextMenu {...props} animationOrigin={animationOrigin} isOpen={isOpen} />
       </div>
     </FloatingPortal>
   );
