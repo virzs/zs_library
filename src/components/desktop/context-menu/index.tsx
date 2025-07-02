@@ -1,14 +1,9 @@
-import { css } from "@emotion/css";
+import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "framer-motion";
 import { configMap } from "../config";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseConfig } from "../types";
-import {
-  RiApps2Line,
-  RiIndeterminateCircleLine,
-  RiInformationLine,
-  RiShare2Line,
-} from "@remixicon/react";
+import { RiApps2Line, RiIndeterminateCircleLine, RiInformationLine, RiShare2Line } from "@remixicon/react";
 import { useState, createContext, useContext } from "react";
 
 // 创建hover状态context
@@ -31,29 +26,18 @@ interface MenuItemProps {
   index: number;
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({
-  icon,
-  text,
-  color = "black",
-  textColor = "#1d1d1f",
-  onClick,
-  index,
-}) => {
+const MenuItem: React.FC<MenuItemProps> = ({ icon, text, color = "black", textColor = "#1d1d1f", onClick, index }) => {
   const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
   const isHovered = hoveredIndex === index;
 
   return (
     <motion.div
-      className={css`
-        height: 42px;
-        padding: 0 20px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        cursor: pointer;
-        position: relative;
-        z-index: 1;
-      `}
+      className={cx(
+        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10",
+        css`
+          z-index: 1;
+        `
+      )}
       onMouseEnter={() => setHoveredIndex(index)}
       onMouseLeave={() => setHoveredIndex(null)}
       onClick={onClick}
@@ -63,16 +47,12 @@ const MenuItem: React.FC<MenuItemProps> = ({
         {isHovered && (
           <motion.div
             layoutId="menuHover"
-            className={css`
-              position: absolute;
-              top: 2px;
-              left: 8px;
-              right: 8px;
-              bottom: 2px;
-              background: rgba(0, 0, 0, 0.06);
-              border-radius: 8px;
-              z-index: -1;
-            `}
+            className={cx(
+              "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
+              css`
+                z-index: -1;
+              `
+            )}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -84,32 +64,29 @@ const MenuItem: React.FC<MenuItemProps> = ({
           />
         )}
       </AnimatePresence>
-
       <motion.div
-        className={css`
-          flex: 1;
-          font-size: 14px;
-          font-weight: 400;
-          line-height: 18px;
-          color: ${textColor};
-          letter-spacing: -0.28px;
-          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-            sans-serif;
-        `}
+        className={cx(
+          "zs-flex-1 zs-text-sm",
+          css`
+            font-weight: 400;
+            line-height: 18px;
+            color: ${textColor};
+            letter-spacing: -0.28px;
+          `
+        )}
       >
         {text}
       </motion.div>
       {icon && (
         <motion.div
-          className={css`
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            color: ${color};
-            width: 18px;
-            height: 18px;
-          `}
+          className={cx(
+            "zs-flex zs-items-center zs-justify-center zs-shrink-0",
+            css`
+              color: ${color};
+              width: 18px;
+              height: 18px;
+            `
+          )}
         >
           {icon}
         </motion.div>
@@ -124,56 +101,27 @@ interface SizeMenuItemProps {
   onSizeChange: (size: string) => void;
 }
 
-const SizeMenuItem: React.FC<SizeMenuItemProps> = ({
-  sizes,
-  currentSize,
-  onSizeChange,
-}) => {
+const SizeMenuItem: React.FC<SizeMenuItemProps> = ({ sizes, currentSize, onSizeChange }) => {
   return (
-    <motion.div
-      className={css`
-        height: 42px;
-        padding: 0 20px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        cursor: default;
-      `}
-    >
+    <motion.div className="zs-h-10 zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-default">
       <RiApps2Line size={18} color="black" />
-      <motion.div
-        className={css`
-          flex: 1;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        `}
-      >
+      <motion.div className="zs-flex-1 zs-flex zs-items-center zs-gap-2">
         {sizes.map((size) => (
           <motion.div
             key={size}
-            className={css`
-              width: 20px;
-              height: 20px;
-              border-radius: 5px;
-              font-size: 10px;
-              font-weight: 500;
-              cursor: pointer;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              transition: all 0.2s ease-out;
-              border: 1px solid transparent;
-              font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
-                sans-serif;
-              ${currentSize === size
-                ? `
+            className={cx(
+              "zs-w-5 h-5 zs-rounded-sm zs-cursor-pointer flex zs-items-center zs-justify-center zs-border zs-border-transparent",
+              currentSize === size ? "zs-text-white zs-font-semibold" : "",
+              css`
+                font-size: 10px;
+                font-weight: 500;
+                transition: all 0.2s ease-out;
+                ${currentSize === size
+                  ? `
                   background: linear-gradient(135deg, #007aff 0%, #0051d4 100%);
-                  color: white;
-                  font-weight: 600;
                   box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
                 `
-                : `
+                  : `
                   background: rgba(60, 60, 67, 0.06);
                   color: #1d1d1f;
                   &:hover {
@@ -181,10 +129,11 @@ const SizeMenuItem: React.FC<SizeMenuItemProps> = ({
                     transform: scale(1.05);
                   }
                 `}
-              &:active {
-                transform: scale(0.95);
-              }
-            `}
+                &:active {
+                  transform: scale(0.95);
+                }
+              `
+            )}
             onClick={() => onSizeChange(size)}
             whileTap={{ scale: 0.95 }}
           >
@@ -220,14 +169,8 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     onShareClick,
     onRemoveClick,
   } = props;
-  const {
-    contextMenu,
-    setContextMenu,
-    hideContextMenu,
-    setShowInfoItemData,
-    removeItem,
-    updateItemConfig,
-  } = useSortableState();
+  const { contextMenu, setContextMenu, hideContextMenu, setShowInfoItemData, removeItem, updateItemConfig } =
+    useSortableState();
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -260,8 +203,8 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               // 关闭动画更快
               exit: {
                 duration: 0.15,
-                ease: "easeInOut"
-              }
+                ease: "easeInOut",
+              },
             }}
             onMouseDown={(e) => {
               e.stopPropagation();
@@ -275,18 +218,14 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
             }}
           >
             <motion.div
-              className={css`
-                border-radius: 16px;
-                overflow: hidden;
-                background: rgba(255, 255, 255, 0.77);
-                backdrop-filter: blur(20px);
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15),
-                  0 0 0 0.75px rgba(255, 255, 255, 0.25);
-                padding: 8px 0;
-                width: max-content;
-                min-width: 200px;
-                border: 0.75px solid rgba(255, 255, 255, 0.3);
-              `}
+              className={cx(
+                "zs-rounded-2xl zs-overflow-hidden zs-bg-white zs-bg-opacity-75 zs-backdrop-blur-xl py-2 zs-w-max",
+                css`
+                  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
+                  min-width: 200px;
+                  border: 0.75px solid rgba(255, 255, 255, 0.3);
+                `
+              )}
             >
               {/* 移除 - 第一个选项 */}
               {showRemoveButton && (

@@ -138,15 +138,12 @@ const Dock: React.FC<DockProps> = ({
           }
         }}
         {...mainDragConfig}
-        className={css`
-          width: 100%;
-          height: 100%;
-          display: flex;
-          gap: 12px;
-          ${position === "top" || position === "bottom"
-            ? `flex-direction: row;`
-            : `flex-direction: column;`}
-        `}
+        className={cx(
+          "zs-w-full zs-h-full flex zs-gap-3",
+          css`
+            ${position === "top" || position === "bottom" ? `flex-direction: row;` : `flex-direction: column;`}
+          `
+        )}
       >
         {items.map((item, index) => renderDockItem(item, index))}
       </ReactSortable>

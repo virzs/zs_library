@@ -41,12 +41,8 @@ const DefaultPaginationDots: React.FC<{
       <ul
         className={cx(
           "slick-dots-default",
+          "zs-p-2 zs-inline-flex zs-justify-center zs-items-center zs-gap-3",
           css`
-            padding: 0.5rem;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.75rem;
             li {
               margin: 0;
               width: 8px;
@@ -90,12 +86,7 @@ const DefaultPaginationDots: React.FC<{
   );
 };
 
-const Pagination = ({
-  pagingDotsBuilder,
-  slickDots,
-  disabled = false,
-  className,
-}: PaginationProps) => {
+const Pagination = ({ pagingDotsBuilder, slickDots, disabled = false, className }: PaginationProps) => {
   if (disabled) {
     return <div></div>;
   }

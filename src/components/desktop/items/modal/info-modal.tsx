@@ -29,7 +29,7 @@ const ItemInfoModal: FC<ItemInfoModalProps> = (props) => {
       }
     >
       {data && (
-        <div className="p-2 rounded-md bg-[#272822]">
+        <div className="zs-p-2 zs-rounded-md zs-bg-[#272822]">
           <ReactJson src={data as object} theme="monokai" />
         </div>
       )}

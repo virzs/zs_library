@@ -22,20 +22,14 @@ export interface LaunchpadModalProps<D, C> {
   onItemClick?: (item: SortItem<D, C>) => void;
 }
 
-const LaunchpadModal = <D, C>({
-  visible,
-  onClose,
-  onItemClick,
-}: LaunchpadModalProps<D, C>) => {
+const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalProps<D, C>) => {
   const { list } = useSortableState();
   const allApps = useMemo(() => {
     if (!list || list.length === 0) {
       return [];
     }
 
-    return list.flatMap((page: SortItem<D, C>) =>
-      page.children ? page.children.map((child) => ({ ...child })) : []
-    );
+    return list.flatMap((page: SortItem<D, C>) => (page.children ? page.children.map((child) => ({ ...child })) : []));
   }, [list]);
 
   const contentStyle = css`
@@ -50,10 +44,7 @@ const LaunchpadModal = <D, C>({
       <div className={contentStyle}>
         <div className={cx(mainDragContainerStyle)}>
           {allApps.map((item, index) => {
-            const ItemComponent =
-              item.type === "group" || item.type === "app"
-                ? SortableGroupItem
-                : SortableItem;
+            const ItemComponent = item.type === "group" || item.type === "app" ? SortableGroupItem : SortableItem;
 
             return (
               <ItemComponent
@@ -71,14 +62,13 @@ const LaunchpadModal = <D, C>({
 
       {allApps.length === 0 && (
         <div
-          className={css`
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 18px;
-          `}
+          className={cx(
+            "zs-flex-1 flex zs-items-center zs-justify-center",
+            css`
+              color: #999;
+              font-size: 18px;
+            `
+          )}
         >
           暂无应用
         </div>

@@ -20,16 +20,10 @@ export interface SortableItemProps<D, C> {
   icon?: React.ReactNode;
 }
 
-export const SortableItemDefaultContent = <D, C>(
-  props: SortableItemProps<D, C>
-) => {
+export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>) => {
   const { data, noLetters = false, icon } = props;
   const { contextMenuFuns } = useSortableState();
-  const {
-    itemIconBuilder: configItemIconBuilder,
-    theme,
-    contextMenu,
-  } = useSortableConfig();
+  const { itemIconBuilder: configItemIconBuilder, theme, contextMenu } = useSortableConfig();
 
   // 优先使用props中传递的icon，如果没有则使用配置中的itemIconBuilder
   const { data: itemData = {} } = data;
@@ -49,28 +43,24 @@ export const SortableItemDefaultContent = <D, C>(
   return (
     <>
       <motion.div
-        className={css`
-          width: 4rem;
-          height: 4rem;
-          background-color: ${theme.token.itemIconBackgroundColor};
-          border-radius: 0.75rem;
-          box-shadow: 0 0 0.5rem ${theme.token.itemIconShadowColor};
-          cursor: pointer;
-          position: relative;
-          overflow: hidden;
-        `}
+        className={cx(
+          "zs-w-16 zs-h-16 zs-cursor-pointer zs-relative zs-hidden",
+          css`
+            background-color: ${theme.token.itemIconBackgroundColor};
+            border-radius: 0.75rem;
+            box-shadow: 0 0 0.5rem ${theme.token.itemIconShadowColor};
+          `
+        )}
         whileTap={{ scale: 0.9 }}
       >
         {/* 遮罩 防止内部元素点击触发 */}
         <div
-          className={css`
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            color: ${theme.token.itemNameColor};
-          `}
+          className={cx(
+            "zs-absolute zs-left-0 zs-top-0 zs-w-full zs-h-full",
+            css`
+              color: ${theme.token.itemNameColor};
+            `
+          )}
           {...contextMenuFuns(data, contextMenu !== false)}
         >
           {renderIcon()}
@@ -78,7 +68,7 @@ export const SortableItemDefaultContent = <D, C>(
       </motion.div>
       <motion.p
         className={cx(
-          "whitespace-nowrap text-ellipsis overflow-hidden text-center mt-1 mb-0 max-w-16",
+          "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-max-w-16",
           css`
             color: ${theme.token.itemNameColor};
           `,
@@ -95,16 +85,7 @@ export const SortableItemDefaultContent = <D, C>(
 };
 
 const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
-  const {
-    data,
-    className,
-    itemIndex,
-    onClick,
-    disabledDrag = false,
-    children,
-    parentIds,
-    childrenLength,
-  } = props;
+  const { data, className, itemIndex, onClick, disabledDrag = false, children, parentIds, childrenLength } = props;
 
   // 渲染内容元素
   const renderContent = () => (

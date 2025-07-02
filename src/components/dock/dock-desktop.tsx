@@ -8,14 +8,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { cn } from "./utils";
-import {
-  ElementType,
-  FC,
-  MouseEvent,
-  ReactNode,
-  useRef,
-  useState,
-} from "react";
+import { ElementType, FC, MouseEvent, ReactNode, useRef, useState } from "react";
 import { DockItem } from ".";
 
 export interface DesktopIconContainerProps
@@ -43,8 +36,8 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
     href,
     children,
     as: Component = motion.div,
-    componentClassName = "rounded-full bg-gray-200 dark:bg-neutral-800",
-    titleClassName = "rounded-md bg-gray-100 border dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700",
+    componentClassName = "zs-rounded-full zs-bg-gray-200 dark:zs-bg-neutral-800",
+    titleClassName = "zs-rounded-md zs-bg-gray-100 zs-border dark:zs-bg-neutral-800 dark:zs-border-neutral-900 dark:zs-text-white zs-border-gray-200 zs-text-neutral-700",
     childrenClassName,
     ...rest
   } = props;
@@ -60,16 +53,8 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
   const widthTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
   const heightTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
 
-  const widthTransformIcon = useTransform(
-    distance,
-    [-150, 0, 150],
-    [20, 40, 20]
-  );
-  const heightTransformIcon = useTransform(
-    distance,
-    [-150, 0, 150],
-    [20, 40, 20]
-  );
+  const widthTransformIcon = useTransform(distance, [-150, 0, 150], [20, 40, 20]);
+  const heightTransformIcon = useTransform(distance, [-150, 0, 150], [20, 40, 20]);
 
   const width = useSpring(widthTransform, {
     mass: 0.1,
@@ -103,10 +88,7 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
       style={{ width, height }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={cn(
-        "aspect-square flex items-center justify-center relative",
-        componentClassName
-      )}
+      className={cn("zs-aspect-square zs-flex zs-items-center zs-justify-center zs-relative", componentClassName)}
       {...rest}
     >
       {title && (
@@ -117,7 +99,7 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: 2, x: "-50%" }}
               className={cn(
-                "px-2 py-0.5 whitespace-pre absolute left-1/2 -translate-x-1/2 -top-8 w-fit text-xs",
+                "zs-px-2 zs-py-0.5 zs-whitespace-pre zs-absolute zs-left-1/2 zs--translate-x-1/2 zs--top-8 zs-w-fit zs-text-xs",
                 titleClassName
               )}
             >
@@ -132,11 +114,9 @@ export const DesktopIconContainer: FC<DesktopIconContainerProps> = (props) => {
           height: heightIcon,
           fontSize: fontSizeTransform,
         }}
-        className={cn("flex items-center justify-center", childrenClassName)}
+        className={cn("zs-flex zs-items-center zs-justify-center", childrenClassName)}
       >
-        {typeof children === "function"
-          ? children({ widthIcon, heightIcon, fontSizeTransform })
-          : children || icon}
+        {typeof children === "function" ? children({ widthIcon, heightIcon, fontSizeTransform }) : children || icon}
       </motion.div>
     </Component>
   );
@@ -158,7 +138,7 @@ export interface DockDesktopProps {
 const DockDesktop: FC<DockDesktopProps> = (props) => {
   const {
     items = [],
-    className = "rounded-2xl bg-gray-50 dark:bg-neutral-900",
+    className = "zs-rounded-2xl zs-bg-gray-50 dark:zs-bg-neutral-900",
     itemBuilder,
     children,
     mouseX: propMouseX,
@@ -172,18 +152,11 @@ const DockDesktop: FC<DockDesktopProps> = (props) => {
     <Component
       onMouseMove={(e: MouseEvent<HTMLElement>) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
-      className={cn(
-        "mx-auto hidden md:flex h-16 gap-4 items-end px-4 pb-3",
-        className
-      )}
+      className={cn("zs-mx-auto zs-hidden md:zs-flex zs-h-16 zs-gap-4 zs-items-end zs-px-4 zs-pb-3", className)}
     >
       {children ||
         items.map((item) =>
-          itemBuilder ? (
-            itemBuilder(item, mouseX)
-          ) : (
-            <DesktopIconContainer mouseX={mouseX} key={item.title} {...item} />
-          )
+          itemBuilder ? itemBuilder(item, mouseX) : <DesktopIconContainer mouseX={mouseX} key={item.title} {...item} />
         )}
     </Component>
   );
