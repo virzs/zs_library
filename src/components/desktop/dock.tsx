@@ -3,8 +3,8 @@ import { css, cx } from "@emotion/css";
 import { ReactSortable } from "react-sortablejs";
 import { mainDragConfig } from "./drag-styles";
 import SortableItem from "./items/sortable-item";
+import StackedIcon from "./items/stacked-icon";
 import { SortItem } from "./types";
-import { RiApps2Line } from "@remixicon/react";
 
 export interface DockProps {
   /**
@@ -63,30 +63,10 @@ const Dock: React.FC<DockProps> = ({
     return <SortableItem data={item} itemIndex={index} noLetters />;
   };
 
-  // 创建启动台按钮项目
-  const launchpadItem: SortItem = {
-    id: "__launchpad__",
-    type: "app",
-  };
-
   const launchpadButton = showLaunchpad ? (
-    <SortableItem
-      data={launchpadItem}
-      itemIndex={-1}
+    <StackedIcon
       onClick={onLaunchpadClick}
-      icon={
-        <div
-          className={cx(
-            "zs-w-full zs-h-full flex zs-items-center zs-justify-center zs-text-white",
-            css`
-              background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
-            `
-          )}
-        >
-          <RiApps2Line />
-        </div>
-      }
-      disabledDrag
+      className="zs-flex-shrink-0"
     />
   ) : null;
 
