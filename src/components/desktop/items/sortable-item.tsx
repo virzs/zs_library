@@ -44,7 +44,7 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
     <>
       <motion.div
         className={cx(
-          "zs-w-16 zs-h-16 zs-cursor-pointer zs-relative zs-hidden",
+          "zs-w-16 zs-h-16 zs-cursor-pointer zs-relative zs-overflow-hidden",
           css`
             background-color: ${theme.token.itemIconBackgroundColor};
             border-radius: 0.75rem;
@@ -68,7 +68,7 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
       </motion.div>
       <motion.p
         className={cx(
-          "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-max-w-16",
+          "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-max-w-16 zs-absolute zs-left-0 zs-right-0",
           css`
             color: ${theme.token.itemNameColor};
           `,
@@ -95,7 +95,7 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
       data-parent-ids={parentIds?.join(",")}
       data-children-length={childrenLength}
       onClick={() => onClick?.(data)}
-      className={cx(disabledDrag && "drag-disabled", className)}
+      className={cx(disabledDrag && "drag-disabled", "zs-relative", className)}
     >
       {children ?? <SortableItemDefaultContent {...props} />}
     </motion.div>

@@ -263,7 +263,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
       </motion.div>
       <motion.p
         className={cx(
-          "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-max-w-16",
+          "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-absolute zs-left-0 zs-right-0",
           css`
             color: ${theme.token.itemNameColor};
           `,

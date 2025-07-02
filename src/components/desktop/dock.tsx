@@ -55,28 +55,6 @@ const Dock: React.FC<DockProps> = ({
   onDrop,
   onDockItemsChange,
 }) => {
-  const dockContainerStyle = css`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    padding: 8px 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
-    ${position === "top" || position === "bottom"
-      ? `
-        flex-direction: row;
-        gap: 12px;
-      `
-      : `
-        flex-direction: column;
-        gap: 12px;
-      `}
-  `;
-
   const renderDockItem = (item: SortItem, index: number) => {
     if (itemBuilder) {
       return itemBuilder(item, index);
@@ -98,15 +76,12 @@ const Dock: React.FC<DockProps> = ({
       onClick={onLaunchpadClick}
       icon={
         <div
-          className={css`
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-          `}
+          className={cx(
+            "zs-w-full zs-h-full flex zs-items-center zs-justify-center zs-text-white",
+            css`
+              background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+            `
+          )}
         >
           <RiApps2Line />
         </div>
@@ -121,7 +96,24 @@ const Dock: React.FC<DockProps> = ({
 
   return (
     <div
-      className={cx(dockContainerStyle, className)}
+      className={cx(
+        "zs-flex zs-justify-center zs-items-center zs-rounded-2xl py-2 px-4 zs-backdrop-blur-xl zs-bg-white zs-bg-opacity-80",
+        css`
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+
+          ${position === "top" || position === "bottom"
+            ? `
+        flex-direction: row;
+        gap: 12px;
+      `
+            : `
+        flex-direction: column;
+        gap: 12px;
+      `}
+        `,
+        className
+      )}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault();
@@ -139,7 +131,7 @@ const Dock: React.FC<DockProps> = ({
         }}
         {...mainDragConfig}
         className={cx(
-          "zs-w-full zs-h-full flex zs-gap-3",
+          "zs-w-full zs-h-full zs-flex zs-gap-3",
           css`
             ${position === "top" || position === "bottom" ? `flex-direction: row;` : `flex-direction: column;`}
           `
