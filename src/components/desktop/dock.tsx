@@ -5,6 +5,7 @@ import { mainDragConfig } from "./drag-styles";
 import SortableItem from "./items/sortable-item";
 import StackedIcon from "./items/stacked-icon";
 import { SortItem } from "./types";
+import { useSortableState } from "./context/state/hooks";
 
 export interface DockProps {
   /**
@@ -55,6 +56,8 @@ const Dock: React.FC<DockProps> = ({
   onDrop,
   onDockItemsChange,
 }) => {
+  const { setListStatus } = useSortableState();
+
   const renderDockItem = (item: SortItem, index: number) => {
     if (itemBuilder) {
       return itemBuilder(item, index);
@@ -64,10 +67,7 @@ const Dock: React.FC<DockProps> = ({
   };
 
   const launchpadButton = showLaunchpad ? (
-    <StackedIcon
-      onClick={onLaunchpadClick}
-      className="zs-flex-shrink-0"
-    />
+    <StackedIcon onClick={onLaunchpadClick} className="zs-flex-shrink-0" />
   ) : null;
 
   if (!items.length && !showLaunchpad) {
@@ -106,6 +106,13 @@ const Dock: React.FC<DockProps> = ({
             ${position === "top" || position === "bottom" ? `flex-direction: row;` : `flex-direction: column;`}
           `
         )}
+        onMove={(e) => {
+          setListStatus("onMove");
+          return true;
+        }}
+        onEnd={() => {
+          setListStatus(null);
+        }}
       >
         {items.map((item, index) => renderDockItem(item, index))}
       </ReactSortable>
