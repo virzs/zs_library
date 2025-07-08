@@ -1,11 +1,13 @@
-import { useMemo } from "react";
-import { css, cx } from "@emotion/css";
+import { useMemo, useState } from "react";
+import { cx, css } from "@emotion/css";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { SortItem } from "./types";
 import SortableItem from "./items/sortable-item";
 import SortableGroupItem from "./items/group-item";
 import BaseModal from "./items/modal/base-modal";
 import { useSortableState } from "./context/state/hooks";
+import SearchBox from "./search-box";
 
 export interface LaunchpadModalProps<D, C> {
   /**
@@ -24,6 +26,7 @@ export interface LaunchpadModalProps<D, C> {
 
 const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalProps<D, C>) => {
   const { list } = useSortableState();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { allApps, groupedData, groups, groupCounts } = useMemo(() => {
     if (!list || list.length === 0) {
@@ -48,8 +51,16 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
       return getApps(page.children);
     });
 
+    // 搜索过滤
+    const filteredApps = searchQuery.trim()
+      ? apps.filter((app) => {
+          const name = (app.data?.name || app.id || "").toString().toLowerCase();
+          return name.includes(searchQuery.toLowerCase());
+        })
+      : apps;
+
     // 按名称排序
-    const sortedApps = apps.sort((a, b) => {
+    const sortedApps = filteredApps.sort((a, b) => {
       const nameA = (a.data?.name || a.id || "").toString();
       const nameB = (b.data?.name || b.id || "").toString();
       return nameA.localeCompare(nameB);
@@ -90,7 +101,7 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
       groups: letters,
       groupCounts: counts,
     };
-  }, [list]);
+  }, [list, searchQuery]);
 
   const scrollToLetter = (letterIndex: number) => {
     const letter = groups[letterIndex];
@@ -101,124 +112,125 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
   };
 
   return (
-    <BaseModal visible={visible} onClose={onClose} title="启动台" width={900}>
+    <BaseModal
+      visible={visible}
+      onClose={onClose}
+      title={
+        <div className="zs-py-4">
+          <SearchBox value={searchQuery} onChange={setSearchQuery} placeholder="搜索应用" />
+        </div>
+      }
+      width={900}
+    >
       <div className={cx("zs-relative zs-overflow-hidden zs-h-[60vh] zs-max-h-[600px]")}>
         {allApps.length === 0 ? (
-          <div
-            className={cx(
-              "flex-1 flex items-center justify-center flex-col",
-              css`
-                color: #8e8e93;
-                font-size: 20px;
-                font-weight: 500;
-                text-align: center;
-
-                &::before {
-                  content: "📱";
-                  font-size: 64px;
-                  margin-bottom: 16px;
-                  opacity: 0.6;
-                }
-              `
-            )}
-          >
-            <div>暂无应用</div>
-            <div
-              className={css`
-                font-size: 16px;
-                color: #c7c7cc;
-                margin-top: 8px;
-                font-weight: 400;
-              `}
-            >
-              请添加应用到启动台
+          <div className="zs-flex-1 zs-flex zs-items-center zs-justify-center zs-flex-col zs-text-[#8e8e93] zs-text-xl zs-font-medium zs-text-center">
+            <div className="zs-text-6xl zs-mb-4 zs-opacity-60">{searchQuery.trim() ? "🔍" : "📱"}</div>
+            <div className="zs-mb-2">{searchQuery.trim() ? "未找到相关应用" : "暂无应用"}</div>
+            <div className="zs-text-base zs-text-[#c7c7cc] zs-font-normal">
+              {searchQuery.trim() ? "尝试使用其他关键词搜索" : "请添加应用到启动台"}
             </div>
           </div>
         ) : (
           <>
-            <div className="zs-overflow-y-auto zs-h-full zs-ml-14">
+            <div className={cx("zs-overflow-y-auto zs-h-full zs-ml-14 zs-p-1")}>
               {/* 字母分组标题和网格 */}
-              <div>
-                {groups.map((letter, groupIndex) => {
-                  const groupStartIndex = groupCounts.slice(0, groupIndex).reduce((sum, count) => sum + count, 0);
-                  const groupItems = groupedData.slice(groupStartIndex, groupStartIndex + groupCounts[groupIndex]);
+              <div className="zs-flex zs-gap-8 zs-flex-wrap">
+                {searchQuery.trim()
+                  ? // 搜索模式：简单网格布局
+                    allApps.map((item, itemIndex) => {
+                      const ItemComponent =
+                        item.type === "group" || item.type === "app" ? SortableGroupItem : SortableItem;
 
-                  return (
-                    <div key={letter} id={`group-${letter}`}>
-                      <div
-                        className={cx(
-                          "zs-text-lg zs-sticky zs-top-0 zs-z-10 zs-bg-white zs-bg-opacity-50 zs-px-4 zs-py-2 zs-rounded-xl zs-font-bold zs-mb-2",
-                          css`
-                            color: #1d1d1f;
-                            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-                            letter-spacing: 0.5px;
-                          `
-                        )}
-                      >
-                        {letter}
-                      </div>
-                      <div className="zs-flex zs-gap-16 zs-p-6 zs-flex-wrap">
-                        {groupItems.map((item, itemIndex) => {
-                          const ItemComponent =
-                            item.type === "group" || item.type === "app" ? SortableGroupItem : SortableItem;
+                      return (
+                        <div key={item.id} className="zs-mb-6">
+                          <ItemComponent
+                            data={item}
+                            itemIndex={itemIndex}
+                            parentIds={[]}
+                            onClick={onItemClick}
+                            disabledDrag={true}
+                          />
+                        </div>
+                      );
+                    })
+                  : // 正常模式：字母分组布局groups
+                    groups
+                      .map((letter, groupIndex) => {
+                        const groupStartIndex = groupCounts.slice(0, groupIndex).reduce((sum, count) => sum + count, 0);
+                        const groupItems = groupedData.slice(
+                          groupStartIndex,
+                          groupStartIndex + groupCounts[groupIndex]
+                        );
 
-                          return (
-                            <div className="zs-mb-6">
-                              <ItemComponent
-                                key={item.id}
-                                data={item}
-                                itemIndex={groupStartIndex + itemIndex}
-                                parentIds={[]}
-                                onClick={onItemClick}
-                                disabledDrag={true}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+                        return (
+                          <>
+                            {groupItems.map((item, itemIndex) => {
+                              const ItemComponent =
+                                item.type === "group" || item.type === "app" ? SortableGroupItem : SortableItem;
+
+                              return (
+                                <div
+                                  key={item.id}
+                                  id={itemIndex === 0 ? `group-${letter}` : undefined}
+                                  className="zs-mb-6"
+                                >
+                                  <ItemComponent
+                                    data={item}
+                                    itemIndex={groupStartIndex + itemIndex}
+                                    parentIds={[]}
+                                    onClick={onItemClick}
+                                    disabledDrag={true}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </>
+                        );
+                      })
+                      .flat()}
               </div>
             </div>
           </>
         )}
       </div>
       {/* 侧边栏字母导航 */}
-      <div
-        className={cx(
-          "zs-absolute zs-top-0 zs-left-0 zs-bottom-0 zs-flex zs-flex-col zs-items-center zs-z-50 zs-w-12 zs-bg-white zs-bg-opacity-50 zs-rounded-xl zs-py-2"
-        )}
-      >
-        {groups.map((letter, index) => (
-          <button
-            key={letter}
-            className={cx(
-              "zs-text-sm zs-p-2 zs-cursor-pointer zs-rounded-xl zs-w-8 zs-h-8 zs-flex zs-items-center zs-justify-center zs-bg-none zs-border-none zs-font-semibold my-1",
-              css`
-                color: #666;
-                line-height: 1;
-                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-                &:hover {
-                  color: #007aff;
-                  background: rgba(0, 122, 255, 0.1);
-                  transform: scale(1.1);
-                  box-shadow: 0 4px 15px rgba(0, 122, 255, 0.2);
-                }
-
-                &:active {
-                  transform: scale(0.95);
-                }
-              `
-            )}
-            onClick={() => scrollToLetter(index)}
-            title={`跳转到 ${letter}`}
+      <AnimatePresence>
+        {!searchQuery.trim() && (
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="zs-absolute zs-top-0 zs-left-0 zs-bottom-0 zs-flex zs-flex-col zs-items-center zs-z-50 zs-w-12 zs-rounded-xl zs-py-2"
           >
-            {letter}
-          </button>
-        ))}
-      </div>
+            {groups.map((letter, index) => (
+              <motion.button
+                key={letter}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  duration: 0.2,
+                  delay: index * 0.05,
+                  ease: "easeOut",
+                }}
+                whileHover={{
+                  scale: 1.1,
+                  backgroundColor: "rgba(0,122,255,0.1)",
+                  color: "#007aff",
+                  boxShadow: "0 4px 15px rgba(0,122,255,0.2)",
+                }}
+                whileTap={{ scale: 0.95 }}
+                className="zs-text-sm zs-p-2 zs-cursor-pointer zs-rounded-xl zs-w-8 zs-h-8 zs-flex zs-items-center zs-justify-center zs-bg-transparent zs-border-none zs-font-semibold zs-my-1 zs-text-[#666] zs-leading-none"
+                onClick={() => scrollToLetter(index)}
+                title={`跳转到 ${letter}`}
+              >
+                {letter}
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </BaseModal>
   );
 };

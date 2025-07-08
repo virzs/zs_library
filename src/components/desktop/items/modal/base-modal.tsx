@@ -173,6 +173,32 @@ const BaseModal = (props: BaseModalProps) => {
                 position: relative;
                 padding: 20px;
               }
+
+              /* 全局滚动条样式 - 应用于所有内部滚动元素 */
+              * {
+                /* Webkit 滚动条样式 */
+                &::-webkit-scrollbar {
+                  width: 8px;
+                }
+
+                &::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                  background: rgba(156, 163, 175, 0.5);
+                  border-radius: 4px;
+                  transition: background-color 0.2s ease;
+                }
+
+                &::-webkit-scrollbar-thumb:hover {
+                  background: rgba(156, 163, 175, 0.8);
+                }
+
+                /* Firefox 滚动条样式 */
+                scrollbar-width: thin;
+                scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+              }
             `
           )}
           width={width}
