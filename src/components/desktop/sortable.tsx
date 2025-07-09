@@ -138,7 +138,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
   // 从list中过滤出dock数据和分页数据
   const dockItems = useMemo(() => {
-    return list.filter((item) => item.dataType === "dock");
+    const dockData = list.find((item) => item.dataType === "dock");
+    return dockData?.children ?? [];
   }, [list]);
 
   const pageItems = useMemo(() => {
@@ -291,25 +292,42 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               onLaunchpadClick={() => setShowLaunchpad(true)}
               onDockItemsChange={(newDockItems) => {
                 // 更新dock数据到list中
-                const updatedList = list
-                  .filter((item) => item.dataType !== "dock")
-                  .concat(
-                    newDockItems.map((item) => ({
+                const updatedList = list.map((item) => {
+                  if (item.dataType === "dock") {
+                    return {
                       ...item,
-                      dataType: "dock" as const,
-                    }))
-                  );
+                      children: newDockItems,
+                    };
+                  }
+                  return item;
+                });
                 setList(updatedList);
               }}
               onDrop={() => {
                 if (dragItem) {
                   // 添加到 dock
                   if (dockItems.every((i) => i.id !== dragItem.id)) {
-                    // 将拖拽项标记为dock数据并直接更新到list中
-                    const dockItem = { ...dragItem, dataType: "dock" as const };
-                    // 从原列表中移除该项目，然后添加dock项目
-                    const updatedList = list.filter((item) => item.id !== dragItem.id).concat([dockItem]);
-                    setList(updatedList);
+                    // 将拖拽项添加到dock容器的children中
+                    const updatedList = list.map((item) => {
+                      if (item.dataType === "dock") {
+                        return {
+                          ...item,
+                          children: [...(item.children ?? []), dragItem],
+                        };
+                      }
+                      return item;
+                    });
+                    // 从原位置移除该项目
+                    const finalList = updatedList.map((item) => {
+                      if (item.dataType !== "dock" && item.children) {
+                        return {
+                          ...item,
+                          children: item.children.filter((child) => child.id !== dragItem.id),
+                        };
+                      }
+                      return item;
+                    });
+                    setList(finalList);
                   }
                 }
                 setDragItem(null);
