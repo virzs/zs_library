@@ -198,7 +198,7 @@ export const commonDragConfig = {
  */
 export const modalDragConfig = {
   ...commonDragConfig,
-  group: { name: "nested", pull: true, put: false },
+  group: { name: "desktop", pull: true, put: true },
   animation: 150,
 };
 
