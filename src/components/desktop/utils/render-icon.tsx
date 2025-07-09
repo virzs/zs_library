@@ -1,5 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
 import { SortItem, SortItemBaseData } from "../types";
+
+/**
+ * 带加载动画的图片组件
+ */
+const ImageWithLoading: React.FC<{ src: string }> = ({ src }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setHasError(true);
+  };
+
+  return (
+    <div className="zs-relative zs-w-full zs-h-full">
+      {isLoading && (
+        <div className="zs-absolute zs-inset-0 zs-flex zs-items-center zs-justify-center zs-bg-gray-100">
+          <div className="zs-animate-spin zs-rounded-full zs-h-4 zs-w-4 zs-border-b-2 zs-border-gray-600"></div>
+        </div>
+      )}
+      {hasError ? (
+        <div className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-bg-gray-100 zs-text-gray-400">
+          <span className="zs-text-xs">加载失败</span>
+        </div>
+      ) : (
+        <img
+          src={src}
+          alt=""
+          className={`zs-w-full zs-h-full zs-object-cover zs-transition-opacity zs-duration-300 ${
+            isLoading ? "zs-opacity-0" : "zs-opacity-100"
+          }`}
+          onLoad={handleLoad}
+          onError={handleError}
+        />
+      )}
+    </div>
+  );
+};
 
 /**
  * 渲染图标的通用函数
@@ -23,7 +65,7 @@ export const renderIcon = <D, C>(
   if (dataIcon) {
     // 如果icon是url字符串，则显示为图片
     if (typeof dataIcon === "string" && (dataIcon.startsWith("http") || dataIcon.startsWith("https"))) {
-      return <img src={dataIcon} alt="" className="zs-w-full zs-h-full zs-object-cover" />;
+      return <ImageWithLoading src={dataIcon} />;
     }
     return dataIcon;
   }
