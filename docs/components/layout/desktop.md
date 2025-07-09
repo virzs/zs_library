@@ -117,6 +117,37 @@ export default () => {
           type: "app",
           data: {
             name: "x90",
+            icon: "https://placehold.co/100x100/FF5733/FFFFFF?text=X90",
+          },
+        },
+      ],
+    },
+    {
+      id: "1239137sdcsdc",
+      dataType: "dock",
+      children: [
+        {
+          id: 91,
+          type: "app",
+          data: {
+            name: "新闻",
+            icon: "https://placehold.co/100x100/FF5733/FFFFFF?text=News",
+          },
+        },
+        {
+          id: 92,
+          type: "app",
+          data: {
+            name: "音乐",
+            icon: "https://placehold.co/100x100/FF1493/FFFFFF?text=Music",
+          },
+        },
+        {
+          id: 92,
+          type: "app",
+          data: {
+            name: "备忘录",
+            icon: "https://placehold.co/100x100/4B0082/FFFFFF?text=Memo",
           },
         },
       ],
@@ -247,11 +278,7 @@ export default () => {
         </Button>
       </div>
       <div style={{ padding: "0 50px" }}>
-        <Desktop
-          list={list}
-          enableCaching={false}
-          pagination={{ position: pagingLocation }}
-        />
+        <Desktop list={list} enableCaching={false} pagination={{ position: pagingLocation }} />
       </div>
     </MantineProvider>
   );
@@ -835,10 +862,7 @@ export default () => {
                 width: "100%",
                 height: "100%",
               }}
-              src={
-                images[data.id] ??
-                "https://dailybing.com/api/v1/20240815zh-cnMRK"
-              }
+              src={images[data.id] ?? "https://dailybing.com/api/v1/20240815zh-cnMRK"}
             />
           );
         }}
