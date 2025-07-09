@@ -360,7 +360,12 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             className={cx(
               paginingLocationCss,
               css`
+                height: 100%;
+                .slick-list {
+                  height: 100%;
+                }
                 .slick-track {
+                  height: 100%;
                   display: flex;
                   align-items: stretch;
                 }
