@@ -16,14 +16,7 @@ interface GroupItemModalProps<D, C> {
 
 const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
   const { data, onClose, onItemClick } = props;
-  const {
-    list,
-    setList,
-    setListStatus,
-    setMoveItemId,
-    setMoveTargetId,
-    updateItem,
-  } = useSortableState();
+  const { list, setList, setListStatus, setMoveItemId, setMoveTargetId, updateItem } = useSortableState();
 
   const [name, setName] = useState("文件夹");
 
@@ -64,14 +57,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
     <BaseModal
       visible={!!data}
       onClose={onClose}
-      title={
-        <EditableTitle
-          value={name}
-          onChange={handleTitleChange}
-          onBlur={handleTitleBlur}
-          placeholder="文件夹"
-        />
-      }
+      title={<EditableTitle value={name} onChange={handleTitleChange} onBlur={handleTitleBlur} placeholder="文件夹" />}
       mousePosition={
         data?.pageX && data?.pageY
           ? {
@@ -81,16 +67,14 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
           : null
       }
     >
-      <div onDragLeave={handleDragLeave}>
+      <div className="zs-min-h-96" onDragLeave={handleDragLeave}>
         <ReactSortable
           className={dragContainerStyle}
           {...modalDragConfig}
           list={data?.children ?? []}
           setList={(x) => {
             const xIds = x.map((item) => item.id);
-            const parentChildrenIds = list
-              .find((item) => item.id === data?.id)
-              ?.children?.map((item) => item.id);
+            const parentChildrenIds = list.find((item) => item.id === data?.id)?.children?.map((item) => item.id);
             // ! 如果ids个数相同，顺序相同 return，优化性能
             if (
               xIds.length === parentChildrenIds?.length &&
@@ -126,14 +110,7 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
           ghostClass={ghostClass}
         >
           {_children.map((item, index) => {
-            return (
-              <SortableItem
-                key={item.id}
-                data={item}
-                itemIndex={index}
-                onClick={onItemClick}
-              />
-            );
+            return <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
           })}
         </ReactSortable>
       </div>
