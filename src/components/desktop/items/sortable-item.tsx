@@ -5,6 +5,7 @@ import { ContextMenuProps } from "../context-menu";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseData } from "../types";
+import { renderIcon } from "../utils/render-icon";
 import ItemName from "./item-name";
 
 export interface SortableItemProps<D, C> {
@@ -26,20 +27,8 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
   const { contextMenuFuns } = useSortableState();
   const { itemIconBuilder: configItemIconBuilder, theme, contextMenu } = useSortableConfig();
 
-  // 优先使用props中传递的icon，如果没有则使用配置中的itemIconBuilder
   const { data: itemData = {} } = data;
-
   const { name } = itemData as D & SortItemBaseData;
-
-  // 渲染图标内容
-  const renderIcon = () => {
-    if (icon) return icon;
-    if (!configItemIconBuilder) return null;
-    if (typeof configItemIconBuilder === "function") {
-      return configItemIconBuilder(data);
-    }
-    return configItemIconBuilder;
-  };
 
   return (
     <>
@@ -64,7 +53,7 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
           )}
           {...contextMenuFuns(data, contextMenu !== false)}
         >
-          {renderIcon()}
+          {renderIcon(data, icon, configItemIconBuilder)}
         </div>
       </motion.div>
       <ItemName data={data} noLetters={noLetters} name={name} />

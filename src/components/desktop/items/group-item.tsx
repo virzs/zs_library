@@ -5,6 +5,7 @@ import { ReactSortable } from "react-sortablejs";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseConfig } from "../types";
+import { renderIcon } from "../utils/render-icon";
 import ItemName from "./item-name";
 import SortableItem, { SortableItemProps } from "./sortable-item";
 
@@ -13,7 +14,7 @@ export interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
 }
 
 const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
-  const { data, className, parentIds, itemIndex, onClick, noLetters = false, disabledDrag = false } = props;
+  const { data, className, parentIds, itemIndex, onClick, noLetters = false, disabledDrag = false, icon } = props;
   const {
     contextMenuFuns,
     setList,
@@ -24,7 +25,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     listStatus,
   } = useSortableState();
 
-  const { itemIconBuilder, theme, contextMenu } = useSortableConfig();
+  const { itemIconBuilder: configItemIconBuilder, theme, contextMenu } = useSortableConfig();
 
   const { children, config: itemConfig } = data;
 
@@ -53,7 +54,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
       return (
         <motion.div
           className={cx(
-            "sortable-group-item zs-hidden zs-cursor-pointer zs-w-full zs-h-full zs-absolute zs-left-0 zs-top-0",
+            "sortable-group-item zs-cursor-pointer zs-w-full zs-h-full zs-absolute zs-left-0 zs-top-0 zs-bottom-0 zs-right-0 zs-overflow-hidden",
             css`
               background-color: ${theme.token.itemIconBackgroundColor};
               border-radius: 0.75rem;
@@ -64,7 +65,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             onClick?.(data);
           }}
         >
-          {itemIconBuilder?.(data)}
+          {renderIcon(data, icon, configItemIconBuilder)}
         </motion.div>
       );
     }
@@ -94,7 +95,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 onClick?.(i);
               }}
             >
-              {itemIconBuilder?.(i)}
+              {renderIcon(i, undefined, configItemIconBuilder)}
             </motion.div>
           ))}
         </motion.div>
@@ -130,7 +131,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 onClick?.(i);
               }}
             >
-              {itemIconBuilder?.(i)}
+              {renderIcon(i, undefined, configItemIconBuilder)}
             </motion.div>
           ))}
         </motion.div>
@@ -166,7 +167,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 onClick?.(i);
               }}
             >
-              {itemIconBuilder?.(i)}
+              {renderIcon(i, undefined, configItemIconBuilder)}
             </motion.div>
           ))}
         </motion.div>
