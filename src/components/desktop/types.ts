@@ -25,15 +25,12 @@ export interface SortItemBaseData {
   icon?: string;
 }
 
-export interface SortItem<
-  D = any & SortItemBaseData,
-  C = any & SortItemBaseConfig
-> {
+export interface SortItem<D = any & SortItemBaseData, C = any & SortItemBaseConfig> {
   id: string | number;
   type: "app" | "group";
-  data?: D;
-  config?: C;
-  children?: SortItem<D, C>[];
+  data?: D & SortItemBaseData;
+  config?: C & SortItemBaseConfig;
+  children?: SortItem<D & SortItemBaseData, C & SortItemBaseConfig>[];
   /** 区分数据类型：page表示分页数据，dock表示dock数据 */
   dataType?: "page" | "dock";
   /** 下面的参数为组件内部处理时自动添加，不影响数据 */

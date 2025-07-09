@@ -6,9 +6,7 @@ import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import { useSortableConfig } from "./context/config/hooks";
 import { useSortableState } from "./context/state/hooks";
-import DragTriggerPagination, {
-  DragTriggerPaginationRef,
-} from "./drag-trigger-pagination";
+import DragTriggerPagination, { DragTriggerPaginationRef } from "./drag-trigger-pagination";
 import { mainDragContainerStyle, mainDragConfig } from "./drag-styles";
 import SortableGroupItem from "./items/group-item";
 import GroupItemModal from "./items/modal/group-item-modal";
@@ -136,12 +134,12 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setDragItem,
   } = useSortableState();
 
-  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } =
-    useSortableConfig();
+  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } = useSortableConfig();
 
   // 从list中过滤出dock数据和分页数据
   const dockItems = useMemo(() => {
-    return list.filter((item) => item.dataType === "dock");
+    const dockData = list.find((item) => item.dataType === "dock");
+    return dockData?.children ?? [];
   }, [list]);
 
   const pageItems = useMemo(() => {
@@ -272,14 +270,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     <>
       <div
         ref={containerRef}
-        className={cx(
-          css`
-            position: relative;
-            width: 100%;
-            height: 100%;
-          `,
-          dockLayoutCss
-        )}
+        className={cx("zs-relative zs-w-full zs-h-full", dockLayoutCss)}
         onDragOver={(e) => {
           e.preventDefault();
           // 触发拖拽移动处理
@@ -301,27 +292,42 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               onLaunchpadClick={() => setShowLaunchpad(true)}
               onDockItemsChange={(newDockItems) => {
                 // 更新dock数据到list中
-                const updatedList = list
-                  .filter((item) => item.dataType !== "dock")
-                  .concat(
-                    newDockItems.map((item) => ({
+                const updatedList = list.map((item) => {
+                  if (item.dataType === "dock") {
+                    return {
                       ...item,
-                      dataType: "dock" as const,
-                    }))
-                  );
+                      children: newDockItems,
+                    };
+                  }
+                  return item;
+                });
                 setList(updatedList);
               }}
               onDrop={() => {
                 if (dragItem) {
                   // 添加到 dock
                   if (dockItems.every((i) => i.id !== dragItem.id)) {
-                    // 将拖拽项标记为dock数据并直接更新到list中
-                    const dockItem = { ...dragItem, dataType: "dock" as const };
-                    // 从原列表中移除该项目，然后添加dock项目
-                    const updatedList = list
-                      .filter((item) => item.id !== dragItem.id)
-                      .concat([dockItem]);
-                    setList(updatedList);
+                    // 将拖拽项添加到dock容器的children中
+                    const updatedList = list.map((item) => {
+                      if (item.dataType === "dock") {
+                        return {
+                          ...item,
+                          children: [...(item.children ?? []), dragItem],
+                        };
+                      }
+                      return item;
+                    });
+                    // 从原位置移除该项目
+                    const finalList = updatedList.map((item) => {
+                      if (item.dataType !== "dock" && item.children) {
+                        return {
+                          ...item,
+                          children: item.children.filter((child) => child.id !== dragItem.id),
+                        };
+                      }
+                      return item;
+                    });
+                    setList(finalList);
                   }
                 }
                 setDragItem(null);
@@ -371,11 +377,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               `,
               className
             )}
-            customPaging={createCustomPagingDot(
-              pageItems,
-              activeSlide,
-              pagingDotBuilder
-            )}
+            customPaging={createCustomPagingDot(pageItems, activeSlide, pagingDotBuilder)}
             appendDots={(dots: React.ReactNode[]) => {
               return (
                 <Pagination
@@ -395,8 +397,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       .slick-dots-default {
                         flex-direction: ${pagination &&
                         typeof pagination === "object" &&
-                        (pagination.position === "left" ||
-                          pagination.position === "right")
+                        (pagination.position === "left" || pagination.position === "right")
                           ? "column"
                           : "row"};
                       }
@@ -417,8 +418,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   onDrop={(e) => {
                     e.preventDefault();
                     const data = e.dataTransfer.getData("text/plain");
-                    const quickCheckJsonResult =
-                      SortableUtils.quickJSONCheck(data);
+                    const quickCheckJsonResult = SortableUtils.quickJSONCheck(data);
 
                     if (quickCheckJsonResult) {
                       try {
@@ -446,10 +446,19 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       // 限制只有一层
                       // sortable-group-item 标记为文件夹
                       if (
-                        (Object.keys(relatedData).length === 0 ||
-                          relatedData.parentIds) &&
+                        (Object.keys(relatedData).length === 0 || relatedData.parentIds) &&
                         Number(draggedData.childrenLength) > 0 &&
                         related.classList.contains("sortable-group-item")
+                      ) {
+                        return false;
+                      }
+                      // 限制文件夹不能放入dock
+                      // related.classList 判断 dock 为空时
+                      // related.parentElement?.classList 判断 dock 内有内容时
+                      if (
+                        (related.classList.contains("desktop-dock-sortable") ||
+                          related.parentElement?.classList.contains("desktop-dock-sortable")) &&
+                        Number(draggedData.childrenLength) > 0
                       ) {
                         return false;
                       }
@@ -499,14 +508,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           );
                           break;
                         default:
-                          el = (
-                            <SortableItem
-                              key={item.id}
-                              data={item}
-                              itemIndex={index}
-                              onClick={onItemClick}
-                            />
-                          );
+                          el = <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
                           break;
                       }
 
@@ -541,11 +543,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
       {/* 启动台模态框 */}
       {showLaunchpad && (
-        <LaunchpadModal
-          visible={showLaunchpad}
-          onClose={() => setShowLaunchpad(false)}
-          onItemClick={onItemClick}
-        />
+        <LaunchpadModal visible={showLaunchpad} onClose={() => setShowLaunchpad(false)} onItemClick={onItemClick} />
       )}
     </>
   );

@@ -45,63 +45,108 @@ export default () => {
           id: 1,
           type: "group",
           data: {
-            name: "one",
+            name: "常用软件",
           },
           config: {
             col: 2,
           },
-          children:
-            // 生成20个子项
-            Array(60)
-              .fill(0)
-              .map((_, index) => ({
-                id: "sdanka" + 1 + index,
-                type: "app",
-                data: {
-                  name: `one-${index}`,
-                },
-              })),
+          children: [
+            {
+              id: "app1",
+              type: "app",
+              data: {
+                name: "Chrome",
+                icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=Chrome",
+              },
+            },
+            {
+              id: "app2",
+              type: "app",
+              data: {
+                name: "VS Code",
+                icon: "https://placehold.co/100x100/007ACC/FFFFFF?text=VSCode",
+              },
+            },
+            {
+              id: "app3",
+              type: "app",
+              data: {
+                name: "Photoshop",
+                icon: "https://placehold.co/100x100/31A8FF/FFFFFF?text=PS",
+              },
+            },
+            {
+              id: "app4",
+              type: "app",
+              data: {
+                name: "Figma",
+                icon: "https://placehold.co/100x100/F24E1E/FFFFFF?text=Figma",
+              },
+            },
+            {
+              id: "app5",
+              type: "app",
+              data: {
+                name: "Notion",
+                icon: "https://placehold.co/100x100/000000/FFFFFF?text=Notion",
+              },
+            },
+            {
+              id: "app6",
+              type: "app",
+              data: {
+                name: "Slack",
+                icon: "https://placehold.co/100x100/4A154B/FFFFFF?text=Slack",
+              },
+            },
+          ],
         },
         {
           id: 2,
           type: "app",
           data: {
-            name: "two",
+            name: "微信",
+            icon: "https://placehold.co/100x100/07C160/FFFFFF?text=WeChat",
           },
         },
         {
           id: 3,
           type: "app",
           data: {
-            name: "three",
+            name: "支付宝",
+            icon: "https://placehold.co/100x100/1677FF/FFFFFF?text=Alipay",
           },
         },
         {
           id: 4,
           type: "app",
           data: {
-            name: "four",
+            name: "淘宝",
+            icon: "https://placehold.co/100x100/FF6A00/FFFFFF?text=Taobao",
           },
         },
         {
           id: 5,
           type: "app",
           data: {
-            name: "five",
+            name: "抖音",
+            icon: "https://placehold.co/100x100/FE2C55/FFFFFF?text=TikTok",
           },
         },
         {
           id: 6,
           type: "app",
           data: {
-            name: "six",
+            name: "QQ",
+            icon: "https://placehold.co/100x100/12B7F5/FFFFFF?text=QQ",
           },
         },
         {
           id: 7,
           type: "app",
           data: {
-            name: "x",
+            name: "钉钉",
+            icon: "https://placehold.co/100x100/2E7CF6/FFFFFF?text=DingTalk",
           },
         },
       ],
@@ -116,14 +161,71 @@ export default () => {
           id: 90,
           type: "app",
           data: {
-            name: "x90",
+            name: "GitHub",
+            icon: "https://placehold.co/100x100/181717/FFFFFF?text=GitHub",
+          },
+        },
+        {
+          id: 91,
+          type: "app",
+          data: {
+            name: "Docker",
+            icon: "https://placehold.co/100x100/2496ED/FFFFFF?text=Docker",
+          },
+        },
+        {
+          id: 92,
+          type: "app",
+          data: {
+            name: "Postman",
+            icon: "https://placehold.co/100x100/FF6C37/FFFFFF?text=Postman",
+          },
+        },
+      ],
+    },
+    {
+      id: "1239137sdcsdc",
+      dataType: "dock",
+      children: [
+        {
+          id: 93,
+          type: "app",
+          data: {
+            name: "新闻",
+            icon: "https://placehold.co/100x100/E60012/FFFFFF?text=News",
+          },
+        },
+        {
+          id: 94,
+          type: "app",
+          data: {
+            name: "音乐",
+            icon: "https://placehold.co/100x100/FF1493/FFFFFF?text=Music",
+          },
+        },
+        {
+          id: 95,
+          type: "app",
+          data: {
+            name: "备忘录",
+            icon: "https://placehold.co/100x100/FFD700/FFFFFF?text=Notes",
           },
         },
       ],
     },
   ];
 
-  return <Desktop list={list} enableCaching={false} />;
+  return (
+    <div
+      style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        height: "500px",
+        padding: "20px",
+      }}
+    >
+      <Desktop list={list} enableCaching={false} />
+    </div>
+  );
 };
 ```
 
@@ -237,11 +339,7 @@ export default () => {
         </Button>
       </div>
       <div style={{ padding: "0 50px" }}>
-        <Desktop
-          list={list}
-          enableCaching={false}
-          pagination={{ position: pagingLocation }}
-        />
+        <Desktop list={list} enableCaching={false} pagination={{ position: pagingLocation }} />
       </div>
     </MantineProvider>
   );
@@ -825,10 +923,7 @@ export default () => {
                 width: "100%",
                 height: "100%",
               }}
-              src={
-                images[data.id] ??
-                "https://dailybing.com/api/v1/20240815zh-cnMRK"
-              }
+              src={images[data.id] ?? "https://dailybing.com/api/v1/20240815zh-cnMRK"}
             />
           );
         }}

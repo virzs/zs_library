@@ -36,9 +36,9 @@ export const MobileIconContainer: FC<MobileIconContainerProps> = (props) => {
       {children || (
         <a
           href={href}
-          className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center"
+          className="zs-h-10 zs-w-10 zs-rounded-full zs-bg-gray-50 dark:zs-bg-neutral-900 zs-flex zs-items-center zs-justify-center"
         >
-          <div className="h-4 w-4">{icon}</div>
+          <div className="zs-h-4 zs-w-4">{icon}</div>
         </a>
       )}
     </motion.div>
@@ -55,14 +55,7 @@ export interface DockMobileProps {
 }
 
 const DockMobile: FC<DockMobileProps> = (props) => {
-  const {
-    items = [],
-    className,
-    collapseIcon,
-    autoHidden = false,
-    itemBuilder,
-    children,
-  } = props;
+  const { items = [], className, collapseIcon, autoHidden = false, itemBuilder, children } = props;
 
   const [open, setOpen] = useState(false);
 
@@ -71,33 +64,21 @@ const DockMobile: FC<DockMobileProps> = (props) => {
   };
 
   return (
-    <div
-      className={cn("relative block", autoHidden ? "md:hidden" : "", className)}
-    >
+    <div className={cn("zs-relative zs-block", autoHidden ? "md:zs-hidden" : "", className)}>
       <AnimatePresence>
         {open && (
           <motion.div
             layoutId="nav"
-            className="absolute bottom-full mb-2 inset-x-0 flex flex-col gap-2"
+            className="zs-absolute zs-bottom-full zs-mb-2 zs-inset-x-0 zs-flex zs-flex-col zs-gap-2"
           >
             {children ||
               items.map((item, idx) =>
                 itemBuilder ? (
-                  <MobileIconContainer
-                    key={item.title}
-                    {...item}
-                    index={idx}
-                    totalItems={items.length}
-                  >
+                  <MobileIconContainer key={item.title} {...item} index={idx} totalItems={items.length}>
                     {itemBuilder(item, idx, items)}
                   </MobileIconContainer>
                 ) : (
-                  <MobileIconContainer
-                    key={item.title}
-                    {...item}
-                    index={idx}
-                    totalItems={items.length}
-                  />
+                  <MobileIconContainer key={item.title} {...item} index={idx} totalItems={items.length} />
                 )
               )}
           </motion.div>
@@ -105,12 +86,12 @@ const DockMobile: FC<DockMobileProps> = (props) => {
       </AnimatePresence>
       <button
         onClick={handleCollapseBtnClick}
-        className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-800 flex items-center justify-center"
+        className="zs-h-10 zs-w-10 zs-rounded-full zs-bg-gray-50 dark:zs-bg-neutral-800 zs-flex zs-items-center zs-justify-center"
       >
         {collapseIcon ? (
           collapseIcon
         ) : (
-          <RiMoreLine className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+          <RiMoreLine className="zs-h-5 zs-w-5 zs-text-neutral-500 dark:zs-text-neutral-400" />
         )}
       </button>
     </div>

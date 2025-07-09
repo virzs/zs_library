@@ -97,8 +97,7 @@ const BaseModal = (props: BaseModalProps) => {
                 background: rgba(255, 255, 255, 0.77);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15),
-                  0 0 0 0.75px rgba(255, 255, 255, 0.25);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
                 border: 0.75px solid rgba(255, 255, 255, 0.3);
                 padding: 0;
                 border-radius: 16px;
@@ -148,8 +147,7 @@ const BaseModal = (props: BaseModalProps) => {
                   animation: maskFadeOut 0.3s ease-out forwards;
                 }
                 .rc-dialog-content {
-                  animation: modalSlideOut 0.3s
-                    cubic-bezier(0.175, 0.885, 0.32, 1) forwards;
+                  animation: modalSlideOut 0.3s cubic-bezier(0.175, 0.885, 0.32, 1) forwards;
                 }
               }
 
@@ -175,36 +173,63 @@ const BaseModal = (props: BaseModalProps) => {
                 position: relative;
                 padding: 20px;
               }
+
+              /* 全局滚动条样式 - 应用于所有内部滚动元素 */
+              * {
+                /* Webkit 滚动条样式 */
+                &::-webkit-scrollbar {
+                  width: 8px;
+                }
+
+                &::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                  background: rgba(156, 163, 175, 0.5);
+                  border-radius: 4px;
+                  transition: background-color 0.2s ease;
+                }
+
+                &::-webkit-scrollbar-thumb:hover {
+                  background: rgba(156, 163, 175, 0.8);
+                }
+
+                /* Firefox 滚动条样式 */
+                scrollbar-width: thin;
+                scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+              }
             `
           )}
           width={width}
           destroyOnClose={destroyOnClose}
         >
           <div
-            className={css`
-              overflow-y: auto;
-              max-height: 60vh;
-              position: relative;
+            className={cx(
+              "zs-overflow-y-auto zs-relative",
+              css`
+                max-height: 60vh;
 
-              /* iOS 风格的滚动条 */
-              &::-webkit-scrollbar {
-                width: 4px;
-              }
+                /* iOS 风格的滚动条 */
+                &::-webkit-scrollbar {
+                  width: 4px;
+                }
 
-              &::-webkit-scrollbar-track {
-                background: transparent;
-              }
+                &::-webkit-scrollbar-track {
+                  background: transparent;
+                }
 
-              &::-webkit-scrollbar-thumb {
-                background: rgba(0, 0, 0, 0.2);
-                border-radius: 2px;
-                transition: background 0.2s ease;
-              }
+                &::-webkit-scrollbar-thumb {
+                  background: rgba(0, 0, 0, 0.2);
+                  border-radius: 2px;
+                  transition: background 0.2s ease;
+                }
 
-              &::-webkit-scrollbar-thumb:hover {
-                background: rgba(0, 0, 0, 0.3);
-              }
-            `}
+                &::-webkit-scrollbar-thumb:hover {
+                  background: rgba(0, 0, 0, 0.3);
+                }
+              `
+            )}
           >
             {children}
           </div>

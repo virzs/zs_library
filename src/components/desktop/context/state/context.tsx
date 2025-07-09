@@ -150,7 +150,34 @@ export const SortableStateProvider = <D, C>(
   };
 
   const getItemRectAndSetContextMenu = (e: any, data: any) => {
-    setContextMenu({ ...e, pageX: e.pageX, pageY: e.pageY, data });
+    // 尝试获取最接近的图标元素的位置
+    let targetElement = e.target;
+    
+    // 向上查找，找到具有 data-id 属性的元素（通常是 item 容器）
+    while (targetElement && !targetElement.getAttribute('data-id')) {
+      targetElement = targetElement.parentElement;
+    }
+    
+    // 如果找不到合适的元素，使用事件目标
+    if (!targetElement) {
+      targetElement = e.target;
+    }
+    
+    const rect = targetElement.getBoundingClientRect();
+    
+    console.log("Setting context menu with:", {
+      pageX: e.pageX,
+      pageY: e.pageY,
+      rect,
+      data,
+    });
+    
+    setContextMenu({
+      rect,
+      pageX: e.pageX,
+      pageY: e.pageY,
+      data,
+    });
     clearTimeout(contextMenuTimer);
   };
 
@@ -356,7 +383,7 @@ export const SortableStateProvider = <D, C>(
               ...data,
               id: uuidv4(),
               config: data?.config ?? configMap[type],
-              dataType: data?.dataType ?? 'page',
+              dataType: data?.dataType ?? "page",
             },
           ];
         }
@@ -381,7 +408,7 @@ export const SortableStateProvider = <D, C>(
         ...data,
         id: uuidv4(),
         config: data?.config ?? configMap[type],
-        dataType: data?.dataType ?? 'page',
+        dataType: data?.dataType ?? "page",
       };
 
       const newList = [...prevList, newItem];
