@@ -434,6 +434,16 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       ) {
                         return false;
                       }
+                      // 限制文件夹不能放入dock
+                      // related.classList 判断 dock 为空时
+                      // related.parentElement?.classList 判断 dock 内有内容时
+                      if (
+                        (related.classList.contains("desktop-dock-sortable") ||
+                          related.parentElement?.classList.contains("desktop-dock-sortable")) &&
+                        Number(draggedData.childrenLength) > 0
+                      ) {
+                        return false;
+                      }
                       return true;
                     }}
                     onStart={(e) => {

@@ -101,12 +101,12 @@ const Dock: React.FC<DockProps> = ({
         }}
         {...mainDragConfig}
         className={cx(
-          "zs-w-full zs-h-full zs-flex zs-gap-3",
+          "desktop-dock-sortable zs-w-full zs-h-full zs-flex zs-gap-3",
           css`
             ${position === "top" || position === "bottom" ? `flex-direction: row;` : `flex-direction: column;`}
           `
         )}
-        onMove={(e) => {
+        onMove={() => {
           setListStatus("onMove");
           return true;
         }}
