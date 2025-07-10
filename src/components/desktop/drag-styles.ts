@@ -45,14 +45,14 @@ export const mainDragContainerStyle = css`
   gap: 12px;
   padding: 16px;
   border-radius: 16px;
+  height: 100%;
 
   /* 拖拽进入时的视觉反馈 */
   &.drag-over {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 16px rgba(0, 0, 0, 0.1);
     transform: scale(1.01);
   }
 
@@ -88,16 +88,11 @@ export const enhancedGhostClass = css`
   > div {
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     border: 2px solid rgba(255, 255, 255, 0.6);
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.3) 0%,
-      rgba(255, 255, 255, 0.1) 100%
-    );
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 
     > div {
       opacity: 0.8;
@@ -123,11 +118,7 @@ export const dragDropZoneStyle = css`
       left: -2px;
       right: -2px;
       bottom: -2px;
-      background: linear-gradient(
-        135deg,
-        rgba(0, 150, 255, 0.3) 0%,
-        rgba(0, 150, 255, 0.1) 100%
-      );
+      background: linear-gradient(135deg, rgba(0, 150, 255, 0.3) 0%, rgba(0, 150, 255, 0.1) 100%);
       border-radius: 16px;
       pointer-events: none;
       animation: dragEnterPulse 1s ease-in-out infinite alternate;
