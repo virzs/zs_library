@@ -19,21 +19,22 @@ export { SortableStateProvider as DesktopSortableStateProvider } from "./desktop
 export type { SortableStateProviderProps as DesktopSortableStateProviderProps } from "./desktop/context/state/context";
 
 export {
-  appConfig as desktopAppConfig,
-  groupConfig as desktopGroupConfig,
-  configMap as desktopConfigMap,
+  appDefaultConfig as desktopAppDefaultConfig,
+  groupDefaultConfig as desktopGroupDefaultConfig,
+  builtinConfigMap as desktopBuiltinConfigMap,
+  getDefaultConfig as getDesktopDefaultConfig,
 } from "./desktop/config";
 
 export type {
   SortItemBaseConfig as DesktopSortItemBaseConfig,
+  SortItemUserConfig as DesktopSortItemUserConfig,
+  SortItemDefaultConfig as DesktopSortItemDefaultConfig,
   SortItem as DesktopSortItem,
   SortItemBaseData as DesktopSortItemBaseData,
+  TypeConfigMap as DesktopTypeConfigMap,
 } from "./desktop/types";
 
-export {
-  themeLight as desktopThemeLight,
-  themeDark as desktopThemeDark,
-} from "./desktop/theme";
+export { themeLight as desktopThemeLight, themeDark as desktopThemeDark } from "./desktop/theme";
 export type { Theme as DesktopTheme } from "./desktop/theme";
 
 export { default as SortableUtils } from "./desktop/utils";
@@ -42,14 +43,8 @@ export { default as MdEditor } from "./md-editor";
 export { default as Markdown } from "./md-editor/preview";
 
 export { default as Dock } from "./dock";
-export {
-  default as DockDesktop,
-  DesktopIconContainer as DockDesktopItem,
-} from "./dock/dock-desktop";
-export {
-  default as DockMobile,
-  MobileIconContainer as DockMobileItem,
-} from "./dock/dock-mobile";
+export { default as DockDesktop, DesktopIconContainer as DockDesktopItem } from "./dock/dock-desktop";
+export { default as DockMobile, MobileIconContainer as DockMobileItem } from "./dock/dock-mobile";
 export { useMotionValue as useDockDesktopMouseX } from "framer-motion";
 export type { DesktopIconContainerProps as DockDesktopItemProps } from "./dock/dock-desktop";
 export type { MobileIconContainerProps as DockMobileItemProps } from "./dock/dock-mobile";

@@ -1,15 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useDebounceEffect, useLocalStorageState } from "ahooks";
-import React, {
-  createContext,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { configMap } from "../../config";
 import { SortItem } from "../../types";
 import SortableUtils from "../../utils";
 
@@ -106,9 +99,7 @@ export interface SortableStateProviderProps<D, C> {
   children: React.ReactNode;
 }
 
-export const SortableStateProvider = <D, C>(
-  props: SortableStateProviderProps<D, C>
-) => {
+export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D, C>) => {
   const {
     children,
     list: propList = [],
@@ -123,17 +114,11 @@ export const SortableStateProvider = <D, C>(
   const listStatusRef = useRef(listStatus);
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
   const [list, setList] = useState<any[]>([]);
-  const [showInfoItemData, setShowInfoItemData] = useState<SortItem | null>(
-    null
-  );
-  const [openGroupItemData, setOpenGroupItemData] = useState<SortItem | null>(
-    null
-  );
+  const [showInfoItemData, setShowInfoItemData] = useState<SortItem | null>(null);
+  const [openGroupItemData, setOpenGroupItemData] = useState<SortItem | null>(null);
   const [longPressTriggered, setLongPressTriggered] = useState(false);
   const [moveItemId, setMoveItemId] = useState<string | null>(null);
-  const [moveTargetId, setMoveTargetId] = useState<string | number | null>(
-    null
-  );
+  const [moveTargetId, setMoveTargetId] = useState<string | number | null>(null);
   const [dragItem, setDragItem] = useState<SortItem | null>(null);
 
   const [init, setInit] = useState(false);
@@ -152,26 +137,26 @@ export const SortableStateProvider = <D, C>(
   const getItemRectAndSetContextMenu = (e: any, data: any) => {
     // 尝试获取最接近的图标元素的位置
     let targetElement = e.target;
-    
+
     // 向上查找，找到具有 data-id 属性的元素（通常是 item 容器）
-    while (targetElement && !targetElement.getAttribute('data-id')) {
+    while (targetElement && !targetElement.getAttribute("data-id")) {
       targetElement = targetElement.parentElement;
     }
-    
+
     // 如果找不到合适的元素，使用事件目标
     if (!targetElement) {
       targetElement = e.target;
     }
-    
+
     const rect = targetElement.getBoundingClientRect();
-    
+
     console.log("Setting context menu with:", {
       pageX: e.pageX,
       pageY: e.pageY,
       rect,
       data,
     });
-    
+
     setContextMenu({
       rect,
       pageX: e.pageX,
@@ -236,9 +221,7 @@ export const SortableStateProvider = <D, C>(
             if (_parentIds.length && parent) {
               /** 如果当前数据实际只有一个子数据，则取消 group 状态 */
               if (
-                parent.children?.filter(
-                  (i) => !newList.some((k) => k.id === i.id)
-                ).length === 1 &&
+                parent.children?.filter((i) => !newList.some((k) => k.id === i.id)).length === 1 &&
                 newList.length === 1
               ) {
                 const current = { ...newList[0] };
@@ -375,14 +358,12 @@ export const SortableStateProvider = <D, C>(
         if (parentIds.length) {
           parent.children = addToChild(parent.children || [], parentIds);
         } else {
-          const type = data?.type ?? "app";
-
           parent.children = [
             ...(parent.children ?? []),
             {
               ...data,
               id: uuidv4(),
-              config: data?.config ?? configMap[type],
+              config: data?.config ?? {},
               dataType: data?.dataType ?? "page",
             },
           ];
@@ -403,11 +384,10 @@ export const SortableStateProvider = <D, C>(
    */
   const addRootItem = (data: SortItem) => {
     setList((prevList) => {
-      const type = data?.type ?? "app";
       const newItem = {
         ...data,
         id: uuidv4(),
-        config: data?.config ?? configMap[type],
+        config: data?.config ?? {},
         dataType: data?.dataType ?? "page",
       };
 
