@@ -201,8 +201,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             box-shadow: 0 0 0.5rem ${theme.token.groupItemIconShadowColor};
             /* overflow: hidden; */
             transition: all 0.3s;
-            width: ${col * 64 + 32 * (col - 1)}px;
-            height: ${row * 64 + 32 * (row - 1)}px;
+            width: ${col * 64 + 44 * (col - 1)}px;
+            height: ${row * 64 + 44 * (row - 1)}px;
           `
         )}
         onClick={(e: React.MouseEvent) => {
