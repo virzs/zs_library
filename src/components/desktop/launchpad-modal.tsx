@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
-import { cx, css } from "@emotion/css";
+import { cx } from "@emotion/css";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { SortItem } from "./types";
 import SortableItem from "./items/sortable-item";
-import SortableGroupItem from "./items/group-item";
 import BaseModal from "./items/modal/base-modal";
 import { useSortableState } from "./context/state/hooks";
 import SearchBox from "./search-box";
@@ -139,12 +138,9 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
                 {searchQuery.trim()
                   ? // 搜索模式：简单网格布局
                     allApps.map((item, itemIndex) => {
-                      const ItemComponent =
-                        item.type === "group" || item.type === "app" ? SortableGroupItem : SortableItem;
-
                       return (
                         <div key={item.id} className="zs-mb-6">
-                          <ItemComponent
+                          <SortableItem
                             data={item}
                             itemIndex={itemIndex}
                             parentIds={[]}
@@ -166,16 +162,13 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
                         return (
                           <>
                             {groupItems.map((item, itemIndex) => {
-                              const ItemComponent =
-                                item.type === "group" || item.type === "app" ? SortableGroupItem : SortableItem;
-
                               return (
                                 <div
                                   key={item.id}
                                   id={itemIndex === 0 ? `group-${letter}` : undefined}
                                   className="zs-mb-6"
                                 >
-                                  <ItemComponent
+                                  <SortableItem
                                     data={item}
                                     itemIndex={groupStartIndex + itemIndex}
                                     parentIds={[]}

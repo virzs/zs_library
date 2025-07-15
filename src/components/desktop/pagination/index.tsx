@@ -41,7 +41,7 @@ const DefaultPaginationDots: React.FC<{
       <ul
         className={cx(
           "slick-dots-default",
-          "zs-p-2 !zs-inline-flex zs-justify-center zs-items-center zs-gap-3",
+          "!zs-flex zs-justify-center zs-items-center zs-gap-3",
           css`
             li {
               margin: 0;

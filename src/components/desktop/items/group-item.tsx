@@ -2,9 +2,10 @@ import { css, cx } from "@emotion/css";
 import { motion } from "framer-motion";
 import React, { useMemo } from "react";
 import { ReactSortable } from "react-sortablejs";
+import { getItemSize } from "../config";
 import { useSortableConfig } from "../context/config/hooks";
 import { useSortableState } from "../context/state/hooks";
-import { SortItem, SortItemBaseConfig } from "../types";
+import { SortItem } from "../types";
 import { renderIcon } from "../utils/render-icon";
 import ItemName from "./item-name";
 import SortableItem, { SortableItemProps } from "./sortable-item";
@@ -25,11 +26,11 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     listStatus,
   } = useSortableState();
 
-  const { itemIconBuilder: configItemIconBuilder, theme, contextMenu } = useSortableConfig();
+  const { itemIconBuilder: configItemIconBuilder, theme, contextMenu, typeConfigMap } = useSortableConfig();
 
-  const { children, config: itemConfig } = data;
+  const { children } = data;
 
-  const { row = 1, col = 1 } = (itemConfig ?? {}) as SortItemBaseConfig;
+  const { row, col } = getItemSize(data.type, data.config?.sizeId, typeConfigMap);
 
   // 是否为空
   const childrenEmpty = (children?.length ?? 0) === 0;
@@ -200,8 +201,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             box-shadow: 0 0 0.5rem ${theme.token.groupItemIconShadowColor};
             /* overflow: hidden; */
             transition: all 0.3s;
-            width: ${col * 64 + 32 * (col - 1)}px;
-            height: ${row * 64 + 32 * (row - 1)}px;
+            width: ${col * 64 + 44 * (col - 1)}px;
+            height: ${row * 64 + 44 * (row - 1)}px;
           `
         )}
         onClick={(e: React.MouseEvent) => {

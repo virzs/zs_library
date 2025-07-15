@@ -1,36 +1,59 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export interface SortItemBaseConfig {
-  /** 最大行数 default 2 */
-  maxRow?: number;
-  /** 最大列数 default 2 */
-  maxCol?: number;
-  /** 行数 */
-  row?: number;
+
+/** 尺寸配置项 */
+export interface SizeConfig {
+  /** 配置ID（可选，通常使用对象key作为ID） */
+  id?: string;
+  /** 显示名称 */
+  name: string;
   /** 列数 */
-  col?: number;
-  /** 允许设置大小 default true */
-  allowResize?: boolean;
-  /** 允许打开右键菜单 default true */
-  allowContextMenu?: boolean;
-  /** 允许显示分享按钮 default true */
-  allowShare?: boolean;
-  /** 允许显示删除按钮 default true */
-  allowDelete?: boolean;
-  /** 允许显示信息按钮 default true */
-  allowInfo?: boolean;
+  col: number;
+  /** 行数 */
+  row: number;
 }
+
+/** 用户可配置的设置（会存储到用户数据中） */
+export interface SortItemUserConfig {
+  /** 尺寸配置ID */
+  sizeId?: string;
+}
+
+/** 系统默认配置（不会存储到用户数据中，防止篡改） */
+export interface SortItemDefaultConfig {
+  /** 可用的尺寸配置列表 */
+  sizeConfigs: SizeConfig[];
+  /** 默认尺寸配置ID */
+  defaultSizeId: string;
+  /** 允许设置大小 */
+  allowResize: boolean;
+  /** 允许打开右键菜单 */
+  allowContextMenu: boolean;
+  /** 允许显示分享按钮 */
+  allowShare: boolean;
+  /** 允许显示删除按钮 */
+  allowDelete: boolean;
+  /** 允许显示信息按钮 */
+  allowInfo: boolean;
+}
+
+/** 完整的配置接口（用户配置 + 系统默认配置） */
+export interface SortItemBaseConfig extends SortItemUserConfig, SortItemDefaultConfig {}
+
+/** 类型配置映射表 */
+export type TypeConfigMap = Record<string, SortItemDefaultConfig>;
 
 export interface SortItemBaseData {
   name: string;
   icon?: string;
 }
 
-export interface SortItem<D = any & SortItemBaseData, C = any & SortItemBaseConfig> {
+export interface SortItem<D = any & SortItemBaseData, C = any & SortItemUserConfig> {
   id: string | number;
-  type: "app" | "group";
+  /** 项目类型，支持内置类型（app、group）和自定义类型 */
+  type: string;
   data?: D & SortItemBaseData;
-  config?: C & SortItemBaseConfig;
-  children?: SortItem<D & SortItemBaseData, C & SortItemBaseConfig>[];
+  config?: C & SortItemUserConfig;
+  children?: SortItem<D & SortItemBaseData, C & SortItemUserConfig>[];
   /** 区分数据类型：page表示分页数据，dock表示dock数据 */
   dataType?: "page" | "dock";
   /** 下面的参数为组件内部处理时自动添加，不影响数据 */
@@ -42,3 +65,5 @@ export interface SortItem<D = any & SortItemBaseData, C = any & SortItemBaseConf
 
 // 类型别名，保持向后兼容
 export type SortableItemData = SortItem;
+export type DesktopSizeConfig = SizeConfig;
+export type DesktopTypeConfigMap = TypeConfigMap;

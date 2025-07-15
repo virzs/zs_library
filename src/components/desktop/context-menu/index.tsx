@@ -1,8 +1,9 @@
 import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "framer-motion";
-import { configMap } from "../config";
+import { getDefaultConfig, getSizeConfig } from "../config";
 import { useSortableState } from "../context/state/hooks";
-import { SortItem, SortItemBaseConfig } from "../types";
+import { useSortableConfig } from "../context/config/hooks";
+import { SortItem, SortItemDefaultConfig } from "../types";
 import { RiApps2Line, RiIndeterminateCircleLine, RiInformationLine, RiShare2Line } from "@remixicon/react";
 import { useState, createContext, useContext } from "react";
 
@@ -171,6 +172,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   } = props;
   const { contextMenu, setContextMenu, hideContextMenu, setShowInfoItemData, removeItem, updateItemConfig } =
     useSortableState();
+  const { typeConfigMap } = useSortableConfig();
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -178,14 +180,8 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   const { config = {} } = data ?? {};
 
   const getAllSizes = () => {
-    const config: SortItemBaseConfig = configMap[contextMenu?.data?.type];
-    const dimensions = [];
-    for (let row = 1; row <= (config?.maxRow ?? 2); row++) {
-      for (let col = 1; col <= (config?.maxCol ?? 2); col++) {
-        dimensions.push(`${row}x${col}`);
-      }
-    }
-    return dimensions;
+    const config: SortItemDefaultConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
+    return config.sizeConfigs.map((sizeConfig) => sizeConfig.name);
   };
   return (
     <AnimatePresence>
@@ -280,19 +276,31 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                 />
               )}
               {/* 修改尺寸 - 第四个选项 */}
-              {showSizeButton && config.allowResize !== false && (
-                <SizeMenuItem
-                  sizes={getAllSizes()}
-                  currentSize={`${config.row}x${config.col}`}
-                  onSizeChange={(size) => {
-                    const [row, col] = size.split("x").map(Number);
-                    updateItemConfig(contextMenu.data.id, {
-                      row,
-                      col,
-                    });
-                  }}
-                />
-              )}
+              {showSizeButton &&
+                config.allowResize !== false &&
+                (() => {
+                  const typeConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
+                  const currentSizeConfig = getSizeConfig(
+                    data?.config?.sizeId,
+                    typeConfig.sizeConfigs,
+                    typeConfig.defaultSizeId
+                  );
+
+                  return (
+                    <SizeMenuItem
+                      sizes={getAllSizes()}
+                      currentSize={currentSizeConfig.name}
+                      onSizeChange={(sizeName) => {
+                        const selectedSizeConfig = typeConfig.sizeConfigs.find((sc) => sc.name === sizeName);
+                        if (selectedSizeConfig) {
+                          updateItemConfig(contextMenu.data.id, {
+                            sizeId: selectedSizeConfig.id || sizeName,
+                          });
+                        }
+                      }}
+                    />
+                  );
+                })()}
             </motion.div>
           </motion.div>
         </HoverContext.Provider>

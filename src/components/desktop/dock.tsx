@@ -79,6 +79,8 @@ const Dock: React.FC<DockProps> = ({
       className={cx(
         "zs-flex zs-justify-center zs-items-center zs-rounded-2xl py-2 px-4 zs-backdrop-blur-xl zs-bg-white zs-bg-opacity-80 zs-gap-3 zs-border zs-border-white zs-border-opacity-20",
         position === "top" || position === "bottom" ? "zs-flex-row" : "zs-flex-col",
+        position === "top" && "zs-mb-4",
+        position === "bottom" && "zs-mt-4",
         css`
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         `,

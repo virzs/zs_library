@@ -2,7 +2,7 @@
 import React, { createContext, useMemo } from "react";
 import { Theme, themeDark, themeLight } from "../../theme";
 import { ContextMenuProps } from "../../context-menu";
-import { SortItem } from "../../types";
+import { SortItem, TypeConfigMap } from "../../types";
 
 /**
  * 需要跨多个组件传递的配置，使用 context 传递
@@ -14,12 +14,13 @@ export interface SortableConfig<D, C> {
    */
   noLetters?: boolean;
   /**
+   * 类型配置映射表
+   */
+  typeConfigMap?: TypeConfigMap;
+  /**
    * 右键菜单设置
    */
-  contextMenu?:
-    | ContextMenuProps<D, C>
-    | ((data: SortItem<D, C>) => ContextMenuProps<D, C> | false)
-    | false;
+  contextMenu?: ContextMenuProps<D, C> | ((data: SortItem<D, C>) => ContextMenuProps<D, C> | false) | false;
   /**
    * 自定义分页点容器
    */
@@ -30,11 +31,7 @@ export interface SortableConfig<D, C> {
    * @param index 分页项索引
    * @param isActive 是否为当前选中页
    */
-  pagingDotBuilder?: (
-    item: SortItem<D, C>,
-    index: number,
-    isActive: boolean
-  ) => React.JSX.Element;
+  pagingDotBuilder?: (item: SortItem<D, C>, index: number, isActive: boolean) => React.JSX.Element;
   /**
    * 自定义 item 渲染
    */
@@ -54,15 +51,12 @@ export const SortableConfigContext = createContext<SortableConfig<any, any>>({
   theme: themeLight,
 });
 
-export interface SortableConfigProviderProps<D, C>
-  extends Omit<SortableConfig<D, C>, "theme"> {
+export interface SortableConfigProviderProps<D, C> extends Omit<SortableConfig<D, C>, "theme"> {
   readonly theme?: "light" | "dark" | Theme;
   children: React.ReactNode;
 }
 
-export const SortableConfigProvider = <D, C>(
-  props: SortableConfigProviderProps<D, C>
-) => {
+export const SortableConfigProvider = <D, C>(props: SortableConfigProviderProps<D, C>) => {
   const { children, theme: propTheme, ...rest } = props;
 
   const theme = useMemo(() => {
@@ -75,9 +69,5 @@ export const SortableConfigProvider = <D, C>(
     }
   }, [propTheme]);
 
-  return (
-    <SortableConfigContext.Provider value={{ theme, ...rest }}>
-      {children}
-    </SortableConfigContext.Provider>
-  );
+  return <SortableConfigContext.Provider value={{ theme, ...rest }}>{children}</SortableConfigContext.Provider>;
 };

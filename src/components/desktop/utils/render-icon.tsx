@@ -1,21 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo, memo, FC } from "react";
 import { SortItem, SortItemBaseData } from "../types";
 
 /**
  * 带加载动画的图片组件
  */
-const ImageWithLoading: React.FC<{ src: string }> = ({ src }) => {
+const ImageWithLoading: FC<{ src: string }> = memo(({ src }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  const handleLoad = () => {
+  const handleLoad = useCallback(() => {
     setIsLoading(false);
-  };
+  }, []);
 
-  const handleError = () => {
+  const handleError = useCallback(() => {
     setIsLoading(false);
     setHasError(true);
-  };
+  }, []);
+
+  const imageClassName = useMemo(() => {
+    return `zs-w-full zs-h-full zs-object-cover zs-transition-opacity zs-duration-300 ${
+      isLoading ? "zs-opacity-0" : "zs-opacity-100"
+    }`;
+  }, [isLoading]);
 
   return (
     <div className="zs-relative zs-w-full zs-h-full">
@@ -29,19 +35,11 @@ const ImageWithLoading: React.FC<{ src: string }> = ({ src }) => {
           <span className="zs-text-xs">加载失败</span>
         </div>
       ) : (
-        <img
-          src={src}
-          alt=""
-          className={`zs-w-full zs-h-full zs-object-cover zs-transition-opacity zs-duration-300 ${
-            isLoading ? "zs-opacity-0" : "zs-opacity-100"
-          }`}
-          onLoad={handleLoad}
-          onError={handleError}
-        />
+        <img src={src} alt="" className={imageClassName} onLoad={handleLoad} onError={handleError} />
       )}
     </div>
   );
-};
+});
 
 /**
  * 渲染图标的通用函数
