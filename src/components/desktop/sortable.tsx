@@ -524,7 +524,6 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                 </div>
               );
             })}
-            <div></div>
           </Slider>
         </div>
       </div>
