@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import Slider, { Settings } from "react-slick";
 import { ReactSortable } from "react-sortablejs";
 import "slick-carousel/slick/slick-theme.css";
@@ -132,6 +132,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     addItem,
     dragItem,
     setDragItem,
+    addRootItem,
+    removeRootItem,
   } = useSortableState();
 
   const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } = useSortableConfig();
@@ -145,6 +147,44 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
   const pageItems = useMemo(() => {
     return list.filter((item) => item.dataType !== "dock");
   }, [list]);
+  console.log("🚀 ~ pageItems ~ pageItems:", pageItems);
+
+  // 创建新页面
+  const createNewPage = useCallback(() => {
+    const newPage = {
+      id: `page_${Date.now()}`,
+      type: "page" as const,
+      data: { name: `页面 ${pageItems.length + 1}` },
+      children: [],
+      dataType: "page" as const,
+    };
+    addRootItem(newPage);
+
+    // 延迟跳转到新页面
+    setTimeout(() => {
+      (_sliderRef ?? sliderRef).current?.slickGoTo(pageItems.length);
+    }, 100);
+  }, [pageItems.length, addRootItem, _sliderRef, sliderRef]);
+
+  // 删除空白页面
+  const removeEmptyPages = useCallback(() => {
+    const emptyPages = pageItems.filter((page) => !page.children || page.children.length === 0);
+
+    // 保留至少一个页面
+    if (emptyPages.length === pageItems.length && pageItems.length > 1) {
+      // 删除除第一个页面外的所有空白页面
+      emptyPages.slice(1).forEach((page) => {
+        removeRootItem(page.id);
+      });
+    } else if (emptyPages.length > 0 && pageItems.length > 1) {
+      // 删除所有空白页面，但保留至少一个页面
+      emptyPages.forEach((page) => {
+        if (pageItems.length - emptyPages.length > 0 || pageItems.indexOf(page) > 0) {
+          removeRootItem(page.id);
+        }
+      });
+    }
+  }, [pageItems, removeRootItem]);
 
   const paginingLocationCss = useMemo(() => {
     if (pagination === false) {
@@ -346,6 +386,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             totalSlides={pageItems.length}
             sliderRef={(_sliderRef ?? sliderRef) as React.RefObject<Slider>}
             containerRef={containerRef as React.RefObject<HTMLDivElement>}
+            onCreateNewPage={createNewPage}
           />
 
           <Slider
@@ -489,6 +530,11 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       setListStatus(null);
                       setIsDragging(false);
                       setDragItem(null);
+
+                      // 拖拽结束后检查并删除空白页面
+                      setTimeout(() => {
+                        removeEmptyPages();
+                      }, 100);
                     }}
                     ghostClass={ghostClass}
                   >

@@ -242,7 +242,8 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
             /** 当 parentIds = 0 且匹配到，表明当前为实际需要更新的数据 */
             if (parent) {
               /** 没有子数据，且有新增数据，则将当前数据更改为 group 类型 */
-              if (!parent.children?.length && newList.length) {
+              /** 但是如果当前是页面类型(dataType为page)，则不进行group转换，直接添加到children */
+              if (!parent.children?.length && newList.length && parent.dataType !== "page") {
                 const current = { ...parent };
                 parent.data = { name: "文件夹" };
                 parent.type = "group";
@@ -256,6 +257,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
               }
 
               // ! 当前已经是 group 时，直接将 children 更改为最新的 list
+              // ! 或者当前是页面类型时，也直接将 children 更改为最新的 list
               parent.children = SortableUtils.uniqueArray(newList);
 
               _list.splice(parentIndex, 1, parent);
