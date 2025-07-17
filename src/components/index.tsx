@@ -44,6 +44,18 @@ export type { Theme as DesktopTheme, ThemeType as DesktopThemeType } from "./des
 
 export { default as SortableUtils } from "./desktop/utils";
 
+// 导出desktop dock相关组件
+export {
+  Dock as DesktopDock,
+  LaunchpadModal as DesktopLaunchpadModal,
+  LaunchpadButton as DesktopLaunchpadButton,
+} from "./desktop/dock";
+export type {
+  DockProps as DesktopDockProps,
+  LaunchpadModalProps as DesktopLaunchpadModalProps,
+  LaunchpadButtonProps as DesktopLaunchpadButtonProps,
+} from "./desktop/dock";
+
 export { default as MdEditor } from "./md-editor";
 export { default as Markdown } from "./md-editor/preview";
 

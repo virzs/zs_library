@@ -119,4 +119,8 @@ export {
   themes as desktopThemes,
 } from "./themes";
 
+// 导出dock相关组件
+export { Dock, LaunchpadModal, LaunchpadButton } from "./dock";
+export type { DockProps, LaunchpadModalProps, LaunchpadButtonProps } from "./dock";
+
 export default Desktop;

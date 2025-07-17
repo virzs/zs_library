@@ -2,11 +2,11 @@ import { useMemo, useState } from "react";
 import { cx } from "@emotion/css";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { SortItem } from "./types";
-import SortableItem from "./items/sortable-item";
-import BaseModal from "./items/modal/base-modal";
-import { useSortableState } from "./context/state/hooks";
-import SearchBox from "./search-box";
+import { SortItem } from "../types";
+import SortableItem from "../items/sortable-item";
+import BaseModal from "../items/modal/base-modal";
+import { useSortableState } from "../context/state/hooks";
+import SearchBox from "../search-box";
 
 export interface LaunchpadModalProps<D, C> {
   /**

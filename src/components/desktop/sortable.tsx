@@ -17,8 +17,8 @@ import { createCustomPagingDot } from "./pagination/utils";
 import { ghostClass } from "./style";
 import { SortItem } from "./types";
 import SortableUtils from "./utils";
-import Dock, { DockProps } from "./dock";
-import LaunchpadModal from "./launchpad-modal";
+import Dock, { DockProps } from "./dock/dock";
+import LaunchpadModal from "./dock/launchpad-modal";
 
 export interface Pagination {
   position?: "top" | "bottom" | "left" | "right";
