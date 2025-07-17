@@ -110,4 +110,13 @@ export {
   getItemSize as getDesktopItemSize,
 } from "./config";
 
+// 导出主题相关内容
+export type { Theme, ThemeType } from "./themes";
+export {
+  themeLight as desktopThemeLight,
+  themeDark as desktopThemeDark,
+  defaultTheme as desktopDefaultTheme,
+  themes as desktopThemes,
+} from "./themes";
+
 export default Desktop;

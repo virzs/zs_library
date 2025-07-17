@@ -34,8 +34,13 @@ export type {
   TypeConfigMap as DesktopTypeConfigMap,
 } from "./desktop/types";
 
-export { themeLight as desktopThemeLight, themeDark as desktopThemeDark } from "./desktop/theme";
-export type { Theme as DesktopTheme } from "./desktop/theme";
+export {
+  themeLight as desktopThemeLight,
+  themeDark as desktopThemeDark,
+  defaultTheme as desktopDefaultTheme,
+  themes as desktopThemes,
+} from "./desktop/themes";
+export type { Theme as DesktopTheme, ThemeType as DesktopThemeType } from "./desktop/themes";
 
 export { default as SortableUtils } from "./desktop/utils";
 
