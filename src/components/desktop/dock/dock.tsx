@@ -114,6 +114,16 @@ const Dock: React.FC<DockProps> = ({
       >
         {items.map((item, index) => renderDockItem(item, index))}
       </ReactSortable>
+      {/* 分隔线 */}
+      {showLaunchpad && (
+        <div
+          className={cx(
+            "zs-flex zs-bg-white zs-bg-opacity-30",
+            position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1"
+          )}
+        />
+      )}
+      {/* 启动台按钮 */}
       {showLaunchpad && <LaunchpadButton onClick={onLaunchpadClick} position={position} />}
     </div>
   );
