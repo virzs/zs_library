@@ -27,3 +27,5 @@ export const themes = {
 
 // 主题类型
 export type ThemeType = keyof typeof themes;
+
+export { themeLight, themeDark };

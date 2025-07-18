@@ -5,8 +5,8 @@ import { dragContainerStyle, modalDragConfig } from "../../drag-styles";
 import { ghostClass } from "../../style";
 import { SortItem } from "../../types";
 import SortableItem from "../sortable-item";
-import BaseModal from "./base-modal";
 import EditableTitle from "./editable-title";
+import { BaseModal } from "../../modal";
 
 interface GroupItemModalProps<D, C> {
   data: SortItem | null;

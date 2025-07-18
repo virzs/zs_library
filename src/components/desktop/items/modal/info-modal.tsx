@@ -1,7 +1,7 @@
 import { FC } from "react";
 import ReactJson from "react-json-view";
 import { SortItem } from "../../types";
-import BaseModal from "./base-modal";
+import { BaseModal } from "../../modal";
 
 export interface ItemInfoModalProps {
   data: SortItem | null;
