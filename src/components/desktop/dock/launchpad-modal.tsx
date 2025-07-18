@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SortItem } from "../types";
 import SortableItem from "../items/sortable-item";
 import { useSortableState } from "../context/state/hooks";
-import SearchBox from "../search-box";
+import SearchBox from "./search-box";
 import { BaseModal } from "../modal";
 
 export interface LaunchpadModalProps<D, C> {
