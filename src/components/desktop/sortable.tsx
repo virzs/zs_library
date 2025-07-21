@@ -140,23 +140,20 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
   // 从list中过滤出dock数据和分页数据
   const dockItems = useMemo(() => {
-    const dockData = list.find((item) => item.dataType === "dock");
+    const dockData = list.find((item) => item.type === "dock");
     return dockData?.children ?? [];
   }, [list]);
 
   const pageItems = useMemo(() => {
-    return list.filter((item) => item.dataType !== "dock");
+    return list.filter((item) => item.type !== "dock");
   }, [list]);
-  console.log("🚀 ~ pageItems ~ pageItems:", pageItems);
 
   // 创建新页面
   const createNewPage = useCallback(() => {
     const newPage = {
       id: `page_${Date.now()}`,
       type: "page" as const,
-      data: { name: `页面 ${pageItems.length + 1}` },
       children: [],
-      dataType: "page" as const,
     };
     addRootItem(newPage);
 
@@ -333,7 +330,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               onDockItemsChange={(newDockItems) => {
                 // 更新dock数据到list中
                 const updatedList = list.map((item) => {
-                  if (item.dataType === "dock") {
+                  if (item.type === "dock") {
                     return {
                       ...item,
                       children: newDockItems,
@@ -349,7 +346,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   if (dockItems.every((i) => i.id !== dragItem.id)) {
                     // 将拖拽项添加到dock容器的children中
                     const updatedList = list.map((item) => {
-                      if (item.dataType === "dock") {
+                      if (item.type === "dock") {
                         return {
                           ...item,
                           children: [...(item.children ?? []), dragItem],
@@ -359,7 +356,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                     });
                     // 从原位置移除该项目
                     const finalList = updatedList.map((item) => {
-                      if (item.dataType !== "dock" && item.children) {
+                      if (item.type !== "dock" && item.children) {
                         return {
                           ...item,
                           children: item.children.filter((child) => child.id !== dragItem.id),

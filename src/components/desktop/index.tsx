@@ -13,6 +13,8 @@ export interface DesktopProps<D = any, C = any>
     Omit<SortableConfigProviderProps<D, C>, "children"> {
   /** 类型配置映射表，用于定义不同类型的默认配置 */
   typeConfigMap?: import("./types").TypeConfigMap;
+  /** dataType菜单配置映射表，用于定义不同dataType的菜单项 */
+  dataTypeMenuConfigMap?: import("./types").DataTypeMenuConfigMap;
 }
 
 // 导出访问实例的接口
@@ -51,6 +53,7 @@ const Desktop = forwardRef(<D, C>(props: DesktopProps<D, C>, ref: React.Forwarde
     theme,
     noLetters,
     typeConfigMap,
+    dataTypeMenuConfigMap: props.dataTypeMenuConfigMap,
     contextMenu,
     pagingDotsBuilder,
     pagingDotBuilder,
@@ -91,6 +94,7 @@ const Desktop = forwardRef(<D, C>(props: DesktopProps<D, C>, ref: React.Forwarde
 
 export type {
   SortItem,
+  ListItem,
   SortItemBaseConfig,
   SortItemBaseData,
   SortItemDefaultConfig,
@@ -98,6 +102,8 @@ export type {
   SortableItemData,
   TypeConfigMap,
   SizeConfig,
+  MenuItemConfig,
+  DataTypeMenuConfigMap,
 } from "./types";
 
 export {
@@ -108,6 +114,7 @@ export {
   commonSizeConfigs as desktopCommonSizeConfigs,
   getSizeConfig as getDesktopSizeConfig,
   getItemSize as getDesktopItemSize,
+  getDataTypeMenuConfig as getDesktopDataTypeMenuConfig,
 } from "./config";
 
 // 导出主题相关内容

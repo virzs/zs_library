@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SortItem } from "../types";
 
 class SortableUtils {
   /** 清理重复id */
-  public static uniqueArray = (array: SortItem[]) =>
-    array.reduce((acc: SortItem[], current) => {
+  public static uniqueArray = <T extends { id: string | number }>(array: T[]): T[] =>
+    array.reduce((acc: T[], current) => {
       const x = acc.find((item: any) => item.id === current.id);
       if (!x) {
         return acc.concat([current]);
