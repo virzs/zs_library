@@ -4,7 +4,7 @@ import { useDebounceEffect, useLocalStorageState } from "ahooks";
 import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { SortItem } from "../../types";
-import SortableUtils from "../../utils";
+import SortableUtils from "../../utils/index";
 
 interface ContextMenu {
   rect: DOMRect;

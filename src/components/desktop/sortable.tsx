@@ -16,7 +16,7 @@ import Pagination from "./pagination";
 import { createCustomPagingDot } from "./pagination/utils";
 import { ghostClass } from "./style";
 import { SortItem } from "./types";
-import SortableUtils from "./utils";
+import SortableUtils from "./utils/index";
 import Dock, { DockProps } from "./dock/dock";
 import LaunchpadModal from "./dock/launchpad-modal";
 

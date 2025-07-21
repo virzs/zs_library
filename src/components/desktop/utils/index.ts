@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SortItem } from "./types";
+import { SortItem } from "../types";
 
 class SortableUtils {
   /** 清理重复id */
