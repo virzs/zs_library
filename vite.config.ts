@@ -37,7 +37,7 @@ export default defineConfig({
         "react-is",
         /^@radix-ui\/.*/,
         /^@emotion\/.*/,
-        "framer-motion",
+        "motion/react",
         "prosemirror-state",
         "prosemirror-transform",
         "prosemirror-model",

@@ -1,6 +1,6 @@
 import React from "react";
 import { css, cx } from "@emotion/css";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { RiFunctionFill } from "@remixicon/react";
 import { useState } from "react";
 

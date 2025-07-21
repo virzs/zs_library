@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { cx } from "@emotion/css";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 import { SortItem } from "../types";
 import SortableItem from "../items/sortable-item";

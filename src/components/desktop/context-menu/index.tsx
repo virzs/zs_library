@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { getDefaultConfig, getSizeConfig } from "../config";
 import { useSortableState } from "../context/state/hooks";
 import { useSortableConfig } from "../context/config/hooks";
@@ -214,11 +214,6 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               stiffness: 500,
               damping: 35,
               mass: 0.6,
-              // 关闭动画更快
-              exit: {
-                duration: 0.15,
-                ease: "easeInOut",
-              },
             }}
             onMouseDown={(e) => {
               e.stopPropagation();
