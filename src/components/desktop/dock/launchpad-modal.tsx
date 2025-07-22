@@ -135,53 +135,57 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
             <div className={cx("zs-overflow-y-auto zs-h-full zs-ml-14 zs-p-1")}>
               {/* 字母分组标题和网格 */}
               <div className="zs-flex zs-gap-8 zs-flex-wrap">
-                {searchQuery.trim()
-                  ? // 搜索模式：简单网格布局
-                    allApps.map((item, itemIndex) => {
-                      return (
-                        <div key={item.id} className="zs-mb-6">
-                          <SortableItem
-                            data={item}
-                            itemIndex={itemIndex}
-                            parentIds={[]}
-                            onClick={onItemClick}
-                            disabledDrag={true}
-                          />
-                        </div>
-                      );
-                    })
-                  : // 正常模式：字母分组布局groups
-                    groups
-                      .map((letter, groupIndex) => {
-                        const groupStartIndex = groupCounts.slice(0, groupIndex).reduce((sum, count) => sum + count, 0);
-                        const groupItems = groupedData.slice(
-                          groupStartIndex,
-                          groupStartIndex + groupCounts[groupIndex]
-                        );
-
+                <AnimatePresence mode="popLayout">
+                  {searchQuery.trim()
+                    ? // 搜索模式：简单网格布局
+                      allApps.map((item, itemIndex) => {
                         return (
-                          <>
-                            {groupItems.map((item, itemIndex) => {
-                              return (
-                                <div
-                                  key={item.id}
-                                  id={itemIndex === 0 ? `group-${letter}` : undefined}
-                                  className="zs-mb-6"
-                                >
-                                  <SortableItem
-                                    data={item}
-                                    itemIndex={groupStartIndex + itemIndex}
-                                    parentIds={[]}
-                                    onClick={onItemClick}
-                                    disabledDrag={true}
-                                  />
-                                </div>
-                              );
-                            })}
-                          </>
+                          <div key={item.id} className="zs-mb-6">
+                            <SortableItem
+                              data={item}
+                              itemIndex={itemIndex}
+                              parentIds={[]}
+                              onClick={onItemClick}
+                              disabledDrag={true}
+                            />
+                          </div>
                         );
                       })
-                      .flat()}
+                    : // 正常模式：字母分组布局groups
+                      groups
+                        .map((letter, groupIndex) => {
+                          const groupStartIndex = groupCounts
+                            .slice(0, groupIndex)
+                            .reduce((sum, count) => sum + count, 0);
+                          const groupItems = groupedData.slice(
+                            groupStartIndex,
+                            groupStartIndex + groupCounts[groupIndex]
+                          );
+
+                          return (
+                            <>
+                              {groupItems.map((item, itemIndex) => {
+                                return (
+                                  <div
+                                    key={item.id}
+                                    id={itemIndex === 0 ? `group-${letter}` : undefined}
+                                    className="zs-mb-6"
+                                  >
+                                    <SortableItem
+                                      data={item}
+                                      itemIndex={groupStartIndex + itemIndex}
+                                      parentIds={[]}
+                                      onClick={onItemClick}
+                                      disabledDrag={true}
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </>
+                          );
+                        })
+                        .flat()}
+                </AnimatePresence>
               </div>
             </div>
           </>

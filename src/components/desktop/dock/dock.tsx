@@ -6,6 +6,7 @@ import SortableItem from "../items/sortable-item";
 import { SortItem } from "../types";
 import { useSortableState } from "../context/state/hooks";
 import LaunchpadButton from "./launchpad-button";
+import { AnimatePresence } from "motion/react";
 
 export interface DockProps {
   /**
@@ -112,7 +113,7 @@ const Dock: React.FC<DockProps> = ({
           setListStatus(null);
         }}
       >
-        {items.map((item, index) => renderDockItem(item, index))}
+        <AnimatePresence mode="popLayout">{items.map((item, index) => renderDockItem(item, index))}</AnimatePresence>
       </ReactSortable>
       {/* 分隔线 */}
       {showLaunchpad && (

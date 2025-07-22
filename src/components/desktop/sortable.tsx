@@ -19,6 +19,7 @@ import { SortItem } from "./types";
 import SortableUtils from "./utils/index";
 import Dock, { DockProps } from "./dock/dock";
 import LaunchpadModal from "./dock/launchpad-modal";
+import { AnimatePresence } from "motion/react";
 
 export interface Pagination {
   position?: "top" | "bottom" | "left" | "right";
@@ -535,33 +536,36 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                     }}
                     ghostClass={ghostClass}
                   >
-                    {(l.children ?? []).map((item, index) => {
-                      let el;
+                    <AnimatePresence mode="popLayout">
+                      {(l.children ?? []).map((item, index) => {
+                        let el;
 
-                      if (itemBuilder) {
-                        return itemBuilder(item);
-                      }
+                        if (itemBuilder) {
+                          return itemBuilder(item);
+                        }
 
-                      switch (item.type) {
-                        case "group":
-                        case "app":
-                          el = (
-                            <SortableGroupItem
-                              key={item.id}
-                              data={item}
-                              itemIndex={index}
-                              parentIds={[l.id, item.id]}
-                              onClick={onItemClick}
-                            />
-                          );
-                          break;
-                        default:
-                          el = <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
-                          break;
-                      }
+                        switch (item.type) {
+                          case "group":
+                          case "app":
+                            el = (
+                              <SortableGroupItem
+                                key={item.id}
+                                data={item}
+                                itemIndex={index}
+                                parentIds={[l.id, item.id]}
+                                onClick={onItemClick}
+                              />
+                            );
+                            break;
+                          default:
+                            el = <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
+                            break;
+                        }
 
-                      return el;
-                    })}
+                        return el;
+                      })}
+                    </AnimatePresence>
+
                     <SafeExtraItems<D, C> renderFn={extraItems} item={l} />
                   </ReactSortable>
                 </div>

@@ -7,6 +7,7 @@ import { SortItem } from "../../types";
 import SortableItem from "../sortable-item";
 import EditableTitle from "./editable-title";
 import { BaseModal } from "../../modal";
+import { AnimatePresence } from "motion/react";
 
 interface GroupItemModalProps<D, C> {
   data: SortItem | null;
@@ -109,9 +110,11 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
           }}
           ghostClass={ghostClass}
         >
-          {_children.map((item, index) => {
-            return <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
-          })}
+          <AnimatePresence mode="popLayout">
+            {_children.map((item, index) => {
+              return <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
+            })}
+          </AnimatePresence>
         </ReactSortable>
       </div>
     </BaseModal>
