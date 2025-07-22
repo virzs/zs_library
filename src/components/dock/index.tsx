@@ -4,7 +4,7 @@ import DockMobile, {
   DockMobileProps,
   MobileIconContainer,
 } from "./dock-mobile";
-import { MotionValue } from "framer-motion";
+import { MotionValue } from "motion/react";
 
 export interface DockItem {
   icon?: ReactNode;

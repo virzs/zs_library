@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useMemo } from "react";
-import { Theme, themeDark, themeLight } from "../../theme";
+import { Theme, themeDark, themeLight, defaultTheme } from "../../themes";
 import { ContextMenuProps } from "../../context-menu";
-import { SortItem, TypeConfigMap } from "../../types";
+import { SortItem, ListItem, TypeConfigMap, DataTypeMenuConfigMap } from "../../types";
 
 /**
  * 需要跨多个组件传递的配置，使用 context 传递
@@ -18,6 +18,10 @@ export interface SortableConfig<D, C> {
    */
   typeConfigMap?: TypeConfigMap;
   /**
+   * dataType菜单配置映射表
+   */
+  dataTypeMenuConfigMap?: DataTypeMenuConfigMap;
+  /**
    * 右键菜单设置
    */
   contextMenu?: ContextMenuProps<D, C> | ((data: SortItem<D, C>) => ContextMenuProps<D, C> | false) | false;
@@ -31,7 +35,7 @@ export interface SortableConfig<D, C> {
    * @param index 分页项索引
    * @param isActive 是否为当前选中页
    */
-  pagingDotBuilder?: (item: SortItem<D, C>, index: number, isActive: boolean) => React.JSX.Element;
+  pagingDotBuilder?: (item: ListItem<D, C>, index: number, isActive: boolean) => React.JSX.Element;
   /**
    * 自定义 item 渲染
    */
@@ -48,7 +52,7 @@ export interface SortableConfig<D, C> {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const SortableConfigContext = createContext<SortableConfig<any, any>>({
-  theme: themeLight,
+  theme: defaultTheme,
 });
 
 export interface SortableConfigProviderProps<D, C> extends Omit<SortableConfig<D, C>, "theme"> {
@@ -65,7 +69,7 @@ export const SortableConfigProvider = <D, C>(props: SortableConfigProviderProps<
     } else if (propTheme === "dark") {
       return themeDark;
     } else {
-      return propTheme ?? themeLight;
+      return propTheme ?? defaultTheme;
     }
   }, [propTheme]);
 

@@ -34,10 +34,27 @@ export type {
   TypeConfigMap as DesktopTypeConfigMap,
 } from "./desktop/types";
 
-export { themeLight as desktopThemeLight, themeDark as desktopThemeDark } from "./desktop/theme";
-export type { Theme as DesktopTheme } from "./desktop/theme";
+export {
+  themeLight as desktopThemeLight,
+  themeDark as desktopThemeDark,
+  defaultTheme as desktopDefaultTheme,
+  themes as desktopThemes,
+} from "./desktop/themes";
+export type { Theme as DesktopTheme, ThemeType as DesktopThemeType } from "./desktop/themes";
 
 export { default as SortableUtils } from "./desktop/utils";
+
+// 导出desktop dock相关组件
+export {
+  Dock as DesktopDock,
+  LaunchpadModal as DesktopLaunchpadModal,
+  LaunchpadButton as DesktopLaunchpadButton,
+} from "./desktop/dock";
+export type {
+  DockProps as DesktopDockProps,
+  LaunchpadModalProps as DesktopLaunchpadModalProps,
+  LaunchpadButtonProps as DesktopLaunchpadButtonProps,
+} from "./desktop/dock";
 
 export { default as MdEditor } from "./md-editor";
 export { default as Markdown } from "./md-editor/preview";
@@ -45,7 +62,7 @@ export { default as Markdown } from "./md-editor/preview";
 export { default as Dock } from "./dock";
 export { default as DockDesktop, DesktopIconContainer as DockDesktopItem } from "./dock/dock-desktop";
 export { default as DockMobile, MobileIconContainer as DockMobileItem } from "./dock/dock-mobile";
-export { useMotionValue as useDockDesktopMouseX } from "framer-motion";
+export { useMotionValue as useDockDesktopMouseX } from "motion/react";
 export type { DesktopIconContainerProps as DockDesktopItemProps } from "./dock/dock-desktop";
 export type { MobileIconContainerProps as DockMobileItemProps } from "./dock/dock-mobile";
 

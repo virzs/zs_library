@@ -1,6 +1,6 @@
 import { FC, ReactNode, useState } from "react";
 import { cn } from "./utils";
-import { AnimatePresence, HTMLMotionProps, motion } from "framer-motion";
+import { AnimatePresence, HTMLMotionProps, motion } from "motion/react";
 import { RiMoreLine } from "@remixicon/react";
 import { DockItem } from ".";
 

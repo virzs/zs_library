@@ -263,7 +263,7 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
           top: calculatedPosition.top,
           zIndex: 9999,
           transformOrigin: animationOrigin,
-          // 只设置变换原点，让内部的 framer-motion 处理动画
+          // 只设置变换原点，让内部的 motion/react 处理动画
         }}
         onMouseDown={(e) => {
           e.stopPropagation();

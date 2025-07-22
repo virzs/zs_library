@@ -3,8 +3,8 @@
 import { useDebounceEffect, useLocalStorageState } from "ahooks";
 import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { SortItem } from "../../types";
-import SortableUtils from "../../utils";
+import { SortItem, ListItem } from "../../types";
+import SortableUtils from "../../utils/index";
 
 interface ContextMenu {
   rect: DOMRect;
@@ -16,7 +16,7 @@ interface ContextMenu {
 type ListStatus = "onMove";
 
 export interface SortableState {
-  list: SortItem[];
+  list: ListItem[];
   setList: any;
   contextMenu: ContextMenu | null;
   setContextMenu: (e: ContextMenu | null) => void;
@@ -36,7 +36,7 @@ export interface SortableState {
   updateItemConfig: (id: string | number, config: any) => void;
   removeItem: (id: string) => void;
   addItem: (data: SortItem, parentIds: (string | number)[]) => void;
-  addRootItem: (data: SortItem) => void;
+  addRootItem: (data: ListItem) => void;
   updateRootItem: (id: string | number, data: any) => void;
   removeRootItem: (id: string | number) => void;
   /** 当前移动的元素id */
@@ -83,11 +83,11 @@ export interface SortableStateProviderProps<D, C> {
   /**
    * 列表数据
    */
-  list?: SortItem<D, C>[];
+  list?: ListItem<D, C>[];
   /**
    * 列表数据变更事件
    */
-  onChange?: (list: SortItem<D, C>[]) => void;
+  onChange?: (list: ListItem<D, C>[]) => void;
   /**
    * 本地存储 key
    */
@@ -205,14 +205,14 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   };
 
   const _setList = useCallback(
-    (newList: SortItem[], parentIds?: string[]) => {
+    (newList: any[], parentIds?: string[]) => {
       const _parentIds = [...(parentIds || [])];
 
       if (_parentIds.length > 0) {
-        setList((oldList: SortItem[]) => {
+        setList((oldList: any[]) => {
           const _items = [...oldList];
 
-          const updateChild = (_list: SortItem[]): SortItem[] => {
+          const updateChild = (_list: any[]): any[] => {
             const parentId = _parentIds.shift();
             const parent = _list.find((item) => item.id === parentId);
             const parentIndex = _list.findIndex((item) => item.id === parentId);
@@ -221,7 +221,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
             if (_parentIds.length && parent) {
               /** 如果当前数据实际只有一个子数据，则取消 group 状态 */
               if (
-                parent.children?.filter((i) => !newList.some((k) => k.id === i.id)).length === 1 &&
+                parent.children?.filter((i: any) => !newList.some((k) => k.id === i.id)).length === 1 &&
                 newList.length === 1
               ) {
                 const current = { ...newList[0] };
@@ -242,8 +242,8 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
             /** 当 parentIds = 0 且匹配到，表明当前为实际需要更新的数据 */
             if (parent) {
               /** 没有子数据，且有新增数据，则将当前数据更改为 group 类型 */
-              /** 但是如果当前是页面类型(dataType为page)，则不进行group转换，直接添加到children */
-              if (!parent.children?.length && newList.length && parent.dataType !== "page") {
+              /** 但是如果当前是页面类型(type为page)，则不进行group转换，直接添加到children */
+              if (!parent.children?.length && newList.length && parent.type !== "page") {
                 const current = { ...parent };
                 parent.data = { name: "文件夹" };
                 parent.type = "group";
@@ -258,7 +258,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
 
               // ! 当前已经是 group 时，直接将 children 更改为最新的 list
               // ! 或者当前是页面类型时，也直接将 children 更改为最新的 list
-              parent.children = SortableUtils.uniqueArray(newList);
+              parent.children = SortableUtils.uniqueArray<SortItem>(newList);
 
               _list.splice(parentIndex, 1, parent);
 
@@ -266,13 +266,13 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
               return _list;
             }
 
-            return SortableUtils.uniqueArray(newList);
+            return SortableUtils.uniqueArray<SortItem>(newList);
           };
 
-          return SortableUtils.uniqueArray(updateChild(_items));
+          return SortableUtils.uniqueArray<ListItem<D, C>>(updateChild(_items));
         });
       } else {
-        const _newList = SortableUtils.uniqueArray(newList);
+        const _newList = SortableUtils.uniqueArray<ListItem<D, C>>(newList);
 
         // ! 根节点直接排序
         propOnChange?.(_newList);
@@ -285,7 +285,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   const updateItemConfig = (id: string | number, config: any) => {
     setList((prevList) => {
       const _list = [...prevList];
-      const updateItem = (list: SortItem[]) => {
+      const updateItem = (list: any[]) => {
         for (let i = 0; i < list.length; i++) {
           if (list[i].id === id) {
             list[i].config = config;
@@ -306,7 +306,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   const updateItem = (id: string | number, data: any) => {
     setList((prevList) => {
       const _list = [...prevList];
-      const updateItem = (list: SortItem[]) => {
+      const updateItem = (list: any[]) => {
         for (let i = 0; i < list.length; i++) {
           if (list[i].id === id) {
             list[i].data = data;
@@ -327,7 +327,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   const removeItem = (id: string) => {
     setList((prevList) => {
       const _list = [...prevList];
-      const removeItem = (list: SortItem[]) => {
+      const removeItem = (list: any[]) => {
         for (let i = 0; i < list.length; i++) {
           if (list[i].id === id) {
             list.splice(i, 1);
@@ -349,7 +349,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
     const _list = [...list];
 
     // 根据 parentIds 递归查找，放置到对应的父级下
-    const addToChild = (list: SortItem[], parentIds: (string | number)[]) => {
+    const addToChild = (list: any[], parentIds: (string | number)[]) => {
       const parentId = parentIds.shift();
       const parent = list.find((item) => item.id === parentId);
       const parentIndex = list.findIndex((item) => item.id === parentId);
@@ -366,7 +366,6 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
               ...data,
               id: uuidv4(),
               config: data?.config ?? {},
-              dataType: data?.dataType ?? "page",
             },
           ];
         }
@@ -382,15 +381,13 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
 
   /**
    * 添加根级别的项目
-   * @param data SortItem数据
+   * @param data ListItem数据
    */
-  const addRootItem = (data: SortItem) => {
+  const addRootItem = (data: any) => {
     setList((prevList) => {
       const newItem = {
         ...data,
         id: uuidv4(),
-        config: data?.config ?? {},
-        dataType: data?.dataType ?? "page",
       };
 
       const newList = [...prevList, newItem];

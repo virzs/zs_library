@@ -16,9 +16,10 @@ import Pagination from "./pagination";
 import { createCustomPagingDot } from "./pagination/utils";
 import { ghostClass } from "./style";
 import { SortItem } from "./types";
-import SortableUtils from "./utils";
-import Dock, { DockProps } from "./dock";
-import LaunchpadModal from "./launchpad-modal";
+import SortableUtils from "./utils/index";
+import Dock, { DockProps } from "./dock/dock";
+import LaunchpadModal from "./dock/launchpad-modal";
+import { AnimatePresence } from "motion/react";
 
 export interface Pagination {
   position?: "top" | "bottom" | "left" | "right";
@@ -140,23 +141,20 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
   // 从list中过滤出dock数据和分页数据
   const dockItems = useMemo(() => {
-    const dockData = list.find((item) => item.dataType === "dock");
+    const dockData = list.find((item) => item.type === "dock");
     return dockData?.children ?? [];
   }, [list]);
 
   const pageItems = useMemo(() => {
-    return list.filter((item) => item.dataType !== "dock");
+    return list.filter((item) => item.type !== "dock");
   }, [list]);
-  console.log("🚀 ~ pageItems ~ pageItems:", pageItems);
 
   // 创建新页面
   const createNewPage = useCallback(() => {
     const newPage = {
       id: `page_${Date.now()}`,
       type: "page" as const,
-      data: { name: `页面 ${pageItems.length + 1}` },
       children: [],
-      dataType: "page" as const,
     };
     addRootItem(newPage);
 
@@ -333,7 +331,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               onDockItemsChange={(newDockItems) => {
                 // 更新dock数据到list中
                 const updatedList = list.map((item) => {
-                  if (item.dataType === "dock") {
+                  if (item.type === "dock") {
                     return {
                       ...item,
                       children: newDockItems,
@@ -349,7 +347,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   if (dockItems.every((i) => i.id !== dragItem.id)) {
                     // 将拖拽项添加到dock容器的children中
                     const updatedList = list.map((item) => {
-                      if (item.dataType === "dock") {
+                      if (item.type === "dock") {
                         return {
                           ...item,
                           children: [...(item.children ?? []), dragItem],
@@ -359,7 +357,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                     });
                     // 从原位置移除该项目
                     const finalList = updatedList.map((item) => {
-                      if (item.dataType !== "dock" && item.children) {
+                      if (item.type !== "dock" && item.children) {
                         return {
                           ...item,
                           children: item.children.filter((child) => child.id !== dragItem.id),
@@ -538,33 +536,36 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                     }}
                     ghostClass={ghostClass}
                   >
-                    {(l.children ?? []).map((item, index) => {
-                      let el;
+                    <AnimatePresence mode="popLayout">
+                      {(l.children ?? []).map((item, index) => {
+                        let el;
 
-                      if (itemBuilder) {
-                        return itemBuilder(item);
-                      }
+                        if (itemBuilder) {
+                          return itemBuilder(item);
+                        }
 
-                      switch (item.type) {
-                        case "group":
-                        case "app":
-                          el = (
-                            <SortableGroupItem
-                              key={item.id}
-                              data={item}
-                              itemIndex={index}
-                              parentIds={[l.id, item.id]}
-                              onClick={onItemClick}
-                            />
-                          );
-                          break;
-                        default:
-                          el = <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
-                          break;
-                      }
+                        switch (item.type) {
+                          case "group":
+                          case "app":
+                            el = (
+                              <SortableGroupItem
+                                key={item.id}
+                                data={item}
+                                itemIndex={index}
+                                parentIds={[l.id, item.id]}
+                                onClick={onItemClick}
+                              />
+                            );
+                            break;
+                          default:
+                            el = <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
+                            break;
+                        }
 
-                      return el;
-                    })}
+                        return el;
+                      })}
+                    </AnimatePresence>
+
                     <SafeExtraItems<D, C> renderFn={extraItems} item={l} />
                   </ReactSortable>
                 </div>

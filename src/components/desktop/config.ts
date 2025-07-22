@@ -1,4 +1,4 @@
-import { SortItemDefaultConfig, TypeConfigMap, SizeConfig } from "./types";
+import { SortItemDefaultConfig, TypeConfigMap, SizeConfig, DataTypeMenuConfigMap } from "./types";
 
 /** 通用尺寸配置 */
 export const commonSizeConfigs = {
@@ -92,4 +92,14 @@ export function getItemSize(
   const config = getDefaultConfig(type, customConfigMap);
   const sizeConfig = getSizeConfig(sizeId, config.sizeConfigs, config.defaultSizeId);
   return { col: sizeConfig.col, row: sizeConfig.row };
+}
+
+/**
+ * 获取dataType对应的菜单配置
+ * @param dataType 数据类型
+ * @param customConfigMap 自定义dataType菜单配置映射表
+ * @returns 菜单配置数组
+ */
+export function getDataTypeMenuConfig(dataType: string, customConfigMap?: DataTypeMenuConfigMap) {
+  return customConfigMap?.[dataType] || [];
 }

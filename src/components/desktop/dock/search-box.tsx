@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { RiSearchLine, RiCloseLine } from "@remixicon/react";
+import { css, cx } from "@emotion/css";
 
 interface SearchBoxProps {
   value: string;
@@ -7,6 +8,10 @@ interface SearchBoxProps {
   placeholder?: string;
   className?: string;
 }
+
+const easeOutQuad = css`
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+`;
 
 const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, placeholder = "搜索应用", className = "" }) => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -46,10 +51,13 @@ const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, placeholder = "�
       {/* 搜索图标 */}
       <div
         ref={searchIconRef}
-        className="zs-absolute zs-left-4 zs-top-1/2 zs-transform zs--translate-y-1/2 zs-pointer-events-none zs-transition-all zs-duration-300 zs-ease-[cubic-bezier(0.25,0.46,0.45,0.94)] zs-text-[rgba(60,60,67,0.6)]"
-        style={{
-          color: isFocused ? "#007aff" : "rgba(60,60,67,0.6)",
-        }}
+        className={cx(
+          "zs-absolute zs-left-4 zs-top-1/2 zs-transform zs--translate-y-1/2 zs-pointer-events-none zs-transition-all zs-duration-300 zs-text-[rgba(60,60,67,0.6)]",
+          css`
+            color: ${isFocused ? "#007aff" : "rgba(60,60,67,0.6)"};
+          `,
+          easeOutQuad
+        )}
       >
         <RiSearchLine size={16} />
       </div>
@@ -57,7 +65,10 @@ const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, placeholder = "�
       {/* 搜索输入框 */}
       <input
         ref={inputRef}
-        className="zs-w-full zs-h-11 zs-pl-12 zs-pr-12 zs-border-none zs-rounded-[22px] zs-bg-[rgba(118,118,128,0.12)] zs-text-base zs-text-[#1d1d1f] zs-outline-none zs-transition-all zs-duration-300 zs-ease-[cubic-bezier(0.25,0.46,0.45,0.94)] placeholder:zs-text-[rgba(60,60,67,0.6)] placeholder:zs-font-normal focus:zs-bg-[rgba(118,118,128,0.2)] focus:zs-scale-[1.02] focus:zs-shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+        className={cx(
+          "zs-w-full zs-h-11 zs-pl-12 zs-pr-12 zs-border-none zs-rounded-[22px] zs-bg-[rgba(118,118,128,0.12)] zs-text-base zs-text-[#1d1d1f] zs-outline-none zs-transition-all zs-duration-300 placeholder:zs-text-[rgba(60,60,67,0.6)] placeholder:zs-font-normal focus:zs-bg-[rgba(118,118,128,0.2)] focus:zs-scale-[1.02] focus:zs-shadow-[0_4px_20px_rgba(0,0,0,0.1)]",
+          easeOutQuad
+        )}
         type="text"
         placeholder={placeholder}
         value={value}
@@ -70,7 +81,10 @@ const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, placeholder = "�
       {value && (
         <button
           ref={clearButtonRef}
-          className="zs-absolute zs-right-3 zs-top-1/2 zs-transform zs--translate-y-1/2 zs-w-5 zs-h-5 zs-rounded-full zs-bg-[rgba(60,60,67,0.3)] zs-border-none zs-text-white zs-text-xs zs-cursor-pointer zs-flex zs-items-center zs-justify-center zs-transition-all zs-duration-300 zs-ease-[cubic-bezier(0.25,0.46,0.45,0.94)] hover:zs-bg-[rgba(60,60,67,0.5)] hover:zs-scale-110 active:zs-scale-95"
+          className={cx(
+            "zs-absolute zs-right-3 zs-top-1/2 zs-transform zs--translate-y-1/2 zs-w-5 zs-h-5 zs-rounded-full zs-bg-[rgba(60,60,67,0.3)] zs-border-none zs-text-white zs-text-xs zs-cursor-pointer zs-flex zs-items-center zs-justify-center zs-transition-all zs-duration-300 hover:zs-bg-[rgba(60,60,67,0.5)] hover:zs-scale-110 active:zs-scale-95",
+            easeOutQuad
+          )}
           onClick={handleClear}
           title="清除搜索"
         >

@@ -1,12 +1,12 @@
 import React from "react";
-import { SortItem } from "../types";
+import { ListItem } from "../types";
 import { css, cx } from "@emotion/css";
 
 // 为react-slick的customPaging提供单个分页点生成器
 export const createCustomPagingDot = <D, C>(
-  list: SortItem<D, C>[],
+  list: ListItem<D, C>[],
   activeSlide: number,
-  pagingDotBuilder?: (item: SortItem<D, C>, index: number, isActive: boolean) => React.ReactElement
+  pagingDotBuilder?: (item: ListItem<D, C>, index: number, isActive: boolean) => React.ReactElement
 ) => {
   return (index: number): React.ReactElement => {
     const isActive = activeSlide === index;

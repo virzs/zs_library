@@ -1,11 +1,12 @@
 import React from "react";
 import { css, cx } from "@emotion/css";
 import { ReactSortable } from "react-sortablejs";
-import { mainDragConfig } from "./drag-styles";
-import SortableItem from "./items/sortable-item";
-import StackedIcon from "./items/stacked-icon";
-import { SortItem } from "./types";
-import { useSortableState } from "./context/state/hooks";
+import { mainDragConfig } from "../drag-styles";
+import SortableItem from "../items/sortable-item";
+import { SortItem } from "../types";
+import { useSortableState } from "../context/state/hooks";
+import LaunchpadButton from "./launchpad-button";
+import { AnimatePresence } from "motion/react";
 
 export interface DockProps {
   /**
@@ -66,10 +67,6 @@ const Dock: React.FC<DockProps> = ({
     return <SortableItem data={item} itemIndex={index} noLetters />;
   };
 
-  const launchpadButton = showLaunchpad ? (
-    <StackedIcon onClick={onLaunchpadClick} className="zs-flex-shrink-0" />
-  ) : null;
-
   if (!items.length && !showLaunchpad) {
     return null;
   }
@@ -116,8 +113,9 @@ const Dock: React.FC<DockProps> = ({
           setListStatus(null);
         }}
       >
-        {items.map((item, index) => renderDockItem(item, index))}
+        <AnimatePresence mode="popLayout">{items.map((item, index) => renderDockItem(item, index))}</AnimatePresence>
       </ReactSortable>
+      {/* 分隔线 */}
       {showLaunchpad && (
         <div
           className={cx(
@@ -126,7 +124,8 @@ const Dock: React.FC<DockProps> = ({
           )}
         />
       )}
-      {launchpadButton}
+      {/* 启动台按钮 */}
+      {showLaunchpad && <LaunchpadButton onClick={onLaunchpadClick} position={position} />}
     </div>
   );
 };

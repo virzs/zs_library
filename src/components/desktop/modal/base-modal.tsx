@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import Dialog from "rc-dialog";
 import "rc-dialog/assets/index.css";
 import { ReactNode, useEffect, useState } from "react";

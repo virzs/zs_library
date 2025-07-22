@@ -1,9 +1,9 @@
 import { css, cx } from "@emotion/css";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { getDefaultConfig, getSizeConfig } from "../config";
 import { useSortableState } from "../context/state/hooks";
 import { useSortableConfig } from "../context/config/hooks";
-import { SortItem, SortItemDefaultConfig } from "../types";
+import { SortItem, SortItemDefaultConfig, MenuItemConfig } from "../types";
 import { RiApps2Line, RiIndeterminateCircleLine, RiInformationLine, RiShare2Line } from "@remixicon/react";
 import { useState, createContext, useContext } from "react";
 
@@ -172,7 +172,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   } = props;
   const { contextMenu, setContextMenu, hideContextMenu, setShowInfoItemData, removeItem, updateItemConfig } =
     useSortableState();
-  const { typeConfigMap } = useSortableConfig();
+  const { typeConfigMap, dataTypeMenuConfigMap } = useSortableConfig();
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -182,6 +182,24 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   const getAllSizes = () => {
     const config: SortItemDefaultConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
     return config.sizeConfigs.map((sizeConfig) => sizeConfig.name);
+  };
+
+  // 获取当前item的dataType对应的自定义菜单项
+  const getCustomMenuItems = (): MenuItemConfig[] => {
+    const dataType = contextMenu?.data?.dataType;
+    if (!dataType || !dataTypeMenuConfigMap) {
+      return [];
+    }
+    return dataTypeMenuConfigMap[dataType] || [];
+  };
+
+  // 创建上下文操作对象，供自定义菜单项使用
+  const contextActions = {
+    setContextMenu,
+    hideContextMenu,
+    setShowInfoItemData,
+    removeItem,
+    updateItemConfig,
   };
   return (
     <AnimatePresence>
@@ -196,11 +214,6 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               stiffness: 500,
               damping: 35,
               mass: 0.6,
-              // 关闭动画更快
-              exit: {
-                duration: 0.15,
-                ease: "easeInOut",
-              },
             }}
             onMouseDown={(e) => {
               e.stopPropagation();
@@ -301,6 +314,32 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                     />
                   );
                 })()}
+              {/* 根据dataType显示的自定义菜单项 */}
+              {getCustomMenuItems().map((menuItem, index) => {
+                // 计算菜单项索引，需要考虑前面已有的默认菜单项数量
+                let menuIndex = 0;
+                if (showRemoveButton) menuIndex++;
+                if (showShareButton) menuIndex++;
+                if (showInfoButton) menuIndex++;
+                if (showSizeButton && config.allowResize !== false) menuIndex++;
+                menuIndex += index;
+
+                return (
+                  <MenuItem
+                    key={`custom-${index}`}
+                    text={menuItem.text}
+                    icon={menuItem.icon}
+                    color={menuItem.color}
+                    textColor={menuItem.textColor}
+                    index={menuIndex}
+                    onClick={() => {
+                      if (menuItem.onClick) {
+                        menuItem.onClick(contextMenu.data, contextActions);
+                      }
+                    }}
+                  />
+                );
+              })}
             </motion.div>
           </motion.div>
         </HoverContext.Provider>
