@@ -13,5 +13,10 @@
     "text": "高级示例",
     "link": "/examples/",
     "activeMatch": "^/examples/"
+  },
+  {
+    "text": "更新日志",
+    "link": "/changelog/",
+    "activeMatch": "^/changelog/"
   }
 ]
