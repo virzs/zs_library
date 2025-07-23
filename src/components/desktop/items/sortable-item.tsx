@@ -20,10 +20,14 @@ export interface SortableItemProps<D, C> {
   childrenLength?: number;
   contextMenuProps?: false | Partial<ContextMenuProps<D, C>>;
   icon?: React.ReactNode;
+  /**
+   * 来源 当前仅支持 dock
+   */
+  from?: string;
 }
 
 export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>) => {
-  const { data, noLetters = false, icon } = props;
+  const { data, noLetters = false, icon, from } = props;
   const { contextMenuFuns } = useSortableState();
   const { itemIconBuilder: configItemIconBuilder, theme, contextMenu } = useSortableConfig();
 
@@ -51,7 +55,10 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
               color: ${theme.token.itemNameColor};
             `
           )}
-          {...contextMenuFuns(data, contextMenu !== false)}
+          {...contextMenuFuns(
+            { ...data, ...(from === "dock" ? { config: { allowResize: false } } : {}) },
+            contextMenu !== false
+          )}
         >
           {renderIcon(data, icon, configItemIconBuilder)}
         </div>

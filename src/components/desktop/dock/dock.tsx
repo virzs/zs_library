@@ -64,7 +64,7 @@ const Dock: React.FC<DockProps> = ({
       return itemBuilder(item, index);
     }
 
-    return <SortableItem data={item} itemIndex={index} noLetters />;
+    return <SortableItem data={item} itemIndex={index} noLetters from="dock" />;
   };
 
   if (!items.length && !showLaunchpad) {
