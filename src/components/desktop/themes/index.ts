@@ -10,6 +10,17 @@ export interface DockTheme {
   };
 }
 
+export interface LaunchpadTheme {
+  button?: {
+    backgroundColor?: string;
+    subBackgroundColor?: string;
+    thirdBackgroundColor?: string;
+    borderColor?: string;
+    hoverBackgroundColor?: string;
+  };
+  modal?: {};
+}
+
 export interface Theme {
   token: {
     itemNameColor?: string;
