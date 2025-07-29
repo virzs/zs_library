@@ -79,7 +79,7 @@ export default () => {
     {"id":"12313eqw","children":[{"id":90,"type":"app","data":{"name":"GitHub","icon":"https://placehold.co/100x100/181717/FFFFFF?text=GitHub"}},{"id":91,"type":"app","data":{"name":"Docker","icon":"https://placehold.co/100x100/2496ED/FFFFFF?text=Docker"}},{"id":92,"type":"app","data":{"name":"Postman","icon":"https://placehold.co/100x100/FF6C37/FFFFFF?text=Postman"}},{"id":95,"type":"app","data":{"name":"Terminal","icon":"https://placehold.co/100x100/000000/FFFFFF?text=Terminal"}},{"id":96,"type":"app","data":{"name":"Xcode","icon":"https://placehold.co/100x100/1575F9/FFFFFF?text=Xcode"}}]},
     {"id":"office_group","children":[{"id":100,"type":"group","data":{"name":"办公套件"},"config":{"col":3},"children":[{"id":"word","type":"app","data":{"name":"Word","icon":"https://placehold.co/100x100/2B579A/FFFFFF?text=Word"}},{"id":"excel","type":"app","data":{"name":"Excel","icon":"https://placehold.co/100x100/217346/FFFFFF?text=Excel"}},{"id":"ppt","type":"app","data":{"name":"PowerPoint","icon":"https://placehold.co/100x100/D24726/FFFFFF?text=PPT"}},{"id":"outlook","type":"app","data":{"name":"Outlook","icon":"https://placehold.co/100x100/0078D4/FFFFFF?text=Outlook"}},{"id":"teams","type":"app","data":{"name":"Teams","icon":"https://placehold.co/100x100/6264A7/FFFFFF?text=Teams"}},{"id":"onenote","type":"app","data":{"name":"OneNote","icon":"https://placehold.co/100x100/7719AA/FFFFFF?text=OneNote"}}]},{"id":101,"type":"app","data":{"name":"Slack","icon":"https://placehold.co/100x100/4A154B/FFFFFF?text=Slack"}},{"id":102,"type":"app","data":{"name":"Zoom","icon":"https://placehold.co/100x100/2D8CFF/FFFFFF?text=Zoom"}}]},
     {"id":"media_group","children":[{"id":200,"type":"group","data":{"name":"多媒体"},"config":{"col":2},"children":[{"id":"spotify","type":"app","data":{"name":"Spotify","icon":"https://placehold.co/100x100/1DB954/FFFFFF?text=Spotify"}},{"id":"netflix","type":"app","data":{"name":"Netflix","icon":"https://placehold.co/100x100/E50914/FFFFFF?text=Netflix"}},{"id":"youtube","type":"app","data":{"name":"YouTube","icon":"https://placehold.co/100x100/FF0000/FFFFFF?text=YouTube"}},{"id":"vlc","type":"app","data":{"name":"VLC","icon":"https://placehold.co/100x100/FF8800/FFFFFF?text=VLC"}}]},{"id":201,"type":"app","data":{"name":"iTunes","icon":"https://placehold.co/100x100/FA57C1/FFFFFF?text=iTunes"}},{"id":202,"type":"app","data":{"name":"Steam","icon":"https://placehold.co/100x100/1B2838/FFFFFF?text=Steam"}}]},
-    {"id":"1239137sdcsdc","type":"dock","children":[{"id":93,"type":"app","data":{"name":"新闻","icon":"https://placehold.co/100x100/E60012/FFFFFF?text=News"}},{"id":94,"type":"app","data":{"name":"音乐","icon":"https://placehold.co/100x100/FF1493/FFFFFF?text=Music"}},{"id":300,"type":"app","data":{"name":"设置","icon":"https://placehold.co/100x100/8E8E93/FFFFFF?text=Settings"}},{"id":301,"type":"app","data":{"name":"计算器","icon":"https://placehold.co/100x100/FF9500/FFFFFF?text=Calc"}},{"id":302,"type":"app","data":{"name":"日历","icon":"https://placehold.co/100x100/FC3D39/FFFFFF?text=Calendar"}}]}
+    {"id":"1239137sdcsdc","type":"dock","children":[{"id":93,"type":"app","data":{"name":"新闻","icon":"https://placehold.co/100x100/E60012/FFFFFF?text=News"}},{"id":94,"type":"app","data":{"name":"音乐","icon":"https://placehold.co/100x100/FF1493/FFFFFF?text=Music"}},{"id":301,"type":"app","data":{"name":"计算器","icon":"https://placehold.co/100x100/FF9500/FFFFFF?text=Calc"}},{"id":302,"type":"app","data":{"name":"日历","icon":"https://placehold.co/100x100/FC3D39/FFFFFF?text=Calendar"}}]}
   ];
 
   return (
@@ -145,7 +145,42 @@ export default () => {
         })}
       </div>
 
-      <Desktop list={list} theme={theme} enableCaching={false} />
+      <Desktop
+        list={list}
+        theme={theme}
+        enableCaching={false}
+        dock={{
+          enabled: true,
+          position: "bottom",
+          showLaunchpad: true,
+          fixedItems: [
+            {
+              id: "app_store",
+              type: "app",
+              data: {
+                name: "应用商店",
+                icon: "https://placehold.co/100x100/007AFF/FFFFFF?text=Store"
+              }
+            },
+            {
+              id: "theme_manager",
+              type: "app",
+              data: {
+                name: "主题",
+                icon: "https://placehold.co/100x100/FF6B35/FFFFFF?text=Theme"
+              }
+            },
+            {
+              id: "system_settings",
+              type: "app",
+              data: {
+                name: "设置",
+                icon: "https://placehold.co/100x100/8E8E93/FFFFFF?text=Settings"
+              }
+            }
+          ]
+        }}
+      />
     </div>
   );
 };
@@ -226,6 +261,10 @@ interface DockConfig {
   className?: string;
   /** 自定义 Dock 项目渲染 */
   itemBuilder?: (item: SortItem, index: number) => React.ReactNode;
+  /** 固定项目列表（在sortable之前显示，不可拖拽排序） */
+  fixedItems?: SortItem[];
+  /** 自定义固定项目渲染 */
+  fixedItemBuilder?: (item: SortItem, index: number) => React.ReactNode;
   /** 是否显示启动台按钮 */
   showLaunchpad?: boolean;
 }

@@ -1,6 +1,15 @@
 import { themeDark } from "./dark";
 import { themeLight } from "./light";
 
+export interface DockTheme {
+  backgroundColor?: string;
+  borderColor?: string;
+  boxShadowColor?: string;
+  divider?: {
+    color?: string;
+  };
+}
+
 export interface Theme {
   token: {
     itemNameColor?: string;
@@ -13,6 +22,7 @@ export interface Theme {
     contextMenuActiveColor?: string;
     contextMenuBackgroundColor?: string;
     contextMenuShadowColor?: string;
+    dock?: DockTheme;
   };
 }
 

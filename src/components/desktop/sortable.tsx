@@ -72,6 +72,14 @@ export interface SortableProps<D, C> {
      */
     itemBuilder?: DockProps["itemBuilder"];
     /**
+     * 自定义固定项目渲染
+     */
+    fixedItemBuilder?: DockProps["fixedItemBuilder"];
+    /**
+     * 固定项目列表（在sortable之前显示，不可拖拽排序）
+     */
+    fixedItems?: DockProps["fixedItems"];
+    /**
      * 是否显示启动台按钮
      */
     showLaunchpad?: boolean;
@@ -322,10 +330,12 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
           <div className="dock-container">
             <Dock
               items={dockItems}
+              fixedItems={dock.fixedItems}
               position={dock.position}
               className={dock.className}
               onItemClick={onItemClick}
               itemBuilder={dock.itemBuilder}
+              fixedItemBuilder={dock.fixedItemBuilder}
               showLaunchpad={dock.showLaunchpad}
               onLaunchpadClick={() => setShowLaunchpad(true)}
               onDockItemsChange={(newDockItems) => {

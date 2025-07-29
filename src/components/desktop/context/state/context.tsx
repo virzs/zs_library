@@ -150,13 +150,6 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
 
     const rect = targetElement.getBoundingClientRect();
 
-    console.log("Setting context menu with:", {
-      pageX: e.pageX,
-      pageY: e.pageY,
-      rect,
-      data,
-    });
-
     setContextMenu({
       rect,
       pageX: e.pageX,

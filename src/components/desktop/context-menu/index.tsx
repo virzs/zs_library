@@ -4,8 +4,15 @@ import { getDefaultConfig, getSizeConfig } from "../config";
 import { useSortableState } from "../context/state/hooks";
 import { useSortableConfig } from "../context/config/hooks";
 import { SortItem, SortItemDefaultConfig, MenuItemConfig } from "../types";
-import { RiApps2Line, RiIndeterminateCircleLine, RiInformationLine, RiShare2Line } from "@remixicon/react";
-import { useState, createContext, useContext } from "react";
+import {
+  RiApps2Line,
+  RiIndeterminateCircleLine,
+  RiInformationLine,
+  RiShare2Line,
+  RiArrowRightSLine,
+  RiCheckLine,
+} from "@remixicon/react";
+import { useState, createContext, useContext, useRef, useEffect } from "react";
 
 // 创建hover状态context
 interface HoverContextType {
@@ -25,16 +32,26 @@ interface MenuItemProps {
   textColor?: string;
   onClick?: () => void;
   index: number;
+  children?: React.ReactNode;
 }
 
-const MenuItem: React.FC<MenuItemProps> = ({ icon, text, color = "black", textColor = "#1d1d1f", onClick, index }) => {
+const MenuItem = ({
+  icon,
+  text,
+  color = "black",
+  textColor = "#1d1d1f",
+  onClick,
+  index,
+  children,
+  ...props
+}: MenuItemProps) => {
   const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
   const isHovered = hoveredIndex === index;
 
-  return (
+  const content = (
     <motion.div
       className={cx(
-        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10",
+        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none",
         css`
           z-index: 1;
         `
@@ -42,6 +59,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, text, color = "black", textCo
       onMouseEnter={() => setHoveredIndex(index)}
       onMouseLeave={() => setHoveredIndex(null)}
       onClick={onClick}
+      {...props}
     >
       {/* 胶囊背景 */}
       <AnimatePresence>
@@ -92,6 +110,169 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, text, color = "black", textCo
           {icon}
         </motion.div>
       )}
+      {children}
+    </motion.div>
+  );
+
+  return content;
+};
+
+interface SubMenuItemProps {
+  text: string;
+  icon: React.ReactNode;
+  index: number;
+  children: React.ReactNode;
+  color?: string;
+  textColor?: string;
+}
+
+const SubMenuItem = ({
+  text,
+  icon,
+  index,
+  children,
+  color = "black",
+  textColor = "#1d1d1f",
+  ...props
+}: SubMenuItemProps) => {
+  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const [subMenuPosition, setSubMenuPosition] = useState({ x: 0, y: 0 });
+  const menuItemRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
+  const isHovered = hoveredIndex === index;
+
+  const handleMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    setHoveredIndex(index);
+    setIsSubMenuOpen(true);
+
+    if (menuItemRef.current) {
+      const rect = menuItemRef.current.getBoundingClientRect();
+      setSubMenuPosition({
+        x: rect.width - 4,
+        y: 0,
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsSubMenuOpen(false);
+    }, 150);
+  };
+
+  const handleSubMenuMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+  };
+
+  const handleSubMenuMouseLeave = () => {
+    setIsSubMenuOpen(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <motion.div
+      ref={menuItemRef}
+      className={cx(
+        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none",
+        css`
+          z-index: 1;
+        `
+      )}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      {...props}
+    >
+      {/* 胶囊背景 */}
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            layoutId="menuHover"
+            className={cx(
+              "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
+              css`
+                z-index: -1;
+              `
+            )}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 400,
+              damping: 30,
+            }}
+          />
+        )}
+      </AnimatePresence>
+      <motion.div
+        className={cx(
+          "zs-flex-1 zs-text-sm",
+          css`
+            font-weight: 400;
+            line-height: 18px;
+            color: ${textColor};
+            letter-spacing: -0.28px;
+          `
+        )}
+      >
+        {text}
+      </motion.div>
+      <motion.div
+        className={cx(
+          "zs-flex zs-items-center zs-justify-center zs-shrink-0",
+          css`
+            color: ${color};
+            width: 18px;
+            height: 18px;
+          `
+        )}
+      >
+        <RiArrowRightSLine size={16} />
+      </motion.div>
+
+      <AnimatePresence>
+        {isSubMenuOpen && (
+          <motion.div
+            className={cx(
+              "zs-absolute zs-rounded-2xl zs-overflow-hidden zs-bg-white zs-bg-opacity-75 zs-backdrop-blur-xl zs-p-2 zs-z-50",
+              css`
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
+                min-width: 192px;
+                border: 0.75px solid rgba(255, 255, 255, 0.3);
+                left: ${subMenuPosition.x}px;
+                top: ${subMenuPosition.y}px;
+              `
+            )}
+            initial={{ opacity: 0, scale: 0.95, x: -8 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.95, x: -8 }}
+            transition={{
+              type: "spring",
+              stiffness: 500,
+              damping: 35,
+              duration: 0.12,
+            }}
+            onMouseEnter={handleSubMenuMouseEnter}
+            onMouseLeave={handleSubMenuMouseLeave}
+          >
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
@@ -102,47 +283,81 @@ interface SizeMenuItemProps {
   onSizeChange: (size: string) => void;
 }
 
-const SizeMenuItem: React.FC<SizeMenuItemProps> = ({ sizes, currentSize, onSizeChange }) => {
+const SizeSubMenuContent = ({ sizes, currentSize, onSizeChange }: SizeMenuItemProps) => {
+  const [hoveredSize, setHoveredSize] = useState<string | null>(null);
+
   return (
-    <motion.div className="zs-h-10 zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-default">
-      <RiApps2Line size={18} color="black" />
-      <motion.div className="zs-flex-1 zs-flex zs-items-center zs-gap-2">
-        {sizes.map((size) => (
+    <>
+      {sizes.map((size) => {
+        const isHovered = hoveredSize === size;
+        const isSelected = currentSize === size;
+
+        return (
           <motion.div
             key={size}
             className={cx(
-              "zs-w-5 h-5 zs-rounded-sm zs-cursor-pointer flex zs-items-center zs-justify-center zs-border zs-border-transparent",
-              currentSize === size ? "zs-text-white zs-font-semibold" : "",
+              "zs-h-10 zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-outline-none",
               css`
-                font-size: 10px;
-                font-weight: 500;
-                transition: all 0.2s ease-out;
-                ${currentSize === size
-                  ? `
-                  background: linear-gradient(135deg, #007aff 0%, #0051d4 100%);
-                  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
-                `
-                  : `
-                  background: rgba(60, 60, 67, 0.06);
-                  color: #1d1d1f;
-                  &:hover {
-                    background: rgba(60, 60, 67, 0.12);
-                    transform: scale(1.05);
-                  }
-                `}
-                &:active {
-                  transform: scale(0.95);
-                }
+                z-index: 1;
               `
             )}
+            onMouseEnter={() => setHoveredSize(size)}
+            onMouseLeave={() => setHoveredSize(null)}
             onClick={() => onSizeChange(size)}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {size}
+            {/* 胶囊背景 */}
+            <AnimatePresence>
+              {(isHovered || isSelected) && (
+                <motion.div
+                  className={cx(
+                    "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
+                    css`
+                      z-index: -1;
+                    `
+                  )}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 30,
+                  }}
+                />
+              )}
+            </AnimatePresence>
+            <motion.div
+              className={cx(
+                "zs-flex-1 zs-text-sm",
+                css`
+                  font-weight: 400;
+                  line-height: 18px;
+                  color: #1d1d1f;
+                  letter-spacing: -0.28px;
+                `
+              )}
+            >
+              {size}
+            </motion.div>
+            {isSelected && (
+              <motion.div
+                className={cx(
+                  "zs-flex zs-items-center zs-justify-center zs-shrink-0",
+                  css`
+                    color: black;
+                    width: 18px;
+                    height: 18px;
+                  `
+                )}
+              >
+                <RiCheckLine size={14} />
+              </motion.div>
+            )}
           </motion.div>
-        ))}
-      </motion.div>
-    </motion.div>
+        );
+      })}
+    </>
   );
 };
 
@@ -206,101 +421,103 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
       {contextMenu && isOpen && (
         <HoverContext.Provider value={{ hoveredIndex, setHoveredIndex }}>
           <motion.div
+            className={cx(
+              "zs-rounded-2xl zs-bg-white zs-bg-opacity-75 zs-backdrop-blur-xl py-2 zs-w-max zs-z-50",
+              css`
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
+                min-width: 200px;
+                border: 0.75px solid rgba(255, 255, 255, 0.3);
+              `
+            )}
+            style={{
+              transformOrigin: animationOrigin,
+            }}
             initial={{ opacity: 0, scale: 0.6 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.6 }}
             transition={{
               type: "spring",
-              stiffness: 500,
-              damping: 35,
-              mass: 0.6,
+              stiffness: 400,
+              damping: 30,
+              duration: 0.15,
             }}
             onMouseDown={(e) => {
               e.stopPropagation();
               e.preventDefault();
             }}
-            className={css`
-              position: relative;
-            `}
-            style={{
-              transformOrigin: animationOrigin,
-            }}
           >
-            <motion.div
-              className={cx(
-                "zs-rounded-2xl zs-overflow-hidden zs-bg-white zs-bg-opacity-75 zs-backdrop-blur-xl py-2 zs-w-max",
-                css`
-                  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
-                  min-width: 200px;
-                  border: 0.75px solid rgba(255, 255, 255, 0.3);
-                `
-              )}
-            >
-              {/* 移除 - 第一个选项 */}
-              {showRemoveButton && (
-                <MenuItem
-                  text="移除"
-                  icon={<RiIndeterminateCircleLine />}
-                  color="#ff3b30"
-                  textColor="#ff3b30"
-                  index={0}
-                  onClick={() => {
-                    if (onRemoveClick) {
-                      onRemoveClick(contextMenu.data, removeItem);
-                      return;
-                    }
-                    setContextMenu(null);
-                    removeItem(contextMenu.data.id);
-                  }}
-                />
-              )}
-              {/* 分享 - 第二个选项 */}
-              {showShareButton && (
-                <MenuItem
-                  text="分享"
-                  icon={<RiShare2Line />}
-                  index={1}
-                  onClick={() => {
-                    if (onShareClick) {
-                      onShareClick(contextMenu.data);
-                      return;
-                    }
-                  }}
-                />
-              )}
-              {/* 信息 - 第三个选项 */}
-              {showInfoButton && (
-                <MenuItem
-                  text="信息"
-                  icon={<RiInformationLine />}
-                  index={2}
-                  onClick={() => {
-                    if (onInfoClick) {
-                      onInfoClick(contextMenu.data);
-                      return;
-                    }
-                    setShowInfoItemData({
-                      ...contextMenu.data,
-                      pageX: contextMenu.pageX,
-                      pageY: contextMenu.pageY,
-                    });
-                    hideContextMenu();
-                  }}
-                />
-              )}
-              {/* 修改尺寸 - 第四个选项 */}
-              {showSizeButton &&
-                config.allowResize !== false &&
-                (() => {
-                  const typeConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
-                  const currentSizeConfig = getSizeConfig(
-                    data?.config?.sizeId,
-                    typeConfig.sizeConfigs,
-                    typeConfig.defaultSizeId
-                  );
+            {/* 移除 - 第一个选项 */}
+            {showRemoveButton && (
+              <MenuItem
+                text="移除"
+                icon={<RiIndeterminateCircleLine />}
+                color="#ff3b30"
+                textColor="#ff3b30"
+                index={0}
+                onClick={() => {
+                  if (onRemoveClick) {
+                    onRemoveClick(contextMenu.data, removeItem);
+                    return;
+                  }
+                  setContextMenu(null);
+                  removeItem(contextMenu.data.id);
+                }}
+              />
+            )}
+            {/* 分享 - 第二个选项 */}
+            {showShareButton && (
+              <MenuItem
+                text="分享"
+                icon={<RiShare2Line />}
+                index={1}
+                onClick={() => {
+                  if (onShareClick) {
+                    onShareClick(contextMenu.data);
+                    return;
+                  }
+                }}
+              />
+            )}
+            {/* 信息 - 第三个选项 */}
+            {showInfoButton && (
+              <MenuItem
+                text="信息"
+                icon={<RiInformationLine />}
+                index={2}
+                onClick={() => {
+                  if (onInfoClick) {
+                    onInfoClick(contextMenu.data);
+                    return;
+                  }
+                  setShowInfoItemData({
+                    ...contextMenu.data,
+                    pageX: contextMenu.pageX,
+                    pageY: contextMenu.pageY,
+                  });
+                  hideContextMenu();
+                }}
+              />
+            )}
+            {/* 修改尺寸 - 第四个选项 */}
+            {showSizeButton &&
+              config.allowResize !== false &&
+              (() => {
+                const typeConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
+                const currentSizeConfig = getSizeConfig(
+                  data?.config?.sizeId,
+                  typeConfig.sizeConfigs,
+                  typeConfig.defaultSizeId
+                );
 
-                  return (
-                    <SizeMenuItem
+                // 计算当前菜单项的索引
+                let sizeMenuIndex = 0;
+                if (showRemoveButton) sizeMenuIndex++;
+                if (showShareButton) sizeMenuIndex++;
+                if (showInfoButton) sizeMenuIndex++;
+
+                return (
+                  <SubMenuItem text="尺寸" icon={<RiApps2Line size={18} />} index={sizeMenuIndex}>
+                    <SizeSubMenuContent
                       sizes={getAllSizes()}
                       currentSize={currentSizeConfig.name}
                       onSizeChange={(sizeName) => {
@@ -312,35 +529,35 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                         }
                       }}
                     />
-                  );
-                })()}
-              {/* 根据dataType显示的自定义菜单项 */}
-              {getCustomMenuItems().map((menuItem, index) => {
-                // 计算菜单项索引，需要考虑前面已有的默认菜单项数量
-                let menuIndex = 0;
-                if (showRemoveButton) menuIndex++;
-                if (showShareButton) menuIndex++;
-                if (showInfoButton) menuIndex++;
-                if (showSizeButton && config.allowResize !== false) menuIndex++;
-                menuIndex += index;
-
-                return (
-                  <MenuItem
-                    key={`custom-${index}`}
-                    text={menuItem.text}
-                    icon={menuItem.icon}
-                    color={menuItem.color}
-                    textColor={menuItem.textColor}
-                    index={menuIndex}
-                    onClick={() => {
-                      if (menuItem.onClick) {
-                        menuItem.onClick(contextMenu.data, contextActions);
-                      }
-                    }}
-                  />
+                  </SubMenuItem>
                 );
-              })}
-            </motion.div>
+              })()}
+            {/* 根据dataType显示的自定义菜单项 */}
+            {getCustomMenuItems().map((menuItem, index) => {
+              // 计算菜单项索引，需要考虑前面已有的默认菜单项数量
+              let menuIndex = 0;
+              if (showRemoveButton) menuIndex++;
+              if (showShareButton) menuIndex++;
+              if (showInfoButton) menuIndex++;
+              if (showSizeButton && config.allowResize !== false) menuIndex++;
+              menuIndex += index;
+
+              return (
+                <MenuItem
+                  key={`custom-${index}`}
+                  text={menuItem.text}
+                  icon={menuItem.icon}
+                  color={menuItem.color}
+                  textColor={menuItem.textColor}
+                  index={menuIndex}
+                  onClick={() => {
+                    if (menuItem.onClick) {
+                      menuItem.onClick(contextMenu.data, contextActions);
+                    }
+                  }}
+                />
+              );
+            })}
           </motion.div>
         </HoverContext.Provider>
       )}
