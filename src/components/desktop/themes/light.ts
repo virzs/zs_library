@@ -12,5 +12,13 @@ export const themeLight: Theme = {
     contextMenuActiveColor: "#f3f4f6",
     contextMenuBackgroundColor: "white",
     contextMenuShadowColor: "rgba(0, 0, 0, 0.1)",
+    dock: {
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      borderColor: "rgba(255, 255, 255, 0.2)",
+      boxShadowColor: "rgba(0, 0, 0, 0.1)",
+      divider: {
+        color: "rgba(255, 255, 255, 0.3)",
+      },
+    },
   },
 };

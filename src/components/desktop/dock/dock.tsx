@@ -5,6 +5,7 @@ import { mainDragConfig } from "../drag-styles";
 import SortableItem from "../items/sortable-item";
 import { SortItem } from "../types";
 import { useSortableState } from "../context/state/hooks";
+import { useSortableConfig } from "../context/config/hooks";
 import LaunchpadButton from "./launchpad-button";
 import { AnimatePresence } from "motion/react";
 
@@ -68,6 +69,8 @@ const Dock: React.FC<DockProps> = ({
   onDockItemsChange,
 }) => {
   const { setListStatus } = useSortableState();
+  const { theme } = useSortableConfig();
+  const dockTheme = theme.token.dock;
 
   const renderDockItem = (item: SortItem, index: number) => {
     if (itemBuilder) {
@@ -92,12 +95,14 @@ const Dock: React.FC<DockProps> = ({
   return (
     <div
       className={cx(
-        "zs-flex zs-justify-between zs-items-center zs-rounded-2xl py-2 px-4 zs-backdrop-blur-xl zs-bg-white zs-bg-opacity-80 zs-gap-1 zs-border zs-border-white zs-border-opacity-20",
+        "zs-flex zs-justify-between zs-items-center zs-rounded-2xl py-2 px-4 zs-backdrop-blur-xl zs-gap-1 zs-border zs-transition-colors",
         position === "top" || position === "bottom" ? "zs-flex-row" : "zs-flex-col",
         position === "top" && "zs-mb-4",
         position === "bottom" && "zs-mt-4",
         css`
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          background-color: ${dockTheme?.backgroundColor || "rgba(255, 255, 255, 0.8)"};
+          border-color: ${dockTheme?.borderColor || "rgba(255, 255, 255, 0.2)"};
+          box-shadow: 0 8px 32px ${dockTheme?.boxShadowColor || "rgba(0, 0, 0, 0.1)"};
         `,
         className
       )}
@@ -131,8 +136,11 @@ const Dock: React.FC<DockProps> = ({
       {fixedItems.length > 0 && items.length > 0 && (
         <div
           className={cx(
-            "zs-flex zs-bg-white zs-bg-opacity-30",
-            position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1"
+            "zs-flex zs-transition-colors",
+            position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1",
+            css`
+              background-color: ${dockTheme?.divider?.color || "rgba(255, 255, 255, 0.3)"};
+            `
           )}
         />
       )}
@@ -184,8 +192,11 @@ const Dock: React.FC<DockProps> = ({
       {showLaunchpad && (fixedItems.length > 0 || items.length > 0) && (
         <div
           className={cx(
-            "zs-flex zs-bg-white zs-bg-opacity-30",
-            position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1"
+            "zs-flex zs-transition-colors",
+            position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1",
+            css`
+              background-color: ${dockTheme?.divider?.color || "rgba(255, 255, 255, 0.3)"};
+            `
           )}
         />
       )}
