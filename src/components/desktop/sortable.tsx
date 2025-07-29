@@ -404,7 +404,6 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             ref={_sliderRef ?? sliderRef}
             infinite={false}
             dots
-            touchMove={false}
             lazyLoad="anticipated"
             className={cx(
               paginingLocationCss,
