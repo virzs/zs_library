@@ -127,6 +127,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [showLaunchpad, setShowLaunchpad] = useState(false);
+  const [touchMoveEnabled, setTouchMoveEnabled] = useState(true);
 
   const {
     list,
@@ -327,7 +328,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
       >
         {/* Dock 组件 */}
         {dock.enabled && (
-          <div className="dock-container">
+          <div className="zs-flex zs-items-center zs-justify-center dock-container">
             <Dock
               items={dockItems}
               fixedItems={dock.fixedItems}
@@ -405,6 +406,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             infinite={false}
             dots
             lazyLoad="anticipated"
+            touchMove={touchMoveEnabled}
             className={cx(
               paginingLocationCss,
               css`
@@ -557,17 +559,30 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           case "group":
                           case "app":
                             el = (
-                              <SortableGroupItem
+                              <div
                                 key={item.id}
-                                data={item}
-                                itemIndex={index}
-                                parentIds={[l.id, item.id]}
-                                onClick={onItemClick}
-                              />
+                                onMouseEnter={() => setTouchMoveEnabled(false)}
+                                onMouseLeave={() => setTouchMoveEnabled(true)}
+                              >
+                                <SortableGroupItem
+                                  data={item}
+                                  itemIndex={index}
+                                  parentIds={[l.id, item.id]}
+                                  onClick={onItemClick}
+                                />
+                              </div>
                             );
                             break;
                           default:
-                            el = <SortableItem key={item.id} data={item} itemIndex={index} onClick={onItemClick} />;
+                            el = (
+                              <div
+                                key={item.id}
+                                onMouseEnter={() => setTouchMoveEnabled(false)}
+                                onMouseLeave={() => setTouchMoveEnabled(true)}
+                              >
+                                <SortableItem data={item} itemIndex={index} onClick={onItemClick} />
+                              </div>
+                            );
                             break;
                         }
 
