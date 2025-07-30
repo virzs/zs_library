@@ -69,7 +69,6 @@ const BaseModal = (props: BaseModalProps) => {
               .rc-dialog-mask {
                 background: rgba(0, 0, 0, 0.3);
                 backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
                 animation: maskFadeIn 0.2s ease-out;
               }
 
@@ -77,12 +76,10 @@ const BaseModal = (props: BaseModalProps) => {
                 from {
                   opacity: 0;
                   backdrop-filter: blur(0px);
-                  -webkit-backdrop-filter: blur(0px);
                 }
                 to {
                   opacity: 1;
                   backdrop-filter: blur(20px);
-                  -webkit-backdrop-filter: blur(20px);
                 }
               }
 
@@ -96,7 +93,6 @@ const BaseModal = (props: BaseModalProps) => {
               .rc-dialog-content {
                 background: rgba(255, 255, 255, 0.77);
                 backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
                 border: 0.75px solid rgba(255, 255, 255, 0.3);
                 padding: 0;
@@ -132,12 +128,10 @@ const BaseModal = (props: BaseModalProps) => {
                 from {
                   opacity: 1;
                   backdrop-filter: blur(20px);
-                  -webkit-backdrop-filter: blur(20px);
                 }
                 to {
                   opacity: 0;
                   backdrop-filter: blur(0px);
-                  -webkit-backdrop-filter: blur(0px);
                 }
               }
 
