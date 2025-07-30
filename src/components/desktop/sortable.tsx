@@ -59,31 +59,7 @@ export interface SortableProps<D, C> {
      * 是否显示 dock
      */
     enabled?: boolean;
-    /**
-     * dock 位置
-     */
-    position?: "top" | "bottom" | "left" | "right";
-    /**
-     * dock 样式类名
-     */
-    className?: string;
-    /**
-     * 自定义 dock 项目渲染
-     */
-    itemBuilder?: DockProps["itemBuilder"];
-    /**
-     * 自定义固定项目渲染
-     */
-    fixedItemBuilder?: DockProps["fixedItemBuilder"];
-    /**
-     * 固定项目列表（在sortable之前显示，不可拖拽排序）
-     */
-    fixedItems?: DockProps["fixedItems"];
-    /**
-     * 是否显示启动台按钮
-     */
-    showLaunchpad?: boolean;
-  };
+  } & Omit<DockProps<D, C>, "onDrop" | "onDockItemsChange">;
 }
 
 // 创建一个安全的渲染包装组件
