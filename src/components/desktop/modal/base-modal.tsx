@@ -3,6 +3,7 @@ import { AnimatePresence } from "motion/react";
 import Dialog from "rc-dialog";
 import "rc-dialog/assets/index.css";
 import { ReactNode, useEffect, useState } from "react";
+import { useSortableConfig } from "../context/config/hooks";
 
 interface BaseModalProps {
   visible: boolean;
@@ -28,6 +29,9 @@ const BaseModal = (props: BaseModalProps) => {
     closable = false,
     footer = null,
   } = props;
+
+  const { theme } = useSortableConfig();
+  const modalTheme = theme.token.modal;
 
   const [visible, setVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -67,8 +71,8 @@ const BaseModal = (props: BaseModalProps) => {
             { "modal-closing": isClosing },
             css`
               .rc-dialog-mask {
-                background: rgba(0, 0, 0, 0.3);
-                backdrop-filter: blur(20px);
+                background: ${modalTheme?.mask?.backgroundColor || "rgba(0, 0, 0, 0.3)"};
+                backdrop-filter: ${modalTheme?.mask?.backdropFilter || "blur(20px)"};
                 animation: maskFadeIn 0.2s ease-out;
               }
 
@@ -79,7 +83,7 @@ const BaseModal = (props: BaseModalProps) => {
                 }
                 to {
                   opacity: 1;
-                  backdrop-filter: blur(20px);
+                  backdrop-filter: ${modalTheme?.mask?.backdropFilter || "blur(20px)"};
                 }
               }
 
@@ -91,12 +95,12 @@ const BaseModal = (props: BaseModalProps) => {
               }
 
               .rc-dialog-content {
-                background: rgba(255, 255, 255, 0.77);
-                backdrop-filter: blur(20px);
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
-                border: 0.75px solid rgba(255, 255, 255, 0.3);
+                background: ${modalTheme?.content?.backgroundColor || "rgba(255, 255, 255, 0.77)"};
+                backdrop-filter: ${modalTheme?.content?.backdropFilter || "blur(20px)"};
+                box-shadow: 0 20px 40px ${modalTheme?.content?.boxShadowColor || "rgba(0, 0, 0, 0.15)"}, 0 0 0 0.75px ${modalTheme?.content?.boxShadowBorderColor || "rgba(255, 255, 255, 0.25)"};
+                border: 0.75px solid ${modalTheme?.content?.borderColor || "rgba(255, 255, 255, 0.3)"};
                 padding: 0;
-                border-radius: 16px;
+                border-radius: ${modalTheme?.content?.borderRadius || "16px"};
                 overflow: hidden;
                 animation: modalSlideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
                 position: relative;
@@ -127,7 +131,7 @@ const BaseModal = (props: BaseModalProps) => {
               @keyframes maskFadeOut {
                 from {
                   opacity: 1;
-                  backdrop-filter: blur(20px);
+                  backdrop-filter: ${modalTheme?.mask?.backdropFilter || "blur(20px)"};
                 }
                 to {
                   opacity: 0;
@@ -147,7 +151,7 @@ const BaseModal = (props: BaseModalProps) => {
 
               .rc-dialog-header {
                 text-align: center;
-                background: transparent;
+                background: ${modalTheme?.header?.backgroundColor || "transparent"};
                 margin-bottom: 0;
                 border-bottom: none;
                 padding: 20px 24px 0;
@@ -155,12 +159,12 @@ const BaseModal = (props: BaseModalProps) => {
                 position: relative;
 
                 .ant-modal-name {
-                  color: #fff;
+                  color: ${modalTheme?.header?.textColor || "#fff"};
                 }
               }
 
               .rc-dialog-body {
-                background: transparent;
+                background: ${modalTheme?.body?.backgroundColor || "transparent"};
                 border-radius: 0 0 16px 16px;
                 overflow: hidden;
                 border: none;
@@ -176,22 +180,22 @@ const BaseModal = (props: BaseModalProps) => {
                 }
 
                 &::-webkit-scrollbar-track {
-                  background: transparent;
+                  background: ${modalTheme?.scrollbar?.trackColor || "transparent"};
                 }
 
                 &::-webkit-scrollbar-thumb {
-                  background: rgba(156, 163, 175, 0.5);
-                  border-radius: 4px;
+                  background: ${modalTheme?.scrollbar?.thumbColor || "rgba(156, 163, 175, 0.5)"};
+                  border-radius: ${modalTheme?.scrollbar?.borderRadius || "4px"};
                   transition: background-color 0.2s ease;
                 }
 
                 &::-webkit-scrollbar-thumb:hover {
-                  background: rgba(156, 163, 175, 0.8);
+                  background: ${modalTheme?.scrollbar?.thumbHoverColor || "rgba(156, 163, 175, 0.8)"};
                 }
 
                 /* Firefox 滚动条样式 */
                 scrollbar-width: thin;
-                scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+                scrollbar-color: ${modalTheme?.scrollbar?.thumbColor || "rgba(156, 163, 175, 0.5)"} ${modalTheme?.scrollbar?.trackColor || "transparent"};
               }
             `
           )}
@@ -206,21 +210,21 @@ const BaseModal = (props: BaseModalProps) => {
 
                 /* iOS 风格的滚动条 */
                 &::-webkit-scrollbar {
-                  width: 4px;
+                  width: ${modalTheme?.scrollbar?.width || "4px"};
                 }
 
                 &::-webkit-scrollbar-track {
-                  background: transparent;
+                  background: ${modalTheme?.scrollbar?.trackColor || "transparent"};
                 }
 
                 &::-webkit-scrollbar-thumb {
-                  background: rgba(0, 0, 0, 0.2);
-                  border-radius: 2px;
+                  background: ${modalTheme?.scrollbar?.thumbColor || "rgba(0, 0, 0, 0.2)"};
+                  border-radius: ${modalTheme?.scrollbar?.borderRadius || "2px"};
                   transition: background 0.2s ease;
                 }
 
                 &::-webkit-scrollbar-thumb:hover {
-                  background: rgba(0, 0, 0, 0.3);
+                  background: ${modalTheme?.scrollbar?.thumbHoverColor || "rgba(0, 0, 0, 0.3)"};
                 }
               `
             )}

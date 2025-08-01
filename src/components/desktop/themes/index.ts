@@ -1,6 +1,35 @@
 import { themeDark } from "./dark";
 import { themeLight } from "./light";
 
+export interface BaseModalTheme {
+  mask?: {
+    backgroundColor?: string;
+    backdropFilter?: string;
+  };
+  content?: {
+    backgroundColor?: string;
+    backdropFilter?: string;
+    boxShadowColor?: string;
+    boxShadowBorderColor?: string;
+    borderColor?: string;
+    borderRadius?: string;
+  };
+  header?: {
+    backgroundColor?: string;
+    textColor?: string;
+  };
+  body?: {
+    backgroundColor?: string;
+  };
+  scrollbar?: {
+    width?: string;
+    trackColor?: string;
+    thumbColor?: string;
+    thumbHoverColor?: string;
+    borderRadius?: string;
+  };
+}
+
 export interface DockTheme {
   backgroundColor?: string;
   borderColor?: string;
@@ -18,7 +47,7 @@ export interface LaunchpadTheme {
     borderColor?: string;
     hoverBackgroundColor?: string;
   };
-  modal?: {};
+  modal?: BaseModalTheme;
 }
 
 export interface Theme {
@@ -34,6 +63,7 @@ export interface Theme {
     contextMenuBackgroundColor?: string;
     contextMenuShadowColor?: string;
     dock?: DockTheme;
+    modal?: BaseModalTheme;
   };
 }
 
