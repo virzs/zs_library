@@ -34,14 +34,10 @@ export const dragContainerStyle = css`
  * 针对主界面的拖拽区域优化
  */
 export const mainDragContainerStyle = css`
-  display: grid;
+  display: flex;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  grid-template-columns: repeat(auto-fill, 96px);
-  grid-auto-flow: dense;
-  grid-auto-rows: 96px;
-  place-items: center;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: start;
   gap: 12px;
   padding: 16px;
   border-radius: 16px;
