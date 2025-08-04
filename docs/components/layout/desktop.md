@@ -43,16 +43,14 @@ export default () => {
   // 自定义主题示例
   const customTheme = {
     token: {
-      itemNameColor: "#ff6b6b",
-      itemIconBackgroundColor: "#4ecdc4",
-      itemIconShadowColor: "rgba(255, 107, 107, 0.3)",
-      groupItemIconBackgroundColor: "rgba(78, 205, 196, 0.2)",
-      groupItemIconShadowColor: "rgba(255, 107, 107, 0.2)",
-      groupItemModalBackgroundColor: "rgba(78, 205, 196, 0.9)",
-      contextMenuTextColor: "#2c3e50",
-      contextMenuActiveColor: "#ecf0f1",
-      contextMenuBackgroundColor: "#ffffff",
-      contextMenuShadowColor: "rgba(255, 107, 107, 0.2)",
+      base: {
+        primaryColor: "#4ecdc4",
+        backgroundColor: "rgba(78, 205, 196, 0.1)",
+        textColor: "#2c3e50",
+        shadowColor: "rgba(255, 107, 107, 0.2)",
+        borderColor: "rgba(78, 205, 196, 0.3)",
+        dangerColor: "green"
+      },
     },
   };
 
@@ -275,26 +273,115 @@ interface DockConfig {
 ```typescript
 interface Theme {
   token: {
-    /** 项目名称颜色 */
-    itemNameColor?: string;
-    /** 项目图标背景颜色 */
-    itemIconBackgroundColor?: string;
-    /** 项目图标阴影颜色 */
-    itemIconShadowColor?: string;
-    /** 分组项目图标背景颜色 */
-    groupItemIconBackgroundColor?: string;
-    /** 分组项目图标阴影颜色 */
-    groupItemIconShadowColor?: string;
-    /** 分组项目模态框背景颜色 */
-    groupItemModalBackgroundColor?: string;
-    /** 右键菜单文字颜色 */
-    contextMenuTextColor?: string;
-    /** 右键菜单激活颜色 */
-    contextMenuActiveColor?: string;
-    /** 右键菜单背景颜色 */
-    contextMenuBackgroundColor?: string;
-    /** 右键菜单阴影颜色 */
-    contextMenuShadowColor?: string;
+    /** 基础配置 - 用于生成其他组件的颜色 */
+    base?: {
+      /** 主色调 */
+      primaryColor?: string;
+      /** 背景颜色 */
+      backgroundColor?: string;
+      /** 文字颜色 */
+      textColor?: string;
+      /** 阴影颜色 */
+      shadowColor?: string;
+      /** 边框颜色 */
+      borderColor?: string;
+    };
+    /** 右键菜单配置 */
+    contextMenu?: {
+      /** 文字颜色 */
+      textColor?: string;
+      /** 激活颜色 */
+      activeColor?: string;
+      /** 危险操作颜色 */
+      dangerColor?: string;
+      /** 背景颜色 */
+      backgroundColor?: string;
+      /** 阴影颜色 */
+      shadowColor?: string;
+      /** 边框颜色 */
+      borderColor?: string;
+    };
+    /** 项目配置 - 可选，不配置时从 base 自动生成 */
+    items?: {
+      /** 文字颜色 */
+      textColor?: string;
+      /** 图标背景颜色 */
+      iconBackgroundColor?: string;
+      /** 图标阴影颜色 */
+      iconShadowColor?: string;
+      /** 分组图标背景颜色 */
+      groupIconBackgroundColor?: string;
+      /** 分组图标阴影颜色 */
+      groupIconShadowColor?: string;
+      /** 分组模态框背景颜色 */
+      groupModalBackgroundColor?: string;
+      /** 信息模态框背景颜色 */
+      infoModalBackgroundColor?: string;
+    };
+    /** Dock 配置 - 可选，不配置时从 base 自动生成 */
+    dock?: {
+      /** 背景颜色 */
+      backgroundColor?: string;
+      /** 边框颜色 */
+      borderColor?: string;
+      /** 阴影颜色 */
+      boxShadowColor?: string;
+      /** 分割线配置 */
+      divider?: {
+        /** 分割线颜色 */
+        color?: string;
+      };
+    };
+    /** 模态框配置 - 可选，不配置时从 base 自动生成 */
+    modal?: {
+      /** 遮罩层配置 */
+      mask?: {
+        /** 背景颜色 */
+        backgroundColor?: string;
+        /** 背景模糊 */
+        backdropFilter?: string;
+      };
+      /** 内容区配置 */
+      content?: {
+        /** 背景颜色 */
+        backgroundColor?: string;
+        /** 背景模糊 */
+        backdropFilter?: string;
+        /** 阴影颜色 */
+        boxShadowColor?: string;
+        /** 阴影边框颜色 */
+        boxShadowBorderColor?: string;
+        /** 边框颜色 */
+        borderColor?: string;
+        /** 圆角 */
+        borderRadius?: string;
+      };
+      /** 头部配置 */
+      header?: {
+        /** 背景颜色 */
+        backgroundColor?: string;
+        /** 文字颜色 */
+        textColor?: string;
+      };
+      /** 主体配置 */
+      body?: {
+        /** 背景颜色 */
+        backgroundColor?: string;
+      };
+      /** 滚动条配置 */
+      scrollbar?: {
+        /** 宽度 */
+        width?: string;
+        /** 轨道颜色 */
+        trackColor?: string;
+        /** 滑块颜色 */
+        thumbColor?: string;
+        /** 滑块悬停颜色 */
+        thumbHoverColor?: string;
+        /** 圆角 */
+        borderRadius?: string;
+      };
+    };
   };
 }
 ```
@@ -322,15 +409,41 @@ import {
 // 使用默认主题（浅色）
 <Desktop theme={desktopDefaultTheme} />
 
-// 自定义主题
+// 基于 base 配置的自定义主题
 const customTheme = {
   token: {
-    itemNameColor: '#ff6b6b',
-    itemIconBackgroundColor: '#4ecdc4',
-    // ... 其他配置
+    base: {
+      primaryColor: '#4ecdc4',
+      backgroundColor: 'rgba(78, 205, 196, 0.1)',
+      textColor: '#2c3e50',
+      shadowColor: 'rgba(255, 107, 107, 0.2)',
+      borderColor: 'rgba(78, 205, 196, 0.3)',
+    },
+    // contextMenu 配置（可选）
+    contextMenu: {
+      textColor: '#2c3e50',
+      activeColor: '#ecf0f1',
+      dangerColor: '#ff3b30',
+      backgroundColor: '#ffffff',
+      shadowColor: 'rgba(255, 107, 107, 0.2)',
+      borderColor: 'rgba(78, 205, 196, 0.3)',
+    },
+    // 其他组件配置会从 base 自动生成
   }
 };
 <Desktop theme={customTheme} />
+
+// 或者使用更简单的配置方式
+const simpleTheme = {
+  token: {
+    base: {
+      primaryColor: '#ff6b6b',
+      textColor: '#2c3e50',
+    },
+    // 其他所有配置都会基于 base 自动生成
+  }
+};
+<Desktop theme={simpleTheme} />
 ```
 
 ### TypeConfigMap 类型配置

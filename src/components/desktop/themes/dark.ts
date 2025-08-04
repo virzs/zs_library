@@ -2,22 +2,34 @@ import { Theme } from ".";
 
 export const themeDark: Theme = {
   token: {
-    itemNameColor: "white",
-    itemIconBackgroundColor: "#1f2937",
-    itemIconShadowColor: "rgba(0, 0, 0, 0.1)",
-    groupItemIconBackgroundColor: "rgba(0, 0, 0, 0.1)",
-    groupItemIconShadowColor: "rgba(0, 0, 0, 0.1)",
-    groupItemModalBackgroundColor: "rgba(0, 0, 0, 0.1)",
-    contextMenuTextColor: "white",
-    contextMenuActiveColor: "#1a1a1a",
-    contextMenuBackgroundColor: "#1a1a1a",
-    contextMenuShadowColor: "rgba(255, 255, 255, 0.1)",
-    dock: {
-      backgroundColor: "rgba(0, 0, 0, 0.8)",
-      borderColor: "rgba(255, 255, 255, 0.1)",
-      boxShadowColor: "rgba(0, 0, 0, 0.3)",
-      divider: {
-        color: "rgba(255, 255, 255, 0.2)",
+    base: {
+      hoverColor: "rgba(255, 255, 255, 0.05)",
+      dangerColor: "#ff3b30",
+      backgroundColor: "rgba(26, 26, 26, 0.75)",
+      textColor: "white",
+      shadowColor: "rgba(255, 255, 255, 0.1)",
+      boxShadowBorderColor: "rgba(255, 255, 255, 0.05)",
+      borderColor: "rgba(255, 255, 255, 0.15)",
+      backdropFilter: "blur(20px)",
+    },
+    items: {},
+    contextMenu: {},
+    dock: {},
+    modal: {
+      mask: {
+        backdropFilter: "blur(20px)",
+      },
+      content: {
+        backdropFilter: "blur(20px)",
+        borderRadius: "16px",
+      },
+      header: {},
+      scrollbar: {
+        width: "4px",
+        trackColor: "transparent",
+        thumbColor: "rgba(255, 255, 255, 0.1)",
+        thumbHoverColor: "rgba(255, 255, 255, 0.2)",
+        borderRadius: "2px",
       },
     },
   },

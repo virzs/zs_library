@@ -9,15 +9,15 @@ import { useSortableConfig } from "../context/config/hooks";
 import LaunchpadButton from "./launchpad-button";
 import { AnimatePresence } from "motion/react";
 
-export interface DockProps {
+export interface DockProps<D, C> {
   /**
    * dock 项目列表
    */
-  items?: SortItem[];
+  items?: SortItem<D, C>[];
   /**
    * 固定项目列表（在sortable之前显示，不可拖拽排序）
    */
-  fixedItems?: SortItem[];
+  fixedItems?: SortItem<D, C>[];
   /**
    * dock 位置
    */
@@ -29,15 +29,15 @@ export interface DockProps {
   /**
    * dock 项目点击事件
    */
-  onItemClick?: (item: SortItem) => void;
+  onItemClick?: (item: SortItem<D, C>) => void;
   /**
    * 自定义项目渲染
    */
-  itemBuilder?: (item: SortItem, index: number) => React.ReactNode;
+  itemBuilder?: (item: SortItem<D, C>, index: number) => React.ReactNode;
   /**
    * 自定义固定项目渲染
    */
-  fixedItemBuilder?: (item: SortItem, index: number) => React.ReactNode;
+  fixedItemBuilder?: (item: SortItem<D, C>, index: number) => React.ReactNode;
   /**
    * 是否显示启动台按钮
    */
@@ -53,10 +53,10 @@ export interface DockProps {
   /**
    * dock 项目列表变更事件
    */
-  onDockItemsChange?: (items: SortItem[]) => void;
+  onDockItemsChange?: (items: SortItem<D, C>[]) => void;
 }
 
-const Dock: React.FC<DockProps> = ({
+const Dock = <D, C>({
   items = [],
   fixedItems = [],
   position = "bottom",
@@ -67,7 +67,7 @@ const Dock: React.FC<DockProps> = ({
   onLaunchpadClick,
   onDrop,
   onDockItemsChange,
-}) => {
+}: DockProps<D, C>) => {
   const { setListStatus } = useSortableState();
   const { theme } = useSortableConfig();
   const dockTheme = theme.token.dock;
@@ -92,10 +92,22 @@ const Dock: React.FC<DockProps> = ({
     return null;
   }
 
+  const divider = (
+    <div
+      className={cx(
+        "zs-flex zs-transition-colors",
+        position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1",
+        css`
+          background-color: ${dockTheme?.divider?.color || "rgba(255, 255, 255, 0.3)"};
+        `
+      )}
+    />
+  );
+
   return (
     <div
       className={cx(
-        "zs-flex zs-justify-between zs-items-center zs-rounded-2xl py-2 px-4 zs-backdrop-blur-xl zs-gap-1 zs-border zs-transition-colors zs-max-w-full",
+        "zs-flex zs-justify-between zs-items-center zs-rounded-2xl zs-py-3 zs-px-4 zs-backdrop-blur-xl zs-gap-1 zs-border zs-transition-colors zs-max-w-full",
         position === "top" || position === "bottom" ? "zs-flex-row" : "zs-flex-col",
         position === "top" && "zs-mb-4",
         position === "bottom" && "zs-mt-4",
@@ -133,17 +145,7 @@ const Dock: React.FC<DockProps> = ({
       )}
 
       {/* 固定项目与sortable项目之间的分隔线 */}
-      {fixedItems.length > 0 && items.length > 0 && (
-        <div
-          className={cx(
-            "zs-flex zs-transition-colors",
-            position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1",
-            css`
-              background-color: ${dockTheme?.divider?.color || "rgba(255, 255, 255, 0.3)"};
-            `
-          )}
-        />
-      )}
+      {fixedItems.length > 0 && items.length > 0 && divider}
 
       {/* Sortable项目 */}
       {items.length > 0 && (
@@ -189,17 +191,7 @@ const Dock: React.FC<DockProps> = ({
       )}
 
       {/* sortable项目与启动台按钮之间的分隔线 */}
-      {showLaunchpad && (fixedItems.length > 0 || items.length > 0) && (
-        <div
-          className={cx(
-            "zs-flex zs-transition-colors",
-            position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1",
-            css`
-              background-color: ${dockTheme?.divider?.color || "rgba(255, 255, 255, 0.3)"};
-            `
-          )}
-        />
-      )}
+      {showLaunchpad && (fixedItems.length > 0 || items.length > 0) && divider}
 
       {/* 启动台按钮 */}
       {showLaunchpad && <LaunchpadButton onClick={onLaunchpadClick} position={position} />}

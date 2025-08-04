@@ -45,8 +45,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
   const childrenIconCss = css`
     overflow: hidden;
     cursor: pointer;
-    background-color: ${theme.token.itemIconBackgroundColor};
-    box-shadow: 0 0 0.5rem ${theme.token.itemIconShadowColor};
+    background-color: ${theme.token.items?.iconBackgroundColor};
+    box-shadow: 0 0 0.5rem ${theme.token.items?.iconShadowColor};
   `;
 
   const sizedContent = () => {
@@ -57,7 +57,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           className={cx(
             "sortable-group-item zs-cursor-pointer zs-w-full zs-h-full zs-absolute zs-left-0 zs-top-0 zs-bottom-0 zs-right-0 zs-overflow-hidden",
             css`
-              background-color: ${theme.token.itemIconBackgroundColor};
+              background-color: ${theme.token.items?.iconBackgroundColor};
               border-radius: 0.75rem;
             `
           )}
@@ -197,8 +197,8 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
           "zs-cursor-pointer zs-relative my-0 zs-mx-auto",
           css`
             border-radius: 0.75rem;
-            background-color: ${theme.token.groupItemIconBackgroundColor};
-            box-shadow: 0 0 0.5rem ${theme.token.groupItemIconShadowColor};
+            background-color: ${theme.token.items?.groupIconBackgroundColor};
+            box-shadow: 0 0 0.5rem ${theme.token.items?.groupIconShadowColor};
             /* overflow: hidden; */
             transition: all 0.3s;
             width: ${col * 64 + 44 * (col - 1)}px;

@@ -1,5 +1,7 @@
 import { FC } from "react";
 import ReactJson from "react-json-view";
+import { css, cx } from "@emotion/css";
+import { useSortableConfig } from "../../context/config/hooks";
 import { SortItem } from "../../types";
 import { BaseModal } from "../../modal";
 
@@ -13,6 +15,7 @@ export interface ItemInfoModalProps {
  */
 const ItemInfoModal: FC<ItemInfoModalProps> = (props) => {
   const { data, onClose } = props;
+  const { theme } = useSortableConfig();
 
   return (
     <BaseModal
@@ -29,7 +32,14 @@ const ItemInfoModal: FC<ItemInfoModalProps> = (props) => {
       }
     >
       {data && (
-        <div className="zs-p-2 zs-rounded-md zs-bg-[#272822]">
+        <div
+          className={cx(
+            "zs-p-2 zs-rounded-md",
+            css`
+              background-color: ${theme.token.items?.infoModalBackgroundColor};
+            `
+          )}
+        >
           <ReactJson src={data as object} theme="monokai" />
         </div>
       )}

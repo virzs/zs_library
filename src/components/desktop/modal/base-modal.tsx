@@ -3,6 +3,7 @@ import { AnimatePresence } from "motion/react";
 import Dialog from "rc-dialog";
 import "rc-dialog/assets/index.css";
 import { ReactNode, useEffect, useState } from "react";
+import { useSortableConfig } from "../context/config/hooks";
 
 interface BaseModalProps {
   visible: boolean;
@@ -28,6 +29,9 @@ const BaseModal = (props: BaseModalProps) => {
     closable = false,
     footer = null,
   } = props;
+
+  const { theme } = useSortableConfig();
+  const modalTheme = theme.token.modal;
 
   const [visible, setVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -67,9 +71,8 @@ const BaseModal = (props: BaseModalProps) => {
             { "modal-closing": isClosing },
             css`
               .rc-dialog-mask {
-                background: rgba(0, 0, 0, 0.3);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
+                background: ${modalTheme?.mask?.backgroundColor};
+                backdrop-filter: ${modalTheme?.mask?.backdropFilter};
                 animation: maskFadeIn 0.2s ease-out;
               }
 
@@ -77,12 +80,10 @@ const BaseModal = (props: BaseModalProps) => {
                 from {
                   opacity: 0;
                   backdrop-filter: blur(0px);
-                  -webkit-backdrop-filter: blur(0px);
                 }
                 to {
                   opacity: 1;
-                  backdrop-filter: blur(20px);
-                  -webkit-backdrop-filter: blur(20px);
+                  backdrop-filter: ${modalTheme?.mask?.backdropFilter};
                 }
               }
 
@@ -94,13 +95,13 @@ const BaseModal = (props: BaseModalProps) => {
               }
 
               .rc-dialog-content {
-                background: rgba(255, 255, 255, 0.77);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
-                border: 0.75px solid rgba(255, 255, 255, 0.3);
+                background: ${modalTheme?.content?.backgroundColor};
+                backdrop-filter: ${modalTheme?.content?.backdropFilter};
+                box-shadow: 0 20px 40px ${modalTheme?.content?.boxShadowColor},
+                  0 0 0 0.75px ${modalTheme?.content?.boxShadowBorderColor};
+                border: 0.75px solid ${modalTheme?.content?.borderColor};
                 padding: 0;
-                border-radius: 16px;
+                border-radius: ${modalTheme?.content?.borderRadius};
                 overflow: hidden;
                 animation: modalSlideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
                 position: relative;
@@ -131,13 +132,11 @@ const BaseModal = (props: BaseModalProps) => {
               @keyframes maskFadeOut {
                 from {
                   opacity: 1;
-                  backdrop-filter: blur(20px);
-                  -webkit-backdrop-filter: blur(20px);
+                  backdrop-filter: ${modalTheme?.mask?.backdropFilter};
                 }
                 to {
                   opacity: 0;
                   backdrop-filter: blur(0px);
-                  -webkit-backdrop-filter: blur(0px);
                 }
               }
 
@@ -161,7 +160,7 @@ const BaseModal = (props: BaseModalProps) => {
                 position: relative;
 
                 .ant-modal-name {
-                  color: #fff;
+                  color: ${modalTheme?.header?.textColor};
                 }
               }
 
@@ -182,22 +181,22 @@ const BaseModal = (props: BaseModalProps) => {
                 }
 
                 &::-webkit-scrollbar-track {
-                  background: transparent;
+                  background: ${modalTheme?.scrollbar?.trackColor};
                 }
 
                 &::-webkit-scrollbar-thumb {
-                  background: rgba(156, 163, 175, 0.5);
-                  border-radius: 4px;
+                  background: ${modalTheme?.scrollbar?.thumbColor};
+                  border-radius: ${modalTheme?.scrollbar?.borderRadius};
                   transition: background-color 0.2s ease;
                 }
 
                 &::-webkit-scrollbar-thumb:hover {
-                  background: rgba(156, 163, 175, 0.8);
+                  background: ${modalTheme?.scrollbar?.thumbHoverColor};
                 }
 
                 /* Firefox 滚动条样式 */
                 scrollbar-width: thin;
-                scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+                scrollbar-color: ${modalTheme?.scrollbar?.thumbColor} ${modalTheme?.scrollbar?.trackColor};
               }
             `
           )}
@@ -212,21 +211,21 @@ const BaseModal = (props: BaseModalProps) => {
 
                 /* iOS 风格的滚动条 */
                 &::-webkit-scrollbar {
-                  width: 4px;
+                  width: ${modalTheme?.scrollbar?.width};
                 }
 
                 &::-webkit-scrollbar-track {
-                  background: transparent;
+                  background: ${modalTheme?.scrollbar?.trackColor};
                 }
 
                 &::-webkit-scrollbar-thumb {
-                  background: rgba(0, 0, 0, 0.2);
-                  border-radius: 2px;
+                  background: ${modalTheme?.scrollbar?.thumbColor};
+                  border-radius: ${modalTheme?.scrollbar?.borderRadius};
                   transition: background 0.2s ease;
                 }
 
                 &::-webkit-scrollbar-thumb:hover {
-                  background: rgba(0, 0, 0, 0.3);
+                  background: ${modalTheme?.scrollbar?.thumbHoverColor};
                 }
               `
             )}

@@ -1,6 +1,31 @@
 import { themeDark } from "./dark";
 import { themeLight } from "./light";
 
+export interface BaseModalTheme {
+  mask?: {
+    backgroundColor?: string;
+    backdropFilter?: string;
+  };
+  content?: {
+    backgroundColor?: string;
+    backdropFilter?: string;
+    boxShadowColor?: string;
+    boxShadowBorderColor?: string;
+    borderColor?: string;
+    borderRadius?: string;
+  };
+  header?: {
+    textColor?: string;
+  };
+  scrollbar?: {
+    width?: string;
+    trackColor?: string;
+    thumbColor?: string;
+    thumbHoverColor?: string;
+    borderRadius?: string;
+  };
+}
+
 export interface DockTheme {
   backgroundColor?: string;
   borderColor?: string;
@@ -18,22 +43,48 @@ export interface LaunchpadTheme {
     borderColor?: string;
     hoverBackgroundColor?: string;
   };
-  modal?: {};
+  modal?: BaseModalTheme;
+}
+
+export interface ContextMenuTheme {
+  textColor?: string;
+  activeColor?: string;
+  dangerColor?: string;
+  backgroundColor?: string;
+  shadowColor?: string;
+  boxShadowBorderColor?: string;
+  borderColor?: string;
+  backdropFilter?: string;
+}
+
+export interface ItemsTheme {
+  textColor?: string;
+  iconBackgroundColor?: string;
+  iconShadowColor?: string;
+  groupIconBackgroundColor?: string;
+  groupIconShadowColor?: string;
+  groupModalBackgroundColor?: string;
+  infoModalBackgroundColor?: string;
+}
+
+export interface BaseTheme {
+  hoverColor?: string;
+  dangerColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  shadowColor?: string;
+  boxShadowBorderColor?: string;
+  borderColor?: string;
+  backdropFilter?: string;
 }
 
 export interface Theme {
   token: {
-    itemNameColor?: string;
-    itemIconBackgroundColor?: string;
-    itemIconShadowColor?: string;
-    groupItemIconBackgroundColor?: string;
-    groupItemIconShadowColor?: string;
-    groupItemModalBackgroundColor?: string;
-    contextMenuTextColor?: string;
-    contextMenuActiveColor?: string;
-    contextMenuBackgroundColor?: string;
-    contextMenuShadowColor?: string;
+    base?: BaseTheme;
     dock?: DockTheme;
+    modal?: BaseModalTheme;
+    contextMenu?: ContextMenuTheme;
+    items?: ItemsTheme;
   };
 }
 
