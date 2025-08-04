@@ -69,8 +69,18 @@ export interface ItemsTheme {
   infoModalBackgroundColor?: string;
 }
 
+export interface BaseTheme {
+  primaryColor?: string;
+  dangerColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  shadowColor?: string;
+  borderColor?: string;
+}
+
 export interface Theme {
   token: {
+    base?: BaseTheme;
     dock?: DockTheme;
     modal?: BaseModalTheme;
     contextMenu?: ContextMenuTheme;
