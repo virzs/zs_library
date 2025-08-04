@@ -2,12 +2,15 @@ import { Theme } from ".";
 
 export const themeDark: Theme = {
   token: {
-    itemNameColor: "white",
-    itemIconBackgroundColor: "#1f2937",
-    itemIconShadowColor: "rgba(0, 0, 0, 0.1)",
-    groupItemIconBackgroundColor: "rgba(0, 0, 0, 0.1)",
-    groupItemIconShadowColor: "rgba(0, 0, 0, 0.1)",
-    groupItemModalBackgroundColor: "rgba(0, 0, 0, 0.1)",
+    items: {
+      textColor: "white",
+      iconBackgroundColor: "#1f2937",
+      iconShadowColor: "rgba(0, 0, 0, 0.1)",
+      groupIconBackgroundColor: "rgba(0, 0, 0, 0.1)",
+      groupIconShadowColor: "rgba(0, 0, 0, 0.1)",
+      groupModalBackgroundColor: "rgba(0, 0, 0, 0.1)",
+      infoModalBackgroundColor: "#1a1a1a",
+    },
     contextMenu: {
       textColor: "white",
       activeColor: "#1a1a1a",

@@ -40,9 +40,9 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
         className={cx(
           "zs-w-16 zs-h-16 zs-cursor-pointer zs-relative zs-overflow-hidden",
           css`
-            background-color: ${theme.token.itemIconBackgroundColor};
+            background-color: ${theme.token.items?.iconBackgroundColor};
             border-radius: 0.75rem;
-            box-shadow: 0 0 0.5rem ${theme.token.itemIconShadowColor};
+            box-shadow: 0 0 0.5rem ${theme.token.items?.iconShadowColor};
           `
         )}
         whileTap={{ scale: 0.9 }}
@@ -52,7 +52,7 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
           className={cx(
             "zs-absolute zs-left-0 zs-top-0 zs-w-full zs-h-full",
             css`
-              color: ${theme.token.itemNameColor};
+              color: ${theme.token.items?.textColor};
             `
           )}
           {...contextMenuFuns(

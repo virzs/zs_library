@@ -59,17 +59,22 @@ export interface ContextMenuTheme {
   borderColor?: string;
 }
 
+export interface ItemsTheme {
+  textColor?: string;
+  iconBackgroundColor?: string;
+  iconShadowColor?: string;
+  groupIconBackgroundColor?: string;
+  groupIconShadowColor?: string;
+  groupModalBackgroundColor?: string;
+  infoModalBackgroundColor?: string;
+}
+
 export interface Theme {
   token: {
-    itemNameColor?: string;
-    itemIconBackgroundColor?: string;
-    itemIconShadowColor?: string;
-    groupItemIconBackgroundColor?: string;
-    groupItemIconShadowColor?: string;
-    groupItemModalBackgroundColor?: string;
     dock?: DockTheme;
     modal?: BaseModalTheme;
     contextMenu?: ContextMenuTheme;
+    items?: ItemsTheme;
   };
 }
 
