@@ -33,7 +33,7 @@ const ItemName = <D, C>(props: ItemNameProps<D, C>) => {
   return (
     <motion.p
       className={cx(
-        "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-absolute zs-left-0 zs-right-0",
+        "zs-whitespace-nowrap zs-text-ellipsis zs-overflow-hidden zs-text-center zs-mt-1 zs-mb-0 zs-absolute zs-left-0 zs-right-0 zs-text-sm",
         css`
           color: ${theme.token.items?.textColor};
         `,
