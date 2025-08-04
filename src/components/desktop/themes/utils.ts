@@ -16,7 +16,9 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
       dangerColor: base.dangerColor,
       backgroundColor: base.backgroundColor,
       shadowColor: base.shadowColor,
+      boxShadowBorderColor: base.boxShadowBorderColor,
       borderColor: base.borderColor,
+      backdropFilter: base.backdropFilter,
     },
     items: {
       textColor: base.textColor,
@@ -42,16 +44,13 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
       content: {
         backgroundColor: base.backgroundColor,
         boxShadowColor: base.shadowColor,
-        boxShadowBorderColor: base.borderColor,
+        boxShadowBorderColor: base.boxShadowBorderColor,
         borderColor: base.borderColor,
       },
       header: {
         textColor: base.textColor,
       },
-      scrollbar: {
-        thumbColor: base.shadowColor,
-        thumbHoverColor: base.borderColor,
-      },
+      scrollbar: {},
     },
   });
 }

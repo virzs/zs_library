@@ -8,7 +8,9 @@ export const themeDark: Theme = {
       backgroundColor: "rgba(26, 26, 26, 0.75)",
       textColor: "white",
       shadowColor: "rgba(255, 255, 255, 0.1)",
+      boxShadowBorderColor: "rgba(255, 255, 255, 0.05)",
       borderColor: "rgba(255, 255, 255, 0.15)",
+      backdropFilter: "blur(20px)",
     },
     items: {},
     contextMenu: {},
@@ -25,6 +27,8 @@ export const themeDark: Theme = {
       scrollbar: {
         width: "4px",
         trackColor: "transparent",
+        thumbColor: "rgba(255, 255, 255, 0.1)",
+        thumbHoverColor: "rgba(255, 255, 255, 0.2)",
         borderRadius: "2px",
       },
     },

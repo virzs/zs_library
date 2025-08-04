@@ -12,13 +12,14 @@ const ContextMenuContent: FC<ContentMenuContextProps> = (props) => {
   return (
     <motion.div
       className={cx(
-        "zs-rounded-2xl zs-backdrop-blur-xl py-2 zs-w-max zs-z-50",
+        "zs-rounded-2xl py-2 zs-w-max zs-z-50",
         css`
-          background-color: ${theme.token.contextMenu?.backgroundColor || "rgba(255, 255, 255, 0.75)"};
-          box-shadow: 0 20px 40px ${theme.token.contextMenu?.shadowColor || "rgba(0, 0, 0, 0.15)"},
-            0 0 0 0.75px rgba(255, 255, 255, 0.25);
+          background-color: ${theme.token.contextMenu?.backgroundColor};
+          box-shadow: 0 20px 40px ${theme.token.contextMenu?.shadowColor},
+            0 0 0 0.75px ${theme.token.contextMenu?.boxShadowBorderColor};
           min-width: 200px;
-          border: 0.75px solid ${theme.token.contextMenu?.borderColor || "rgba(255, 255, 255, 0.3)"};
+          border: 0.75px solid ${theme.token.contextMenu?.borderColor};
+          backdrop-filter: ${theme.token.contextMenu?.backdropFilter};
         `,
         className
       )}

@@ -52,7 +52,9 @@ export interface ContextMenuTheme {
   dangerColor?: string;
   backgroundColor?: string;
   shadowColor?: string;
+  boxShadowBorderColor?: string;
   borderColor?: string;
+  backdropFilter?: string;
 }
 
 export interface ItemsTheme {
@@ -71,7 +73,9 @@ export interface BaseTheme {
   backgroundColor?: string;
   textColor?: string;
   shadowColor?: string;
+  boxShadowBorderColor?: string;
   borderColor?: string;
+  backdropFilter?: string;
 }
 
 export interface Theme {

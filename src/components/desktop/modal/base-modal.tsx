@@ -71,8 +71,8 @@ const BaseModal = (props: BaseModalProps) => {
             { "modal-closing": isClosing },
             css`
               .rc-dialog-mask {
-                background: ${modalTheme?.mask?.backgroundColor || "rgba(0, 0, 0, 0.3)"};
-                backdrop-filter: ${modalTheme?.mask?.backdropFilter || "blur(20px)"};
+                background: ${modalTheme?.mask?.backgroundColor};
+                backdrop-filter: ${modalTheme?.mask?.backdropFilter};
                 animation: maskFadeIn 0.2s ease-out;
               }
 
@@ -83,7 +83,7 @@ const BaseModal = (props: BaseModalProps) => {
                 }
                 to {
                   opacity: 1;
-                  backdrop-filter: ${modalTheme?.mask?.backdropFilter || "blur(20px)"};
+                  backdrop-filter: ${modalTheme?.mask?.backdropFilter};
                 }
               }
 
@@ -95,12 +95,13 @@ const BaseModal = (props: BaseModalProps) => {
               }
 
               .rc-dialog-content {
-                background: ${modalTheme?.content?.backgroundColor || "rgba(255, 255, 255, 0.77)"};
-                backdrop-filter: ${modalTheme?.content?.backdropFilter || "blur(20px)"};
-                box-shadow: 0 20px 40px ${modalTheme?.content?.boxShadowColor || "rgba(0, 0, 0, 0.15)"}, 0 0 0 0.75px ${modalTheme?.content?.boxShadowBorderColor || "rgba(255, 255, 255, 0.25)"};
-                border: 0.75px solid ${modalTheme?.content?.borderColor || "rgba(255, 255, 255, 0.3)"};
+                background: ${modalTheme?.content?.backgroundColor};
+                backdrop-filter: ${modalTheme?.content?.backdropFilter};
+                box-shadow: 0 20px 40px ${modalTheme?.content?.boxShadowColor},
+                  0 0 0 0.75px ${modalTheme?.content?.boxShadowBorderColor};
+                border: 0.75px solid ${modalTheme?.content?.borderColor};
                 padding: 0;
-                border-radius: ${modalTheme?.content?.borderRadius || "16px"};
+                border-radius: ${modalTheme?.content?.borderRadius};
                 overflow: hidden;
                 animation: modalSlideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
                 position: relative;
@@ -131,7 +132,7 @@ const BaseModal = (props: BaseModalProps) => {
               @keyframes maskFadeOut {
                 from {
                   opacity: 1;
-                  backdrop-filter: ${modalTheme?.mask?.backdropFilter || "blur(20px)"};
+                  backdrop-filter: ${modalTheme?.mask?.backdropFilter};
                 }
                 to {
                   opacity: 0;
@@ -159,7 +160,7 @@ const BaseModal = (props: BaseModalProps) => {
                 position: relative;
 
                 .ant-modal-name {
-                  color: ${modalTheme?.header?.textColor || "#fff"};
+                  color: ${modalTheme?.header?.textColor};
                 }
               }
 
@@ -180,22 +181,22 @@ const BaseModal = (props: BaseModalProps) => {
                 }
 
                 &::-webkit-scrollbar-track {
-                  background: ${modalTheme?.scrollbar?.trackColor || "transparent"};
+                  background: ${modalTheme?.scrollbar?.trackColor};
                 }
 
                 &::-webkit-scrollbar-thumb {
-                  background: ${modalTheme?.scrollbar?.thumbColor || "rgba(156, 163, 175, 0.5)"};
-                  border-radius: ${modalTheme?.scrollbar?.borderRadius || "4px"};
+                  background: ${modalTheme?.scrollbar?.thumbColor};
+                  border-radius: ${modalTheme?.scrollbar?.borderRadius};
                   transition: background-color 0.2s ease;
                 }
 
                 &::-webkit-scrollbar-thumb:hover {
-                  background: ${modalTheme?.scrollbar?.thumbHoverColor || "rgba(156, 163, 175, 0.8)"};
+                  background: ${modalTheme?.scrollbar?.thumbHoverColor};
                 }
 
                 /* Firefox 滚动条样式 */
                 scrollbar-width: thin;
-                scrollbar-color: ${modalTheme?.scrollbar?.thumbColor || "rgba(156, 163, 175, 0.5)"} ${modalTheme?.scrollbar?.trackColor || "transparent"};
+                scrollbar-color: ${modalTheme?.scrollbar?.thumbColor} ${modalTheme?.scrollbar?.trackColor};
               }
             `
           )}
@@ -210,21 +211,21 @@ const BaseModal = (props: BaseModalProps) => {
 
                 /* iOS 风格的滚动条 */
                 &::-webkit-scrollbar {
-                  width: ${modalTheme?.scrollbar?.width || "4px"};
+                  width: ${modalTheme?.scrollbar?.width};
                 }
 
                 &::-webkit-scrollbar-track {
-                  background: ${modalTheme?.scrollbar?.trackColor || "transparent"};
+                  background: ${modalTheme?.scrollbar?.trackColor};
                 }
 
                 &::-webkit-scrollbar-thumb {
-                  background: ${modalTheme?.scrollbar?.thumbColor || "rgba(0, 0, 0, 0.2)"};
-                  border-radius: ${modalTheme?.scrollbar?.borderRadius || "2px"};
+                  background: ${modalTheme?.scrollbar?.thumbColor};
+                  border-radius: ${modalTheme?.scrollbar?.borderRadius};
                   transition: background 0.2s ease;
                 }
 
                 &::-webkit-scrollbar-thumb:hover {
-                  background: ${modalTheme?.scrollbar?.thumbHoverColor || "rgba(0, 0, 0, 0.3)"};
+                  background: ${modalTheme?.scrollbar?.thumbHoverColor};
                 }
               `
             )}
