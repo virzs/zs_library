@@ -21,12 +21,7 @@ export const themeDark: Theme = {
         backdropFilter: "blur(20px)",
         borderRadius: "16px",
       },
-      header: {
-        backgroundColor: "transparent",
-      },
-      body: {
-        backgroundColor: "transparent",
-      },
+      header: {},
       scrollbar: {
         width: "4px",
         trackColor: "transparent",

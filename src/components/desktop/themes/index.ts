@@ -15,11 +15,7 @@ export interface BaseModalTheme {
     borderRadius?: string;
   };
   header?: {
-    backgroundColor?: string;
     textColor?: string;
-  };
-  body?: {
-    backgroundColor?: string;
   };
   scrollbar?: {
     width?: string;

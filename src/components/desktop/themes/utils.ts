@@ -48,7 +48,6 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
       header: {
         textColor: base.textColor,
       },
-      body: {},
       scrollbar: {
         thumbColor: base.shadowColor,
         thumbHoverColor: base.borderColor,

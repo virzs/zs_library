@@ -151,7 +151,7 @@ const BaseModal = (props: BaseModalProps) => {
 
               .rc-dialog-header {
                 text-align: center;
-                background: ${modalTheme?.header?.backgroundColor || "transparent"};
+                background: transparent;
                 margin-bottom: 0;
                 border-bottom: none;
                 padding: 20px 24px 0;
@@ -164,7 +164,7 @@ const BaseModal = (props: BaseModalProps) => {
               }
 
               .rc-dialog-body {
-                background: ${modalTheme?.body?.backgroundColor || "transparent"};
+                background: transparent;
                 border-radius: 0 0 16px 16px;
                 overflow: hidden;
                 border: none;
