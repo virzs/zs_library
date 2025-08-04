@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { RiCheckLine } from "@remixicon/react";
+import { useSortableConfig } from "../context/config/hooks";
 
 export interface SizeMenuItemProps {
   sizes: string[];
@@ -11,6 +12,7 @@ export interface SizeMenuItemProps {
 
 export const SizeSubMenuContent = ({ sizes, currentSize, onSizeChange }: SizeMenuItemProps) => {
   const [hoveredSize, setHoveredSize] = useState<string | null>(null);
+  const { theme } = useSortableConfig();
 
   return (
     <>
@@ -37,9 +39,10 @@ export const SizeSubMenuContent = ({ sizes, currentSize, onSizeChange }: SizeMen
               {(isHovered || isSelected) && (
                 <motion.div
                   className={cx(
-                    "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
+                    "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-rounded-lg",
                     css`
                       z-index: -1;
+                      background-color: ${theme.token.contextMenu?.activeColor || "rgba(0, 0, 0, 0.05)"};
                     `
                   )}
                   initial={{ opacity: 0 }}
@@ -59,7 +62,7 @@ export const SizeSubMenuContent = ({ sizes, currentSize, onSizeChange }: SizeMen
                 css`
                   font-weight: 400;
                   line-height: 18px;
-                  color: #1d1d1f;
+                  color: ${theme.token.contextMenu?.textColor || "#1d1d1f"};
                   letter-spacing: -0.28px;
                 `
               )}
@@ -71,7 +74,7 @@ export const SizeSubMenuContent = ({ sizes, currentSize, onSizeChange }: SizeMen
                 className={cx(
                   "zs-flex zs-items-center zs-justify-center zs-shrink-0",
                   css`
-                    color: black;
+                    color: ${theme.token.contextMenu?.textColor || "#1d1d1f"};
                     width: 18px;
                     height: 18px;
                   `

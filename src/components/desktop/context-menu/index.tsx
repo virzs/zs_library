@@ -37,7 +37,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   } = props;
   const { contextMenu, setContextMenu, hideContextMenu, setShowInfoItemData, removeItem, updateItemConfig } =
     useSortableState();
-  const { typeConfigMap, dataTypeMenuConfigMap } = useSortableConfig();
+  const { typeConfigMap, dataTypeMenuConfigMap, theme } = useSortableConfig();
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
@@ -80,8 +80,8 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               <MenuItem
                 text="移除"
                 icon={<RiIndeterminateCircleLine />}
-                color="#ff3b30"
-                textColor="#ff3b30"
+                color={theme.token.contextMenu?.dangerColor || "#ff3b30"}
+                textColor={theme.token.contextMenu?.dangerColor || "#ff3b30"}
                 index={0}
                 onClick={() => {
                   if (onRemoveClick) {

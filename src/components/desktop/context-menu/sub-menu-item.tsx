@@ -4,6 +4,7 @@ import { useState, useContext, useRef, useEffect } from "react";
 import { RiArrowRightSLine } from "@remixicon/react";
 import { HoverContext } from "./hover-context";
 import ContextMenuContent from "./content";
+import { useSortableConfig } from "../context/config/hooks";
 
 export interface SubMenuItemProps {
   text: string;
@@ -14,21 +15,18 @@ export interface SubMenuItemProps {
   textColor?: string;
 }
 
-export const SubMenuItem = ({
-  text,
-  icon,
-  index,
-  children,
-  color = "black",
-  textColor = "#1d1d1f",
-  ...props
-}: SubMenuItemProps) => {
+export const SubMenuItem = ({ text, icon, index, children, color, textColor, ...props }: SubMenuItemProps) => {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const [subMenuPosition, setSubMenuPosition] = useState({ x: 0, y: 0 });
   const menuItemRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
+  const { theme } = useSortableConfig();
   const isHovered = hoveredIndex === index;
+
+  // 使用主题配置的颜色，如果没有传入自定义颜色的话
+  const finalTextColor = textColor || theme.token.contextMenu?.textColor || "#1d1d1f";
+  const finalIconColor = color || theme.token.contextMenu?.textColor || "black";
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) {
@@ -90,9 +88,10 @@ export const SubMenuItem = ({
           <motion.div
             layoutId="menuHover"
             className={cx(
-              "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
+              "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-rounded-lg",
               css`
                 z-index: -1;
+                background-color: ${theme.token.contextMenu?.activeColor || "rgba(0, 0, 0, 0.05)"};
               `
             )}
             initial={{ opacity: 0 }}
@@ -112,7 +111,7 @@ export const SubMenuItem = ({
           css`
             font-weight: 400;
             line-height: 18px;
-            color: ${textColor};
+            color: ${finalTextColor};
             letter-spacing: -0.28px;
           `
         )}
@@ -123,7 +122,7 @@ export const SubMenuItem = ({
         className={cx(
           "zs-flex zs-items-center zs-justify-center zs-shrink-0",
           css`
-            color: ${color};
+            color: ${finalIconColor};
             width: 18px;
             height: 18px;
           `

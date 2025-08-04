@@ -1,20 +1,24 @@
 import { css, cx } from "@emotion/css";
 import { motion } from "motion/react";
 import { FC } from "react";
+import { useSortableConfig } from "../context/config/hooks";
 
 export interface ContentMenuContextProps extends React.ComponentProps<typeof motion.div> {}
 
 const ContextMenuContent: FC<ContentMenuContextProps> = (props) => {
   const { className, children, ...rest } = props;
+  const { theme } = useSortableConfig();
 
   return (
     <motion.div
       className={cx(
-        "zs-rounded-2xl zs-bg-white zs-bg-opacity-75 zs-backdrop-blur-xl py-2 zs-w-max zs-z-50",
+        "zs-rounded-2xl zs-backdrop-blur-xl py-2 zs-w-max zs-z-50",
         css`
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
+          background-color: ${theme.token.contextMenu?.backgroundColor || "rgba(255, 255, 255, 0.75)"};
+          box-shadow: 0 20px 40px ${theme.token.contextMenu?.shadowColor || "rgba(0, 0, 0, 0.15)"},
+            0 0 0 0.75px rgba(255, 255, 255, 0.25);
           min-width: 200px;
-          border: 0.75px solid rgba(255, 255, 255, 0.3);
+          border: 0.75px solid ${theme.token.contextMenu?.borderColor || "rgba(255, 255, 255, 0.3)"};
         `,
         className
       )}

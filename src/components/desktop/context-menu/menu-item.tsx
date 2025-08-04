@@ -2,6 +2,7 @@ import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "motion/react";
 import { useContext } from "react";
 import { HoverContext } from "./hover-context";
+import { useSortableConfig } from "../context/config/hooks";
 
 export interface MenuItemProps {
   icon?: React.ReactNode;
@@ -13,18 +14,14 @@ export interface MenuItemProps {
   children?: React.ReactNode;
 }
 
-export const MenuItem = ({
-  icon,
-  text,
-  color = "black",
-  textColor = "#1d1d1f",
-  onClick,
-  index,
-  children,
-  ...props
-}: MenuItemProps) => {
+export const MenuItem = ({ icon, text, color, textColor, onClick, index, children, ...props }: MenuItemProps) => {
   const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
+  const { theme } = useSortableConfig();
   const isHovered = hoveredIndex === index;
+
+  // 使用主题配置的颜色，如果没有传入自定义颜色的话
+  const finalTextColor = textColor || theme.token.contextMenu?.textColor || "#1d1d1f";
+  const finalIconColor = color || theme.token.contextMenu?.textColor || "black";
 
   const content = (
     <motion.div
@@ -48,6 +45,7 @@ export const MenuItem = ({
               "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
               css`
                 z-index: -1;
+                background-color: ${theme.token.contextMenu?.activeColor || "rgba(0, 0, 0, 0.05)"};
               `
             )}
             initial={{ opacity: 0 }}
@@ -67,7 +65,7 @@ export const MenuItem = ({
           css`
             font-weight: 400;
             line-height: 18px;
-            color: ${textColor};
+            color: ${finalTextColor};
             letter-spacing: -0.28px;
           `
         )}
@@ -79,7 +77,7 @@ export const MenuItem = ({
           className={cx(
             "zs-flex zs-items-center zs-justify-center zs-shrink-0",
             css`
-              color: ${color};
+              color: ${finalIconColor};
               width: 18px;
               height: 18px;
             `

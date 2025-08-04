@@ -50,6 +50,15 @@ export interface LaunchpadTheme {
   modal?: BaseModalTheme;
 }
 
+export interface ContextMenuTheme {
+  textColor?: string;
+  activeColor?: string;
+  dangerColor?: string;
+  backgroundColor?: string;
+  shadowColor?: string;
+  borderColor?: string;
+}
+
 export interface Theme {
   token: {
     itemNameColor?: string;
@@ -58,12 +67,9 @@ export interface Theme {
     groupItemIconBackgroundColor?: string;
     groupItemIconShadowColor?: string;
     groupItemModalBackgroundColor?: string;
-    contextMenuTextColor?: string;
-    contextMenuActiveColor?: string;
-    contextMenuBackgroundColor?: string;
-    contextMenuShadowColor?: string;
     dock?: DockTheme;
     modal?: BaseModalTheme;
+    contextMenu?: ContextMenuTheme;
   };
 }
 

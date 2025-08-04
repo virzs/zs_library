@@ -8,10 +8,14 @@ export const themeDark: Theme = {
     groupItemIconBackgroundColor: "rgba(0, 0, 0, 0.1)",
     groupItemIconShadowColor: "rgba(0, 0, 0, 0.1)",
     groupItemModalBackgroundColor: "rgba(0, 0, 0, 0.1)",
-    contextMenuTextColor: "white",
-    contextMenuActiveColor: "#1a1a1a",
-    contextMenuBackgroundColor: "#1a1a1a",
-    contextMenuShadowColor: "rgba(255, 255, 255, 0.1)",
+    contextMenu: {
+      textColor: "white",
+      activeColor: "#1a1a1a",
+      dangerColor: "#ff453a",
+      backgroundColor: "rgba(26, 26, 26, 0.75)",
+      shadowColor: "rgba(255, 255, 255, 0.1)",
+      borderColor: "rgba(255, 255, 255, 0.15)",
+    },
     dock: {
       backgroundColor: "rgba(0, 0, 0, 0.8)",
       borderColor: "rgba(255, 255, 255, 0.1)",
