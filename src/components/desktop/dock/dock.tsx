@@ -107,7 +107,7 @@ const Dock = <D, C>({
   return (
     <div
       className={cx(
-        "zs-flex zs-justify-between zs-items-center zs-rounded-2xl py-2 px-4 zs-backdrop-blur-xl zs-gap-1 zs-border zs-transition-colors zs-max-w-full",
+        "zs-flex zs-justify-between zs-items-center zs-rounded-2xl zs-py-3 zs-px-4 zs-backdrop-blur-xl zs-gap-1 zs-border zs-transition-colors zs-max-w-full",
         position === "top" || position === "bottom" ? "zs-flex-row" : "zs-flex-col",
         position === "top" && "zs-mb-4",
         position === "bottom" && "zs-mt-4",

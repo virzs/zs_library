@@ -37,10 +37,10 @@ const StackedIcon: React.FC<StackedIconProps> = ({ onClick, className }) => {
 
   return (
     <motion.div
-      className={cx("zs-w-20 zs-h-20 zs-cursor-pointer zs-relative", className)}
+      className={cx("zs-cursor-pointer zs-relative", className)}
       style={{
         overflow: "visible",
-        padding: "8px", // 调整内边距确保内容区域为64px
+        padding: "0 8px 0 0",
       }}
       whileTap={{ scale: 0.9 }}
       whileHover={{
