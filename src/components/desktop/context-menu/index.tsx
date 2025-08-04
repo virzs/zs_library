@@ -1,365 +1,15 @@
-import { css, cx } from "@emotion/css";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import { getDefaultConfig, getSizeConfig } from "../config";
 import { useSortableState } from "../context/state/hooks";
 import { useSortableConfig } from "../context/config/hooks";
 import { SortItem, SortItemDefaultConfig, MenuItemConfig } from "../types";
-import {
-  RiApps2Line,
-  RiIndeterminateCircleLine,
-  RiInformationLine,
-  RiShare2Line,
-  RiArrowRightSLine,
-  RiCheckLine,
-} from "@remixicon/react";
-import { useState, createContext, useContext, useRef, useEffect } from "react";
-
-// 创建hover状态context
-interface HoverContextType {
-  hoveredIndex: number | null;
-  setHoveredIndex: (index: number | null) => void;
-}
-
-const HoverContext = createContext<HoverContextType>({
-  hoveredIndex: null,
-  setHoveredIndex: () => {},
-});
-
-interface MenuItemProps {
-  icon?: React.ReactNode;
-  text: string;
-  color?: string;
-  textColor?: string;
-  onClick?: () => void;
-  index: number;
-  children?: React.ReactNode;
-}
-
-const MenuItem = ({
-  icon,
-  text,
-  color = "black",
-  textColor = "#1d1d1f",
-  onClick,
-  index,
-  children,
-  ...props
-}: MenuItemProps) => {
-  const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
-  const isHovered = hoveredIndex === index;
-
-  const content = (
-    <motion.div
-      className={cx(
-        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none",
-        css`
-          z-index: 1;
-        `
-      )}
-      onMouseEnter={() => setHoveredIndex(index)}
-      onMouseLeave={() => setHoveredIndex(null)}
-      onClick={onClick}
-      {...props}
-    >
-      {/* 胶囊背景 */}
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            layoutId="menuHover"
-            className={cx(
-              "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
-              css`
-                z-index: -1;
-              `
-            )}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 30,
-            }}
-          />
-        )}
-      </AnimatePresence>
-      <motion.div
-        className={cx(
-          "zs-flex-1 zs-text-sm",
-          css`
-            font-weight: 400;
-            line-height: 18px;
-            color: ${textColor};
-            letter-spacing: -0.28px;
-          `
-        )}
-      >
-        {text}
-      </motion.div>
-      {icon && (
-        <motion.div
-          className={cx(
-            "zs-flex zs-items-center zs-justify-center zs-shrink-0",
-            css`
-              color: ${color};
-              width: 18px;
-              height: 18px;
-            `
-          )}
-        >
-          {icon}
-        </motion.div>
-      )}
-      {children}
-    </motion.div>
-  );
-
-  return content;
-};
-
-interface SubMenuItemProps {
-  text: string;
-  icon: React.ReactNode;
-  index: number;
-  children: React.ReactNode;
-  color?: string;
-  textColor?: string;
-}
-
-const SubMenuItem = ({
-  text,
-  icon,
-  index,
-  children,
-  color = "black",
-  textColor = "#1d1d1f",
-  ...props
-}: SubMenuItemProps) => {
-  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
-  const [subMenuPosition, setSubMenuPosition] = useState({ x: 0, y: 0 });
-  const menuItemRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
-  const isHovered = hoveredIndex === index;
-
-  const handleMouseEnter = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    setHoveredIndex(index);
-    setIsSubMenuOpen(true);
-
-    if (menuItemRef.current) {
-      const rect = menuItemRef.current.getBoundingClientRect();
-      setSubMenuPosition({
-        x: rect.width - 4,
-        y: 0,
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsSubMenuOpen(false);
-    }, 150);
-  };
-
-  const handleSubMenuMouseEnter = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-  };
-
-  const handleSubMenuMouseLeave = () => {
-    setIsSubMenuOpen(false);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
-  return (
-    <motion.div
-      ref={menuItemRef}
-      className={cx(
-        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none",
-        css`
-          z-index: 1;
-        `
-      )}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      {...props}
-    >
-      {/* 胶囊背景 */}
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            layoutId="menuHover"
-            className={cx(
-              "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
-              css`
-                z-index: -1;
-              `
-            )}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 30,
-            }}
-          />
-        )}
-      </AnimatePresence>
-      <motion.div
-        className={cx(
-          "zs-flex-1 zs-text-sm",
-          css`
-            font-weight: 400;
-            line-height: 18px;
-            color: ${textColor};
-            letter-spacing: -0.28px;
-          `
-        )}
-      >
-        {text}
-      </motion.div>
-      <motion.div
-        className={cx(
-          "zs-flex zs-items-center zs-justify-center zs-shrink-0",
-          css`
-            color: ${color};
-            width: 18px;
-            height: 18px;
-          `
-        )}
-      >
-        <RiArrowRightSLine size={16} />
-      </motion.div>
-
-      <AnimatePresence>
-        {isSubMenuOpen && (
-          <motion.div
-            className={cx(
-              "zs-absolute zs-rounded-2xl zs-overflow-hidden zs-bg-white zs-bg-opacity-75 zs-backdrop-blur-xl zs-p-2 zs-z-50",
-              css`
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
-                min-width: 192px;
-                border: 0.75px solid rgba(255, 255, 255, 0.3);
-                left: ${subMenuPosition.x}px;
-                top: ${subMenuPosition.y}px;
-              `
-            )}
-            initial={{ opacity: 0, scale: 0.95, x: -8 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.95, x: -8 }}
-            transition={{
-              type: "spring",
-              stiffness: 500,
-              damping: 35,
-              duration: 0.12,
-            }}
-            onMouseEnter={handleSubMenuMouseEnter}
-            onMouseLeave={handleSubMenuMouseLeave}
-          >
-            {children}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-};
-
-interface SizeMenuItemProps {
-  sizes: string[];
-  currentSize: string;
-  onSizeChange: (size: string) => void;
-}
-
-const SizeSubMenuContent = ({ sizes, currentSize, onSizeChange }: SizeMenuItemProps) => {
-  const [hoveredSize, setHoveredSize] = useState<string | null>(null);
-
-  return (
-    <>
-      {sizes.map((size) => {
-        const isHovered = hoveredSize === size;
-        const isSelected = currentSize === size;
-
-        return (
-          <motion.div
-            key={size}
-            className={cx(
-              "zs-h-10 zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-outline-none",
-              css`
-                z-index: 1;
-              `
-            )}
-            onMouseEnter={() => setHoveredSize(size)}
-            onMouseLeave={() => setHoveredSize(null)}
-            onClick={() => onSizeChange(size)}
-            whileTap={{ scale: 0.98 }}
-          >
-            {/* 胶囊背景 */}
-            <AnimatePresence>
-              {(isHovered || isSelected) && (
-                <motion.div
-                  className={cx(
-                    "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-bg-black zs-bg-opacity-5 zs-rounded-lg",
-                    css`
-                      z-index: -1;
-                    `
-                  )}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 400,
-                    damping: 30,
-                  }}
-                />
-              )}
-            </AnimatePresence>
-            <motion.div
-              className={cx(
-                "zs-flex-1 zs-text-sm",
-                css`
-                  font-weight: 400;
-                  line-height: 18px;
-                  color: #1d1d1f;
-                  letter-spacing: -0.28px;
-                `
-              )}
-            >
-              {size}
-            </motion.div>
-            {isSelected && (
-              <motion.div
-                className={cx(
-                  "zs-flex zs-items-center zs-justify-center zs-shrink-0",
-                  css`
-                    color: black;
-                    width: 18px;
-                    height: 18px;
-                  `
-                )}
-              >
-                <RiCheckLine size={14} />
-              </motion.div>
-            )}
-          </motion.div>
-        );
-      })}
-    </>
-  );
-};
+import { RiApps2Line, RiIndeterminateCircleLine, RiInformationLine, RiShare2Line } from "@remixicon/react";
+import { useState } from "react";
+import ContextMenuContent from "./content";
+import { HoverContext } from "./hover-context";
+import { MenuItem } from "./menu-item";
+import { SubMenuItem } from "./sub-menu-item";
+import { SizeSubMenuContent } from "./size-sub-menu-content";
 
 export interface ContextMenuProps<D, C> {
   showShareButton?: boolean;
@@ -420,30 +70,9 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     <AnimatePresence>
       {contextMenu && isOpen && (
         <HoverContext.Provider value={{ hoveredIndex, setHoveredIndex }}>
-          <motion.div
-            className={cx(
-              "zs-rounded-2xl zs-bg-white zs-bg-opacity-75 zs-backdrop-blur-xl py-2 zs-w-max zs-z-50",
-              css`
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 0.75px rgba(255, 255, 255, 0.25);
-                min-width: 200px;
-                border: 0.75px solid rgba(255, 255, 255, 0.3);
-              `
-            )}
+          <ContextMenuContent
             style={{
               transformOrigin: animationOrigin,
-            }}
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.6 }}
-            transition={{
-              type: "spring",
-              stiffness: 400,
-              damping: 30,
-              duration: 0.15,
-            }}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
             }}
           >
             {/* 移除 - 第一个选项 */}
@@ -558,7 +187,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                 />
               );
             })}
-          </motion.div>
+          </ContextMenuContent>
         </HoverContext.Provider>
       )}
     </AnimatePresence>
@@ -566,3 +195,13 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 };
 
 export default ContextMenu;
+
+// 导出子组件供外部使用
+export { MenuItem } from "./menu-item";
+export { SubMenuItem } from "./sub-menu-item";
+export { SizeSubMenuContent } from "./size-sub-menu-content";
+export { HoverContext } from "./hover-context";
+export type { MenuItemProps } from "./menu-item";
+export type { SubMenuItemProps } from "./sub-menu-item";
+export type { SizeMenuItemProps } from "./size-sub-menu-content";
+export type { HoverContextType } from "./hover-context";
