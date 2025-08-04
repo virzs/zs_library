@@ -3,7 +3,7 @@ import { Theme } from ".";
 export const themeLight: Theme = {
   token: {
     base: {
-      primaryColor: "#f3f4f6",
+      hoverColor: "rgba(0, 0, 0, 0.05)",
       dangerColor: "#ff3b30",
       backgroundColor: "rgba(255, 255, 255, 0.75)",
       textColor: "#333333",

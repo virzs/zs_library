@@ -3,7 +3,7 @@ import { Theme } from ".";
 export const themeDark: Theme = {
   token: {
     base: {
-      primaryColor: "#1a1a1a",
+      hoverColor: "rgba(255, 255, 255, 0.05)",
       dangerColor: "#ff3b30",
       backgroundColor: "rgba(26, 26, 26, 0.75)",
       textColor: "white",

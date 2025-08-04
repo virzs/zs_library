@@ -12,7 +12,7 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
   return deepMerge(lightToken, {
     contextMenu: {
       textColor: base.textColor,
-      activeColor: base.primaryColor,
+      activeColor: base.hoverColor,
       dangerColor: base.dangerColor,
       backgroundColor: base.backgroundColor,
       shadowColor: base.shadowColor,

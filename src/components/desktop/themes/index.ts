@@ -68,7 +68,7 @@ export interface ItemsTheme {
 }
 
 export interface BaseTheme {
-  primaryColor?: string;
+  hoverColor?: string;
   dangerColor?: string;
   backgroundColor?: string;
   textColor?: string;
