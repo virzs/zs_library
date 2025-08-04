@@ -85,14 +85,10 @@ export function mergeTheme(theme: Theme | "light" | "dark"): Theme {
   }
 
   // 确定使用的 base 配置
-  let baseConfig: BaseTheme;
-  if (theme.token.base) {
-    baseConfig = theme.token.base;
-  } else {
-    // 根据现有配置推断使用哪个内置 base
-    const isDark = theme.token.contextMenu?.textColor === "white" || theme.token.items?.textColor === "white";
-    baseConfig = isDark ? themeDark.token.base! : themeLight.token.base!;
-  }
+  let baseConfig: BaseTheme = {
+    ...themeLight.token.base,
+    ...theme.token.base,
+  };
 
   // 基于 base 配置生成完整主题
   const generatedToken = generateThemeFromBase(baseConfig);
