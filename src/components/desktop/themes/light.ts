@@ -12,7 +12,7 @@ export const themeLight: Theme = {
       infoModalBackgroundColor: "#272822",
     },
     contextMenu: {
-      textColor: "black",
+      textColor: "#333333",
       activeColor: "#f3f4f6",
       dangerColor: "#ff3b30",
       backgroundColor: "rgba(255, 255, 255, 0.75)",
