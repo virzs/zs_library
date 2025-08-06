@@ -55,8 +55,8 @@ const StackedIcon: React.FC<StackedIconProps> = ({ onClick, className }) => {
       <div
         className="zs-relative"
         style={{
-          width: "64px", // 明确设置为64px标准大小
-          height: "64px", // 明确设置为64px标准大小
+          width: "56px",
+          height: "56px",
           overflow: "visible",
         }}
       >
