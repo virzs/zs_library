@@ -50,6 +50,13 @@ export interface DockTheme {
         };
       };
     };
+    icon?: {
+      textColor?: string;
+      backgroundColor?: string;
+      borderColor?: string;
+      shadowColor?: string;
+      hoverGlowColor?: string;
+    };
   };
 }
 

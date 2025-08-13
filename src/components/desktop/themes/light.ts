@@ -45,6 +45,13 @@ export const themeLight: Theme = {
             },
           },
         },
+        icon: {
+          textColor: "rgba(60, 60, 67, 0.8)",
+          backgroundColor: "#ffffff",
+          borderColor: "rgba(0, 0, 0, 0.1)",
+          shadowColor: "rgba(0, 0, 0, 0.15)",
+          hoverGlowColor: "rgba(0, 0, 0, 0.1)",
+        },
       },
     },
     modal: {
