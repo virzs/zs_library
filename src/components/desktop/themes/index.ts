@@ -63,8 +63,19 @@ export interface ItemsTheme {
   iconShadowColor?: string;
   groupIconBackgroundColor?: string;
   groupIconShadowColor?: string;
-  groupModalBackgroundColor?: string;
   infoModalBackgroundColor?: string;
+  groupModal?: {
+    backgroundColor?: string;
+    title?: {
+      textColor?: string;
+      backgroundColor?: string;
+      hoverBackgroundColor?: string;
+      focusBackgroundColor?: string;
+      shadowColor?: string;
+      placeholderColor?: string;
+      selectionBackgroundColor?: string;
+    };
+  };
 }
 
 export interface BaseTheme {

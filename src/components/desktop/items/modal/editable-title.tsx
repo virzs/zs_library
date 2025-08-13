@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css";
 import { FC, useState } from "react";
+import { useSortableConfig } from "../../context/config/hooks";
 
 interface EditableTitleProps {
   value: string;
@@ -10,6 +11,7 @@ interface EditableTitleProps {
 
 const EditableTitle: FC<EditableTitleProps> = ({ value, onChange, onBlur, placeholder = "标题" }) => {
   const [localValue, setLocalValue] = useState(value);
+  const { theme } = useSortableConfig();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -27,30 +29,31 @@ const EditableTitle: FC<EditableTitleProps> = ({ value, onChange, onBlur, placeh
         "zs-bg-transparent zs-text-center zs-text-xl zs-w-full zs-rounded-lg py-2 px-4",
         css`
           border-style: none;
-          color: #1d1d1f;
+          color: ${theme.token.items?.groupModal?.title?.textColor};
           font-weight: 600;
           letter-spacing: -0.5px;
           transition: all 0.2s ease-out;
+          background: ${theme.token.items?.groupModal?.title?.backgroundColor};
 
           &:focus {
             outline: none;
-            background: rgba(0, 0, 0, 0.06);
+            background: ${theme.token.items?.groupModal?.title?.focusBackgroundColor};
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+            box-shadow: 0 0 0 2px ${theme.token.items?.groupModal?.title?.shadowColor};
             transform: scale(1.02);
           }
 
           &:hover {
-            background: rgba(0, 0, 0, 0.03);
+            background: ${theme.token.items?.groupModal?.title?.hoverBackgroundColor};
           }
 
           &::placeholder {
-            color: rgba(29, 29, 31, 0.6);
+            color: ${theme.token.items?.groupModal?.title?.placeholderColor};
           }
 
           &::selection {
-            background: rgba(0, 122, 255, 0.3);
+            background: ${theme.token.items?.groupModal?.title?.selectionBackgroundColor};
           }
         `
       )}

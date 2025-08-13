@@ -12,7 +12,20 @@ export const themeLight: Theme = {
       borderColor: "rgba(255, 255, 255, 0.3)",
       backdropFilter: "blur(20px)",
     },
-    items: {},
+    items: {
+      groupModal: {
+        backgroundColor: "rgba(255, 255, 255, 0.95)",
+        title: {
+          textColor: "#1d1d1f",
+          backgroundColor: "transparent",
+          hoverBackgroundColor: "rgba(0, 0, 0, 0.03)",
+          focusBackgroundColor: "rgba(0, 0, 0, 0.06)",
+          shadowColor: "rgba(0, 122, 255, 0.3)",
+          placeholderColor: "rgba(29, 29, 31, 0.6)",
+          selectionBackgroundColor: "rgba(0, 122, 255, 0.3)",
+        },
+      },
+    },
     contextMenu: {},
     dock: {},
     modal: {
