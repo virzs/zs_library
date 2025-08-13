@@ -27,7 +27,26 @@ export const themeLight: Theme = {
       },
     },
     contextMenu: {},
-    dock: {},
+    dock: {
+      launchpad: {
+        modal: {
+          searchBox: {
+            iconColor: "rgba(60, 60, 67, 0.6)",
+            iconFocusColor: "#007aff",
+            backgroundColor: "rgba(118, 118, 128, 0.12)",
+            focusBackgroundColor: "rgba(118, 118, 128, 0.2)",
+            textColor: "#1d1d1f",
+            placeholderColor: "rgba(60, 60, 67, 0.6)",
+            shadowColor: "rgba(0, 0, 0, 0.1)",
+            clearButton: {
+              backgroundColor: "rgba(60, 60, 67, 0.3)",
+              hoverBackgroundColor: "rgba(60, 60, 67, 0.5)",
+              textColor: "white",
+            },
+          },
+        },
+      },
+    },
     modal: {
       mask: {
         backdropFilter: "blur(20px)",

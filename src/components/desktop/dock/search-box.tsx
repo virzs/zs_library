@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { RiSearchLine, RiCloseLine } from "@remixicon/react";
 import { css, cx } from "@emotion/css";
+import { useSortableConfig } from "../context/config/hooks";
 
 interface SearchBoxProps {
   value: string;
@@ -14,6 +15,7 @@ const easeOutQuad = css`
 `;
 
 const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, placeholder = "æœç´¢åº”ç”¨", className = "" }) => {
+  const { theme } = useSortableConfig();
   const inputRef = useRef<HTMLInputElement>(null);
   const searchIconRef = useRef<HTMLDivElement>(null);
   const clearButtonRef = useRef<HTMLButtonElement>(null);
@@ -52,9 +54,11 @@ const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, placeholder = "æ
       <div
         ref={searchIconRef}
         className={cx(
-          "zs-absolute zs-left-4 zs-top-1/2 zs-transform zs--translate-y-1/2 zs-pointer-events-none zs-transition-all zs-duration-300 zs-text-[rgba(60,60,67,0.6)]",
+          "zs-absolute zs-left-4 zs-top-1/2 zs-transform zs--translate-y-1/2 zs-pointer-events-none zs-transition-all zs-duration-300",
           css`
-            color: ${isFocused ? "#007aff" : "rgba(60,60,67,0.6)"};
+            color: ${isFocused
+              ? theme.token.dock?.launchpad?.modal?.searchBox?.iconFocusColor
+              : theme.token.dock?.launchpad?.modal?.searchBox?.iconColor};
           `,
           easeOutQuad
         )}
@@ -66,7 +70,18 @@ const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, placeholder = "æ
       <input
         ref={inputRef}
         className={cx(
-          "zs-w-full zs-h-11 zs-pl-12 zs-pr-12 zs-border-none zs-rounded-[22px] zs-bg-[rgba(118,118,128,0.12)] zs-text-base zs-text-[#1d1d1f] zs-outline-none zs-transition-all zs-duration-300 placeholder:zs-text-[rgba(60,60,67,0.6)] placeholder:zs-font-normal focus:zs-bg-[rgba(118,118,128,0.2)] focus:zs-scale-[1.02] focus:zs-shadow-[0_4px_20px_rgba(0,0,0,0.1)]",
+          "zs-w-full zs-h-11 zs-pl-12 zs-pr-12 zs-border-none zs-rounded-[22px] zs-text-base zs-outline-none zs-transition-all zs-duration-300 placeholder:zs-font-normal focus:zs-scale-[1.02]",
+          css`
+            background-color: ${theme.token.dock?.launchpad?.modal?.searchBox?.backgroundColor};
+            color: ${theme.token.dock?.launchpad?.modal?.searchBox?.textColor};
+            &::placeholder {
+              color: ${theme.token.dock?.launchpad?.modal?.searchBox?.placeholderColor};
+            }
+            &:focus {
+              background-color: ${theme.token.dock?.launchpad?.modal?.searchBox?.focusBackgroundColor};
+              box-shadow: 0 4px 20px ${theme.token.dock?.launchpad?.modal?.searchBox?.shadowColor};
+            }
+          `,
           easeOutQuad
         )}
         type="text"
@@ -82,7 +97,14 @@ const SearchBox: React.FC<SearchBoxProps> = ({ value, onChange, placeholder = "æ
         <button
           ref={clearButtonRef}
           className={cx(
-            "zs-absolute zs-right-3 zs-top-1/2 zs-transform zs--translate-y-1/2 zs-w-5 zs-h-5 zs-rounded-full zs-bg-[rgba(60,60,67,0.3)] zs-border-none zs-text-white zs-text-xs zs-cursor-pointer zs-flex zs-items-center zs-justify-center zs-transition-all zs-duration-300 hover:zs-bg-[rgba(60,60,67,0.5)] hover:zs-scale-110 active:zs-scale-95",
+            "zs-absolute zs-right-3 zs-top-1/2 zs-transform zs--translate-y-1/2 zs-w-5 zs-h-5 zs-rounded-full zs-border-none zs-text-xs zs-cursor-pointer zs-flex zs-items-center zs-justify-center zs-transition-all zs-duration-300 hover:zs-scale-110 active:zs-scale-95",
+            css`
+              background-color: ${theme.token.dock?.launchpad?.modal?.searchBox?.clearButton?.backgroundColor};
+              color: ${theme.token.dock?.launchpad?.modal?.searchBox?.clearButton?.textColor};
+              &:hover {
+                background-color: ${theme.token.dock?.launchpad?.modal?.searchBox?.clearButton?.hoverBackgroundColor};
+              }
+            `,
             easeOutQuad
           )}
           onClick={handleClear}
