@@ -26,8 +26,10 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
       iconShadowColor: base.shadowColor,
       groupIconBackgroundColor: base.backgroundColor,
       groupIconShadowColor: base.shadowColor,
-      groupModalBackgroundColor: base.backgroundColor,
       infoModalBackgroundColor: base.backgroundColor,
+      groupModal: {
+        backgroundColor: base.backgroundColor,
+      },
     },
     dock: {
       backgroundColor: base.backgroundColor,
@@ -58,15 +60,21 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
 /**
  * 深度合并对象
  */
-function deepMerge<T>(target: T, source: Partial<T>): T {
+function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
   const result = { ...target };
 
   for (const key in source) {
     if (source[key] !== undefined) {
-      if (typeof source[key] === "object" && source[key] !== null && !Array.isArray(source[key])) {
-        result[key] = deepMerge(result[key] || ({} as any), source[key] as any);
+      const sourceValue = source[key];
+      const targetValue = result[key];
+
+      if (typeof sourceValue === "object" && sourceValue !== null && !Array.isArray(sourceValue)) {
+        result[key] = deepMerge(
+          (targetValue as Record<string, unknown>) || {},
+          sourceValue as Record<string, unknown>
+        ) as T[Extract<keyof T, string>];
       } else {
-        result[key] = source[key] as any;
+        result[key] = sourceValue as T[Extract<keyof T, string>];
       }
     }
   }
@@ -85,7 +93,7 @@ export function mergeTheme(theme: Theme | "light" | "dark"): Theme {
   }
 
   // 确定使用的 base 配置
-  let baseConfig: BaseTheme = {
+  const baseConfig: BaseTheme = {
     ...themeLight.token.base,
     ...theme.token.base,
   };

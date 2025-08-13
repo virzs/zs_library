@@ -77,7 +77,7 @@ const Dock = <D, C>({
       return itemBuilder(item, index);
     }
 
-    return <SortableItem data={item} itemIndex={index} noLetters from="dock" />;
+    return <SortableItem data={item} itemIndex={index} noLetters from="dock" iconSize={56} />;
   };
 
   const renderFixedItem = (item: SortItem, index: number) => {
@@ -85,7 +85,7 @@ const Dock = <D, C>({
       return fixedItemBuilder(item, index);
     }
 
-    return <SortableItem data={item} itemIndex={index} noLetters from="dock" disabledDrag />;
+    return <SortableItem data={item} itemIndex={index} noLetters from="dock" disabledDrag iconSize={56} />;
   };
 
   if (!items.length && !fixedItems.length && !showLaunchpad) {

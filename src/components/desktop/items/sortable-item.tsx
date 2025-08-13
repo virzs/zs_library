@@ -20,6 +20,7 @@ export interface SortableItemProps<D, C> {
   childrenLength?: number;
   contextMenuProps?: false | Partial<ContextMenuProps<D, C>>;
   icon?: React.ReactNode;
+  iconSize?: number;
   /**
    * 来源 当前仅支持 dock
    */
@@ -27,7 +28,7 @@ export interface SortableItemProps<D, C> {
 }
 
 export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>) => {
-  const { data, noLetters = false, icon, from } = props;
+  const { data, noLetters = false, icon, from, iconSize = 64 } = props;
   const { contextMenuFuns } = useSortableState();
   const { itemIconBuilder: configItemIconBuilder, theme, contextMenu } = useSortableConfig();
 
@@ -38,11 +39,13 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
     <>
       <motion.div
         className={cx(
-          "zs-w-16 zs-h-16 zs-cursor-pointer zs-relative zs-overflow-hidden",
+          "zs-cursor-pointer zs-relative zs-overflow-hidden",
           css`
             background-color: ${theme.token.items?.iconBackgroundColor};
             border-radius: 0.75rem;
             box-shadow: 0 0 0.5rem ${theme.token.items?.iconShadowColor};
+            width: ${iconSize}px;
+            height: ${iconSize}px;
           `
         )}
         whileTap={{ scale: 0.9 }}

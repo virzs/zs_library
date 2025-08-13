@@ -121,7 +121,7 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
       }
       width={900}
     >
-      <div className={cx("zs-relative zs-overflow-hidden zs-h-[60vh] zs-max-h-[600px]")}>
+      <div className={cx("zs-relative zs-overflow-hidden zs-min-h-[60vh] zs-max-h-[600px]")}>
         {allApps.length === 0 ? (
           <div className="zs-flex-1 zs-flex zs-items-center zs-justify-center zs-flex-col zs-text-[#8e8e93] zs-text-xl zs-font-medium zs-text-center">
             <div className="zs-text-6xl zs-mb-4 zs-opacity-60">{searchQuery.trim() ? "🔍" : "📱"}</div>

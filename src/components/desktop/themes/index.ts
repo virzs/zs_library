@@ -33,6 +33,31 @@ export interface DockTheme {
   divider?: {
     color?: string;
   };
+  launchpad?: {
+    modal?: {
+      searchBox?: {
+        iconColor?: string;
+        iconFocusColor?: string;
+        backgroundColor?: string;
+        focusBackgroundColor?: string;
+        textColor?: string;
+        placeholderColor?: string;
+        shadowColor?: string;
+        clearButton?: {
+          backgroundColor?: string;
+          hoverBackgroundColor?: string;
+          textColor?: string;
+        };
+      };
+    };
+    icon?: {
+      textColor?: string;
+      backgroundColor?: string;
+      borderColor?: string;
+      shadowColor?: string;
+      hoverGlowColor?: string;
+    };
+  };
 }
 
 export interface LaunchpadTheme {
@@ -63,8 +88,19 @@ export interface ItemsTheme {
   iconShadowColor?: string;
   groupIconBackgroundColor?: string;
   groupIconShadowColor?: string;
-  groupModalBackgroundColor?: string;
   infoModalBackgroundColor?: string;
+  groupModal?: {
+    backgroundColor?: string;
+    title?: {
+      textColor?: string;
+      backgroundColor?: string;
+      hoverBackgroundColor?: string;
+      focusBackgroundColor?: string;
+      shadowColor?: string;
+      placeholderColor?: string;
+      selectionBackgroundColor?: string;
+    };
+  };
 }
 
 export interface BaseTheme {

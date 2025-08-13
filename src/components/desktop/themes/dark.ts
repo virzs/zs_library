@@ -12,9 +12,48 @@ export const themeDark: Theme = {
       borderColor: "rgba(255, 255, 255, 0.15)",
       backdropFilter: "blur(20px)",
     },
-    items: {},
+    items: {
+      groupModal: {
+        backgroundColor: "rgba(26, 26, 26, 0.95)",
+        title: {
+          textColor: "white",
+          backgroundColor: "transparent",
+          hoverBackgroundColor: "rgba(255, 255, 255, 0.03)",
+          focusBackgroundColor: "rgba(255, 255, 255, 0.06)",
+          shadowColor: "rgba(0, 122, 255, 0.3)",
+          placeholderColor: "rgba(255, 255, 255, 0.6)",
+          selectionBackgroundColor: "rgba(0, 122, 255, 0.3)",
+        },
+      },
+    },
     contextMenu: {},
-    dock: {},
+    dock: {
+      launchpad: {
+        modal: {
+          searchBox: {
+            iconColor: "rgba(255, 255, 255, 0.8)",
+            iconFocusColor: "#007aff",
+            backgroundColor: "rgba(118, 118, 128, 0.24)",
+            focusBackgroundColor: "rgba(118, 118, 128, 0.36)",
+            textColor: "white",
+            placeholderColor: "rgba(255, 255, 255, 0.7)",
+            shadowColor: "rgba(0, 0, 0, 0.3)",
+            clearButton: {
+              backgroundColor: "rgba(255, 255, 255, 0.3)",
+              hoverBackgroundColor: "rgba(255, 255, 255, 0.5)",
+              textColor: "rgba(0, 0, 0, 0.8)",
+            },
+          },
+        },
+        icon: {
+          textColor: "rgba(255, 255, 255, 0.8)",
+          backgroundColor: "rgba(45, 45, 45, 0.9)",
+          borderColor: "rgba(255, 255, 255, 0.15)",
+          shadowColor: "rgba(0, 0, 0, 0.3)",
+          hoverGlowColor: "rgba(255, 255, 255, 0.1)",
+        },
+      },
+    },
     modal: {
       mask: {
         backdropFilter: "blur(20px)",

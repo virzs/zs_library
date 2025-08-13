@@ -3,6 +3,8 @@ import { css, cx } from "@emotion/css";
 import { motion } from "motion/react";
 import { RiFunctionFill } from "@remixicon/react";
 import { useState } from "react";
+import { Theme } from "../themes";
+import { useSortableConfig } from "../context/config/hooks";
 
 export interface StackedIconProps {
   /**
@@ -13,10 +15,61 @@ export interface StackedIconProps {
    * 自定义类名
    */
   className?: string;
+  /**
+   * 主题配置
+   */
+  theme?: Theme;
 }
 
 const StackedIcon: React.FC<StackedIconProps> = ({ onClick, className }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { theme } = useSortableConfig();
+
+  // 获取主题配置
+  const iconTheme = theme?.token?.dock?.launchpad?.icon;
+  const textColor = iconTheme!.textColor!;
+  const backgroundColor = iconTheme!.backgroundColor!;
+  const borderColor = iconTheme!.borderColor!;
+  const shadowColor = iconTheme!.shadowColor!;
+  const hoverGlowColor = iconTheme!.hoverGlowColor!;
+
+  // 基于基础背景色计算多层背景色
+  const calculateLayerColor = (baseColor: string, layer: number): string => {
+    // 如果是hex颜色，转换为rgb
+    if (baseColor.startsWith("#")) {
+      const hex = baseColor.slice(1);
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+
+      // 每层递减约10-15的亮度值
+      const factor = layer * 15;
+      const newR = Math.max(0, r - factor);
+      const newG = Math.max(0, g - factor);
+      const newB = Math.max(0, b - factor);
+
+      return `rgb(${newR}, ${newG}, ${newB})`;
+    }
+
+    // 如果是rgba颜色，保持透明度不变，调整RGB值
+    const rgbaMatch = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    if (rgbaMatch) {
+      const r = parseInt(rgbaMatch[1]);
+      const g = parseInt(rgbaMatch[2]);
+      const b = parseInt(rgbaMatch[3]);
+      const a = rgbaMatch[4] || "1";
+
+      const factor = layer * 15;
+      const newR = Math.max(0, r - factor);
+      const newG = Math.max(0, g - factor);
+      const newB = Math.max(0, b - factor);
+
+      return `rgba(${newR}, ${newG}, ${newB}, ${a})`;
+    }
+
+    // 如果无法解析，返回原色
+    return baseColor;
+  };
 
   // 模拟的堆叠应用图标
   const stackedApps = [
@@ -55,8 +108,8 @@ const StackedIcon: React.FC<StackedIconProps> = ({ onClick, className }) => {
       <div
         className="zs-relative"
         style={{
-          width: "64px", // 明确设置为64px标准大小
-          height: "64px", // 明确设置为64px标准大小
+          width: "56px",
+          height: "56px",
           overflow: "visible",
         }}
       >
@@ -70,22 +123,26 @@ const StackedIcon: React.FC<StackedIconProps> = ({ onClick, className }) => {
           const scale = 1 - index * 0.05; // 所有图标依次缩小
           const zIndex = stackedApps.length - index;
 
+          // 根据层级获取背景色
+          const getBackgroundColor = (index: number) => {
+            if (index === 0) {
+              return backgroundColor;
+            }
+            return calculateLayerColor(backgroundColor, index);
+          };
+
           return (
             <motion.div
               key={app.id}
               className={cx(
-                "zs-absolute zs-w-full zs-h-full zs-rounded-xl zs-flex zs-items-center zs-justify-center zs-text-gray-600 zs-shadow-lg",
+                "zs-absolute zs-w-full zs-h-full zs-rounded-xl zs-flex zs-items-center zs-justify-center zs-shadow-lg",
                 css`
-                  background: ${index === 0
-                    ? "#ffffff"
-                    : index === 1
-                    ? "#f5f5f5"
-                    : index === 2
-                    ? "#e5e5e5"
-                    : "#d5d5d5"};
+                  background: ${getBackgroundColor(index)};
+                  color: ${textColor};
                   z-index: ${zIndex};
-                  box-shadow: 0 ${1 + index * 0.5}px ${4 + index * 1}px rgba(0, 0, 0, ${0.1 + index * 0.02});
-                  border: 0.5px solid rgba(255, 255, 255, 0.15);
+                  box-shadow: 0 ${1 + index * 0.5}px ${4 + index * 1}px
+                    ${shadowColor.replace(/[\d.]+\)$/, `${0.1 + index * 0.02})`)};
+                  border: 0.5px solid ${borderColor};
                 `
               )}
               initial={{ opacity: 0, scale: 0.8 }}
@@ -118,7 +175,7 @@ const StackedIcon: React.FC<StackedIconProps> = ({ onClick, className }) => {
         className={cx(
           "zs-absolute zs-inset-0 zs-rounded-xl zs-pointer-events-none",
           css`
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            background: radial-gradient(circle, ${hoverGlowColor} 0%, transparent 70%);
             opacity: 0;
           `
         )}
