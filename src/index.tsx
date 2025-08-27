@@ -45,6 +45,7 @@ export type {
   DesktopSortItemDefaultConfig,
   DesktopTypeConfigMap,
   DesktopSortItem,
+  DesktopListItem,
   DesktopSortItemBaseData,
   DesktopTheme,
 

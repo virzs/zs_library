@@ -30,6 +30,7 @@ export type {
   SortItemUserConfig as DesktopSortItemUserConfig,
   SortItemDefaultConfig as DesktopSortItemDefaultConfig,
   SortItem as DesktopSortItem,
+  ListItem as DesktopListItem,
   SortItemBaseData as DesktopSortItemBaseData,
   TypeConfigMap as DesktopTypeConfigMap,
 } from "./desktop/types";
