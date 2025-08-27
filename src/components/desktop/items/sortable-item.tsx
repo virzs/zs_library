@@ -28,9 +28,11 @@ export interface SortableItemProps<D, C> {
 }
 
 export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>) => {
-  const { data, noLetters = false, icon, from, iconSize = 64 } = props;
+  const { data, noLetters = false, icon, from, iconSize = 64, contextMenuProps } = props;
   const { contextMenuFuns } = useSortableState();
-  const { itemIconBuilder: configItemIconBuilder, theme, contextMenu } = useSortableConfig();
+  const { itemIconBuilder: configItemIconBuilder, theme, contextMenu: contextMenuState } = useSortableConfig();
+
+  const contextMenu = contextMenuProps != false ? contextMenuProps || contextMenuState : contextMenuProps;
 
   const { data: itemData = {} } = data;
   const { name } = itemData as D & SortItemBaseData;
