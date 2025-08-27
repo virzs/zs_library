@@ -5,7 +5,7 @@ import "rc-dialog/assets/index.css";
 import { ReactNode, useEffect, useState } from "react";
 import { useSortableConfig } from "../context/config/hooks";
 
-interface BaseModalProps {
+export interface BaseModalProps {
   visible: boolean;
   onClose: () => void;
   title?: ReactNode;

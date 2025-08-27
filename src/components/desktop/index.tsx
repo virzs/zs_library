@@ -130,4 +130,8 @@ export {
 export { Dock, LaunchpadModal, LaunchpadButton } from "./dock";
 export type { DockProps, LaunchpadModalProps, LaunchpadButtonProps } from "./dock";
 
+// 导出modal相关组件
+export { BaseModal } from "./modal";
+export type { BaseModalProps } from "./modal";
+
 export default Desktop;

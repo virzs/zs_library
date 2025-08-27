@@ -56,6 +56,10 @@ export type {
   LaunchpadButtonProps as DesktopLaunchpadButtonProps,
 } from "./desktop/dock";
 
+// 导出desktop modal相关组件
+export { BaseModal as DesktopBaseModal } from "./desktop/modal";
+export type { BaseModalProps as DesktopBaseModalProps } from "./desktop/modal";
+
 export { default as MdEditor } from "./md-editor";
 export { default as Markdown } from "./md-editor/preview";
 
