@@ -15,6 +15,8 @@ export interface BaseModalProps {
   destroyOnClose?: boolean;
   closable?: boolean;
   footer?: ReactNode;
+  className?: string;
+  contentClassName?: string;
 }
 
 const BaseModal = (props: BaseModalProps) => {
@@ -28,6 +30,8 @@ const BaseModal = (props: BaseModalProps) => {
     destroyOnClose = true,
     closable = false,
     footer = null,
+    className,
+    contentClassName,
   } = props;
 
   const { theme } = useSortableConfig();
@@ -198,7 +202,8 @@ const BaseModal = (props: BaseModalProps) => {
                 scrollbar-width: thin;
                 scrollbar-color: ${modalTheme?.scrollbar?.thumbColor} ${modalTheme?.scrollbar?.trackColor};
               }
-            `
+            `,
+            className
           )}
           width={width}
           destroyOnClose={destroyOnClose}
@@ -227,7 +232,8 @@ const BaseModal = (props: BaseModalProps) => {
                 &::-webkit-scrollbar-thumb:hover {
                   background: ${modalTheme?.scrollbar?.thumbHoverColor};
                 }
-              `
+              `,
+              contentClassName
             )}
           >
             {children}
