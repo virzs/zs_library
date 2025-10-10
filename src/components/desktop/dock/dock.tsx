@@ -54,6 +54,10 @@ export interface DockProps<D, C> {
    * dock 项目列表变更事件
    */
   onDockItemsChange?: (items: SortItem<D, C>[]) => void;
+  /**
+   * 图标尺寸
+   */
+  itemSize?: number;
 }
 
 const Dock = <D, C>({
@@ -67,6 +71,7 @@ const Dock = <D, C>({
   onLaunchpadClick,
   onDrop,
   onDockItemsChange,
+  itemSize = 56,
 }: DockProps<D, C>) => {
   const { setListStatus } = useSortableState();
   const { theme } = useSortableConfig();
@@ -77,7 +82,7 @@ const Dock = <D, C>({
       return itemBuilder(item, index);
     }
 
-    return <SortableItem data={item} itemIndex={index} noLetters from="dock" iconSize={56} />;
+    return <SortableItem data={item} itemIndex={index} noLetters from="dock" iconSize={itemSize} />;
   };
 
   const renderFixedItem = (item: SortItem, index: number) => {
@@ -85,7 +90,7 @@ const Dock = <D, C>({
       return fixedItemBuilder(item, index);
     }
 
-    return <SortableItem data={item} itemIndex={index} noLetters from="dock" disabledDrag iconSize={56} />;
+    return <SortableItem data={item} itemIndex={index} noLetters from="dock" disabledDrag iconSize={itemSize} />;
   };
 
   if (!items.length && !fixedItems.length && !showLaunchpad) {
@@ -175,6 +180,16 @@ const Dock = <D, C>({
               /* 确保子元素不会收缩 */
               & > * {
                 flex-shrink: 0;
+              }
+
+              .sortable-ghost {
+                width: ${itemSize}px;
+                height: ${itemSize}px;
+                div,
+                img {
+                  width: ${itemSize}px;
+                  height: ${itemSize}px;
+                }
               }
             `
           )}
