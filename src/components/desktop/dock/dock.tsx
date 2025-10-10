@@ -7,7 +7,8 @@ import { SortItem } from "../types";
 import { useSortableState } from "../context/state/hooks";
 import { useSortableConfig } from "../context/config/hooks";
 import LaunchpadButton from "./launchpad-button";
-import { AnimatePresence } from "motion/react";
+import { RiApps2AddLine } from "@remixicon/react";
+import { AnimatePresence, motion } from "motion/react";
 
 export interface DockProps<D, C> {
   /**
@@ -76,6 +77,7 @@ const Dock = <D, C>({
   const { setListStatus } = useSortableState();
   const { theme } = useSortableConfig();
   const dockTheme = theme.token.dock;
+  const baseTheme = theme.token.base;
 
   const renderDockItem = (item: SortItem, index: number) => {
     if (itemBuilder) {
@@ -153,57 +155,80 @@ const Dock = <D, C>({
       {fixedItems.length > 0 && items.length > 0 && divider}
 
       {/* Sortable项目 */}
-      {items.length > 0 && (
-        <ReactSortable
-          list={items}
-          setList={(newItems) => {
-            if (onDockItemsChange) {
-              onDockItemsChange(newItems);
-            }
-          }}
-          {...mainDragConfig}
-          className={cx(
-            "desktop-dock-sortable zs-flex zs-gap-3 flex-1",
-            css`
-              ${position === "top" || position === "bottom"
-                ? `flex-direction: row; overflow-x: auto; overflow-y: hidden;`
-                : `flex-direction: column; overflow-y: auto; overflow-x: hidden;`}
 
-              /* 隐藏滚动条但保持滚动功能 */
+      <ReactSortable
+        list={items}
+        setList={(newItems) => {
+          if (onDockItemsChange) {
+            onDockItemsChange(newItems);
+          }
+        }}
+        {...mainDragConfig}
+        className={cx(
+          "desktop-dock-sortable zs-flex zs-gap-3 flex-1 zs-relative",
+          css`
+            min-height: ${itemSize}px;
+            ${position === "top" || position === "bottom"
+              ? `flex-direction: row; overflow-x: auto; overflow-y: hidden;`
+              : `flex-direction: column; overflow-y: auto; overflow-x: hidden;`}
+
+            /* 隐藏滚动条但保持滚动功能 */
               scrollbar-width: none; /* Firefox */
-              -ms-overflow-style: none; /* IE and Edge */
+            -ms-overflow-style: none; /* IE and Edge */
 
-              &::-webkit-scrollbar {
-                display: none; /* Chrome, Safari and Opera */
-              }
+            &::-webkit-scrollbar {
+              display: none; /* Chrome, Safari and Opera */
+            }
 
-              /* 确保子元素不会收缩 */
-              & > * {
-                flex-shrink: 0;
-              }
+            /* 确保子元素不会收缩 */
+            & > * {
+              flex-shrink: 0;
+            }
 
-              .sortable-ghost {
+            .sortable-ghost {
+              width: ${itemSize}px;
+              height: ${itemSize}px;
+              div,
+              img {
                 width: ${itemSize}px;
                 height: ${itemSize}px;
-                div,
-                img {
-                  width: ${itemSize}px;
-                  height: ${itemSize}px;
-                }
               }
-            `
+            }
+          `,
+          items.length === 0 && "zs-ml-2.5 zs-w-14"
+        )}
+        onMove={() => {
+          setListStatus("onMove");
+          return true;
+        }}
+        onEnd={() => {
+          setListStatus(null);
+        }}
+      >
+        <AnimatePresence mode="popLayout">
+          {items.length > 0 ? (
+            items.map((item, index) => renderDockItem(item, index))
+          ) : (
+            <motion.div
+              className={cx(
+                "drag-disabled dock-items-empty zs-flex zs-items-center zs-justify-center zs-gap-2 zs-rounded-xl zs-border-2 zs-border-dashed zs-absolute zs-top-0 zs-left-0",
+                css`
+                  min-height: ${itemSize}px;
+                  ${position === "top" || position === "bottom"
+                    ? `width: 100%; padding: 8px 12px;`
+                    : `height: 100%; min-width: ${itemSize}px; padding: 12px 8px;`};
+                  color: ${baseTheme?.textColor || "rgba(0, 0, 0, 0.6)"};
+                  border-color: ${dockTheme?.borderColor || "rgba(0, 0, 0, 0.2)"};
+                  background-color: ${dockTheme?.backgroundColor || "rgba(255, 255, 255, 0.25)"};
+                  opacity: 0.5 !important;
+                `
+              )}
+            >
+              <RiApps2AddLine />
+            </motion.div>
           )}
-          onMove={() => {
-            setListStatus("onMove");
-            return true;
-          }}
-          onEnd={() => {
-            setListStatus(null);
-          }}
-        >
-          <AnimatePresence mode="popLayout">{items.map((item, index) => renderDockItem(item, index))}</AnimatePresence>
-        </ReactSortable>
-      )}
+        </AnimatePresence>
+      </ReactSortable>
 
       {/* sortable项目与启动台按钮之间的分隔线 */}
       {showLaunchpad && (fixedItems.length > 0 || items.length > 0) && divider}
