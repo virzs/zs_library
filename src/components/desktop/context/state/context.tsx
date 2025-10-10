@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useDebounceEffect, useLocalStorageState } from "ahooks";
-import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { SortItem, ListItem } from "../../types";
 import SortableUtils from "../../utils/index";
@@ -48,6 +48,11 @@ export interface SortableState {
   /** 当前拖拽的元素 */
   dragItem: SortItem | null;
   setDragItem: (e: SortItem | null) => void;
+  /** 当前滑块索引 */
+  currentSliderIndex: number;
+  setCurrentSliderIndex: (e: number) => void;
+  /** 当前页面数据（排除 dock） */
+  currentSliderPage: ListItem | null;
 }
 
 export const SortableStateContext = createContext<SortableState>({
@@ -77,6 +82,9 @@ export const SortableStateContext = createContext<SortableState>({
   setMoveTargetId: () => {},
   dragItem: null,
   setDragItem: () => {},
+  currentSliderIndex: 0,
+  setCurrentSliderIndex: () => {},
+  currentSliderPage: null,
 });
 
 export interface SortableStateProviderProps<D, C> {
@@ -120,6 +128,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   const [moveItemId, setMoveItemId] = useState<string | null>(null);
   const [moveTargetId, setMoveTargetId] = useState<string | number | null>(null);
   const [dragItem, setDragItem] = useState<SortItem | null>(null);
+  const [currentSliderIndex, setCurrentSliderIndex] = useState<number>(0);
 
   const [init, setInit] = useState(false);
   const [localList, setLocalList] = useLocalStorageState<any[]>(storageKey, {
@@ -338,20 +347,33 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
     });
   };
 
-  const addItem = (data: SortItem, parentIds: (string | number)[]) => {
+  const addItem = (data: SortItem, parentIds?: (string | number)[]) => {
     const _list = [...list];
 
+    // 目标父级路径：未传入或为空则指向当前滑块页面
+    const targetParentIds = (() => {
+      if (!parentIds || parentIds.length === 0) {
+        return currentSliderPage?.id !== undefined ? [currentSliderPage.id] : [];
+      }
+      return parentIds;
+    })();
+
+    // 如果无法确定父级（例如没有当前页面），则不进行添加
+    if (targetParentIds.length === 0) {
+      return;
+    }
+
     // 根据 parentIds 递归查找，放置到对应的父级下
-    const addToChild = (list: any[], parentIds: (string | number)[]) => {
-      const parentId = parentIds.shift();
+    const addToChild = (list: any[], ids: (string | number)[]) => {
+      const parentId = ids.shift();
       const parent = list.find((item) => item.id === parentId);
       const parentIndex = list.findIndex((item) => item.id === parentId);
 
       if (!parent) {
         return list;
       } else {
-        if (parentIds.length) {
-          parent.children = addToChild(parent.children || [], parentIds);
+        if (ids.length) {
+          parent.children = addToChild(parent.children || [], ids);
         } else {
           parent.children = [
             ...(parent.children ?? []),
@@ -369,7 +391,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
       }
     };
 
-    setList(addToChild(_list, parentIds));
+    setList(addToChild(_list, [...targetParentIds]));
   };
 
   /**
@@ -453,6 +475,20 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
     }
   );
 
+  const pageItems = useMemo(() => {
+    return list.filter((item) => item.type !== "dock");
+  }, [list]);
+
+  const currentSliderPage = useMemo(() => {
+    return pageItems[currentSliderIndex] ?? null;
+  }, [pageItems, currentSliderIndex]);
+
+  useEffect(() => {
+    if (currentSliderIndex >= pageItems.length) {
+      setCurrentSliderIndex(pageItems.length > 0 ? pageItems.length - 1 : 0);
+    }
+  }, [currentSliderIndex, pageItems.length]);
+
   return (
     <SortableStateContext.Provider
       value={{
@@ -482,6 +518,9 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
         setMoveTargetId,
         dragItem,
         setDragItem,
+        currentSliderIndex,
+        setCurrentSliderIndex,
+        currentSliderPage,
       }}
     >
       {children}

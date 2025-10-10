@@ -120,6 +120,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setDragItem,
     addRootItem,
     removeRootItem,
+    setCurrentSliderIndex,
   } = useSortableState();
 
   const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } = useSortableConfig();
@@ -439,6 +440,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             }}
             beforeChange={(_, next) => {
               setActiveSlide(next);
+              setCurrentSliderIndex(next);
             }}
             {...sliderProps}
           >
