@@ -20,6 +20,10 @@ export interface DragTriggerPaginationProps {
    */
   totalSlides: number;
   /**
+   * 最大页数限制，达到后不显示触发分页组件
+   */
+  maxSlides?: number;
+  /**
    * 是否正在拖拽
    */
   isDragging: boolean;
@@ -49,6 +53,7 @@ const DragTriggerPagination = forwardRef<DragTriggerPaginationRef, DragTriggerPa
       sliderRef,
       activeSlide,
       totalSlides,
+      maxSlides,
       isDragging,
       triggerDelay = 800,
       triggerZoneWidth = 80,
@@ -76,6 +81,13 @@ const DragTriggerPagination = forwardRef<DragTriggerPaginationRef, DragTriggerPa
     const handleDragEnterTriggerZone = useCallback(
       (zone: "left" | "right") => {
         if (!isDragging) return;
+
+        // 如果到达最大页数并且在最后一页，禁用右侧触发
+        const isLastSlide = activeSlide >= totalSlides - 1;
+        const reachedMax = typeof maxSlides === "number" && totalSlides >= maxSlides;
+        if (zone === "right" && isLastSlide && reachedMax) {
+          return;
+        }
 
         // 检查冷却时间，防止连续触发
         const now = Date.now();
@@ -109,8 +121,10 @@ const DragTriggerPagination = forwardRef<DragTriggerPaginationRef, DragTriggerPa
             if (activeSlide < totalSlides - 1) {
               slider.slickGoTo(activeSlide + 1);
             } else {
-              // 在最后一页时创建新页面
-              onCreateNewPage?.();
+              // 在最后一页时，若未达到最大页数则创建新页面
+              if (!reachedMax) {
+                onCreateNewPage?.();
+              }
             }
           }
 
@@ -126,6 +140,7 @@ const DragTriggerPagination = forwardRef<DragTriggerPaginationRef, DragTriggerPa
         isDragging,
         activeSlide,
         totalSlides,
+        maxSlides,
         clearDragTriggerTimer,
         sliderRef,
         dragTriggerZone,
@@ -157,6 +172,12 @@ const DragTriggerPagination = forwardRef<DragTriggerPaginationRef, DragTriggerPa
         }
         // 检查是否在右侧触发区域（包括最后一页）
         else if (x > rightTriggerStart) {
+          const isLastSlide = activeSlide >= totalSlides - 1;
+          const reachedMax = typeof maxSlides === "number" && totalSlides >= maxSlides;
+          // 达到最大页数且在最后一页时禁用右侧触发
+          if (isLastSlide && reachedMax) {
+            return;
+          }
           handleDragEnterTriggerZone("right");
         }
         // 不在任何触发区域
@@ -172,6 +193,7 @@ const DragTriggerPagination = forwardRef<DragTriggerPaginationRef, DragTriggerPa
         triggerZoneWidth,
         activeSlide,
         totalSlides,
+        maxSlides,
         handleDragEnterTriggerZone,
         dragTriggerZone,
         handleDragLeaveTriggerZone,
@@ -269,7 +291,9 @@ const DragTriggerPagination = forwardRef<DragTriggerPaginationRef, DragTriggerPa
       }
     `;
 
-    if (!isDragging) {
+    // 如果未拖拽或已达到最大页数且当前在最后一页，则不显示组件
+    const reachedMaxAtLast = typeof maxSlides === "number" && totalSlides >= maxSlides && activeSlide >= totalSlides - 1;
+    if (!isDragging || reachedMaxAtLast) {
       return null;
     }
 
@@ -290,11 +314,13 @@ const DragTriggerPagination = forwardRef<DragTriggerPaginationRef, DragTriggerPa
           />
         )}
 
-        {/* 右侧拖拽触发区域（包括最后一页创建新页面） */}
+        {/* 右侧拖拽触发区域（包括最后一页创建新页面；达到最大页数时隐藏） */}
         <div
           className={cx(dragTriggerZoneStyle, "right", dragTriggerZone === "right" && "active")}
           onMouseEnter={() => {
-            if (isDragging) {
+            const isLastSlide = activeSlide >= totalSlides - 1;
+            const reachedMax = typeof maxSlides === "number" && totalSlides >= maxSlides;
+            if (isDragging && !(isLastSlide && reachedMax)) {
               handleDragEnterTriggerZone("right");
             }
           }}

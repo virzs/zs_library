@@ -39,6 +39,10 @@ export interface SortableProps<D, C> {
    */
   sliderRef?: React.RefObject<Slider>;
   /**
+   * 最大页数限制，达到后不再显示拖拽触发分页组件，也不创建新页面
+   */
+  maxSlides?: number;
+  /**
    * 自定义 slider 配置
    * @see https://react-slick.neostack.com/docs/api
    */
@@ -87,6 +91,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     className,
     sliderProps,
     sliderRef: _sliderRef,
+    maxSlides,
     onItemClick,
     extraItems,
     dock = {
@@ -137,6 +142,10 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
   // 创建新页面
   const createNewPage = useCallback(() => {
+    // 达到最大页数时不创建新页面
+    if (typeof maxSlides === "number" && pageItems.length >= maxSlides) {
+      return;
+    }
     const newPage = {
       id: `page_${Date.now()}`,
       type: "page" as const,
@@ -148,7 +157,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setTimeout(() => {
       (_sliderRef ?? sliderRef).current?.slickGoTo(pageItems.length);
     }, 100);
-  }, [pageItems.length, addRootItem, _sliderRef, sliderRef]);
+  }, [maxSlides, pageItems.length, addRootItem, _sliderRef]);
 
   // 删除空白页面
   const removeEmptyPages = useCallback(() => {
@@ -370,6 +379,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
             isDragging={isDragging}
             activeSlide={activeSlide}
             totalSlides={pageItems.length}
+            maxSlides={maxSlides}
             sliderRef={(_sliderRef ?? sliderRef) as React.RefObject<Slider>}
             containerRef={containerRef as React.RefObject<HTMLDivElement>}
             onCreateNewPage={createNewPage}
