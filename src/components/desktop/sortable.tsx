@@ -20,6 +20,7 @@ import SortableUtils from "./utils/index";
 import Dock, { DockProps } from "./dock/dock";
 import LaunchpadModal from "./dock/launchpad-modal";
 import { AnimatePresence } from "motion/react";
+import { getItemSize } from "./config";
 
 export interface Pagination {
   position?: "top" | "bottom" | "left" | "right";
@@ -128,7 +129,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setCurrentSliderIndex,
   } = useSortableState();
 
-  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder } = useSortableConfig();
+  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder, typeConfigMap } = useSortableConfig();
 
   // 从list中过滤出dock数据和分页数据
   const dockItems = useMemo(() => {
@@ -299,6 +300,70 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     }[position];
   }, [dock]);
 
+  // 统一计算每页一致的行宽，并监听容器尺寸变化
+  const [pageRowWidth, setPageRowWidth] = useState<number | undefined>(undefined);
+  const [pageRowMarginLeft, setPageRowMarginLeft] = useState<number | undefined>(undefined);
+  const sortableContainerNodeRef = useRef<HTMLDivElement | null>(null);
+  const sortableContainerObserverRef = useRef<ResizeObserver | null>(null);
+  const sortableContainerResizeHandlerRef = useRef<(() => void) | null>(null);
+
+  const applyContainerWidth = useCallback((node: HTMLDivElement) => {
+    const { width, marginLeft } = SortableUtils.computeRowWidth(node, 112);
+    setPageRowWidth(width);
+    setPageRowMarginLeft(marginLeft);
+  }, []);
+
+  const setSortableContainerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      const lastNode = sortableContainerNodeRef.current;
+      const observer = sortableContainerObserverRef.current;
+      const onResize = sortableContainerResizeHandlerRef.current;
+
+      // 清理逻辑：节点移除或切换
+      if (!node && lastNode) {
+        if (observer) {
+          observer.disconnect();
+          sortableContainerObserverRef.current = null;
+        }
+        if (onResize) {
+          globalThis.removeEventListener("resize", onResize);
+          sortableContainerResizeHandlerRef.current = null;
+        }
+        sortableContainerNodeRef.current = null;
+        return;
+      }
+
+      if (node && lastNode && node !== lastNode) {
+        if (observer) {
+          observer.disconnect();
+          sortableContainerObserverRef.current = null;
+        }
+        if (onResize) {
+          globalThis.removeEventListener("resize", onResize);
+          sortableContainerResizeHandlerRef.current = null;
+        }
+        sortableContainerNodeRef.current = null;
+      }
+
+      // 绑定新节点与监听
+      if (node) {
+        sortableContainerNodeRef.current = node;
+        requestAnimationFrame(() => applyContainerWidth(node));
+
+        if ("ResizeObserver" in globalThis) {
+          const ro = new ResizeObserver(() => applyContainerWidth(node));
+          sortableContainerObserverRef.current = ro;
+          ro.observe(node);
+        } else {
+          const handler = () => applyContainerWidth(node);
+          sortableContainerResizeHandlerRef.current = handler;
+          globalThis.addEventListener("resize", handler);
+        }
+      }
+    },
+    [applyContainerWidth]
+  );
+
   return (
     <>
       <div
@@ -372,7 +437,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         )}
 
         {/* Sortable 容器 */}
-        <div className="sortable-container">
+        <div className="sortable-container" ref={setSortableContainerRef}>
           {/* 拖拽触发分页组件 */}
           <DragTriggerPagination
             ref={dragTriggerPaginationRef}
@@ -476,7 +541,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   }}
                 >
                   <ReactSortable
-                    className={cx("zs-flex zs-flex-wrap zs-justify-start zs-items-start", mainDragContainerStyle)}
+                    className={cx("zs-grid zs-h-full", mainDragContainerStyle)}
+                    style={{ width: pageRowWidth, marginLeft: pageRowMarginLeft }}
                     {...mainDragConfig}
                     list={l.children ?? []}
                     setList={(e) => setList(e, [l.id])}
@@ -543,12 +609,20 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           return itemBuilder(item);
                         }
 
+                        const { row, col } = getItemSize(item.type, item.config?.sizeId, typeConfigMap);
+
                         switch (item.type) {
                           case "group":
                           case "app":
                             el = (
                               <div
-                                className="zs-w-28 zs-h-28 zs-flex zs-items-center zs-justify-center"
+                                className={cx(
+                                  "zs-flex zs-justify-center zs-items-center",
+                                  css`
+                                    grid-row: span ${row};
+                                    grid-column: span ${col};
+                                  `
+                                )}
                                 key={item.id}
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}
@@ -565,7 +639,13 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           default:
                             el = (
                               <div
-                                className="zs-w-28 zs-h-28 zs-flex zs-items-center zs-justify-center"
+                                className={cx(
+                                  "zs-flex zs-justify-center zs-items-center",
+                                  css`
+                                    grid-row: span ${row};
+                                    grid-column: span ${col};
+                                  `
+                                )}
                                 key={item.id}
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}

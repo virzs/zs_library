@@ -182,13 +182,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
       itemIndex={itemIndex}
       parentIds={parentIds}
       childrenLength={children?.length}
-      className={cx(
-        css`
-          grid-row: span ${row};
-          grid-column: span ${col};
-        `,
-        className
-      )}
+      className={cx(className)}
     >
       <motion.div
         whileTap={{ scale: 0.9 }}
@@ -250,7 +244,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             disabled={disabledDrag}
             data-id={data.id}
             onChange={() => {
-              !disabledDrag && setMoveTargetId(data.id);
+              if (!disabledDrag) setMoveTargetId(data.id);
             }}
           ></ReactSortable>
         </motion.div>

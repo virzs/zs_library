@@ -33,6 +33,35 @@ class SortableUtils {
       return false;
     }
   };
+
+  /**
+   * 计算容器在给定 item 尺寸下的一行可容纳列数及行宽
+   */
+  public static computeRowWidth = (
+    el: HTMLElement,
+    itemSize = 112
+  ): { cols: number; width: number; marginLeft: number } => {
+    const style = window.getComputedStyle(el);
+    const paddingLeft = parseFloat(style.paddingLeft) || 0;
+    const paddingRight = parseFloat(style.paddingRight) || 0;
+    const columnGap = parseFloat(style.columnGap) || 0;
+
+    const innerWidth = el.clientWidth - paddingLeft - paddingRight;
+    // 基础可容纳列数（至少为1）
+    let cols = Math.max(1, Math.floor((innerWidth + columnGap) / (itemSize + columnGap)));
+    const usedWidth = cols * itemSize + (cols - 1) * columnGap;
+    const leftover = innerWidth - usedWidth; // 剩余空间（不含尾部gap）
+
+    // 如果剩余空间达到一个item宽度的90%，则近似算作还能放下一个item
+    if (leftover >= itemSize * 0.9) {
+      cols += 1;
+    }
+
+    const width = cols * itemSize + (cols - 1) * columnGap;
+    // 如果设置的宽度比实际可用宽度更大，则计算左侧负 margin 进行居中补偿
+    const marginLeft = width > innerWidth ? Math.round((innerWidth - width) / 2) : 0;
+    return { cols, width, marginLeft };
+  };
 }
 
 export default SortableUtils;
