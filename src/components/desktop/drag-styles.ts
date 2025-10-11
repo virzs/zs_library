@@ -34,14 +34,7 @@ export const dragContainerStyle = css`
  * 针对主界面的拖拽区域优化
  */
 export const mainDragContainerStyle = css`
-  display: flex;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  justify-content: flex-start;
-  align-items: start;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 16px;
-  height: 100%;
 
   /* 拖拽进入时的视觉反馈 */
   &.drag-over {

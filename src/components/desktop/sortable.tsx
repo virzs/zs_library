@@ -476,7 +476,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   }}
                 >
                   <ReactSortable
-                    className={cx(mainDragContainerStyle)}
+                    className={cx("zs-flex zs-flex-wrap zs-justify-start zs-items-start", mainDragContainerStyle)}
                     {...mainDragConfig}
                     list={l.children ?? []}
                     setList={(e) => setList(e, [l.id])}
@@ -548,6 +548,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           case "app":
                             el = (
                               <div
+                                className="zs-w-28 zs-h-28 zs-flex zs-items-center zs-justify-center"
                                 key={item.id}
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}
@@ -564,6 +565,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           default:
                             el = (
                               <div
+                                className="zs-w-28 zs-h-28 zs-flex zs-items-center zs-justify-center"
                                 key={item.id}
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}
