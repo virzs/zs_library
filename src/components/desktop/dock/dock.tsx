@@ -84,7 +84,7 @@ const Dock = <D, C>({
       return itemBuilder(item, index);
     }
 
-    return <SortableItem data={item} itemIndex={index} noLetters from="dock" iconSize={itemSize} />;
+    return <SortableItem key={item.id} data={item} itemIndex={index} noLetters from="dock" iconSize={itemSize} />;
   };
 
   const renderFixedItem = (item: SortItem, index: number) => {
@@ -92,7 +92,17 @@ const Dock = <D, C>({
       return fixedItemBuilder(item, index);
     }
 
-    return <SortableItem data={item} itemIndex={index} noLetters from="dock" disabledDrag iconSize={itemSize} />;
+    return (
+      <SortableItem
+        key={item.id}
+        data={item}
+        itemIndex={index}
+        noLetters
+        from="dock"
+        disabledDrag
+        iconSize={itemSize}
+      />
+    );
   };
 
   if (!items.length && !fixedItems.length && !showLaunchpad) {
@@ -205,29 +215,27 @@ const Dock = <D, C>({
           setListStatus(null);
         }}
       >
-        <AnimatePresence mode="popLayout">
-          {items.length > 0 ? (
-            items.map((item, index) => renderDockItem(item, index))
-          ) : (
-            <motion.div
-              className={cx(
-                "drag-disabled dock-items-empty zs-flex zs-items-center zs-justify-center zs-gap-2 zs-rounded-xl zs-border-2 zs-border-dashed zs-absolute zs-top-0 zs-left-0",
-                css`
-                  min-height: ${itemSize}px;
-                  ${position === "top" || position === "bottom"
-                    ? `width: 100%; padding: 8px 12px;`
-                    : `height: 100%; min-width: ${itemSize}px; padding: 12px 8px;`};
-                  color: ${baseTheme?.textColor || "rgba(0, 0, 0, 0.6)"};
-                  border-color: ${dockTheme?.borderColor || "rgba(0, 0, 0, 0.2)"};
-                  background-color: ${dockTheme?.backgroundColor || "rgba(255, 255, 255, 0.25)"};
-                  opacity: 0.5 !important;
-                `
-              )}
-            >
-              <RiApps2AddLine />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {items.length > 0 ? (
+          items.map((item, index) => renderDockItem(item, index))
+        ) : (
+          <motion.div
+            className={cx(
+              "drag-disabled dock-items-empty zs-flex zs-items-center zs-justify-center zs-gap-2 zs-rounded-xl zs-border-2 zs-border-dashed zs-absolute zs-top-0 zs-left-0",
+              css`
+                min-height: ${itemSize}px;
+                ${position === "top" || position === "bottom"
+                  ? `width: 100%; padding: 8px 12px;`
+                  : `height: 100%; min-width: ${itemSize}px; padding: 12px 8px;`};
+                color: ${baseTheme?.textColor || "rgba(0, 0, 0, 0.6)"};
+                border-color: ${dockTheme?.borderColor || "rgba(0, 0, 0, 0.2)"};
+                background-color: ${dockTheme?.backgroundColor || "rgba(255, 255, 255, 0.25)"};
+                opacity: 0.5 !important;
+              `
+            )}
+          >
+            <RiApps2AddLine />
+          </motion.div>
+        )}
       </ReactSortable>
 
       {/* sortable项目与启动台按钮之间的分隔线 */}
