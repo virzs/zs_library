@@ -44,7 +44,6 @@ export const mainDragContainerStyle = css`
 
   /* 拖拽活动状态 */
   .sortable-drag {
-    background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
