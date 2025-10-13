@@ -19,7 +19,7 @@ import { SortItem } from "./types";
 import SortableUtils from "./utils/index";
 import Dock, { DockProps } from "./dock/dock";
 import LaunchpadModal from "./dock/launchpad-modal";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { getItemSize } from "./config";
 
 export interface Pagination {
@@ -615,7 +615,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           case "group":
                           case "app":
                             el = (
-                              <div
+                              <motion.div
                                 className={cx(
                                   "zs-flex zs-justify-start zs-items-start",
                                   css`
@@ -624,6 +624,11 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                   `
                                 )}
                                 key={item.id}
+                                data-id={item.id}
+                                layout={isDragging ? false : "position"}
+                                transition={
+                                  isDragging ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 38 }
+                                }
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}
                               >
@@ -633,12 +638,12 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                   parentIds={[l.id, item.id]}
                                   onClick={onItemClick}
                                 />
-                              </div>
+                              </motion.div>
                             );
                             break;
                           default:
                             el = (
-                              <div
+                              <motion.div
                                 className={cx(
                                   "zs-flex zs-justify-center zs-items-center",
                                   css`
@@ -647,11 +652,16 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                   `
                                 )}
                                 key={item.id}
+                                data-id={item.id}
+                                layout={isDragging ? false : "position"}
+                                transition={
+                                  isDragging ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 38 }
+                                }
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}
                               >
                                 <SortableItem data={item} itemIndex={index} onClick={onItemClick} />
-                              </div>
+                              </motion.div>
                             );
                             break;
                         }
