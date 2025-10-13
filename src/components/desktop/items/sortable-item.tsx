@@ -88,7 +88,6 @@ const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      key={data.id}
     >
       {children ?? <SortableItemDefaultContent {...props} />}
     </motion.div>
