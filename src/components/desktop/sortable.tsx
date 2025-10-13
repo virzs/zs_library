@@ -542,7 +542,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                 >
                   <ReactSortable
                     className={cx("zs-grid zs-h-full", mainDragContainerStyle)}
-                    style={{ width: pageRowWidth, marginLeft: pageRowMarginLeft }}
+                    style={{ width: pageRowWidth, marginLeft: pageRowMarginLeft, transform: `translate(28px, 28px)` }}
                     {...mainDragConfig}
                     list={l.children ?? []}
                     setList={(e) => setList(e, [l.id])}
@@ -617,7 +617,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                             el = (
                               <div
                                 className={cx(
-                                  "zs-flex zs-justify-center zs-items-center",
+                                  "zs-flex zs-justify-start zs-items-start",
                                   css`
                                     grid-row: span ${row};
                                     grid-column: span ${col};

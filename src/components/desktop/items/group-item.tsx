@@ -188,13 +188,14 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
         whileTap={{ scale: 0.9 }}
         className={cx(
           isMoveTarget ? "!scale-110" : "",
-          "zs-cursor-pointer zs-relative my-0 zs-mx-auto",
+          "zs-cursor-pointer zs-relative my-0",
           css`
             border-radius: 0.75rem;
             background-color: ${theme.token.items?.groupIconBackgroundColor};
             box-shadow: 0 0 0.5rem ${theme.token.items?.groupIconShadowColor};
             /* overflow: hidden; */
             transition: all 0.3s;
+            transform-origin: top left;
             width: ${col * 64 + 44 * (col - 1)}px;
             height: ${row * 64 + 44 * (row - 1)}px;
           `

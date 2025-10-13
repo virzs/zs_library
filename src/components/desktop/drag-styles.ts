@@ -34,7 +34,7 @@ export const mainDragContainerStyle = css`
   grid-auto-rows: 112px;
 
   /* 拖拽进入时的视觉反馈 */
-  &.drag-over {
+  .drag-over {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -43,20 +43,20 @@ export const mainDragContainerStyle = css`
   }
 
   /* 拖拽活动状态 */
-  &.sortable-drag {
+  .sortable-drag {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
 
   /* 平滑的拖拽过渡 */
-  &.sortable-chosen {
-    transform: scale(0.98);
-    opacity: 0.8;
+  .sortable-chosen {
+    justify-content: flex-start !important;
+    align-items: start !important;
   }
 
   /* 拖拽释放动画 */
-  &.sortable-fallback {
+  .sortable-fallback {
     opacity: 0;
     transform: scale(1.1);
   }
@@ -67,9 +67,7 @@ export const mainDragContainerStyle = css`
  * 增强版的ghostClass，提供更好的iOS风格视觉反馈
  */
 export const enhancedGhostClass = css`
-  padding: 8px;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform: scale(1.05) rotate(2deg);
 
   > div {
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
