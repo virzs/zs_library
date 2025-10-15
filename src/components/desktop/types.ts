@@ -62,6 +62,7 @@ export type TypeConfigMap = Record<string, SortItemDefaultConfig>;
 export interface SortItemBaseData {
   name: string;
   icon?: string;
+  iconColor?: string;
 }
 
 export interface SortItem<D = any & SortItemBaseData, C = any & SortItemUserConfig> {

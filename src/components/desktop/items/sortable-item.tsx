@@ -21,6 +21,7 @@ export interface SortableItemProps<D, C> {
   contextMenuProps?: false | Partial<ContextMenuProps<D, C>>;
   icon?: React.ReactNode;
   iconSize?: number;
+  iconColor?: string;
   /**
    * 来源 当前仅支持 dock
    */
@@ -28,14 +29,14 @@ export interface SortableItemProps<D, C> {
 }
 
 export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>) => {
-  const { data, noLetters = false, icon, from, iconSize = 64, contextMenuProps } = props;
+  const { data, noLetters = false, icon, iconColor, from, iconSize = 64, contextMenuProps } = props;
   const { contextMenuFuns } = useSortableState();
   const { itemIconBuilder: configItemIconBuilder, theme, contextMenu: contextMenuState } = useSortableConfig();
 
   const contextMenu = contextMenuProps != false ? contextMenuProps || contextMenuState : contextMenuProps;
 
   const { data: itemData = {} } = data;
-  const { name } = itemData as D & SortItemBaseData;
+  const { name, iconColor: dataIconColor } = itemData as D & SortItemBaseData;
 
   return (
     <>
@@ -43,7 +44,7 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
         className={cx(
           "zs-cursor-pointer zs-relative zs-overflow-hidden",
           css`
-            background-color: ${theme.token.items?.iconBackgroundColor};
+            background-color: ${iconColor ?? dataIconColor ?? theme.token.items?.iconBackgroundColor};
             border-radius: 0.75rem;
             box-shadow: 0 0 0.5rem ${theme.token.items?.iconShadowColor};
             width: ${iconSize}px;
