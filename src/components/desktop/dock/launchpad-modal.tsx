@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { css, cx } from "@emotion/css";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -9,6 +9,7 @@ import SearchBox from "./search-box";
 import { BaseModal } from "../modal";
 import { BaseDrawer } from "../drawer";
 import { RiCloseLine } from "@remixicon/react";
+import { useIsMobile } from "../../../hooks/useIsMobile";
 
 export interface LaunchpadModalProps<D, C> {
   /**
@@ -28,17 +29,9 @@ export interface LaunchpadModalProps<D, C> {
 const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalProps<D, C>) => {
   const { list } = useSortableState();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
 
-  useEffect(() => {
-    // 使用媒体查询判断移动端视口（与 Tailwind md 断点接近）
-    const mq = window.matchMedia("(max-width: 768px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+  // 移动端判断逻辑已抽离到 useIsMobile Hook
 
   const { allApps, groups } = useMemo(() => {
     if (!list || list.length === 0) {
