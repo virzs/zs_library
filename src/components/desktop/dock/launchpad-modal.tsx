@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { cx } from "@emotion/css";
+import { useMemo, useState, useEffect } from "react";
+import { css, cx } from "@emotion/css";
 import { motion, AnimatePresence } from "motion/react";
 
 import { SortItem } from "../types";
@@ -7,6 +7,8 @@ import SortableItem from "../items/sortable-item";
 import { useSortableState } from "../context/state/hooks";
 import SearchBox from "./search-box";
 import { BaseModal } from "../modal";
+import { BaseDrawer } from "../drawer";
+import { RiCloseLine } from "@remixicon/react";
 
 export interface LaunchpadModalProps<D, C> {
   /**
@@ -26,8 +28,19 @@ export interface LaunchpadModalProps<D, C> {
 const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalProps<D, C>) => {
   const { list } = useSortableState();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
 
-  const { allApps, groupedData, groups, groupCounts } = useMemo(() => {
+  useEffect(() => {
+    // 使用媒体查询判断移动端视口（与 Tailwind md 断点接近）
+    const mq = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const { allApps, groups } = useMemo(() => {
     if (!list || list.length === 0) {
       return { allApps: [], groupedData: [], groups: [], groupCounts: [] };
     }
@@ -110,124 +123,112 @@ const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalP
     }
   };
 
-  return (
-    <BaseModal
-      visible={visible}
-      onClose={onClose}
-      title={
-        <div className="zs-py-4">
-          <SearchBox value={searchQuery} onChange={setSearchQuery} placeholder="搜索应用" />
-        </div>
-      }
-      width={900}
-    >
-      <div className={cx("zs-relative zs-overflow-hidden zs-min-h-[60vh] zs-max-h-[600px]")}>
-        {allApps.length === 0 ? (
-          <div className="zs-flex-1 zs-flex zs-items-center zs-justify-center zs-flex-col zs-text-[#8e8e93] zs-text-xl zs-font-medium zs-text-center">
-            <div className="zs-text-6xl zs-mb-4 zs-opacity-60">{searchQuery.trim() ? "🔍" : "📱"}</div>
-            <div className="zs-mb-2">{searchQuery.trim() ? "未找到相关应用" : "暂无应用"}</div>
-            <div className="zs-text-base zs-text-[#c7c7cc] zs-font-normal">
-              {searchQuery.trim() ? "尝试使用其他关键词搜索" : "请添加应用到启动台"}
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className={cx("zs-overflow-y-auto zs-h-full zs-ml-14 zs-p-1")}>
-              {/* 字母分组标题和网格 */}
-              <div className="zs-flex zs-gap-8 zs-flex-wrap">
-                <AnimatePresence mode="popLayout">
-                  {searchQuery.trim()
-                    ? // 搜索模式：简单网格布局
-                      allApps.map((item, itemIndex) => {
-                        return (
-                          <div key={item.id} className="zs-mb-6">
-                            <SortableItem
-                              data={item}
-                              itemIndex={itemIndex}
-                              parentIds={[]}
-                              onClick={onItemClick}
-                              disabledDrag={true}
-                            />
-                          </div>
-                        );
-                      })
-                    : // 正常模式：字母分组布局groups
-                      groups
-                        .map((letter, groupIndex) => {
-                          const groupStartIndex = groupCounts
-                            .slice(0, groupIndex)
-                            .reduce((sum, count) => sum + count, 0);
-                          const groupItems = groupedData.slice(
-                            groupStartIndex,
-                            groupStartIndex + groupCounts[groupIndex]
-                          );
+  const titleNode = (
+    <div className="zs-py-4 zs-flex zs-items-center zs-gap-2">
+      <SearchBox className="zs-grow" value={searchQuery} onChange={setSearchQuery} placeholder="搜索应用" />
+      {isMobile && <RiCloseLine onClick={onClose} aria-label="关闭" className="zs-shrink-0" />}
+    </div>
+  );
 
-                          return (
-                            <>
-                              {groupItems.map((item, itemIndex) => {
-                                return (
-                                  <div
-                                    key={item.id}
-                                    id={itemIndex === 0 ? `group-${letter}` : undefined}
-                                    className="zs-mb-6"
-                                  >
-                                    <SortableItem
-                                      data={item}
-                                      itemIndex={groupStartIndex + itemIndex}
-                                      parentIds={[]}
-                                      onClick={onItemClick}
-                                      disabledDrag={true}
-                                    />
-                                  </div>
-                                );
-                              })}
-                            </>
-                          );
-                        })
-                        .flat()}
-                </AnimatePresence>
+  const contentNode = (
+    <div className={cx("zs-flex-1 zs-overflow-y-auto zs-h-full zs-p-1")}>
+      {allApps.length === 0 ? (
+        <div className="zs-flex zs-items-center zs-justify-center zs-flex-col zs-text-[#8e8e93] zs-text-xl zs-font-medium zs-text-center zs-h-full">
+          <div className="zs-text-6xl zs-mb-4 zs-opacity-60">{searchQuery.trim() ? "🔍" : "📱"}</div>
+          <div className="zs-mb-2">{searchQuery.trim() ? "未找到相关应用" : "暂无应用"}</div>
+          <div className="zs-text-base zs-text-[#c7c7cc] zs-font-normal">
+            {searchQuery.trim() ? "尝试使用其他关键词搜索" : "请添加应用到启动台"}
+          </div>
+        </div>
+      ) : (
+        <div className="zs-flex zs-gap-3 md:zs-gap-6 lg:zs-gap-8 zs-flex-wrap">
+          <AnimatePresence mode="popLayout">
+            {allApps.map((item, itemIndex) => (
+              <div key={item.id} className="zs-mb-6">
+                <SortableItem
+                  data={item}
+                  itemIndex={itemIndex}
+                  parentIds={[]}
+                  onClick={onItemClick}
+                  disabledDrag={true}
+                />
               </div>
-            </div>
-          </>
-        )}
-      </div>
-      {/* 侧边栏字母导航 */}
-      <AnimatePresence>
-        {!searchQuery.trim() && (
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="zs-absolute zs-top-0 zs-left-0 zs-bottom-0 zs-flex zs-flex-col zs-items-center zs-z-50 zs-w-12 zs-rounded-xl zs-py-2"
-          >
-            {groups.map((letter, index) => (
-              <motion.button
-                key={letter}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{
-                  duration: 0.2,
-                  delay: index * 0.05,
-                  ease: "easeOut",
-                }}
-                whileHover={{
-                  scale: 1.1,
-                  backgroundColor: "rgba(0,122,255,0.1)",
-                  color: "#007aff",
-                  boxShadow: "0 4px 15px rgba(0,122,255,0.2)",
-                }}
-                whileTap={{ scale: 0.95 }}
-                className="zs-text-sm zs-p-2 zs-cursor-pointer zs-rounded-xl zs-w-8 zs-h-8 zs-flex zs-items-center zs-justify-center zs-bg-transparent zs-border-none zs-font-semibold zs-my-1 zs-text-[#666] zs-leading-none"
-                onClick={() => scrollToLetter(index)}
-                title={`跳转到 ${letter}`}
-              >
-                {letter}
-              </motion.button>
             ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
+  );
+
+  const lettersNav = (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -10 }}
+        transition={{ duration: 0.25, ease: "easeInOut" }}
+        className="zs-shrink-0 zs-w-12 zs-rounded-xl zs-py-2 zs-h-full zs-overflow-y-auto"
+      >
+        {groups.map((letter, index) => (
+          <motion.button
+            key={letter}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2, delay: index * 0.04, ease: "easeOut" }}
+            whileHover={{
+              scale: 1.08,
+              backgroundColor: "rgba(0,122,255,0.1)",
+              color: "#007aff",
+              boxShadow: "0 4px 15px rgba(0,122,255,0.2)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            className="zs-text-sm zs-p-2 zs-cursor-pointer zs-rounded-xl zs-w-8 zs-h-8 zs-flex zs-items-center zs-justify-center zs-bg-transparent zs-border-none zs-font-semibold zs-my-1 zs-text-[#666] zs-leading-none"
+            onClick={() => scrollToLetter(index)}
+            title={`跳转到 ${letter}`}
+          >
+            {letter}
+          </motion.button>
+        ))}
+      </motion.div>
+    </AnimatePresence>
+  );
+
+  if (isMobile) {
+    return (
+      <BaseDrawer
+        open={visible}
+        onClose={onClose}
+        placement="bottom"
+        width="100vw"
+        height="100vh"
+        title={titleNode}
+        maskClosable
+        className="!zs-w-screen"
+        contentClassName={css`
+          height: 100vh;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          .base-drawer-content {
+            flex: 1;
+            min-height: 0;
+          }
+        `}
+      >
+        <div className="zs-relative zs-h-full zs-flex">
+          {lettersNav}
+          {contentNode}
+        </div>
+      </BaseDrawer>
+    );
+  }
+
+  return (
+    <BaseModal visible={visible} onClose={onClose} title={titleNode} width={900}>
+      <div className="zs-relative zs-flex zs-h-[60vh] zs-max-h-[600px] zs-overflow-hidden">
+        {lettersNav}
+        {contentNode}
+      </div>
     </BaseModal>
   );
 };
