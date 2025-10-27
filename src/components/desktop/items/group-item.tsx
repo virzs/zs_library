@@ -195,7 +195,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             box-shadow: 0 0 0.5rem ${theme.token.items?.groupIconShadowColor};
             /* overflow: hidden; */
             transition: all 0.3s;
-            transform-origin: top left;
+            transform-origin: ${listStatus === null ? "center" : "top left"};
             width: ${col * 64 + 44 * (col - 1)}px;
             height: ${row * 64 + 44 * (row - 1)}px;
           `
