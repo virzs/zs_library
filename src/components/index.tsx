@@ -61,6 +61,10 @@ export type {
 export { BaseModal as DesktopBaseModal } from "./desktop/modal";
 export type { BaseModalProps as DesktopBaseModalProps } from "./desktop/modal";
 
+// 导出desktop drawer相关组件
+export { BaseDrawer as DesktopBaseDrawer } from "./desktop/drawer";
+export type { BaseDrawerProps as DesktopBaseDrawerProps } from "./desktop/drawer";
+
 export { default as MdEditor } from "./md-editor";
 export { default as Markdown } from "./md-editor/preview";
 
