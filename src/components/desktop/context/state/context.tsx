@@ -171,7 +171,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   const contextMenuFuns = (data: any, enable = true) => {
     const { config = {} } = data;
 
-    if (config.allowContextMenu === false) {
+    if (config?.allowContextMenu === false) {
       return {};
     }
     return {
