@@ -129,9 +129,12 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
             )}
             {/* 修改尺寸 - 第四个选项 */}
             {showSizeButton &&
-              (config?.allowResize || false) !== false &&
+              config?.allowResize !== false &&
               (() => {
                 const typeConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
+
+                if (typeConfig.sizeConfigs.length <= 1) return null;
+
                 const currentSizeConfig = getSizeConfig(
                   data?.config?.sizeId,
                   typeConfig.sizeConfigs,
@@ -168,7 +171,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               if (showRemoveButton) menuIndex++;
               if (showShareButton) menuIndex++;
               if (showInfoButton) menuIndex++;
-              if (showSizeButton && (config?.allowResize || false) !== false) menuIndex++;
+              if (showSizeButton && config?.allowResize !== false) menuIndex++;
               menuIndex += index;
 
               return (
