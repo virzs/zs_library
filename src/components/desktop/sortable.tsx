@@ -129,7 +129,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setCurrentSliderIndex,
   } = useSortableState();
 
-  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder, typeConfigMap } = useSortableConfig();
+  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder, itemBuilderAllowNull, typeConfigMap } = useSortableConfig();
 
   // 从list中过滤出dock数据和分页数据
   const dockItems = useMemo(() => {
@@ -604,6 +604,14 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                     <AnimatePresence mode="popLayout">
                       {(l.children ?? []).map((item, index) => {
                         let el;
+
+                        // 当返回 null/undefined 时，回退到默认渲染
+                        if (itemBuilderAllowNull) {
+                          const built = itemBuilderAllowNull(item);
+                          if (built !== null && built !== undefined) {
+                            return built;
+                          }
+                        }
 
                         if (itemBuilder) {
                           return itemBuilder(item);
