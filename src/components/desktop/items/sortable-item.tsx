@@ -7,6 +7,7 @@ import { useSortableState } from "../context/state/hooks";
 import { SortItem, SortItemBaseData } from "../types";
 import { renderIcon } from "../utils/render-icon";
 import ItemName from "./item-name";
+import { getItemSize } from "../config";
 
 export interface SortableItemProps<D, C> {
   data: SortItem<D, C>;
@@ -36,12 +37,20 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
     itemIconBuilderAllowNull: configItemIconBuilderAllowNull,
     theme,
     contextMenu: contextMenuState,
+    typeConfigMap,
   } = useSortableConfig();
 
   const contextMenu = contextMenuProps != false ? contextMenuProps || contextMenuState : contextMenuProps;
 
   const { data: itemData = {} } = data;
   const { name, iconColor: dataIconColor } = itemData as D & SortItemBaseData;
+
+  // 统一在默认内容中根据配置计算尺寸
+  const { row, col } = getItemSize(data.type, data.config?.sizeId, typeConfigMap);
+  const unitSize = iconSize; // itemsize 对所有 item 生效
+  // dock 中不需要按 row/col 计算尺寸，固定为 iconSize
+  const width = from === "dock" ? unitSize : col * unitSize + 44 * (col - 1);
+  const height = from === "dock" ? unitSize : row * unitSize + 44 * (row - 1);
 
   return (
     <>
@@ -52,8 +61,8 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
             background-color: ${iconColor ?? dataIconColor ?? theme.token.items?.iconBackgroundColor};
             border-radius: 0.75rem;
             box-shadow: 0 0 0.5rem ${theme.token.items?.iconShadowColor};
-            width: ${iconSize}px;
-            height: ${iconSize}px;
+            width: ${width}px;
+            height: ${height}px;
           `
         )}
         whileTap={{ scale: 0.9 }}
