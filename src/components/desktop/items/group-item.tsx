@@ -1,6 +1,5 @@
 import { css, cx } from "@emotion/css";
 import { motion } from "motion/react";
-import React, { useMemo } from "react";
 import { ReactSortable } from "react-sortablejs";
 import { getItemSize } from "../config";
 import { useSortableConfig } from "../context/config/hooks";
@@ -9,6 +8,7 @@ import { SortItem } from "../types";
 import { renderIcon } from "../utils/render-icon";
 import ItemName from "./item-name";
 import SortableItem, { SortableItemProps } from "./sortable-item";
+import ItemContent from "./item-content";
 
 export interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
   data: SortItem<D, C>;
@@ -16,21 +16,12 @@ export interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
 
 const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
   const { data, className, parentIds, itemIndex, onClick, noLetters = false, disabledDrag = false, icon } = props;
-  const {
-    contextMenuFuns,
-    setList,
-    setOpenGroupItemData,
-    longPressTriggered,
-    moveTargetId,
-    setMoveTargetId,
-    listStatus,
-  } = useSortableState();
+  const { setList, setMoveTargetId, listStatus } = useSortableState();
 
   const {
     itemIconBuilder: configItemIconBuilder,
     itemIconBuilderAllowNull: configItemIconBuilderAllowNull,
     theme,
-    contextMenu,
     typeConfigMap,
   } = useSortableConfig();
 
@@ -43,10 +34,6 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
 
   // 截取前 9 个
   const _children = !childrenEmpty ? [...(children ?? [])]?.slice(0, 9) : [data];
-
-  const isMoveTarget = useMemo(() => {
-    return moveTargetId === data.id;
-  }, [data.id, moveTargetId]);
 
   const childrenIconCss = css`
     overflow: hidden;
@@ -190,31 +177,12 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
       childrenLength={children?.length}
       className={cx(className)}
     >
-      <motion.div
-        whileTap={{ scale: 0.9 }}
-        className={cx(
-          isMoveTarget ? "!scale-110" : "",
-          "zs-cursor-pointer zs-relative my-0",
-          css`
-            border-radius: 0.75rem;
-            background-color: ${theme.token.items?.groupIconBackgroundColor};
-            box-shadow: 0 0 0.5rem ${theme.token.items?.groupIconShadowColor};
-            /* overflow: hidden; */
-            transition: all 0.3s;
-            transform-origin: ${listStatus === null ? "center" : "top left"};
-            width: ${col * 64 + 44 * (col - 1)}px;
-            height: ${row * 64 + 44 * (row - 1)}px;
-          `
-        )}
-        onClick={(e: React.MouseEvent) => {
-          if (!childrenEmpty && !longPressTriggered) {
-            data.parentIds = parentIds;
-            data.pageX = e.pageX;
-            data.pageY = e.pageY;
-            setOpenGroupItemData(data);
-          }
-        }}
-        {...contextMenuFuns(data, contextMenu !== false)}
+      <ItemContent
+        data={data}
+        className={css`
+          background-color: ${theme.token.items?.groupIconBackgroundColor};
+          box-shadow: 0 0 0.5rem ${theme.token.items?.groupIconShadowColor};
+        `}
       >
         <motion.div
           className={cx(
@@ -255,7 +223,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             }}
           ></ReactSortable>
         </motion.div>
-      </motion.div>
+      </ItemContent>
       <ItemName data={data} noLetters={noLetters} defaultName="文件夹" />
     </SortableItem>
   );
