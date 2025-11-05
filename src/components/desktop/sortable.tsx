@@ -653,7 +653,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                             el = (
                               <motion.div
                                 className={cx(
-                                  "zs-flex zs-justify-center zs-items-center",
+                                  "zs-flex zs-justify-start zs-items-start",
                                   css`
                                     grid-row: span ${row};
                                     grid-column: span ${col};
