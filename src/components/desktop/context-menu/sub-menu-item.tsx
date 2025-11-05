@@ -15,7 +15,7 @@ export interface SubMenuItemProps {
   textColor?: string;
 }
 
-export const SubMenuItem = ({ text, icon, index, children, color, textColor, ...props }: SubMenuItemProps) => {
+export const SubMenuItem = ({ text, index, children, color, textColor, ...props }: SubMenuItemProps) => {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const [subMenuPosition, setSubMenuPosition] = useState({ x: 0, y: 0 });
   const menuItemRef = useRef<HTMLDivElement>(null);
