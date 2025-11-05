@@ -38,19 +38,19 @@ export type DataTypeMenuConfigMap = Record<string, MenuItemConfig[]>;
 /** 系统默认配置（不会存储到用户数据中，防止篡改） */
 export interface SortItemDefaultConfig {
   /** 可用的尺寸配置列表 */
-  sizeConfigs: SizeConfig[];
+  sizeConfigs?: SizeConfig[];
   /** 默认尺寸配置ID */
-  defaultSizeId: string;
+  defaultSizeId?: string;
   /** 允许设置大小 */
-  allowResize: boolean;
+  allowResize?: boolean;
   /** 允许打开右键菜单 */
-  allowContextMenu: boolean;
+  allowContextMenu?: boolean;
   /** 允许显示分享按钮 */
-  allowShare: boolean;
+  allowShare?: boolean;
   /** 允许显示删除按钮 */
-  allowDelete: boolean;
+  allowDelete?: boolean;
   /** 允许显示信息按钮 */
-  allowInfo: boolean;
+  allowInfo?: boolean;
 }
 
 /** 完整的配置接口（用户配置 + 系统默认配置） */

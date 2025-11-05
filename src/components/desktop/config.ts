@@ -64,16 +64,17 @@ export function getDefaultConfig(type: string, customConfigMap?: TypeConfigMap):
  */
 export function getSizeConfig(
   sizeId: string | undefined,
-  sizeConfigs: SizeConfig[],
-  defaultSizeId: string
+  sizeConfigs?: SizeConfig[],
+  defaultSizeId?: string | number
 ): SizeConfig {
+  const configs = sizeConfigs || [];
   if (!sizeId) {
-    return sizeConfigs.find((config) => config.id === defaultSizeId || config.name === defaultSizeId) || sizeConfigs[0];
+    return configs.find((config) => config.id === defaultSizeId || config.name === defaultSizeId) || configs[0];
   }
   return (
-    sizeConfigs.find((config) => config.id === sizeId || config.name === sizeId) ||
-    sizeConfigs.find((config) => config.id === defaultSizeId || config.name === defaultSizeId) ||
-    sizeConfigs[0]
+    configs.find((config) => config.id === sizeId || config.name === sizeId) ||
+    configs.find((config) => config.id === defaultSizeId || config.name === defaultSizeId) ||
+    configs[0]
   );
 }
 
