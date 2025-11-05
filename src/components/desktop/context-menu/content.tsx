@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { FC } from "react";
 import { useSortableConfig } from "../context/config/hooks";
 
-export interface ContentMenuContextProps extends React.ComponentProps<typeof motion.div> {}
+export type ContentMenuContextProps = React.ComponentProps<typeof motion.div>;
 
 const ContextMenuContent: FC<ContentMenuContextProps> = (props) => {
   const { className, children, ...rest } = props;

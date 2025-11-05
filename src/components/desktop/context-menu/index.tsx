@@ -46,6 +46,9 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
   const getAllSizes = () => {
     const config: SortItemDefaultConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
+    if (!config.sizeConfigs) {
+      return [];
+    }
     return config.sizeConfigs.map((sizeConfig) => sizeConfig.name);
   };
 
@@ -66,6 +69,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     removeItem,
     updateItemConfig,
   };
+
   return (
     <AnimatePresence>
       {contextMenu && isOpen && (
@@ -133,6 +137,10 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               (() => {
                 const typeConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
 
+                if (!typeConfig.sizeConfigs) {
+                  return null;
+                }
+
                 if (typeConfig.sizeConfigs.length <= 1) return null;
 
                 const currentSizeConfig = getSizeConfig(
@@ -153,6 +161,9 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                       sizes={getAllSizes()}
                       currentSize={currentSizeConfig.name}
                       onSizeChange={(sizeName) => {
+                        if (!typeConfig.sizeConfigs) {
+                          return;
+                        }
                         const selectedSizeConfig = typeConfig.sizeConfigs.find((sc) => sc.name === sizeName);
                         if (selectedSizeConfig) {
                           updateItemConfig(contextMenu.data.id, {
