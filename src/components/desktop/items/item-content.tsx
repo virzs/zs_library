@@ -22,7 +22,7 @@ const ItemContent = <D, C>({ className, data, children, iconSize = 64, ...rest }
     return moveTargetId === data.id;
   }, [data.id, moveTargetId]);
 
-  const gap = Math.round((iconSize / 64) * 44);
+  const gap = Math.round((iconSize / 64) * 48);
 
   return (
     <motion.div
