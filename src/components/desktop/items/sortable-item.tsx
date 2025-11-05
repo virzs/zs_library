@@ -31,7 +31,12 @@ export interface SortableItemProps<D, C> {
 export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>) => {
   const { data, noLetters = false, icon, iconColor, from, iconSize = 64, contextMenuProps } = props;
   const { contextMenuFuns } = useSortableState();
-  const { itemIconBuilder: configItemIconBuilder, theme, contextMenu: contextMenuState } = useSortableConfig();
+  const {
+    itemIconBuilder: configItemIconBuilder,
+    itemIconBuilderAllowNull: configItemIconBuilderAllowNull,
+    theme,
+    contextMenu: contextMenuState,
+  } = useSortableConfig();
 
   const contextMenu = contextMenuProps != false ? contextMenuProps || contextMenuState : contextMenuProps;
 
@@ -66,7 +71,7 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
             contextMenu !== false
           )}
         >
-          {renderIcon(data, icon, configItemIconBuilder)}
+          {renderIcon(data, icon, configItemIconBuilderAllowNull, configItemIconBuilder)}
         </div>
       </motion.div>
       <ItemName data={data} noLetters={noLetters} name={name} />

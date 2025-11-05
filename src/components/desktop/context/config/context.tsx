@@ -39,16 +39,20 @@ export interface SortableConfig<D, C> {
   /**
    * 自定义 item 渲染
    */
-  itemBuilder?: (item: SortItem<D, C>) => React.ReactNode;
+  itemBuilder?: (item: SortItem<D, C>, index: number) => React.ReactNode;
   /**
    * 自定义 item 渲染（允许返回 null 以回退到默认渲染）
    * 当返回值为 null 或 undefined 时，将继续执行下方的默认 switch 渲染逻辑
    */
-  itemBuilderAllowNull?: (item: SortItem<D, C>) => React.ReactNode;
+  itemBuilderAllowNull?: (item: SortItem<D, C>, index: number) => React.ReactNode;
   /**
    * 自定义 item 图标渲染
    */
   itemIconBuilder?: (item: SortItem<D, C>) => React.ReactNode;
+  /**
+   * 自定义 item 图标渲染（允许返回 null 以回退到默认渲染）
+   */
+  itemIconBuilderAllowNull?: (item: SortItem<D, C>) => React.ReactNode;
   /**
    * 自定义右键菜单
    */

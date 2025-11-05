@@ -38,6 +38,7 @@ const Desktop = forwardRef(<D, C>(props: DesktopProps<D, C>, ref: React.Forwarde
     itemBuilder,
     itemBuilderAllowNull,
     itemIconBuilder,
+    itemIconBuilderAllowNull,
     pagingDotBuilder,
     pagingDotsBuilder,
     ...rest
@@ -61,6 +62,7 @@ const Desktop = forwardRef(<D, C>(props: DesktopProps<D, C>, ref: React.Forwarde
     itemBuilder,
     itemBuilderAllowNull,
     itemIconBuilder,
+    itemIconBuilderAllowNull,
     contextMenuBuilder,
   };
 

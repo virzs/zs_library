@@ -26,7 +26,13 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     listStatus,
   } = useSortableState();
 
-  const { itemIconBuilder: configItemIconBuilder, theme, contextMenu, typeConfigMap } = useSortableConfig();
+  const {
+    itemIconBuilder: configItemIconBuilder,
+    itemIconBuilderAllowNull: configItemIconBuilderAllowNull,
+    theme,
+    contextMenu,
+    typeConfigMap,
+  } = useSortableConfig();
 
   const { children } = data;
 
@@ -66,7 +72,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             onClick?.(data);
           }}
         >
-          {renderIcon(data, icon, configItemIconBuilder)}
+          {renderIcon(data, icon, configItemIconBuilderAllowNull, configItemIconBuilder)}
         </motion.div>
       );
     }
@@ -96,7 +102,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 onClick?.(i);
               }}
             >
-              {renderIcon(i, undefined, configItemIconBuilder)}
+              {renderIcon(i, undefined, configItemIconBuilderAllowNull, configItemIconBuilder)}
             </motion.div>
           ))}
         </motion.div>
@@ -132,7 +138,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 onClick?.(i);
               }}
             >
-              {renderIcon(i, undefined, configItemIconBuilder)}
+              {renderIcon(i, undefined, configItemIconBuilderAllowNull, configItemIconBuilder)}
             </motion.div>
           ))}
         </motion.div>
@@ -168,7 +174,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 onClick?.(i);
               }}
             >
-              {renderIcon(i, undefined, configItemIconBuilder)}
+              {renderIcon(i, undefined, configItemIconBuilderAllowNull, configItemIconBuilder)}
             </motion.div>
           ))}
         </motion.div>

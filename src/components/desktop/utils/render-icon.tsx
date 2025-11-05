@@ -51,6 +51,7 @@ const ImageWithLoading: FC<{ src: string }> = memo(({ src }) => {
 export const renderIcon = <D, C>(
   item: SortItem<D, C>,
   icon?: React.ReactNode,
+  configItemIconBuilderAllowNull?: (item: SortItem<D, C>) => React.ReactNode,
   configItemIconBuilder?: ((item: SortItem<D, C>) => React.ReactNode) | React.ReactNode
 ): React.ReactNode => {
   const { data: itemData = {} } = item;
@@ -58,6 +59,14 @@ export const renderIcon = <D, C>(
 
   // 优先使用外部传入的icon
   if (icon) return icon;
+
+  // 其次尝试允许返回 null 的构建器；当返回 null/undefined 时，回退到默认逻辑
+  if (typeof configItemIconBuilderAllowNull === "function") {
+    const built = configItemIconBuilderAllowNull(item);
+    if (built !== null && built !== undefined) {
+      return built;
+    }
+  }
 
   // 其次使用数据中的icon
   if (dataIcon) {

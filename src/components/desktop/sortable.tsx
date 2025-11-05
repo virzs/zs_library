@@ -607,14 +607,14 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
                         // 当返回 null/undefined 时，回退到默认渲染
                         if (itemBuilderAllowNull) {
-                          const built = itemBuilderAllowNull(item);
+                          const built = itemBuilderAllowNull(item, index);
                           if (built !== null && built !== undefined) {
                             return built;
                           }
                         }
 
                         if (itemBuilder) {
-                          return itemBuilder(item);
+                          return itemBuilder(item, index);
                         }
 
                         const { row, col } = getItemSize(item.type, item.config?.sizeId, typeConfigMap);
