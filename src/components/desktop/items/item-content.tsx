@@ -12,9 +12,9 @@ interface ItemContentProps<D, C> extends ComponentProps<typeof motion.div> {
 }
 
 const ItemContent = <D, C>({ className, data, children, iconSize = 64, ...rest }: ItemContentProps<D, C>) => {
-  const { contextMenuFuns, moveTargetId, listStatus } = useSortableState();
+  const { moveTargetId, listStatus } = useSortableState();
 
-  const { contextMenu, typeConfigMap } = useSortableConfig();
+  const { typeConfigMap, computeGap } = useSortableConfig();
 
   const { row, col } = getItemSize(data.type, data.config?.sizeId, typeConfigMap);
 
@@ -22,7 +22,7 @@ const ItemContent = <D, C>({ className, data, children, iconSize = 64, ...rest }
     return moveTargetId === data.id;
   }, [data.id, moveTargetId]);
 
-  const gap = Math.round((iconSize / 64) * 48);
+  const gap = computeGap(iconSize);
 
   return (
     <motion.div
@@ -32,7 +32,7 @@ const ItemContent = <D, C>({ className, data, children, iconSize = 64, ...rest }
         "zs-cursor-pointer zs-relative my-0",
         css`
           border-radius: 0.75rem;
-          /* overflow: hidden; */
+          overflow: hidden;
           transition: all 0.3s;
           transform-origin: ${listStatus === null ? "center" : "top left"};
           width: ${col * iconSize + gap * (col - 1)}px;
@@ -40,7 +40,6 @@ const ItemContent = <D, C>({ className, data, children, iconSize = 64, ...rest }
         `,
         className
       )}
-      {...contextMenuFuns(data, contextMenu !== false)}
       {...rest}
     >
       {children}

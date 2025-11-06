@@ -15,14 +15,26 @@ export interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
 }
 
 const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
-  const { data, className, parentIds, itemIndex, onClick, noLetters = false, disabledDrag = false, icon } = props;
-  const { setList, setMoveTargetId, listStatus } = useSortableState();
+  const {
+    data,
+    className,
+    parentIds,
+    itemIndex,
+    onClick,
+    noLetters = false,
+    disabledDrag = false,
+    icon,
+    iconSize = 64,
+  } = props;
+  const { setList, listStatus, longPressTriggered, setMoveTargetId, setOpenGroupItemData, contextMenuFuns } =
+    useSortableState();
 
   const {
     itemIconBuilder: configItemIconBuilder,
     itemIconBuilderAllowNull: configItemIconBuilderAllowNull,
     theme,
     typeConfigMap,
+    contextMenu,
   } = useSortableConfig();
 
   const { children } = data;
@@ -179,10 +191,20 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     >
       <ItemContent
         data={data}
+        iconSize={iconSize}
         className={css`
           background-color: ${theme.token.items?.groupIconBackgroundColor};
           box-shadow: 0 0 0.5rem ${theme.token.items?.groupIconShadowColor};
         `}
+        onClick={(e: React.MouseEvent) => {
+          if (!childrenEmpty && !longPressTriggered) {
+            data.parentIds = parentIds;
+            data.pageX = e.pageX;
+            data.pageY = e.pageY;
+            setOpenGroupItemData(data);
+          }
+        }}
+        {...contextMenuFuns(data, contextMenu !== false)}
       >
         <motion.div
           className={cx(

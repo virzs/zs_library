@@ -5,8 +5,8 @@ import { css } from "@emotion/css";
  * iOS风格的拖拽区域样式，包含毛玻璃效果和过渡动画
  */
 export const dragContainerStyle = css`
-  grid-template-columns: repeat(auto-fill, 112px);
-  grid-auto-rows: 112px;
+  grid-template-columns: repeat(auto-fill, var(--item-cell-size, 112px));
+  grid-auto-rows: var(--item-cell-size, 112px);
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   /* 拖拽时的视觉反馈 */
@@ -30,8 +30,8 @@ export const dragContainerStyle = css`
  */
 export const mainDragContainerStyle = css`
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  grid-template-columns: repeat(auto-fill, 112px);
-  grid-auto-rows: 112px;
+  grid-template-columns: repeat(auto-fill, var(--item-cell-size, 112px));
+  grid-auto-rows: var(--item-cell-size, 112px);
 
   /* 拖拽进入时的视觉反馈 */
   .drag-over {

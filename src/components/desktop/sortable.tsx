@@ -32,6 +32,10 @@ export interface SortableProps<D, C> {
    */
   className?: string;
   /**
+   * 图标尺寸（影响网格单元大小）
+   */
+  iconSize?: number;
+  /**
    * 分页
    */
   pagination?: Pagination | false;
@@ -100,6 +104,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
       position: "bottom",
       showLaunchpad: true,
     },
+    iconSize = 64,
   } = props;
 
   const sliderRef = useRef<Slider>(null);
@@ -129,7 +134,10 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setCurrentSliderIndex,
   } = useSortableState();
 
-  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder, itemBuilderAllowNull, typeConfigMap } = useSortableConfig();
+  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder, itemBuilderAllowNull, typeConfigMap, computeCellSize } =
+    useSortableConfig();
+
+  const cellSize = computeCellSize(iconSize);
 
   // 从list中过滤出dock数据和分页数据
   const dockItems = useMemo(() => {
@@ -307,11 +315,14 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
   const sortableContainerObserverRef = useRef<ResizeObserver | null>(null);
   const sortableContainerResizeHandlerRef = useRef<(() => void) | null>(null);
 
-  const applyContainerWidth = useCallback((node: HTMLDivElement) => {
-    const { width, marginLeft } = SortableUtils.computeRowWidth(node, 112);
-    setPageRowWidth(width);
-    setPageRowMarginLeft(marginLeft);
-  }, []);
+  const applyContainerWidth = useCallback(
+    (node: HTMLDivElement) => {
+      const { width, marginLeft } = SortableUtils.computeRowWidth(node, cellSize);
+      setPageRowWidth(width);
+      setPageRowMarginLeft(marginLeft);
+    },
+    [cellSize]
+  );
 
   const setSortableContainerRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -542,7 +553,12 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                 >
                   <ReactSortable
                     className={cx("zs-grid zs-h-full", mainDragContainerStyle)}
-                    style={{ width: pageRowWidth, marginLeft: pageRowMarginLeft, transform: `translate(28px, 28px)` }}
+                    style={{
+                      width: pageRowWidth,
+                      marginLeft: pageRowMarginLeft,
+                      transform: `translate(28px, 28px)`,
+                      ...{ ["--item-cell-size"]: `${cellSize}px` },
+                    }}
                     {...mainDragConfig}
                     list={l.children ?? []}
                     setList={(e) => setList(e, [l.id])}
@@ -645,6 +661,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                   itemIndex={index}
                                   parentIds={[l.id, item.id]}
                                   onClick={onItemClick}
+                                  iconSize={iconSize}
                                 />
                               </motion.div>
                             );
@@ -668,7 +685,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}
                               >
-                                <SortableItem data={item} itemIndex={index} onClick={onItemClick} />
+                                <SortableItem data={item} itemIndex={index} onClick={onItemClick} iconSize={iconSize} />
                               </motion.div>
                             );
                             break;
