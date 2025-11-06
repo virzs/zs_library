@@ -24,14 +24,14 @@ export const appDefaultConfig: SortItemDefaultConfig = {
   allowContextMenu: true,
   allowShare: false,
   allowDelete: true,
-  allowInfo: true,
+  allowInfo: false,
 };
 
 /** group类型的默认配置 */
 export const groupDefaultConfig: SortItemDefaultConfig = {
   sizeConfigs: [commonSizeConfigs["1x1"], commonSizeConfigs["2x2"]],
   defaultSizeId: "1x1",
-  allowResize: false,
+  allowResize: true,
   allowContextMenu: true,
   allowShare: false,
   allowDelete: true,
