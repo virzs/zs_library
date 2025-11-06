@@ -44,12 +44,19 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   const { data } = contextMenu ?? {};
   const { config = {} } = data ?? {};
 
+  const typeConfig: SortItemDefaultConfig | undefined =
+    getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap) ?? {};
+
+  const { sizeConfigs = [], defaultSizeId, allowResize, allowShare, allowDelete, allowInfo } = typeConfig;
+
+  // 根据 typeConfig 的设置项（当不为 undefined）优化菜单显隐
+  const showRemove = allowDelete ?? showRemoveButton;
+  const showShare = allowShare ?? showShareButton;
+  const showInfo = allowInfo ?? showInfoButton;
+  const showSize = allowResize ?? showSizeButton;
+
   const getAllSizes = () => {
-    const config: SortItemDefaultConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
-    if (!config.sizeConfigs) {
-      return [];
-    }
-    return config.sizeConfigs.map((sizeConfig) => sizeConfig.name);
+    return sizeConfigs.map((sizeConfig) => sizeConfig.name);
   };
 
   // 获取当前item的dataType对应的自定义菜单项
@@ -80,7 +87,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
             }}
           >
             {/* 移除 - 第一个选项 */}
-            {showRemoveButton && (
+            {showRemove && (
               <MenuItem
                 text="移除"
                 icon={<RiIndeterminateCircleLine />}
@@ -98,7 +105,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               />
             )}
             {/* 分享 - 第二个选项 */}
-            {showShareButton && (
+            {showShare && (
               <MenuItem
                 text="分享"
                 icon={<RiShare2Line />}
@@ -112,7 +119,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               />
             )}
             {/* 信息 - 第三个选项 */}
-            {showInfoButton && (
+            {showInfo && (
               <MenuItem
                 text="信息"
                 icon={<RiInformationLine />}
@@ -132,28 +139,21 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
               />
             )}
             {/* 修改尺寸 - 第四个选项 */}
-            {showSizeButton &&
-              config?.allowResize !== false &&
+            {showSize &&
               (() => {
-                const typeConfig = getDefaultConfig(contextMenu?.data?.type || "app", typeConfigMap);
-
-                if (!typeConfig.sizeConfigs) {
+                if (!sizeConfigs) {
                   return null;
                 }
 
-                if (typeConfig.sizeConfigs.length <= 1) return null;
+                if (sizeConfigs.length <= 1) return null;
 
-                const currentSizeConfig = getSizeConfig(
-                  data?.config?.sizeId,
-                  typeConfig.sizeConfigs,
-                  typeConfig.defaultSizeId
-                );
+                const currentSizeConfig = getSizeConfig(data?.config?.sizeId, sizeConfigs, defaultSizeId);
 
                 // 计算当前菜单项的索引
                 let sizeMenuIndex = 0;
-                if (showRemoveButton) sizeMenuIndex++;
-                if (showShareButton) sizeMenuIndex++;
-                if (showInfoButton) sizeMenuIndex++;
+                if (showRemove) sizeMenuIndex++;
+                if (showShare) sizeMenuIndex++;
+                if (showInfo) sizeMenuIndex++;
 
                 return (
                   <SubMenuItem text="尺寸" icon={<RiApps2Line size={18} />} index={sizeMenuIndex}>
@@ -161,14 +161,15 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
                       sizes={getAllSizes()}
                       currentSize={currentSizeConfig.name}
                       onSizeChange={(sizeName) => {
-                        if (!typeConfig.sizeConfigs) {
+                        if (!sizeConfigs) {
                           return;
                         }
-                        const selectedSizeConfig = typeConfig.sizeConfigs.find((sc) => sc.name === sizeName);
+                        const selectedSizeConfig = sizeConfigs.find((sc) => sc.name === sizeName);
                         if (selectedSizeConfig) {
                           updateItemConfig(contextMenu.data.id, {
                             sizeId: selectedSizeConfig.id || sizeName,
                           });
+                          setContextMenu(null);
                         }
                       }}
                     />
@@ -179,10 +180,10 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
             {getCustomMenuItems().map((menuItem, index) => {
               // 计算菜单项索引，需要考虑前面已有的默认菜单项数量
               let menuIndex = 0;
-              if (showRemoveButton) menuIndex++;
-              if (showShareButton) menuIndex++;
-              if (showInfoButton) menuIndex++;
-              if (showSizeButton && config?.allowResize !== false) menuIndex++;
+              if (showRemove) menuIndex++;
+              if (showShare) menuIndex++;
+              if (showInfo) menuIndex++;
+              if (showSize && config?.allowResize !== false) menuIndex++;
               menuIndex += index;
 
               return (
