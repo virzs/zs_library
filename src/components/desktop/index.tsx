@@ -86,13 +86,13 @@ const Desktop = forwardRef(<D, C>(props: DesktopProps<D, C>, ref: React.Forwarde
   };
 
   return (
-    <SortableStateProvider<D, C> {...stateProps}>
-      <SortableConfigProvider<D, C> {...configProps}>
+    <SortableConfigProvider<D, C> {...configProps}>
+      <SortableStateProvider<D, C> {...stateProps}>
         <StateAndConfigAccessor />
         <Sortable<D, C> {...rest} />
         <GlobalContextMenu<D, C> />
-      </SortableConfigProvider>
-    </SortableStateProvider>
+      </SortableStateProvider>
+    </SortableConfigProvider>
   );
 }) as <D = any, C = any>(props: DesktopProps<D, C> & { ref?: React.ForwardedRef<DesktopHandle<D, C>> }) => JSX.Element;
 

@@ -5,6 +5,7 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 import { v4 as uuidv4 } from "uuid";
 import { SortItem, ListItem } from "../../types";
 import SortableUtils from "../../utils/index";
+import { useSortableConfig } from "../config/hooks";
 
 interface ContextMenu {
   rect: DOMRect;
@@ -115,6 +116,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
     storageKey = "ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG",
     enableCaching = true,
   } = props;
+  const { typeConfigMap } = useSortableConfig();
 
   const [contextMenuTimer, setContextMenuTimer] = useState<NodeJS.Timeout>();
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout>();
@@ -141,6 +143,14 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
     clearTimeout(contextMenuTimer);
     setContextMenuTimer(undefined);
     listStatusRef.current = null;
+  };
+
+  /**
+   * 检查类型是否允许上下文菜单
+   */
+  const checkTypeAllowContextMenu = (data: any) => {
+    const typeConfig = typeConfigMap?.[data.type];
+    return typeConfig?.allowContextMenu !== false;
   };
 
   const getItemRectAndSetContextMenu = (e: any, data: any) => {
@@ -176,6 +186,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
     }
     return {
       onMouseDown: (e: any) => {
+        if (!checkTypeAllowContextMenu(data)) return;
         setContextMenuTimer(
           setTimeout(() => {
             if (!enable) return;
@@ -199,6 +210,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
         setContextMenuTimer(undefined);
       },
       onContextMenu: (e: any) => {
+        if (!checkTypeAllowContextMenu(data)) return;
         if (!enable) return;
         e.preventDefault();
         getItemRectAndSetContextMenu(e, data);
