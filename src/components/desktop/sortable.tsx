@@ -568,6 +568,17 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       const draggedData = dragged.dataset;
                       const relatedData = related.dataset;
                       setMoveTargetId(null);
+                      // 限制：除了 type 为 app，其他类型在 relatedData 为空时不允许合并
+                      // 通过拖拽项的父元素或状态获取类型，保证兼容不同包裹层级
+                      const draggedClosestType = (dragged.closest("[data-type]") as HTMLElement | null)?.dataset?.type;
+                      const draggedType = (draggedData as DOMStringMap)?.type ?? draggedClosestType ?? dragItem?.type;
+                      if (
+                        Object.keys(relatedData).length === 0 &&
+                        draggedType !== "app" &&
+                        related.classList.contains("sortable-group-item")
+                      ) {
+                        return false;
+                      }
                       // 限制只有一层
                       // sortable-group-item 标记为文件夹
                       if (
@@ -649,6 +660,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                 )}
                                 key={item.id}
                                 data-id={item.id}
+                                data-type={item.type}
                                 layout={isDragging ? false : "position"}
                                 transition={
                                   isDragging ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 38 }
@@ -678,6 +690,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                 )}
                                 key={item.id}
                                 data-id={item.id}
+                                data-type={item.type}
                                 layout={isDragging ? false : "position"}
                                 transition={
                                   isDragging ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 38 }
