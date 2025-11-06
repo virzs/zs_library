@@ -352,6 +352,18 @@ export default () => {
             );
           }
         }}
+        typeConfigMap={{
+          custom: {
+            sizeConfigs: [
+              { row: 1, col: 2, name: "2x1", id: "2x1" },
+              { row: 2, col: 2, name: "2x2", id: "2x2" },
+            ],
+            defaultSizeId: "2x1",
+            allowInfo: false,
+            allowShare: false,
+            allowDelete: false,
+          },
+        }}
         dock={{
           enabled: true,
           position: "bottom",
