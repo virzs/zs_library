@@ -28,7 +28,6 @@ export {
   // 其他组件
   MdEditor,
   Markdown,
-  Editor,
   GeoMap,
 } from "./components";
 
