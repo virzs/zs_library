@@ -56,11 +56,15 @@ export interface ImageUploadNodeStorage {
   pendingFiles: Map<string, File[]>;
 }
 
-declare module "@tiptap/react" {
+declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     imageUpload: {
       setImageUploadNode: (options?: ImageUploadNodeOptions) => ReturnType;
     };
+  }
+
+  interface Storage {
+    imageUpload: ImageUploadNodeStorage;
   }
 }
 

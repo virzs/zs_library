@@ -460,7 +460,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
     if (uploadId) {
       // Access storage via editor.storage to ensure we get the latest state
       // The extension name is 'imageUpload'
-      const storage = (props.editor.storage as unknown as Record<string, unknown>).imageUpload as ImageUploadNodeStorage | undefined;
+      const storage: ImageUploadNodeStorage | undefined = props.editor.storage.imageUpload;
       const files = storage?.pendingFiles?.get(uploadId);
 
       if (files) {
