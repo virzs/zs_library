@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
-import { Image } from "@tiptap/extension-image";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Typography } from "@tiptap/extension-typography";
@@ -22,6 +21,7 @@ import { Toolbar, ToolbarGroup, ToolbarSeparator } from "./components/tiptap-ui-
 
 // --- Tiptap Node ---
 import { ImageUploadNode } from "./components/tiptap-node/image-upload-node/image-upload-node-extension";
+import { ImageNode as ImageExtension } from "./components/tiptap-node/image-node/image-node-extension";
 import { HorizontalRule } from "./components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import "./components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "./components/tiptap-node/code-block-node/code-block-node.scss";
@@ -196,7 +196,7 @@ export function SimpleEditor({ value, onChange, className, style, image }: Simpl
       TaskList,
       TaskItem.configure({ nested: true }),
       Highlight.configure({ multicolor: true }),
-      Image,
+      ImageExtension,
       Typography,
       Superscript,
       Subscript,

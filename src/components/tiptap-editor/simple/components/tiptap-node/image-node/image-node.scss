@@ -1,31 +1,89 @@
-.tiptap.ProseMirror {
-  img {
+.tiptap-image-view {
+  margin: 1.5rem 0;
+  width: 100%;
+  line-height: 0;
+
+  .tiptap-image-container {
+    position: relative;
     max-width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  > img:not([data-type="emoji"] img) {
-    margin: 2rem 0;
-    outline: 0.125rem solid transparent;
-    border-radius: var(--tt-radius-xs, 0.25rem);
-  }
-
-  img:not([data-type="emoji"] img).ProseMirror-selectednode {
-    outline-color: var(--tt-brand-color-500);
-  }
-
-  // Thread image handling
-  .tiptap-thread:has(> img) {
-    margin: 2rem 0;
+    user-select: none;
 
     img {
-      outline: 0.125rem solid transparent;
-      border-radius: var(--tt-radius-xs, 0.25rem);
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: var(--tt-radius-md, 0.5rem);
+      box-shadow: 0 0 0 2px transparent;
+      transition: box-shadow 0.2s;
     }
   }
 
-  .tiptap-thread img {
-    margin: 0;
+  &.is-selected .tiptap-image-container img {
+    box-shadow: 0 0 0 2px var(--tt-brand-color-500);
+
+    .dark & {
+      box-shadow: 0 0 0 2px var(--tt-brand-color-400);
+    }
+  }
+
+  // Toolbar styles
+  .tiptap-image-toolbar {
+    position: absolute;
+    top: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--tt-bg-color-surface, #ffffff);
+    border: 1px solid var(--tt-border-color, #e5e7eb);
+    border-radius: var(--tt-radius-full, 9999px);
+    padding: 0.25rem;
+    display: flex;
+    gap: 0.25rem;
+    box-shadow: var(--tt-shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+    z-index: 10;
+
+    .dark & {
+      background: var(--tt-gray-dark-50, #19191a);
+      border-color: var(--tt-gray-dark-200, #2d2d2f);
+      box-shadow: var(--tt-shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.3));
+    }
+  }
+
+  // Resize handle
+  .tiptap-image-resize-handle {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    cursor: nwse-resize;
+    z-index: 10;
+
+    &:hover {
+      background: var(--tt-brand-color-500);
+    }
+
+    .dark & {
+      background: rgba(255, 255, 255, 0.5);
+      border: 2px solid rgba(0, 0, 0, 0.8);
+
+      &:hover {
+        background: var(--tt-brand-color-400);
+      }
+    }
+  }
+}
+
+// Keep original styles for fallback or other contexts if needed
+.tiptap.ProseMirror {
+  // Only apply these if NOT using the node view wrapper (which has class .tiptap-image-view)
+  > img:not([data-type="emoji"] img):not(.tiptap-image-view img) {
+    margin: 2rem 0;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--tt-radius-xs, 0.25rem);
   }
 }
