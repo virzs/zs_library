@@ -520,6 +520,86 @@ export default () => {
 };
 ```
 
+## 图片上传
+
+支持通过 `image` 属性配置图片上传行为。
+
+### 默认上传 (Action)
+
+使用 `action` 属性指定上传接口。以下示例使用 `https://tmpfiles.org/api/v1/upload` 作为接口。
+由于 `tmpfiles.org` 返回的 URL 是预览页面地址，我们需要通过 `formatResult` 将其转换为直接下载地址。
+
+```jsx
+import React from "react";
+import { SimpleEditor } from "zs_library";
+
+export default () => {
+  return (
+    <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+      <SimpleEditor
+        image={{
+          action: "https://tmpfiles.org/api/v1/upload",
+          name: "file",
+          formatResult: (response) => {
+            return response.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
+          },
+        }}
+      />
+    </div>
+  );
+};
+```
+
+### 自定义上传 (Custom Request)
+
+使用 `customRequest` 完全控制上传过程。以下示例展示了如何对接 `tmpfiles.org` 服务，并处理其特殊的返回 URL 格式。
+
+```jsx
+import React from "react";
+import { SimpleEditor } from "zs_library";
+
+export default () => {
+  return (
+    <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+      <SimpleEditor
+        image={{
+          customRequest: async ({ file, onProgress, onSuccess, onError }) => {
+            try {
+              const formData = new FormData();
+              formData.append("file", file);
+
+              // 模拟上传进度
+              onProgress({ percent: 20 });
+
+              const response = await fetch("https://tmpfiles.org/api/v1/upload", {
+                method: "POST",
+                body: formData,
+              });
+
+              if (!response.ok) {
+                throw new Error("Upload failed");
+              }
+
+              // 模拟上传进度
+              onProgress({ percent: 100 });
+
+              const json = await response.json();
+
+              // tmpfiles.org 返回的是页面地址，需要转换为直接下载地址才能在 img 标签中显示
+              const url = json.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
+
+              onSuccess(url);
+            } catch (error) {
+              onError(error);
+            }
+          },
+        }}
+      />
+    </div>
+  );
+};
+```
+
 ## 功能特性
 
 - **文本格式化**: 粗体、斜体、删除线、下划线、代码

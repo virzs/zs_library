@@ -60,7 +60,8 @@ import { useCursorVisibility } from "./hooks/use-cursor-visibility";
 import { ThemeToggle } from "./theme-toggle";
 
 // --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from "./lib/tiptap-utils";
+import { MAX_FILE_SIZE } from "./lib/tiptap-utils";
+import { handleImageUploadRequest, type ImageUploadProps } from "./lib/image-upload-handler";
 // import content from "./data/content.json";
 import enUS from "./i18n/en-US.json";
 import zhCN from "./i18n/zh-CN.json";
@@ -150,14 +151,18 @@ export interface SimpleEditorProps {
   onChange?: (value: string) => void;
   className?: string;
   style?: React.CSSProperties;
+  image?: ImageUploadProps;
 }
 
-export function SimpleEditor({ value, onChange, className, style }: SimpleEditorProps) {
+export function SimpleEditor({ value, onChange, className, style, image }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">("main");
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { t, i18n } = useTranslation("simpleEditor");
+
+  const imageRef = useRef(image);
+  imageRef.current = image;
 
   useEffect(() => {
     i18n.addResourceBundle("en-US", "simpleEditor", enUS, true, true);
@@ -200,7 +205,12 @@ export function SimpleEditor({ value, onChange, className, style }: SimpleEditor
         accept: "image/*",
         maxSize: MAX_FILE_SIZE,
         limit: 3,
-        upload: handleImageUpload,
+        upload: (file, onProgress) =>
+          handleImageUploadRequest({
+            file,
+            onProgress,
+            imageProps: imageRef.current,
+          }),
         onError: (error) => console.error("Upload failed:", error),
       }),
     ],
