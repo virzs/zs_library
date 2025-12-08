@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
+import { EditorContent, EditorContext, JSONContent, useEditor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
 // --- Tiptap Core Extensions ---
@@ -61,8 +61,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 // --- Lib ---
 import { handleImageUpload, MAX_FILE_SIZE } from "./lib/tiptap-utils";
-
-import content from "./data/content.json";
+// import content from "./data/content.json";
 import enUS from "./i18n/en-US.json";
 import zhCN from "./i18n/zh-CN.json";
 
@@ -146,7 +145,14 @@ const MobileToolbarContent = ({ type, onBack }: { type: "highlighter" | "link"; 
   </>
 );
 
-export function SimpleEditor() {
+export interface SimpleEditorProps {
+  value?: string | JSONContent;
+  onChange?: (value: string) => void;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export function SimpleEditor({ value, onChange, className, style }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">("main");
@@ -168,6 +174,9 @@ export function SimpleEditor() {
         "aria-label": t("editor.contentAriaLabel"),
         class: "simple-editor",
       },
+    },
+    onUpdate: ({ editor }) => {
+      onChange?.(editor.getHTML());
     },
     extensions: [
       StarterKit.configure({
@@ -195,8 +204,14 @@ export function SimpleEditor() {
         onError: (error) => console.error("Upload failed:", error),
       }),
     ],
-    content,
+    content: value,
   });
+
+  useEffect(() => {
+    if (editor && value !== undefined && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   const rect = useCursorVisibility({
     editor,
@@ -210,7 +225,7 @@ export function SimpleEditor() {
   }, [isMobile, mobileView]);
 
   return (
-    <div className="simple-editor-wrapper">
+    <div className={`simple-editor-wrapper ${className || ""}`} style={style}>
       <EditorContext.Provider value={{ editor }}>
         <Toolbar
           ref={toolbarRef}
