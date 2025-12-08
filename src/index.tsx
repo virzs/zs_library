@@ -29,6 +29,7 @@ export {
   MdEditor,
   Markdown,
   GeoMap,
+  SimpleEditor,
 } from "./components";
 
 export type {

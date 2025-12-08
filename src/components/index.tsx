@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 export { default as Desktop } from "./desktop";
 
 export type { DesktopHandle, DesktopProps } from "./desktop";
@@ -77,3 +76,5 @@ export type { MobileIconContainerProps as DockMobileItemProps } from "./dock/doc
 
 export { default as GeoMap } from "./map-view";
 export type { GeoMapProps } from "./map-view";
+
+export { default as SimpleEditor } from "./tiptap-editor/simple";

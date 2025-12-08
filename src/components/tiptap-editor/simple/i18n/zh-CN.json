@@ -1,0 +1,79 @@
+{
+  "editor": {
+    "contentAriaLabel": "主要内容区域，开始输入文字。"
+  },
+  "toolbar": {
+    "add": "添加",
+    "undo": "撤销",
+    "redo": "重做",
+    "heading": {
+      "label": "标题",
+      "level": "标题 {{level}}"
+    },
+    "list": {
+      "label": "列表",
+      "bullet": "无序列表",
+      "ordered": "有序列表",
+      "task": "任务列表"
+    },
+    "blockquote": "引用",
+    "codeBlock": "代码块",
+    "marks": {
+      "bold": "粗体",
+      "italic": "斜体",
+      "strike": "删除线",
+      "code": "行内代码",
+      "underline": "下划线",
+      "superscript": "上标",
+      "subscript": "下标"
+    },
+    "highlight": {
+      "label": "高亮",
+      "toggle": "切换高亮 ({{color}})",
+      "remove": "移除高亮",
+      "colors": {
+        "default": "默认背景",
+        "gray": "灰色背景",
+        "brown": "棕色背景",
+        "orange": "橙色背景",
+        "yellow": "黄色背景",
+        "green": "绿色背景",
+        "blue": "蓝色背景",
+        "purple": "紫色背景",
+        "pink": "粉色背景",
+        "red": "红色背景"
+      }
+    },
+    "link": {
+      "label": "链接",
+      "placeholder": "粘贴链接...",
+      "apply": "应用链接",
+      "open": "在新窗口打开",
+      "remove": "移除链接"
+    },
+    "align": {
+      "left": "左对齐",
+      "center": "居中对齐",
+      "right": "右对齐",
+      "justify": "两端对齐"
+    },
+    "image": {
+      "label": "添加图片"
+    }
+  },
+  "imageUpload": {
+    "clickToUpload": "点击上传",
+    "dragAndDrop": "或拖拽上传",
+    "limitInfo": "最多 {{limit}} 个文件，每个 {{size}}MB。",
+    "uploading": "正在上传 {{count}} 个文件",
+    "clearAll": "全部清除",
+    "errors": {
+      "tooLarge": "文件大小超过限制 ({{size}}MB)",
+      "limitExceeded": "最多允许 {{limit}} 个文件",
+      "noFile": "未选择文件",
+      "noFiles": "没有可上传的文件",
+      "uploadFailed": "上传失败",
+      "noUrl": "上传失败：未返回 URL"
+    }
+  }
+}
