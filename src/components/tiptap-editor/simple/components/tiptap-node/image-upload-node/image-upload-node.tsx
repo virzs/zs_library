@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import { Button } from "../../tiptap-ui-primitive/button";
 import { CloseIcon } from "../../tiptap-icons/close-icon";
 import "./image-upload-node.scss";
 import { focusNextNode, isValidPosition } from "../../../lib/tiptap-utils";
+import type { ImageUploadNodeStorage } from "./image-upload-node-extension";
 
 export interface FileItem {
   /**
@@ -85,9 +86,7 @@ function useFileUpload(options: UploadOptions) {
 
   const uploadFile = async (file: File): Promise<string | null> => {
     if (file.size > options.maxSize) {
-      const error = new Error(
-        t("imageUpload.errors.tooLarge", { size: options.maxSize / 1024 / 1024 })
-      );
+      const error = new Error(t("imageUpload.errors.tooLarge", { size: options.maxSize / 1024 / 1024 }));
       options.onError?.(error);
       return null;
     }
@@ -150,7 +149,9 @@ function useFileUpload(options: UploadOptions) {
 
     if (options.limit && files.length > options.limit) {
       options.onError?.(
-        new Error(t("imageUpload.errors.limitExceeded", { limit: options.limit, plural: options.limit === 1 ? "" : "s" }))
+        new Error(
+          t("imageUpload.errors.limitExceeded", { limit: options.limit, plural: options.limit === 1 ? "" : "s" })
+        )
       );
       return [];
     }
@@ -453,6 +454,21 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
       }
     }
   };
+
+  useEffect(() => {
+    const uploadId = props.node.attrs.uploadId;
+    if (uploadId) {
+      // Access storage via editor.storage to ensure we get the latest state
+      // The extension name is 'imageUpload'
+      const storage = (props.editor.storage as unknown as Record<string, unknown>).imageUpload as ImageUploadNodeStorage | undefined;
+      const files = storage?.pendingFiles?.get(uploadId);
+
+      if (files) {
+        handleUpload(files);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
