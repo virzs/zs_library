@@ -1,0 +1,184 @@
+.tiptap-ai-popover-content {
+  width: 360px;
+  padding: 12px;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--tt-gray-light-200);
+
+  .dark & {
+    background-color: var(--tt-gray-dark-50);
+    border-color: var(--tt-gray-dark-200);
+  }
+}
+
+.tiptap-ai-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tiptap-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--tt-brand-color-500);
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--tt-gray-light-200);
+
+  .dark & {
+    border-color: var(--tt-gray-dark-200);
+  }
+}
+
+.tiptap-ai-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.tiptap-ai-title {
+  font-size: 14px;
+}
+
+.tiptap-ai-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tiptap-ai-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tiptap-ai-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tt-gray-light-600);
+
+  .dark & {
+    color: var(--tt-gray-dark-600);
+  }
+}
+
+.tiptap-ai-selection-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background-color: var(--tt-gray-light-100);
+  border-radius: 6px;
+  border-left: 3px solid var(--tt-brand-color-500);
+
+  .dark & {
+    background-color: var(--tt-gray-dark-100);
+  }
+}
+
+.tiptap-ai-selection-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tt-gray-light-600);
+  text-transform: uppercase;
+
+  .dark & {
+    color: var(--tt-gray-dark-600);
+  }
+}
+
+.tiptap-ai-selection-text {
+  font-size: 13px;
+  color: var(--tt-gray-light-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-style: italic;
+
+  .dark & {
+    color: var(--tt-gray-dark-800);
+  }
+}
+
+.tiptap-ai-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--tt-gray-light-300);
+  background-color: var(--white);
+  color: var(--tt-gray-light-900);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: var(--tt-brand-color-500);
+    box-shadow: 0 0 0 1px var(--tt-brand-color-500);
+  }
+
+  .dark & {
+    background-color: var(--tt-gray-dark-100);
+    border-color: var(--tt-gray-dark-300);
+    color: var(--tt-gray-dark-900);
+  }
+}
+
+.tiptap-ai-generate-btn {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.tiptap-ai-separator {
+  margin: 0;
+}
+
+.tiptap-ai-result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tiptap-ai-result-content {
+  padding: 12px;
+  border-radius: 6px;
+  background-color: var(--tt-gray-light-100);
+  color: var(--tt-gray-light-900);
+  font-size: 14px;
+  line-height: 1.6;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  border: 1px solid transparent;
+
+  .dark & {
+    background-color: var(--tt-gray-dark-100);
+    color: var(--tt-gray-dark-900);
+  }
+}
+
+.tiptap-ai-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.tiptap-ai-error {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: var(--tt-color-red-inc-5, #fee2e2);
+  color: var(--tt-color-red-dec-5, #991b1b);
+  font-size: 13px;
+  border: 1px solid var(--tt-color-red-inc-2, #fecaca);
+
+  .dark & {
+    background-color: rgba(153, 27, 27, 0.2);
+    color: #fca5a5;
+    border-color: rgba(153, 27, 27, 0.5);
+  }
+}

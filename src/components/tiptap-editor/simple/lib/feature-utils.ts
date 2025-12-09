@@ -41,6 +41,11 @@ export interface TextAlignConfig extends BaseButtonConfig {
 
 export interface ImageConfig extends BaseButtonConfig, ImageUploadProps {}
 
+export interface AiConfig extends BaseButtonConfig {
+  defaultPrompt?: string;
+  defaultModel?: string;
+}
+
 export interface SimpleEditorFeatures {
   undoRedo?: boolean | FeatureConfig<BaseButtonConfig>;
   heading?: boolean | FeatureConfig<HeadingConfig>;
@@ -59,6 +64,7 @@ export interface SimpleEditorFeatures {
   textAlign?: boolean | FeatureConfig<TextAlignConfig>;
   image?: boolean | FeatureConfig<ImageConfig>;
   themeToggle?: boolean;
+  ai?: boolean | FeatureConfig<AiConfig>;
 }
 
 export const isEnabled = (config: boolean | FeatureConfig | undefined, defaultValue = true) => {

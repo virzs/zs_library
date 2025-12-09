@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { EditorContent, EditorContext, JSONContent, useEditor } from "@tiptap/react";
+import { EditorContent, EditorContext, JSONContent, useEditor, Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
 // --- Tiptap Core Extensions ---
@@ -46,6 +46,7 @@ import { LinkPopover, LinkContent, LinkButton } from "./components/tiptap-ui/lin
 import { MarkButton } from "./components/tiptap-ui/mark-button";
 import { TextAlignButton } from "./components/tiptap-ui/text-align-button";
 import { UndoRedoButton } from "./components/tiptap-ui/undo-redo-button";
+import { AiButton } from "./components/tiptap-ui/ai-button";
 
 // --- Icons ---
 import { ArrowLeftIcon } from "./components/tiptap-icons/arrow-left-icon";
@@ -75,11 +76,13 @@ const MainToolbarContent = ({
   onLinkClick,
   isMobile,
   features,
+  editor,
 }: {
   onHighlighterClick: () => void;
   onLinkClick: () => void;
   isMobile: boolean;
   features?: SimpleEditorFeatures;
+  editor: Editor | null;
 }) => {
   const showUndoRedo = isEnabled(features?.undoRedo);
   const showHeading = isEnabled(features?.heading);
@@ -97,6 +100,7 @@ const MainToolbarContent = ({
   const showSuperscript = isEnabled(features?.superscript);
   const showTextAlign = isEnabled(features?.textAlign);
   const showImage = isEnabled(features?.image);
+  const showAi = isEnabled(features?.ai);
   const showThemeToggle = isEnabled(features?.themeToggle);
 
   const undoRedoConfig = getConfig(features?.undoRedo);
@@ -115,6 +119,7 @@ const MainToolbarContent = ({
   const superscriptConfig = getConfig(features?.superscript);
   const textAlignConfig = getConfig(features?.textAlign);
   const imageConfig = getConfig(features?.image);
+  const aiConfig = getConfig(features?.ai);
 
   return (
     <>
@@ -196,15 +201,18 @@ const MainToolbarContent = ({
       )}
 
       {showImage && (
-        <>
-          <ToolbarGroup>
-            <ImageUploadButton {...imageConfig} />
-          </ToolbarGroup>
-          <Spacer />
-        </>
+        <ToolbarGroup>
+          <ImageUploadButton {...imageConfig} />
+        </ToolbarGroup>
       )}
 
-      {!showImage && <Spacer />}
+      {showAi && (
+        <ToolbarGroup>
+          <AiButton editor={editor} {...aiConfig} />
+        </ToolbarGroup>
+      )}
+
+      <Spacer />
 
       {isMobile && <ToolbarSeparator />}
       {showThemeToggle && (
@@ -374,6 +382,7 @@ export function SimpleEditor({ value, onChange, className, style, features }: Si
               onLinkClick={() => setMobileView("link")}
               isMobile={isMobile}
               features={features}
+              editor={editor}
             />
           ) : (
             <MobileToolbarContent

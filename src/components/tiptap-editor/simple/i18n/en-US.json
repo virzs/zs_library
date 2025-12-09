@@ -59,6 +59,19 @@
     },
     "image": {
       "label": "Add image"
+    },
+    "ai": {
+      "label": "AI Assistant",
+      "placeholder": "Ask AI to write something...",
+      "apiKeyPlaceholder": "sk-...",
+      "generate": "Generate",
+      "generating": "Generating...",
+      "insert": "Insert",
+      "replace": "Replace Selection",
+      "apiKeyLabel": "API Key (DeepSeek)",
+      "promptLabel": "Prompt",
+      "error": "Failed to generate content",
+      "optimizeSelection": "Selection Context: {{text}}"
     }
   },
   "imageUpload": {

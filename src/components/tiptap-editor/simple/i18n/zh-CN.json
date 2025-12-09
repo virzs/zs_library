@@ -59,6 +59,19 @@
     },
     "image": {
       "label": "添加图片"
+    },
+    "ai": {
+      "label": "AI 助手",
+      "placeholder": "让 AI 写点什么...",
+      "apiKeyPlaceholder": "sk-...",
+      "generate": "生成",
+      "generating": "生成中...",
+      "insert": "插入",
+      "replace": "替换选中内容",
+      "apiKeyLabel": "API Key (DeepSeek)",
+      "promptLabel": "提示词",
+      "error": "生成失败",
+      "optimizeSelection": "选中内容: {{text}}"
     }
   },
   "imageUpload": {
