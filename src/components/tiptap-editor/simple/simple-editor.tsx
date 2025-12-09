@@ -61,70 +61,126 @@ import { ThemeToggle } from "./theme-toggle";
 
 // --- Lib ---
 import { MAX_FILE_SIZE } from "./lib/tiptap-utils";
-import { handleImageUploadRequest, type ImageUploadProps } from "./lib/image-upload-handler";
+import { handleImageUploadRequest } from "./lib/image-upload-handler";
 // import content from "./data/content.json";
 import enUS from "./i18n/en-US.json";
 import zhCN from "./i18n/zh-CN.json";
 
 // --- Styles ---
 import "./simple-editor.scss";
+import { SimpleEditorFeatures, isEnabled, getConfig } from "./lib/feature-utils";
 
 const MainToolbarContent = ({
   onHighlighterClick,
   onLinkClick,
   isMobile,
+  features,
 }: {
   onHighlighterClick: () => void;
   onLinkClick: () => void;
   isMobile: boolean;
+  features?: SimpleEditorFeatures;
 }) => {
-  const { t } = useTranslation("simpleEditor");
+  const showUndoRedo = isEnabled(features?.undoRedo);
+  const showHeading = isEnabled(features?.heading);
+  const showList = isEnabled(features?.list);
+  const showBlockquote = isEnabled(features?.blockquote);
+  const showCodeBlock = isEnabled(features?.codeBlock);
+  const showBold = isEnabled(features?.bold);
+  const showItalic = isEnabled(features?.italic);
+  const showStrike = isEnabled(features?.strike);
+  const showCode = isEnabled(features?.code);
+  const showUnderline = isEnabled(features?.underline);
+  const showHighlight = isEnabled(features?.highlight);
+  const showLink = isEnabled(features?.link);
+  const showSubscript = isEnabled(features?.subscript);
+  const showSuperscript = isEnabled(features?.superscript);
+  const showTextAlign = isEnabled(features?.textAlign);
+  const showImage = isEnabled(features?.image);
+  const showThemeToggle = isEnabled(features?.themeToggle);
+
+  const headingConfig = getConfig(features?.heading);
 
   return (
     <>
       <Spacer />
-      <ToolbarGroup>
-        <UndoRedoButton action="undo" />
-        <UndoRedoButton action="redo" />
-      </ToolbarGroup>
-      <ToolbarSeparator />
-      <ToolbarGroup>
-        <HeadingDropdownMenu levels={[1, 2, 3, 4]} portal={isMobile} />
-        <ListDropdownMenu types={["bulletList", "orderedList", "taskList"]} portal={isMobile} />
-        <BlockquoteButton />
-        <CodeBlockButton />
-      </ToolbarGroup>
-      <ToolbarSeparator />
-      <ToolbarGroup>
-        <MarkButton type="bold" />
-        <MarkButton type="italic" />
-        <MarkButton type="strike" />
-        <MarkButton type="code" />
-        <MarkButton type="underline" />
-        {!isMobile ? <ColorHighlightPopover /> : <ColorHighlightPopoverButton onClick={onHighlighterClick} />}
-        {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
-      </ToolbarGroup>
-      <ToolbarSeparator />
-      <ToolbarGroup>
-        <MarkButton type="superscript" />
-        <MarkButton type="subscript" />
-      </ToolbarGroup>
-      <ToolbarSeparator />
-      <ToolbarGroup>
-        <TextAlignButton align="left" />
-        <TextAlignButton align="center" />
-        <TextAlignButton align="right" />
-        <TextAlignButton align="justify" />
-      </ToolbarGroup>
-      <ToolbarSeparator />
-      <ToolbarGroup>
-        <ImageUploadButton text={t("toolbar.add")} />
-      </ToolbarGroup>
-      <Spacer />
+      {showUndoRedo && (
+        <>
+          <ToolbarGroup>
+            <UndoRedoButton action="undo" />
+            <UndoRedoButton action="redo" />
+          </ToolbarGroup>
+          <ToolbarSeparator />
+        </>
+      )}
+
+      {(showHeading || showList || showBlockquote || showCodeBlock) && (
+        <>
+          <ToolbarGroup>
+            {showHeading && <HeadingDropdownMenu levels={headingConfig?.levels || [1, 2, 3, 4]} portal={isMobile} />}
+            {showList && <ListDropdownMenu types={["bulletList", "orderedList", "taskList"]} portal={isMobile} />}
+            {showBlockquote && <BlockquoteButton />}
+            {showCodeBlock && <CodeBlockButton />}
+          </ToolbarGroup>
+          <ToolbarSeparator />
+        </>
+      )}
+
+      {(showBold || showItalic || showStrike || showCode || showUnderline || showHighlight || showLink) && (
+        <>
+          <ToolbarGroup>
+            {showBold && <MarkButton type="bold" />}
+            {showItalic && <MarkButton type="italic" />}
+            {showStrike && <MarkButton type="strike" />}
+            {showCode && <MarkButton type="code" />}
+            {showUnderline && <MarkButton type="underline" />}
+            {showHighlight &&
+              (!isMobile ? <ColorHighlightPopover /> : <ColorHighlightPopoverButton onClick={onHighlighterClick} />)}
+            {showLink && (!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />)}
+          </ToolbarGroup>
+          <ToolbarSeparator />
+        </>
+      )}
+
+      {(showSubscript || showSuperscript) && (
+        <>
+          <ToolbarGroup>
+            {showSuperscript && <MarkButton type="superscript" />}
+            {showSubscript && <MarkButton type="subscript" />}
+          </ToolbarGroup>
+          <ToolbarSeparator />
+        </>
+      )}
+
+      {showTextAlign && (
+        <>
+          <ToolbarGroup>
+            <TextAlignButton align="left" />
+            <TextAlignButton align="center" />
+            <TextAlignButton align="right" />
+            <TextAlignButton align="justify" />
+          </ToolbarGroup>
+          <ToolbarSeparator />
+        </>
+      )}
+
+      {showImage && (
+        <>
+          <ToolbarGroup>
+            <ImageUploadButton />
+          </ToolbarGroup>
+          <Spacer />
+        </>
+      )}
+
+      {!showImage && <Spacer />}
+
       {isMobile && <ToolbarSeparator />}
-      <ToolbarGroup>
-        <ThemeToggle />
-      </ToolbarGroup>
+      {showThemeToggle && (
+        <ToolbarGroup>
+          <ThemeToggle />
+        </ToolbarGroup>
+      )}
     </>
   );
 };
@@ -151,18 +207,20 @@ export interface SimpleEditorProps {
   onChange?: (value: string) => void;
   className?: string;
   style?: React.CSSProperties;
-  image?: ImageUploadProps;
+  features?: SimpleEditorFeatures;
 }
 
-export function SimpleEditor({ value, onChange, className, style, image }: SimpleEditorProps) {
+export function SimpleEditor({ value, onChange, className, style, features }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">("main");
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { t, i18n } = useTranslation("simpleEditor");
 
-  const imageRef = useRef(image);
-  imageRef.current = image;
+  const imageConfig = getConfig(features?.image);
+  const finalImageProps = imageConfig;
+  const imageRef = useRef(finalImageProps);
+  imageRef.current = finalImageProps;
 
   useEffect(() => {
     i18n.addResourceBundle("en-US", "simpleEditor", enUS, true, true);
@@ -186,33 +244,65 @@ export function SimpleEditor({ value, onChange, className, style, image }: Simpl
     extensions: [
       StarterKit.configure({
         horizontalRule: false,
-        link: {
-          openOnClick: false,
-          enableClickSelection: true,
-        },
+        heading: isEnabled(features?.heading)
+          ? {
+              levels: [1, 2, 3, 4], // Default levels
+              ...getConfig(features?.heading),
+            }
+          : false,
+        bulletList: isEnabled(features?.list) ? undefined : false,
+        orderedList: isEnabled(features?.list) ? undefined : false,
+        listItem: isEnabled(features?.list) ? undefined : false,
+        blockquote: isEnabled(features?.blockquote) ? undefined : false,
+        codeBlock: isEnabled(features?.codeBlock) ? undefined : false,
+        bold: isEnabled(features?.bold) ? undefined : false,
+        italic: isEnabled(features?.italic) ? undefined : false,
+        strike: isEnabled(features?.strike) ? undefined : false,
+        code: isEnabled(features?.code) ? undefined : false,
+        link: isEnabled(features?.link)
+          ? {
+              openOnClick: false,
+              enableClickSelection: true,
+              ...getConfig(features?.link),
+            }
+          : false,
+        undoRedo: isEnabled(features?.undoRedo) ? undefined : false,
       }),
       HorizontalRule,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      Highlight.configure({ multicolor: true }),
-      ImageExtension,
+      ...(isEnabled(features?.textAlign)
+        ? [
+            TextAlign.configure({
+              types: ["heading", "paragraph"],
+              ...getConfig(features?.textAlign),
+            }),
+          ]
+        : []),
+      ...(isEnabled(features?.list) ? [TaskList, TaskItem.configure({ nested: true })] : []),
+      ...(isEnabled(features?.highlight)
+        ? [Highlight.configure({ multicolor: true, ...getConfig(features?.highlight) })]
+        : []),
+      ...(isEnabled(features?.image) ? [ImageExtension] : []),
       Typography,
-      Superscript,
-      Subscript,
+      ...(isEnabled(features?.superscript) ? [Superscript] : []),
+      ...(isEnabled(features?.subscript) ? [Subscript] : []),
       Selection,
-      ImageUploadNode.configure({
-        accept: "image/*",
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: (file, onProgress) =>
-          handleImageUploadRequest({
-            file,
-            onProgress,
-            imageProps: imageRef.current,
-          }),
-        onError: (error) => console.error("Upload failed:", error),
-      }),
+      ...(isEnabled(features?.image)
+        ? [
+            ImageUploadNode.configure({
+              accept: "image/*",
+              maxSize: MAX_FILE_SIZE,
+              limit: 3,
+              upload: (file, onProgress) =>
+                handleImageUploadRequest({
+                  file,
+                  onProgress,
+                  imageProps: imageRef.current,
+                }),
+              onError: (error) => console.error("Upload failed:", error),
+              ...imageConfig,
+            }),
+          ]
+        : []),
     ],
     content: value,
   });
@@ -252,6 +342,7 @@ export function SimpleEditor({ value, onChange, className, style, image }: Simpl
               onHighlighterClick={() => setMobileView("highlighter")}
               onLinkClick={() => setMobileView("link")}
               isMobile={isMobile}
+              features={features}
             />
           ) : (
             <MobileToolbarContent

@@ -520,9 +520,45 @@ export default () => {
 };
 ```
 
+## 功能开关与配置
+
+支持通过 `features` 属性控制各项功能的开关和配置。
+
+```jsx
+import React from "react";
+import { SimpleEditor } from "zs_library";
+
+export default () => {
+  return (
+    <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+      <SimpleEditor
+        features={{
+          // 禁用撤销重做
+          undoRedo: false,
+          // 禁用代码块
+          codeBlock: false,
+          // 配置标题等级
+          heading: {
+            configure: {
+              levels: [1, 2, 3],
+            },
+          },
+          // 启用高亮并配置
+          highlight: {
+            configure: {
+              multicolor: true,
+            },
+          },
+        }}
+      />
+    </div>
+  );
+};
+```
+
 ## 图片上传
 
-支持通过 `image` 属性配置图片上传行为。
+支持通过 `features.image` 属性配置图片上传行为。
 
 ### 默认上传 (Action)
 
@@ -537,11 +573,15 @@ export default () => {
   return (
     <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
       <SimpleEditor
-        image={{
-          action: "https://tmpfiles.org/api/v1/upload",
-          name: "file",
-          formatResult: (response) => {
-            return response.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
+        features={{
+          image: {
+            configure: {
+              action: "https://tmpfiles.org/api/v1/upload",
+              name: "file",
+              formatResult: (response) => {
+                return response.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
+              },
+            },
           },
         }}
       />
@@ -562,36 +602,40 @@ export default () => {
   return (
     <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
       <SimpleEditor
-        image={{
-          customRequest: async ({ file, onProgress, onSuccess, onError }) => {
-            try {
-              const formData = new FormData();
-              formData.append("file", file);
+        features={{
+          image: {
+            configure: {
+              customRequest: async ({ file, onProgress, onSuccess, onError }) => {
+                try {
+                  const formData = new FormData();
+                  formData.append("file", file);
 
-              // 模拟上传进度
-              onProgress({ percent: 20 });
+                  // 模拟上传进度
+                  onProgress({ percent: 20 });
 
-              const response = await fetch("https://tmpfiles.org/api/v1/upload", {
-                method: "POST",
-                body: formData,
-              });
+                  const response = await fetch("https://tmpfiles.org/api/v1/upload", {
+                    method: "POST",
+                    body: formData,
+                  });
 
-              if (!response.ok) {
-                throw new Error("Upload failed");
-              }
+                  if (!response.ok) {
+                    throw new Error("Upload failed");
+                  }
 
-              // 模拟上传进度
-              onProgress({ percent: 100 });
+                  // 模拟上传进度
+                  onProgress({ percent: 100 });
 
-              const json = await response.json();
+                  const json = await response.json();
 
-              // tmpfiles.org 返回的是页面地址，需要转换为直接下载地址才能在 img 标签中显示
-              const url = json.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
+                  // tmpfiles.org 返回的是页面地址，需要转换为直接下载地址才能在 img 标签中显示
+                  const url = json.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
 
-              onSuccess(url);
-            } catch (error) {
-              onError(error);
-            }
+                  onSuccess(url);
+                } catch (error) {
+                  onError(error);
+                }
+              },
+            },
           },
         }}
       />
