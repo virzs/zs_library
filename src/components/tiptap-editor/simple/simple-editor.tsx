@@ -99,7 +99,22 @@ const MainToolbarContent = ({
   const showImage = isEnabled(features?.image);
   const showThemeToggle = isEnabled(features?.themeToggle);
 
+  const undoRedoConfig = getConfig(features?.undoRedo);
   const headingConfig = getConfig(features?.heading);
+  const listConfig = getConfig(features?.list);
+  const blockquoteConfig = getConfig(features?.blockquote);
+  const codeBlockConfig = getConfig(features?.codeBlock);
+  const boldConfig = getConfig(features?.bold);
+  const italicConfig = getConfig(features?.italic);
+  const strikeConfig = getConfig(features?.strike);
+  const codeConfig = getConfig(features?.code);
+  const underlineConfig = getConfig(features?.underline);
+  const highlightConfig = getConfig(features?.highlight);
+  const linkConfig = getConfig(features?.link);
+  const subscriptConfig = getConfig(features?.subscript);
+  const superscriptConfig = getConfig(features?.superscript);
+  const textAlignConfig = getConfig(features?.textAlign);
+  const imageConfig = getConfig(features?.image);
 
   return (
     <>
@@ -107,8 +122,8 @@ const MainToolbarContent = ({
       {showUndoRedo && (
         <>
           <ToolbarGroup>
-            <UndoRedoButton action="undo" />
-            <UndoRedoButton action="redo" />
+            <UndoRedoButton action="undo" {...undoRedoConfig} />
+            <UndoRedoButton action="redo" {...undoRedoConfig} />
           </ToolbarGroup>
           <ToolbarSeparator />
         </>
@@ -117,10 +132,22 @@ const MainToolbarContent = ({
       {(showHeading || showList || showBlockquote || showCodeBlock) && (
         <>
           <ToolbarGroup>
-            {showHeading && <HeadingDropdownMenu levels={headingConfig?.levels || [1, 2, 3, 4]} portal={isMobile} />}
-            {showList && <ListDropdownMenu types={["bulletList", "orderedList", "taskList"]} portal={isMobile} />}
-            {showBlockquote && <BlockquoteButton />}
-            {showCodeBlock && <CodeBlockButton />}
+            {showHeading && (
+              <HeadingDropdownMenu
+                levels={headingConfig?.levels || [1, 2, 3, 4]}
+                portal={isMobile}
+                {...headingConfig}
+              />
+            )}
+            {showList && (
+              <ListDropdownMenu
+                types={listConfig?.types || ["bulletList", "orderedList", "taskList"]}
+                portal={isMobile}
+                {...listConfig}
+              />
+            )}
+            {showBlockquote && <BlockquoteButton {...blockquoteConfig} />}
+            {showCodeBlock && <CodeBlockButton {...codeBlockConfig} />}
           </ToolbarGroup>
           <ToolbarSeparator />
         </>
@@ -129,14 +156,18 @@ const MainToolbarContent = ({
       {(showBold || showItalic || showStrike || showCode || showUnderline || showHighlight || showLink) && (
         <>
           <ToolbarGroup>
-            {showBold && <MarkButton type="bold" />}
-            {showItalic && <MarkButton type="italic" />}
-            {showStrike && <MarkButton type="strike" />}
-            {showCode && <MarkButton type="code" />}
-            {showUnderline && <MarkButton type="underline" />}
+            {showBold && <MarkButton type="bold" {...boldConfig} />}
+            {showItalic && <MarkButton type="italic" {...italicConfig} />}
+            {showStrike && <MarkButton type="strike" {...strikeConfig} />}
+            {showCode && <MarkButton type="code" {...codeConfig} />}
+            {showUnderline && <MarkButton type="underline" {...underlineConfig} />}
             {showHighlight &&
-              (!isMobile ? <ColorHighlightPopover /> : <ColorHighlightPopoverButton onClick={onHighlighterClick} />)}
-            {showLink && (!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />)}
+              (!isMobile ? (
+                <ColorHighlightPopover {...highlightConfig} />
+              ) : (
+                <ColorHighlightPopoverButton onClick={onHighlighterClick} />
+              ))}
+            {showLink && (!isMobile ? <LinkPopover {...linkConfig} /> : <LinkButton onClick={onLinkClick} />)}
           </ToolbarGroup>
           <ToolbarSeparator />
         </>
@@ -145,8 +176,8 @@ const MainToolbarContent = ({
       {(showSubscript || showSuperscript) && (
         <>
           <ToolbarGroup>
-            {showSuperscript && <MarkButton type="superscript" />}
-            {showSubscript && <MarkButton type="subscript" />}
+            {showSuperscript && <MarkButton type="superscript" {...superscriptConfig} />}
+            {showSubscript && <MarkButton type="subscript" {...subscriptConfig} />}
           </ToolbarGroup>
           <ToolbarSeparator />
         </>
@@ -155,10 +186,10 @@ const MainToolbarContent = ({
       {showTextAlign && (
         <>
           <ToolbarGroup>
-            <TextAlignButton align="left" />
-            <TextAlignButton align="center" />
-            <TextAlignButton align="right" />
-            <TextAlignButton align="justify" />
+            <TextAlignButton align="left" {...textAlignConfig} />
+            <TextAlignButton align="center" {...textAlignConfig} />
+            <TextAlignButton align="right" {...textAlignConfig} />
+            <TextAlignButton align="justify" {...textAlignConfig} />
           </ToolbarGroup>
           <ToolbarSeparator />
         </>
@@ -167,7 +198,7 @@ const MainToolbarContent = ({
       {showImage && (
         <>
           <ToolbarGroup>
-            <ImageUploadButton />
+            <ImageUploadButton {...imageConfig} />
           </ToolbarGroup>
           <Spacer />
         </>
