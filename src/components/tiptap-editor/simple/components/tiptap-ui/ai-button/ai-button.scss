@@ -1,35 +1,54 @@
+:root {
+  --tt-color-highlight-purple: #e9d5ff;
+}
+
+.dark {
+  --tt-color-highlight-purple: #581c87;
+}
+
 .tiptap-ai-popover-content {
-  width: 360px;
-  padding: 12px;
+  padding: 0;
   background-color: var(--white);
-  border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--tt-gray-light-200);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  max-width: 90vw; /* Safety cap */
 
   .dark & {
     background-color: var(--tt-gray-dark-50);
     border-color: var(--tt-gray-dark-200);
+    box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.3), 0 4px 10px -2px rgba(0, 0, 0, 0.2);
   }
 }
 
 .tiptap-ai-panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .tiptap-ai-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--tt-brand-color-500);
-  font-weight: 600;
-  padding-bottom: 8px;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: var(--tt-gray-light-50);
   border-bottom: 1px solid var(--tt-gray-light-200);
 
   .dark & {
+    background-color: var(--tt-gray-dark-100);
     border-color: var(--tt-gray-dark-200);
   }
+}
+
+.tiptap-ai-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--tt-brand-color-600);
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .tiptap-ai-icon {
@@ -37,148 +56,310 @@
   height: 18px;
 }
 
-.tiptap-ai-title {
-  font-size: 14px;
-}
-
-.tiptap-ai-form {
+.tiptap-ai-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 
 .tiptap-ai-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .tiptap-ai-label {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--tt-gray-light-600);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 
   .dark & {
-    color: var(--tt-gray-dark-600);
+    color: var(--tt-gray-dark-500);
   }
 }
 
 .tiptap-ai-selection-preview {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px;
-  background-color: var(--tt-gray-light-100);
-  border-radius: 6px;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: var(--tt-gray-light-50);
+  border-radius: 8px;
   border-left: 3px solid var(--tt-brand-color-500);
+  margin-bottom: 4px;
 
   .dark & {
     background-color: var(--tt-gray-dark-100);
-  }
-}
-
-.tiptap-ai-selection-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--tt-gray-light-600);
-  text-transform: uppercase;
-
-  .dark & {
-    color: var(--tt-gray-dark-600);
   }
 }
 
 .tiptap-ai-selection-text {
   font-size: 13px;
-  color: var(--tt-gray-light-800);
+  color: var(--tt-gray-light-700);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   font-style: italic;
+  line-height: 1.5;
 
   .dark & {
-    color: var(--tt-gray-dark-800);
+    color: var(--tt-gray-dark-700);
   }
 }
 
-.tiptap-ai-textarea {
-  width: 100%;
+/* Input Wrapper Styling */
+.tiptap-ai-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--tt-brand-color-500);
+  border-radius: 12px;
   padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--tt-gray-light-300);
   background-color: var(--white);
+  transition: box-shadow 0.2s ease;
+
+  &:focus-within {
+    box-shadow: 0 0 0 2px var(--tt-brand-color-100);
+  }
+
+  .dark & {
+    background-color: var(--tt-gray-dark-50);
+    border-color: var(--tt-brand-color-400);
+
+    &:focus-within {
+      box-shadow: 0 0 0 2px rgba(var(--tt-brand-color-rgb), 0.2);
+    }
+  }
+}
+
+.tiptap-ai-textarea-input {
+  width: 100%;
+  border: none;
+  background: transparent;
   color: var(--tt-gray-light-900);
   font-size: 14px;
   line-height: 1.5;
-  resize: vertical;
-  min-height: 80px;
+  resize: none;
+  min-height: 24px;
+  padding: 4px 0;
   font-family: inherit;
 
   &:focus {
     outline: none;
-    border-color: var(--tt-brand-color-500);
-    box-shadow: 0 0 0 1px var(--tt-brand-color-500);
   }
 
   .dark & {
-    background-color: var(--tt-gray-dark-100);
-    border-color: var(--tt-gray-dark-300);
     color: var(--tt-gray-dark-900);
+  }
+
+  &::placeholder {
+    color: var(--tt-gray-light-400);
+    .dark & {
+      color: var(--tt-gray-dark-500);
+    }
   }
 }
 
-.tiptap-ai-generate-btn {
-  width: 100%;
+.tiptap-ai-input-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 4px;
 }
 
-.tiptap-ai-separator {
-  margin: 0;
+.tiptap-ai-tone-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--tt-gray-light-600) !important;
+  font-weight: 500;
+  font-size: 13px;
+  padding: 4px 8px !important;
+  height: 28px !important;
+
+  &:hover {
+    background-color: var(--tt-gray-light-100) !important;
+    color: var(--tt-gray-light-900) !important;
+  }
+
+  .dark & {
+    color: var(--tt-gray-dark-500) !important;
+    &:hover {
+      background-color: var(--tt-gray-dark-100) !important;
+      color: var(--tt-gray-dark-900) !important;
+    }
+  }
 }
 
-.tiptap-ai-result {
+.tiptap-ai-send-btn {
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &[data-variant="primary"] {
+    background-color: var(--tt-brand-color-600) !important;
+    color: white !important;
+
+    &:hover {
+      background-color: var(--tt-brand-color-700) !important;
+    }
+  }
+
+  &[data-variant="ghost"] {
+    background-color: var(--tt-gray-light-100) !important;
+    color: var(--tt-gray-light-400) !important;
+    cursor: not-allowed;
+  }
+}
+
+/* Generating State */
+.tiptap-ai-generating {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background-color: var(--white);
+  /* border-radius: 30px; */ /* Removed to match flat style if needed, or keep? */
+  /* User said width not 100%, so let's make it 100% */
+  width: 100%;
+  /* border: 1px solid var(--tt-gray-light-200); */ /* Maybe remove border if inside popover? */
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); */
+
+  /* Actually, looking at the structure, if body has no padding, this fills the popover. */
+  /* But if we keep the border radius, it looks like a pill inside. */
+  /* If the user wants 100% width, maybe they want it to look like a bar. */
+
+  /* Let's keep minimal styling but ensure full width */
+
+  /* Reverting to previous thought: make it fill container */
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+
+  .dark & {
+    background-color: var(--tt-gray-dark-50);
+    /* border-color: var(--tt-gray-dark-200); */
+  }
+}
+
+.tiptap-ai-generating-text {
+  font-size: 14px;
+  color: var(--tt-brand-color-600);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .dark & {
+    color: var(--tt-brand-color-400);
+  }
+}
+
+.tiptap-ai-typing-dots {
+  display: inline-flex;
+  gap: 2px;
+
+  span {
+    animation: tiptap-dot-pulse 1.4s infinite both;
+    width: 4px;
+    height: 4px;
+    background-color: currentColor;
+    border-radius: 50%;
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+  }
+}
+
+.tiptap-ai-stop-btn {
+  color: var(--tt-gray-light-500) !important;
+  padding: 4px !important;
+  height: 28px !important;
+  width: 28px !important;
+  border-radius: 50% !important;
+
+  &:hover {
+    background-color: var(--tt-gray-light-100) !important;
+    color: var(--tt-gray-light-900) !important;
+  }
+}
+
+/* Review State */
+.tiptap-ai-review {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.tiptap-ai-result-content {
-  padding: 12px;
-  border-radius: 6px;
-  background-color: var(--tt-gray-light-100);
-  color: var(--tt-gray-light-900);
-  font-size: 14px;
-  line-height: 1.6;
-  max-height: 200px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  border: 1px solid transparent;
+.tiptap-ai-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding: 0 8px 8px;
+}
 
-  .dark & {
-    background-color: var(--tt-gray-dark-100);
-    color: var(--tt-gray-dark-900);
+.tiptap-ai-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tiptap-ai-action-btn {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  height: 32px !important;
+
+  &[data-variant="primary"] {
+    background-color: var(--tt-brand-color-600) !important;
+    color: white !important;
+    &:hover {
+      background-color: var(--tt-brand-color-700) !important;
+    }
   }
 }
 
-.tiptap-ai-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
 .tiptap-ai-error {
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
   background-color: var(--tt-color-red-inc-5, #fee2e2);
   color: var(--tt-color-red-dec-5, #991b1b);
   font-size: 13px;
   border: 1px solid var(--tt-color-red-inc-2, #fecaca);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
   .dark & {
     background-color: rgba(153, 27, 27, 0.2);
     color: #fca5a5;
     border-color: rgba(153, 27, 27, 0.5);
+  }
+}
+
+@keyframes tiptap-dot-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
   }
 }

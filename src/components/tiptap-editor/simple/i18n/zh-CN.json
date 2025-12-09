@@ -71,7 +71,12 @@
       "apiKeyLabel": "API Key (DeepSeek)",
       "promptLabel": "提示词",
       "error": "生成失败",
-      "optimizeSelection": "选中内容: {{text}}"
+      "optimizeSelection": "选中内容: {{text}}",
+      "isWriting": "AI 正在写作",
+      "refinePlaceholder": "告诉 AI 还需要修改什么...",
+      "tryAgain": "重试",
+      "discard": "放弃",
+      "apply": "应用"
     }
   },
   "imageUpload": {

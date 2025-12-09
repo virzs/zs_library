@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, useEffect } from "react";
-import { Editor } from "@tiptap/react";
+import { Editor, JSONContent } from "@tiptap/react";
+import { TextSelection } from "@tiptap/pm/state";
 import { generateAiContent } from "../../../lib/ai-service";
 import { useTranslation } from "react-i18next";
 import { marked } from "marked";
@@ -10,32 +11,54 @@ export interface UseAiConfig {
   defaultModel?: string;
 }
 
+export type AiStatus = "idle" | "generating" | "reviewing";
+
+const AI_API_KEY_STORAGE_KEY = "tiptap-ai-api-key";
+
 export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-chat" }: UseAiConfig) {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState(defaultPrompt);
-  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<AiStatus>("idle");
   const [apiKey, setApiKey] = useState("");
-  const [generatedText, setGeneratedText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [selectionText, setSelectionText] = useState("");
   const [hasSelection, setHasSelection] = useState(false);
+  const [lastPrompt, setLastPrompt] = useState("");
+
   const abortControllerRef = useRef<AbortController | null>(null);
+  const originalSelectionRef = useRef<{ from: number; to: number; content: JSONContent[] | undefined } | null>(null);
+  const generationStartPosRef = useRef<number | null>(null);
+
   const { t } = useTranslation("simpleEditor");
 
+  // Load API Key from localStorage
+  useEffect(() => {
+    const storedKey = localStorage.getItem(AI_API_KEY_STORAGE_KEY);
+    if (storedKey) {
+      setApiKey(storedKey);
+    }
+  }, []);
+
+  // Save API Key to localStorage when it changes
+  useEffect(() => {
+    if (apiKey) {
+      localStorage.setItem(AI_API_KEY_STORAGE_KEY, apiKey);
+    }
+  }, [apiKey]);
+
   const updateSelection = useCallback(() => {
-    if (editor) {
+    if (editor && status === "idle") {
       const selection = editor.state.selection;
       const text = selection && !selection.empty ? editor.state.doc.textBetween(selection.from, selection.to, " ") : "";
       setSelectionText(text);
       setHasSelection(!!selection && !selection.empty);
     }
-  }, [editor]);
+  }, [editor, status]);
 
   useEffect(() => {
     if (!editor) return;
 
     updateSelection();
-
     editor.on("selectionUpdate", updateSelection);
 
     return () => {
@@ -43,19 +66,70 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
     };
   }, [editor, updateSelection]);
 
-  // Update selection when dialog opens
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setStatus("reviewing");
+  }, []);
+
   const handleOpenChange = useCallback(
     (open: boolean) => {
       if (open) {
         updateSelection();
+      } else {
+        if (status === "generating") {
+          handleStop();
+        }
+        // If we were reviewing, we should probably "Apply" or "Discard"?
+        // If the user clicks outside, it usually implies "Apply" or "Cancel".
+        // Tiptap UI usually applies on close for things like links, but for AI...
+        // Let's reset to idle, effectively "Applying" (leaving content as is).
+        setStatus("idle");
+        // Reset refs
+        originalSelectionRef.current = null;
+        generationStartPosRef.current = null;
+        setPrompt(defaultPrompt); // Reset prompt for next time
       }
       setIsOpen(open);
     },
-    [updateSelection]
+    [updateSelection, status, handleStop, defaultPrompt]
   );
 
-  const handleGenerate = useCallback(async () => {
-    if (!prompt || !apiKey) return;
+  const convertMarkdownToHtml = useCallback((markdown: string) => {
+    const html = marked.parse(markdown, { async: false }) as string;
+
+    // Attempt to unwrap single paragraph to preserve current block style
+    const trimmed = html.trim();
+    if (trimmed.startsWith("<p>") && trimmed.endsWith("</p>")) {
+      const content = trimmed.substring(3, trimmed.length - 4);
+      // If there are no other closing tags, it's a single paragraph
+      if (!content.includes("</p>")) {
+        return content;
+      }
+    }
+
+    return html;
+  }, []);
+
+  const handleGenerate = useCallback(async (promptOverride?: string) => {
+    const currentPrompt = typeof promptOverride === 'string' ? promptOverride : prompt;
+
+    if (!currentPrompt || !apiKey || !editor) return;
+
+    // Save original selection if this is the first generation
+    if (status === "idle") {
+      const { from, to } = editor.state.selection;
+      // We need to save the content in a way that we can restore it.
+      // toJSON() of a Slice returns { content: [...], openStart: ..., openEnd: ... }
+      // We can use the content array directly.
+      const slice = editor.state.doc.slice(from, to);
+      const content = slice.toJSON().content;
+
+      originalSelectionRef.current = { from, to, content };
+      generationStartPosRef.current = from;
+    }
 
     // Cancel previous request if any
     if (abortControllerRef.current) {
@@ -63,74 +137,139 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
     }
 
     abortControllerRef.current = new AbortController();
-
-    setIsLoading(true);
-    setGeneratedText("");
+    setStatus("generating");
     setError(null);
+    if (currentPrompt !== prompt) {
+      setPrompt(currentPrompt);
+    }
+    setLastPrompt(currentPrompt);
 
     try {
-      const selection = editor?.state.selection;
-      const selectedText =
+      // Use current selection as context
+      const selection = editor.state.selection;
+      const contextText =
         selection && !selection.empty ? editor.state.doc.textBetween(selection.from, selection.to, " ") : "";
 
       await generateAiContent({
-        prompt,
-        context: selectedText,
+        prompt: currentPrompt,
+        context: contextText,
         apiKey,
         model: defaultModel,
-        onUpdate: (text) => setGeneratedText(text),
+        onUpdate: (fullText) => {
+          if (!editor) return;
+
+          const htmlContent = convertMarkdownToHtml(fullText);
+
+          editor.commands.command(({ dispatch }) => {
+            if (dispatch && generationStartPosRef.current !== null) {
+              return true;
+            }
+            return false;
+          });
+
+          const start = generationStartPosRef.current!;
+          const currentSelection = editor.state.selection;
+
+          // If we are starting, or if selection looks weird, ensure we start at `start`.
+          // But `currentSelection.from` should match `start` roughly (or exactly).
+
+          // We select from `start` to `currentSelection.to` (assuming it covers the previous chunk).
+          // If it's the very first chunk, `currentSelection` is the original text.
+
+          editor
+            .chain()
+            .setTextSelection({ from: start, to: currentSelection.to })
+            .insertContent(htmlContent)
+            // After insertion, cursor is at the end.
+            // We need to select from `start` to `new_cursor_pos`.
+            .command(({ tr, dispatch }) => {
+              if (dispatch) {
+                const newEnd = tr.selection.to; // The position after insertion
+                tr.setSelection(TextSelection.create(tr.doc, start, newEnd));
+                return true;
+              }
+              return false;
+            })
+            .setMark("highlight", { color: "var(--tt-color-highlight-purple)" })
+            .run();
+        },
         signal: abortControllerRef.current.signal,
       });
-    } catch (error: any) {
-      if (error.message === "Request aborted") return;
+
+      setStatus("reviewing");
+      setPrompt(""); // Clear prompt for refinement
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage === "Request aborted") return;
       console.error("Failed to generate content:", error);
-      setError(error.message || t("toolbar.ai.error"));
+      setError(errorMessage || t("toolbar.ai.error"));
+      setStatus("reviewing");
     } finally {
-      setIsLoading(false);
       abortControllerRef.current = null;
     }
-  }, [prompt, apiKey, defaultModel, editor, t]);
+  }, [prompt, apiKey, defaultModel, editor, t, status, convertMarkdownToHtml]);
 
-  const convertMarkdownToHtml = useCallback((markdown: string) => {
-    return marked.parse(markdown, { async: false });
-  }, []);
+  const handleDiscard = useCallback(() => {
+    if (editor && originalSelectionRef.current) {
+      const { from, to, content } = originalSelectionRef.current;
 
-  const handleInsert = useCallback(() => {
-    if (editor && generatedText) {
-      const htmlContent = convertMarkdownToHtml(generatedText);
-      editor.chain().focus().insertContent(htmlContent).run();
-      setIsOpen(false);
+      // Delete the generated content (which is currently selected)
+      // And insert the original content.
+
+      editor
+        .chain()
+        .deleteSelection()
+        .insertContentAt(from, content || []) // Insert original content
+        .setTextSelection({ from, to }) // Restore original selection
+        .run();
     }
-  }, [editor, generatedText, convertMarkdownToHtml]);
 
-  const handleReplace = useCallback(() => {
-    if (editor && generatedText) {
-      const htmlContent = convertMarkdownToHtml(generatedText);
-      // If there is a selection, replace it. Otherwise just insert.
-      const selection = editor.state.selection;
-      if (!selection.empty) {
-        editor.chain().focus().deleteSelection().insertContent(htmlContent).run();
-      } else {
-        editor.chain().focus().insertContent(htmlContent).run();
-      }
-      setIsOpen(false);
+    setStatus("idle");
+    setIsOpen(false);
+    originalSelectionRef.current = null;
+    generationStartPosRef.current = null;
+    setPrompt(defaultPrompt);
+  }, [editor, defaultPrompt]);
+
+  const handleApply = useCallback(() => {
+    if (editor) {
+      // Remove the highlight mark from the current selection (which should be the AI generated text)
+      editor.chain().unsetMark("highlight").run();
     }
-  }, [editor, generatedText, convertMarkdownToHtml]);
+    setStatus("idle");
+    setIsOpen(false);
+    originalSelectionRef.current = null;
+    generationStartPosRef.current = null;
+    setPrompt(defaultPrompt);
+  }, [defaultPrompt]);
+
+  const handleRefine = useCallback(() => {
+    handleGenerate();
+  }, [handleGenerate]);
+
+  const handleTryAgain = useCallback(() => {
+    if (lastPrompt) {
+      handleGenerate(lastPrompt);
+    }
+  }, [lastPrompt, handleGenerate]);
 
   return {
     isOpen,
     setIsOpen: handleOpenChange,
     prompt,
     setPrompt,
-    isLoading,
+    status,
     apiKey,
     setApiKey,
-    generatedText,
     error,
     handleGenerate,
-    handleInsert,
-    handleReplace,
+    handleStop,
+    handleDiscard,
+    handleApply,
+    handleRefine,
+    handleTryAgain,
     selectionText,
     hasSelection,
+    lastPrompt, // expose if needed
   };
 }

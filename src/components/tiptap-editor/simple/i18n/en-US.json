@@ -71,7 +71,12 @@
       "apiKeyLabel": "API Key (DeepSeek)",
       "promptLabel": "Prompt",
       "error": "Failed to generate content",
-      "optimizeSelection": "Selection Context: {{text}}"
+      "optimizeSelection": "Selection Context: {{text}}",
+      "isWriting": "AI is writing",
+      "refinePlaceholder": "Tell AI what else needs to be changed...",
+      "tryAgain": "Try again",
+      "discard": "Discard",
+      "apply": "Apply"
     }
   },
   "imageUpload": {
