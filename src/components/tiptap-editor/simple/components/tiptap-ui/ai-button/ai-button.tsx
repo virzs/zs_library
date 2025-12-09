@@ -1,5 +1,15 @@
 import { forwardRef, useEffect, useRef } from "react";
-import { RiAi, RiStopCircleFill, RiCheckLine, RiCloseLine, RiSparklingLine, RiArrowUpLine } from "@remixicon/react";
+import {
+  RiAi,
+  RiStopCircleFill,
+  RiCheckLine,
+  RiCloseLine,
+  RiSparklingLine,
+  RiArrowUpLine,
+  RiQuillPenLine,
+  RiEraserLine,
+  RiAlignLeft,
+} from "@remixicon/react";
 import { useTranslation } from "react-i18next";
 
 // --- Hooks ---
@@ -150,6 +160,46 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
                       </Button>
                     </div>
                   </div>
+
+                  {!prompt && (
+                    <div className="tiptap-ai-presets">
+                      <div className="tiptap-ai-preset-group">
+                        <div className="tiptap-ai-preset-title">{t("toolbar.ai.presets.edit", "Edit")}</div>
+                        <Button
+                          className="tiptap-ai-preset-item"
+                          onClick={() => handleGenerate("Improve writing")}
+                          data-variant="ghost"
+                        >
+                          <RiQuillPenLine size={16} />
+                          {t("toolbar.ai.presets.improve", "Improve writing")}
+                        </Button>
+                        <Button
+                          className="tiptap-ai-preset-item"
+                          onClick={() => handleGenerate("Fix spelling & grammar")}
+                          data-variant="ghost"
+                        >
+                          <RiCheckLine size={16} />
+                          {t("toolbar.ai.presets.fix", "Fix spelling & grammar")}
+                        </Button>
+                        <Button
+                          className="tiptap-ai-preset-item"
+                          onClick={() => handleGenerate("Make shorter")}
+                          data-variant="ghost"
+                        >
+                          <RiEraserLine size={16} />
+                          {t("toolbar.ai.presets.shorter", "Make shorter")}
+                        </Button>
+                        <Button
+                          className="tiptap-ai-preset-item"
+                          onClick={() => handleGenerate("Make longer")}
+                          data-variant="ghost"
+                        >
+                          <RiAlignLeft size={16} />
+                          {t("toolbar.ai.presets.longer", "Make longer")}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
 

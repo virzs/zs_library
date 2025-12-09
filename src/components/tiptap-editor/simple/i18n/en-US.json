@@ -76,7 +76,14 @@
       "refinePlaceholder": "Tell AI what else needs to be changed...",
       "tryAgain": "Try again",
       "discard": "Discard",
-      "apply": "Apply"
+      "apply": "Apply",
+      "presets": {
+        "edit": "Edit",
+        "improve": "Improve writing",
+        "fix": "Fix spelling & grammar",
+        "shorter": "Make shorter",
+        "longer": "Make longer"
+      }
     }
   },
   "imageUpload": {

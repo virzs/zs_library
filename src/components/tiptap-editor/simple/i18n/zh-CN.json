@@ -76,7 +76,14 @@
       "refinePlaceholder": "告诉 AI 还需要修改什么...",
       "tryAgain": "重试",
       "discard": "放弃",
-      "apply": "应用"
+      "apply": "应用",
+      "presets": {
+        "edit": "编辑",
+        "improve": "润色",
+        "fix": "修复拼写和语法",
+        "shorter": "缩短",
+        "longer": "扩写"
+      }
     }
   },
   "imageUpload": {
