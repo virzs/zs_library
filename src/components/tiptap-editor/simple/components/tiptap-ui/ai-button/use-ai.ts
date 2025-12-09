@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from "react";
-import { Editor, JSONContent } from "@tiptap/react";
+import { Editor } from "@tiptap/react";
 import { TextSelection } from "@tiptap/pm/state";
+import { Slice } from "@tiptap/pm/model";
 import { generateAiContent } from "../../../lib/ai-service";
 import { useTranslation } from "react-i18next";
 import { marked } from "marked";
@@ -26,7 +27,7 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
   const [lastPrompt, setLastPrompt] = useState("");
 
   const abortControllerRef = useRef<AbortController | null>(null);
-  const originalSelectionRef = useRef<{ from: number; to: number; content: JSONContent[] | undefined } | null>(null);
+  const originalSelectionRef = useRef<{ from: number; to: number; slice: Slice } | null>(null);
   const generationStartPosRef = useRef<number | null>(null);
 
   const { t } = useTranslation("simpleEditor");
@@ -113,115 +114,140 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
     return html;
   }, []);
 
-  const handleGenerate = useCallback(async (promptOverride?: string) => {
-    const currentPrompt = typeof promptOverride === 'string' ? promptOverride : prompt;
+  const handleGenerate = useCallback(
+    async (promptOverride?: string) => {
+      const currentPrompt = typeof promptOverride === "string" ? promptOverride : prompt;
 
-    if (!currentPrompt || !apiKey || !editor) return;
+      if (!currentPrompt || !apiKey || !editor) return;
 
-    // Save original selection if this is the first generation
-    if (status === "idle") {
-      const { from, to } = editor.state.selection;
-      // We need to save the content in a way that we can restore it.
-      // toJSON() of a Slice returns { content: [...], openStart: ..., openEnd: ... }
-      // We can use the content array directly.
-      const slice = editor.state.doc.slice(from, to);
-      const content = slice.toJSON().content;
+      // Save original selection if this is the first generation
+      if (status === "idle") {
+        const { from, to } = editor.state.selection;
+        // We need to save the slice to restore exact formatting/nodes including block structure
+        const slice = editor.state.doc.slice(from, to);
 
-      originalSelectionRef.current = { from, to, content };
-      generationStartPosRef.current = from;
-    }
+        originalSelectionRef.current = { from, to, slice };
+        generationStartPosRef.current = from;
+      }
 
-    // Cancel previous request if any
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+      // Cancel previous request if any
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
 
-    abortControllerRef.current = new AbortController();
-    setStatus("generating");
-    setError(null);
-    if (currentPrompt !== prompt) {
-      setPrompt(currentPrompt);
-    }
-    setLastPrompt(currentPrompt);
+      abortControllerRef.current = new AbortController();
+      setStatus("generating");
+      setError(null);
+      if (currentPrompt !== prompt) {
+        setPrompt(currentPrompt);
+      }
+      setLastPrompt(currentPrompt);
 
-    try {
-      // Use current selection as context
-      const selection = editor.state.selection;
-      const contextText =
-        selection && !selection.empty ? editor.state.doc.textBetween(selection.from, selection.to, " ") : "";
+      try {
+        // Use current selection as context
+        const selection = editor.state.selection;
+        const contextText =
+          selection && !selection.empty ? editor.state.doc.textBetween(selection.from, selection.to, " ") : "";
 
-      await generateAiContent({
-        prompt: currentPrompt,
-        context: contextText,
-        apiKey,
-        model: defaultModel,
-        onUpdate: (fullText) => {
-          if (!editor) return;
+        await generateAiContent({
+          prompt: currentPrompt,
+          context: contextText,
+          apiKey,
+          model: defaultModel,
+          onUpdate: (fullText) => {
+            if (!editor) return;
 
-          const htmlContent = convertMarkdownToHtml(fullText);
+            const htmlContent = convertMarkdownToHtml(fullText);
 
-          editor.commands.command(({ dispatch }) => {
-            if (dispatch && generationStartPosRef.current !== null) {
-              return true;
-            }
-            return false;
-          });
-
-          const start = generationStartPosRef.current!;
-          const currentSelection = editor.state.selection;
-
-          // If we are starting, or if selection looks weird, ensure we start at `start`.
-          // But `currentSelection.from` should match `start` roughly (or exactly).
-
-          // We select from `start` to `currentSelection.to` (assuming it covers the previous chunk).
-          // If it's the very first chunk, `currentSelection` is the original text.
-
-          editor
-            .chain()
-            .setTextSelection({ from: start, to: currentSelection.to })
-            .insertContent(htmlContent)
-            // After insertion, cursor is at the end.
-            // We need to select from `start` to `new_cursor_pos`.
-            .command(({ tr, dispatch }) => {
-              if (dispatch) {
-                const newEnd = tr.selection.to; // The position after insertion
-                tr.setSelection(TextSelection.create(tr.doc, start, newEnd));
+            editor.commands.command(({ dispatch }) => {
+              if (dispatch && generationStartPosRef.current !== null) {
                 return true;
               }
               return false;
-            })
-            .setMark("highlight", { color: "var(--tt-color-highlight-purple)" })
-            .run();
-        },
-        signal: abortControllerRef.current.signal,
-      });
+            });
 
-      setStatus("reviewing");
-      setPrompt(""); // Clear prompt for refinement
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage === "Request aborted") return;
-      console.error("Failed to generate content:", error);
-      setError(errorMessage || t("toolbar.ai.error"));
-      setStatus("reviewing");
-    } finally {
-      abortControllerRef.current = null;
-    }
-  }, [prompt, apiKey, defaultModel, editor, t, status, convertMarkdownToHtml]);
+            const start = generationStartPosRef.current!;
+            const currentSelection = editor.state.selection;
+
+            // If we are starting, or if selection looks weird, ensure we start at `start`.
+            // But `currentSelection.from` should match `start` roughly (or exactly).
+
+            // We select from `start` to `currentSelection.to` (assuming it covers the previous chunk).
+            // If it's the very first chunk, `currentSelection` is the original text.
+
+            editor
+              .chain()
+              .setTextSelection({ from: start, to: currentSelection.to })
+              .insertContent(htmlContent)
+              // After insertion, cursor is at the end.
+              // We need to select from `start` to `new_cursor_pos`.
+              .command(({ tr, dispatch }) => {
+                if (dispatch) {
+                  const newEnd = tr.selection.to; // The position after insertion
+                  tr.setSelection(TextSelection.create(tr.doc, start, newEnd));
+                  return true;
+                }
+                return false;
+              })
+              .setMark("highlight", { color: "var(--tt-color-highlight-purple)" })
+              .run();
+          },
+          signal: abortControllerRef.current.signal,
+        });
+
+        setStatus("reviewing");
+        setPrompt(""); // Clear prompt for refinement
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage === "Request aborted") return;
+        console.error("Failed to generate content:", error);
+        setError(errorMessage || t("toolbar.ai.error"));
+        setStatus("reviewing");
+      } finally {
+        abortControllerRef.current = null;
+      }
+    },
+    [prompt, apiKey, defaultModel, editor, t, status, convertMarkdownToHtml]
+  );
 
   const handleDiscard = useCallback(() => {
     if (editor && originalSelectionRef.current) {
-      const { from, to, content } = originalSelectionRef.current;
+      const { from, slice } = originalSelectionRef.current;
 
-      // Delete the generated content (which is currently selected)
-      // And insert the original content.
+      // When AI generates, it might change the document length.
+      // But we know where we started (from).
+      // We want to replace the current selection (which covers the AI generated text)
+      // with the original slice.
 
-      editor
-        .chain()
-        .deleteSelection()
-        .insertContentAt(from, content || []) // Insert original content
-        .setTextSelection({ from, to }) // Restore original selection
-        .run();
+      // However, if the user moved the cursor, `deleteSelection` might be wrong.
+      // But we assume the AI content is currently selected because `generateAiContent`
+      // keeps selecting the new content.
+      // To be safe, we should probably select from `generationStartPosRef` to where it ends?
+      // But let's assume `deleteSelection` is fine if the selection is maintained.
+
+      // Use replaceRange (via tr.replace) to restore the exact slice.
+      // This handles openStart/openEnd correctly, preserving paragraph structure.
+
+      editor.commands.command(({ tr, dispatch }) => {
+        if (dispatch) {
+          const { selection } = tr;
+          // Replace the current selection with the original slice
+          tr.replace(selection.from, selection.to, slice);
+
+          // Restore the original selection range
+          // Note: After replacement, the positions might have shifted if we were using absolute positions,
+          // but here we just want to select what we just restored.
+          // Or strictly restore the original `from` and `to` relative to the document start?
+          // Since we are replacing the *only* thing that changed (hopefully),
+          // `from` should be the same. `to` would be `from + slice.size`.
+
+          const newTo = from + slice.size;
+          tr.setSelection(TextSelection.create(tr.doc, from, newTo));
+
+          return true;
+        }
+        return false;
+      });
     }
 
     setStatus("idle");
@@ -241,7 +267,7 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
     originalSelectionRef.current = null;
     generationStartPosRef.current = null;
     setPrompt(defaultPrompt);
-  }, [defaultPrompt]);
+  }, [defaultPrompt, editor]);
 
   const handleRefine = useCallback(() => {
     handleGenerate();
