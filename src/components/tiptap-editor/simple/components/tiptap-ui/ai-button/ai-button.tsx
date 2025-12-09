@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { RiRobotLine, RiMagicLine } from "@remixicon/react";
+import { RiMagicLine, RiAi } from "@remixicon/react";
 import { useTranslation } from "react-i18next";
 
 // --- Hooks ---
@@ -36,6 +36,7 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
       handleInsert,
       handleReplace,
       selectionText,
+      hasSelection,
     } = useAi({ editor, defaultPrompt, defaultModel });
 
     if (!editor && hideWhenUnavailable) return null;
@@ -51,11 +52,11 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
             tabIndex={-1}
             aria-label={t("toolbar.ai.label")}
             tooltip={t("toolbar.ai.label")}
-            disabled={!editor?.isEditable}
+            disabled={!editor?.isEditable || !hasSelection}
             ref={ref}
             {...props}
           >
-            <RiRobotLine className="tiptap-button-icon" />
+            <RiAi className="tiptap-button-icon" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="tiptap-ai-popover-content" align="start" sideOffset={8}>

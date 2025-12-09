@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { Editor } from "@tiptap/react";
 import { generateAiContent } from "../../../lib/ai-service";
 import { useTranslation } from "react-i18next";
@@ -18,6 +18,7 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
   const [generatedText, setGeneratedText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [selectionText, setSelectionText] = useState("");
+  const [hasSelection, setHasSelection] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const { t } = useTranslation("simpleEditor");
 
@@ -26,8 +27,21 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
       const selection = editor.state.selection;
       const text = selection && !selection.empty ? editor.state.doc.textBetween(selection.from, selection.to, " ") : "";
       setSelectionText(text);
+      setHasSelection(!!selection && !selection.empty);
     }
   }, [editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    updateSelection();
+
+    editor.on("selectionUpdate", updateSelection);
+
+    return () => {
+      editor.off("selectionUpdate", updateSelection);
+    };
+  }, [editor, updateSelection]);
 
   // Update selection when dialog opens
   const handleOpenChange = useCallback(
@@ -117,5 +131,6 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
     handleInsert,
     handleReplace,
     selectionText,
+    hasSelection,
   };
 }
