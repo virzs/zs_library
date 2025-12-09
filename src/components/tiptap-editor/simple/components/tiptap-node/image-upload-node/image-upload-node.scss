@@ -32,9 +32,17 @@
 
 .tiptap-image-upload {
   margin: 2rem 0;
+  position: relative;
 
   input[type="file"] {
     display: none;
+  }
+
+  .tiptap-image-upload-delete-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 20;
   }
 
   .tiptap-image-upload-dropzone {
