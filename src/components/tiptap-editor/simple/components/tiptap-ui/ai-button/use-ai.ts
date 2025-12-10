@@ -2,7 +2,7 @@ import { useCallback, useRef, useState, useEffect } from "react";
 import { Editor } from "@tiptap/react";
 import { TextSelection } from "@tiptap/pm/state";
 import { Slice } from "@tiptap/pm/model";
-import { generateAiContent } from "../../../lib/ai-service";
+import { generateAiContent, AiCompletionOptions } from "../../../lib/ai-service";
 import { useTranslation } from "react-i18next";
 import { marked } from "marked";
 
@@ -10,17 +10,43 @@ export interface UseAiConfig {
   editor: Editor | null;
   defaultPrompt?: string;
   defaultModel?: string;
+  systemPrompt?: string;
+  apiKey?: string;
+  baseUrl?: string;
+  model?: string;
+  headers?: Record<string, string>;
+  params?: Record<string, string>;
+  body?: Record<string, unknown>;
+  request?: (options: AiCompletionOptions) => Promise<string>;
+  onStart?: () => void;
+  onSuccess?: (content: string) => void;
+  onError?: (error: Error) => void;
 }
 
 export type AiStatus = "idle" | "generating" | "reviewing";
 
 const AI_API_KEY_STORAGE_KEY = "tiptap-ai-api-key";
 
-export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-chat" }: UseAiConfig) {
+export function useAi({
+  editor,
+  defaultPrompt = "",
+  defaultModel = "deepseek-chat",
+  systemPrompt,
+  apiKey: propApiKey,
+  baseUrl = "https://api.deepseek.com",
+  model: propModel,
+  headers,
+  params,
+  body,
+  request,
+  onStart,
+  onSuccess,
+  onError,
+}: UseAiConfig) {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState(defaultPrompt);
   const [status, setStatus] = useState<AiStatus>("idle");
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState(propApiKey || "");
   const [error, setError] = useState<string | null>(null);
   const [selectionText, setSelectionText] = useState("");
   const [hasSelection, setHasSelection] = useState(false);
@@ -32,20 +58,32 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
 
   const { t } = useTranslation("simpleEditor");
 
-  // Load API Key from localStorage
+  // Sync apiKey from props if provided
   useEffect(() => {
-    const storedKey = localStorage.getItem(AI_API_KEY_STORAGE_KEY);
-    if (storedKey) {
-      setApiKey(storedKey);
+    if (propApiKey) {
+      setApiKey(propApiKey);
     }
-  }, []);
+  }, [propApiKey]);
 
-  // Save API Key to localStorage when it changes
+  // Load API Key from localStorage if not provided via props
   useEffect(() => {
-    if (apiKey) {
+    if (!propApiKey) {
+      const storedKey = localStorage.getItem(AI_API_KEY_STORAGE_KEY);
+      if (storedKey) {
+        setApiKey(storedKey);
+      }
+    }
+  }, [propApiKey]);
+
+  // Save API Key to localStorage when it changes (only if not provided via props?)
+  // Actually, if user types in the input box, we probably want to save it.
+  // But if it came from props, maybe not?
+  // Let's keep it simple: if it changes, save it.
+  useEffect(() => {
+    if (apiKey && apiKey !== propApiKey) {
       localStorage.setItem(AI_API_KEY_STORAGE_KEY, apiKey);
     }
-  }, [apiKey]);
+  }, [apiKey, propApiKey]);
 
   const updateSelection = useCallback(() => {
     if (editor && status === "idle") {
@@ -143,17 +181,27 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
       }
       setLastPrompt(currentPrompt);
 
+      if (onStart) {
+        onStart();
+      }
+
       try {
         // Use current selection as context
         const selection = editor.state.selection;
         const contextText =
           selection && !selection.empty ? editor.state.doc.textBetween(selection.from, selection.to, " ") : "";
 
-        await generateAiContent({
+        const fullContent = await generateAiContent({
           prompt: currentPrompt,
+          systemPrompt,
           context: contextText,
           apiKey,
-          model: defaultModel,
+          baseUrl,
+          model: propModel || defaultModel,
+          headers,
+          params,
+          body,
+          request,
           onUpdate: (fullText) => {
             if (!editor) return;
 
@@ -195,11 +243,20 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
           signal: abortControllerRef.current.signal,
         });
 
+        if (onSuccess) {
+          onSuccess(fullContent);
+        }
+
         setStatus("reviewing");
         setPrompt(""); // Clear prompt for refinement
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage === "Request aborted") return;
+
+        if (onError) {
+          onError(error instanceof Error ? error : new Error(errorMessage));
+        }
+
         console.error("Failed to generate content:", error);
         setError(errorMessage || t("toolbar.ai.error"));
         setStatus("reviewing");
@@ -207,7 +264,24 @@ export function useAi({ editor, defaultPrompt = "", defaultModel = "deepseek-cha
         abortControllerRef.current = null;
       }
     },
-    [prompt, apiKey, defaultModel, editor, t, status, convertMarkdownToHtml]
+    [
+      prompt,
+      apiKey,
+      defaultModel,
+      editor,
+      t,
+      status,
+      convertMarkdownToHtml,
+      headers,
+      params,
+      body,
+      request,
+      onStart,
+      onSuccess,
+      onError,
+      propModel,
+      baseUrl,
+    ]
   );
 
   const handleDiscard = useCallback(() => {

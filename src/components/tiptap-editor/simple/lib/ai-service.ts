@@ -1,27 +1,44 @@
 export interface AiCompletionOptions {
   prompt: string;
+  systemPrompt?: string;
   context?: string;
   apiKey?: string;
   baseUrl?: string;
   model?: string;
   onUpdate?: (text: string) => void;
   signal?: AbortSignal;
+  headers?: Record<string, string>;
+  params?: Record<string, string>;
+  body?: Record<string, unknown>;
+  request?: (options: AiCompletionOptions) => Promise<string>;
 }
 
-export const generateAiContent = async ({
-  prompt,
-  context,
-  apiKey,
-  baseUrl = "https://api.deepseek.com",
-  model = "deepseek-chat",
-  onUpdate,
-  signal,
-}: AiCompletionOptions): Promise<string> => {
+export const generateAiContent = async (options: AiCompletionOptions): Promise<string> => {
+  const {
+    prompt,
+    systemPrompt: promptSystemPrompt,
+    context,
+    apiKey,
+    baseUrl = "https://api.deepseek.com",
+    model = "deepseek-chat",
+    onUpdate,
+    signal,
+    headers = {},
+    params = {},
+    body = {},
+    request,
+  } = options;
+
+  if (request) {
+    return request(options);
+  }
+
   if (!apiKey) {
     throw new Error("API Key is required");
   }
 
   const systemPrompt =
+    promptSystemPrompt ||
     "You are a helpful AI assistant embedded in a text editor. Your task is to help the user write, edit, or improve their text. Output only the requested content in Markdown format without conversational filler, unless specifically asked.";
 
   const messages = [
@@ -31,16 +48,23 @@ export const generateAiContent = async ({
   ];
 
   try {
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    const url = new URL(`${baseUrl}/chat/completions`);
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+
+    const response = await fetch(url.toString(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
+        ...headers,
       },
       body: JSON.stringify({
         model,
         messages,
         stream: true,
+        ...body,
       }),
       signal,
     });

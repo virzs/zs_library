@@ -18,18 +18,42 @@ import { useAi, UseAiConfig } from "./use-ai";
 // --- UI Primitives ---
 import { Button, ButtonProps } from "../../tiptap-ui-primitive/button";
 import { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from "../../tiptap-ui-primitive/popover";
-import { Input } from "../../tiptap-ui-primitive/input";
+// import { Input } from "../../tiptap-ui-primitive/input";
 
 // --- Styles ---
 import "./ai-button.scss";
 
-export interface AiButtonProps extends Omit<ButtonProps, "type">, UseAiConfig {
+import { AiPreset } from "../../../lib/feature-utils";
+
+export interface AiButtonProps extends Omit<ButtonProps, "type" | "onError">, UseAiConfig {
   showShortcut?: boolean;
   hideWhenUnavailable?: boolean;
+  presets?: AiPreset[];
 }
 
 export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
-  ({ editor, defaultPrompt, defaultModel, className, hideWhenUnavailable = false, ...props }, ref) => {
+  (
+    {
+      editor,
+      defaultPrompt,
+      defaultModel,
+      apiKey,
+      baseUrl,
+      model,
+      headers,
+      params,
+      body,
+      request,
+      onStart,
+      onSuccess,
+      onError,
+      className,
+      hideWhenUnavailable = false,
+      presets,
+      ...props
+    },
+    ref
+  ) => {
     const { t } = useTranslation("simpleEditor");
     const {
       isOpen,
@@ -37,8 +61,7 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
       prompt,
       setPrompt,
       status, // idle, generating, reviewing
-      apiKey,
-      setApiKey,
+      apiKey: currentApiKey,
       error,
       handleGenerate,
       handleStop,
@@ -48,7 +71,21 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
       handleTryAgain,
       selectionText,
       hasSelection,
-    } = useAi({ editor, defaultPrompt, defaultModel });
+    } = useAi({
+      editor,
+      defaultPrompt,
+      defaultModel,
+      apiKey,
+      baseUrl,
+      model,
+      headers,
+      params,
+      body,
+      request,
+      onStart,
+      onSuccess,
+      onError,
+    });
 
     // Virtual Anchor
     // Extract the Measurable type from PopoverAnchor's virtualRef prop to avoid using any
@@ -87,6 +124,29 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
 
     if (!editor && hideWhenUnavailable) return null;
 
+    const defaultPresets = [
+      {
+        label: t("toolbar.ai.presets.improve", "Improve writing"),
+        text: "Improve writing",
+        icon: <RiQuillPenLine size={16} />,
+      },
+      {
+        label: t("toolbar.ai.presets.fix", "Fix spelling & grammar"),
+        text: "Fix spelling & grammar",
+        icon: <RiCheckLine size={16} />,
+      },
+      {
+        label: t("toolbar.ai.presets.shorter", "Make shorter"),
+        text: "Make shorter",
+        icon: <RiEraserLine size={16} />,
+      },
+      { label: t("toolbar.ai.presets.longer", "Make longer"), text: "Make longer", icon: <RiAlignLeft size={16} /> },
+    ];
+
+    const finalPresets = presets?.length
+      ? presets.map((p) => ({ ...p, icon: p.icon || <RiQuillPenLine size={16} /> }))
+      : defaultPresets;
+
     return (
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
@@ -117,19 +177,6 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
         >
           <div className="tiptap-ai-panel">
             <div className="tiptap-ai-body">
-              {/* API Key Input - Only show if not set or if needed */}
-              {!apiKey && (
-                <div className="tiptap-ai-field">
-                  <label className="tiptap-ai-label">{t("toolbar.ai.apiKeyLabel")}</label>
-                  <Input
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={t("toolbar.ai.apiKeyPlaceholder")}
-                    type="password"
-                  />
-                </div>
-              )}
-
               {status === "idle" && (
                 <>
                   <div className="tiptap-ai-input-wrapper">
@@ -152,7 +199,7 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
                       <div />
                       <Button
                         onClick={() => handleGenerate()}
-                        disabled={!prompt || !apiKey}
+                        disabled={!prompt || !currentApiKey}
                         className="tiptap-ai-send-btn"
                         data-variant={prompt ? "primary" : "ghost"}
                       >
@@ -161,42 +208,21 @@ export const AiButton = forwardRef<HTMLButtonElement, AiButtonProps>(
                     </div>
                   </div>
 
-                  {!prompt && (
+                  {(!prompt || prompt === defaultPrompt) && (
                     <div className="tiptap-ai-presets">
                       <div className="tiptap-ai-preset-group">
                         <div className="tiptap-ai-preset-title">{t("toolbar.ai.presets.edit", "Edit")}</div>
-                        <Button
-                          className="tiptap-ai-preset-item"
-                          onClick={() => handleGenerate("Improve writing")}
-                          data-variant="ghost"
-                        >
-                          <RiQuillPenLine size={16} />
-                          {t("toolbar.ai.presets.improve", "Improve writing")}
-                        </Button>
-                        <Button
-                          className="tiptap-ai-preset-item"
-                          onClick={() => handleGenerate("Fix spelling & grammar")}
-                          data-variant="ghost"
-                        >
-                          <RiCheckLine size={16} />
-                          {t("toolbar.ai.presets.fix", "Fix spelling & grammar")}
-                        </Button>
-                        <Button
-                          className="tiptap-ai-preset-item"
-                          onClick={() => handleGenerate("Make shorter")}
-                          data-variant="ghost"
-                        >
-                          <RiEraserLine size={16} />
-                          {t("toolbar.ai.presets.shorter", "Make shorter")}
-                        </Button>
-                        <Button
-                          className="tiptap-ai-preset-item"
-                          onClick={() => handleGenerate("Make longer")}
-                          data-variant="ghost"
-                        >
-                          <RiAlignLeft size={16} />
-                          {t("toolbar.ai.presets.longer", "Make longer")}
-                        </Button>
+                        {finalPresets.map((preset, index) => (
+                          <Button
+                            key={index}
+                            className="tiptap-ai-preset-item"
+                            onClick={() => handleGenerate(preset.text)}
+                            data-variant="ghost"
+                          >
+                            {preset.icon}
+                            {preset.label}
+                          </Button>
+                        ))}
                       </div>
                     </div>
                   )}
