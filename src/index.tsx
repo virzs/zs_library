@@ -30,6 +30,7 @@ export {
   Markdown,
   GeoMap,
   SimpleEditor,
+  SimpleEditorRender,
 } from "./components";
 
 export type {
