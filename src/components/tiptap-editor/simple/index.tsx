@@ -28,5 +28,7 @@ import "./styles/_keyframe-animations.scss";
  * }
  * ```
  */
-export { SimpleEditor as default, SimpleEditor } from "./simple-editor";
-export { SimpleEditorRender } from "./simple-editor-render";
+export * from "./simple-editor";
+export * from "./simple-editor-render";
+export * from "./lib/feature-utils";
+export * from "./lib/format-utils";

@@ -70,6 +70,8 @@ import zhCN from "./i18n/zh-CN.json";
 // --- Styles ---
 import "./simple-editor.scss";
 import { SimpleEditorFeatures, isEnabled, getConfig } from "./lib/feature-utils";
+import { EditorOutputFormat } from "./lib/format-utils";
+import { Markdown } from "@tiptap/markdown";
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -243,13 +245,14 @@ const MobileToolbarContent = ({ type, onBack }: { type: "highlighter" | "link"; 
 
 export interface SimpleEditorProps {
   value?: string | JSONContent;
-  onChange?: (value: string) => void;
+  onChange?: (value: string | JSONContent) => void;
   className?: string;
   style?: React.CSSProperties;
   features?: SimpleEditorFeatures;
+  output?: EditorOutputFormat;
 }
 
-export function SimpleEditor({ value, onChange, className, style, features }: SimpleEditorProps) {
+export function SimpleEditor({ value, onChange, className, style, features, output = "html" }: SimpleEditorProps) {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">("main");
@@ -278,7 +281,9 @@ export function SimpleEditor({ value, onChange, className, style, features }: Si
       },
     },
     onUpdate: ({ editor }) => {
-      onChange?.(editor.getHTML());
+      const content =
+        output === "markdown" ? editor.getMarkdown() : output === "json" ? editor.getJSON() : editor.getHTML();
+      onChange?.(content);
     },
     extensions: [
       StarterKit.configure({
@@ -342,15 +347,27 @@ export function SimpleEditor({ value, onChange, className, style, features }: Si
             }),
           ]
         : []),
+      Markdown,
     ],
     content: value,
   });
 
   useEffect(() => {
-    if (editor && value !== undefined && value !== editor.getHTML()) {
-      editor.commands.setContent(value);
+    if (editor && value !== undefined) {
+      const currentContent =
+        output === "markdown"
+          ? editor.getMarkdown()
+          : output === "json"
+          ? JSON.stringify(editor.getJSON())
+          : editor.getHTML();
+
+      const valueString = output === "json" && typeof value !== "string" ? JSON.stringify(value) : value;
+
+      if (currentContent !== valueString) {
+        editor.commands.setContent(value);
+      }
     }
-  }, [value, editor]);
+  }, [value, editor, output]);
 
   const rect = useCursorVisibility({
     editor,
