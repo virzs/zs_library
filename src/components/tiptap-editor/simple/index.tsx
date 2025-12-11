@@ -1,5 +1,6 @@
 import "./styles/_variables.scss";
 import "./styles/_keyframe-animations.scss";
+import { SimpleEditor } from "./simple-editor";
 
 /**
  * Simple Tiptap Editor
@@ -32,3 +33,4 @@ export * from "./simple-editor";
 export * from "./simple-editor-render";
 export * from "./lib/feature-utils";
 export * from "./lib/format-utils";
+export default SimpleEditor;

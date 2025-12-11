@@ -31,6 +31,9 @@ export {
   GeoMap,
   SimpleEditor,
   SimpleEditorRender,
+  jsonToHtml,
+  htmlToJson,
+  EditorFormatConverter,
 } from "./components";
 
 export type {
@@ -55,6 +58,12 @@ export type {
   // Dock相关类型
   DockDesktopItemProps,
   DockMobileItemProps,
+
+  // SimpleEditor相关类型
+  SimpleEditorProps,
+  SimpleEditorRenderProps,
+  SimpleEditorFeatures,
+  EditorOutputFormat,
 } from "./components";
 
 // 导出所有组件作为默认导出

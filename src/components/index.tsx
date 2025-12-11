@@ -77,4 +77,16 @@ export type { MobileIconContainerProps as DockMobileItemProps } from "./dock/doc
 export { default as GeoMap } from "./map-view";
 export type { GeoMapProps } from "./map-view";
 
-export { default as SimpleEditor, SimpleEditorRender } from "./tiptap-editor/simple";
+export {
+  default as SimpleEditor,
+  SimpleEditorRender,
+  jsonToHtml,
+  htmlToJson,
+  EditorFormatConverter,
+} from "./tiptap-editor/simple";
+export type {
+  SimpleEditorProps,
+  SimpleEditorRenderProps,
+  SimpleEditorFeatures,
+  EditorOutputFormat,
+} from "./tiptap-editor/simple";

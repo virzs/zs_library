@@ -871,3 +871,89 @@ export default () => {
 - **对齐**: 左对齐、居中、右对齐、两端对齐
 - **撤销/重做**
 - **主题**: 支持浅色/深色模式切换
+
+## 数据格式转换
+
+支持多种数据格式输出：`html` (默认)、`json`、`markdown`。
+
+```jsx
+import React, { useState } from "react";
+import { SimpleEditor, jsonToHtml, htmlToJson } from "zs_library";
+
+export default () => {
+  const [outputFormat, setOutputFormat] = useState("html");
+  const [content, setContent] = useState("<p>Hello <strong>World</strong>!</p>");
+  const [displayContent, setDisplayContent] = useState(content);
+
+  const handleFormatChange = (e) => {
+    const newFormat = e.target.value;
+    setOutputFormat(newFormat);
+    // Clearing content to let editor re-initialize with new format if needed
+    // In real app you might want to convert current content to new format
+    setContent(undefined);
+    setTimeout(() => setContent("<p>Switching format...</p>"), 10);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <label>输出格式：</label>
+        <select
+          value={outputFormat}
+          onChange={handleFormatChange}
+          style={{ padding: "4px 8px", borderRadius: "4px", border: "1px solid #ccc" }}
+        >
+          <option value="html">HTML</option>
+          <option value="json">JSON</option>
+          <option value="markdown">Markdown</option>
+        </select>
+      </div>
+
+      <div style={{ border: "1px solid #eee", borderRadius: "8px", overflow: "hidden" }}>
+        <SimpleEditor
+          value={content}
+          output={outputFormat}
+          onChange={(val) => setDisplayContent(val)}
+          style={{ height: "300px" }}
+        />
+      </div>
+
+      <div style={{ background: "#f5f5f5", padding: "16px", borderRadius: "8px" }}>
+        <h4 style={{ margin: "0 0 8px 0" }}>实时输出 ({outputFormat}):</h4>
+        <pre
+          style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: "200px", overflow: "auto" }}
+        >
+          {typeof displayContent === "string" ? displayContent : JSON.stringify(displayContent, null, 2)}
+        </pre>
+      </div>
+
+      <div style={{ background: "#e6f7ff", padding: "16px", borderRadius: "8px" }}>
+        <h4 style={{ margin: "0 0 8px 0" }}>工具函数演示:</h4>
+        <p>HTML 转 JSON:</p>
+        <pre style={{ fontSize: "12px" }}>{JSON.stringify(htmlToJson("<p>Test</p>"), null, 2)}</pre>
+      </div>
+    </div>
+  );
+};
+```
+
+## API
+
+### SimpleEditor
+
+| 参数      | 说明         | 类型                                     | 默认值   |
+| --------- | ------------ | ---------------------------------------- | -------- |
+| value     | 编辑器内容   | `string \| JSONContent`                  | -        |
+| onChange  | 内容变化回调 | `(value: string \| JSONContent) => void` | -        |
+| className | 自定义类名   | `string`                                 | -        |
+| style     | 自定义样式   | `React.CSSProperties`                    | -        |
+| output    | 输出格式     | `'html' \| 'json' \| 'markdown'`         | `'html'` |
+| features  | 功能配置     | `SimpleEditorFeatures`                   | 见下表   |
+
+### SimpleEditorRender
+
+| 参数      | 说明               | 类型                    | 默认值 |
+| --------- | ------------------ | ----------------------- | ------ |
+| value     | 需要渲染的内容     | `string \| JSONContent` | -      |
+| className | 自定义类名         | `string`                | -      |
+| sanitize  | 是否开启 HTML 净化 | `boolean`               | `true` |
