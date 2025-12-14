@@ -937,18 +937,114 @@ export default () => {
 };
 ```
 
+## 外部控制 (Editor Instance)
+
+支持通过 `editor` 属性传入外部创建的 `Editor` 实例，或者通过 `useSimpleEditor` Hook 创建并控制编辑器。
+
+### 使用 useSimpleEditor Hook
+
+这是推荐的高级用法，可以直接持有并操作编辑器实例。
+
+```jsx
+import React from "react";
+import { SimpleEditor, useSimpleEditor } from "zs_library";
+
+export default () => {
+  // 1. 使用 hook 创建 editor 实例
+  const editor = useSimpleEditor({
+    value: "<p>Hello <strong>World</strong></p>",
+    onChange: (content) => console.log("Content changed:", content),
+    features: {
+      // 可以在这里配置功能
+      highlight: true,
+    },
+  });
+
+  const handleClear = () => {
+    // 2. 直接调用 editor 命令
+    editor?.commands.clearContent();
+    editor?.commands.focus();
+  };
+
+  const handleInsert = () => {
+    editor?.commands.insertContent(" Inserted text");
+    editor?.commands.focus();
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div style={{ display: "flex", gap: "8px" }}>
+        <button onClick={handleClear} style={{ padding: "4px 8px" }}>
+          清空内容
+        </button>
+        <button onClick={handleInsert} style={{ padding: "4px 8px" }}>
+          插入文本
+        </button>
+      </div>
+
+      <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+        {/* 3. 将 editor 传递给组件 */}
+        <SimpleEditor editor={editor} />
+      </div>
+    </div>
+  );
+};
+```
+
+### 使用 Ref (传统方式)
+
+如果您更习惯使用 Ref 来访问实例，也可以使用 `useRef`。
+
+```jsx
+import React, { useRef } from "react";
+import { SimpleEditor } from "zs_library";
+
+export default () => {
+  const editorRef = useRef(null);
+
+  const handleLogHtml = () => {
+    if (editorRef.current?.editor) {
+      console.log(editorRef.current.editor.getHTML());
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleLogHtml} style={{ marginBottom: "8px" }}>
+        Log HTML
+      </button>
+      <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+        <SimpleEditor ref={editorRef} />
+      </div>
+    </div>
+  );
+};
+```
+
 ## API
 
 ### SimpleEditor
 
-| 参数      | 说明         | 类型                                     | 默认值   |
-| --------- | ------------ | ---------------------------------------- | -------- |
-| value     | 编辑器内容   | `string \| JSONContent`                  | -        |
-| onChange  | 内容变化回调 | `(value: string \| JSONContent) => void` | -        |
-| className | 自定义类名   | `string`                                 | -        |
-| style     | 自定义样式   | `React.CSSProperties`                    | -        |
-| output    | 输出格式     | `'html' \| 'json' \| 'markdown'`         | `'html'` |
-| features  | 功能配置     | `SimpleEditorFeatures`                   | 见下表   |
+| 参数      | 说明           | 类型                                     | 默认值   |
+| --------- | -------------- | ---------------------------------------- | -------- |
+| value     | 编辑器内容     | `string \| JSONContent`                  | -        |
+| onChange  | 内容变化回调   | `(value: string \| JSONContent) => void` | -        |
+| className | 自定义类名     | `string`                                 | -        |
+| style     | 自定义样式     | `React.CSSProperties`                    | -        |
+| output    | 输出格式       | `'html' \| 'json' \| 'markdown'`         | `'html'` |
+| features  | 功能配置       | `SimpleEditorFeatures`                   | 见下表   |
+| editor    | 外部编辑器实例 | `Editor \| null`                         | -        |
+
+### useSimpleEditor
+
+| 参数     | 说明         | 类型                                     | 默认值   |
+| -------- | ------------ | ---------------------------------------- | -------- |
+| value    | 编辑器内容   | `string \| JSONContent`                  | -        |
+| onChange | 内容变化回调 | `(value: string \| JSONContent) => void` | -        |
+| output   | 输出格式     | `'html' \| 'json' \| 'markdown'`         | `'html'` |
+| features | 功能配置     | `SimpleEditorFeatures`                   | -        |
+
+### SimpleEditorRender
 
 ### SimpleEditorRender
 

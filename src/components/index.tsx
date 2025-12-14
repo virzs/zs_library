@@ -80,6 +80,7 @@ export type { GeoMapProps } from "./map-view";
 export {
   default as SimpleEditor,
   SimpleEditorRender,
+  useSimpleEditor,
   jsonToHtml,
   htmlToJson,
   EditorFormatConverter,
@@ -89,4 +90,5 @@ export type {
   SimpleEditorRenderProps,
   SimpleEditorFeatures,
   EditorOutputFormat,
+  UseSimpleEditorProps,
 } from "./tiptap-editor/simple";
