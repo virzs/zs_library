@@ -522,11 +522,11 @@ export default () => {
 
 ## 编辑与预览
 
-支持 `SimpleEditor` 与 `SimpleEditorRender` 配合使用，实现编辑与预览分离。
+支持 `SimpleEditor` 与 `SimpleEditorViewer` 配合使用，实现编辑与预览分离。
 
 ```jsx
 import React, { useState } from "react";
-import { SimpleEditor, SimpleEditorRender } from "zs_library";
+import { SimpleEditor, SimpleEditorViewer } from "zs_library";
 
 const defaultContent = {
   type: "doc",
@@ -623,7 +623,7 @@ export default () => {
       </div>
       <div style={{ flex: 1, border: "1px solid #ccc", borderRadius: "8px", overflow: "auto", padding: "20px" }}>
         <h3>预览</h3>
-        <SimpleEditorRender value={typeof value === "string" ? value : ""} />
+        <SimpleEditorViewer value={typeof value === "string" ? value : ""} />
       </div>
     </div>
   );
@@ -1074,12 +1074,11 @@ export default () => {
 | output   | 输出格式     | `'html' \| 'json' \| 'markdown'`         | `'html'` |
 | features | 功能配置     | `SimpleEditorFeatures`                   | -        |
 
-### SimpleEditorRender
-
-### SimpleEditorRender
+### SimpleEditorViewer
 
 | 参数      | 说明               | 类型                    | 默认值 |
 | --------- | ------------------ | ----------------------- | ------ |
 | value     | 需要渲染的内容     | `string \| JSONContent` | -      |
 | className | 自定义类名         | `string`                | -      |
 | sanitize  | 是否开启 HTML 净化 | `boolean`               | `true` |
+| theme     | 主题               | `'light' \| 'dark'`     | -      |

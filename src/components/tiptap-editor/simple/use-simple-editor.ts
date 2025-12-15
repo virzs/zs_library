@@ -51,30 +51,7 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
   const getContent = (val: string | JSONContent | undefined) => {
     if (val === undefined) return undefined;
     if (typeof val === "string") {
-      try {
-        // Try to parse as JSON first
-        const parsed = JSON.parse(val);
-        if (typeof parsed === "object" && parsed !== null) {
-          return parsed;
-        }
-      } catch {
-        // Not JSON, continue
-      }
-
-      // If output is HTML, check if input looks like Markdown and convert if necessary.
-      // Or if output is Markdown, convert Markdown to HTML for editor.
-      // But user wants "value can be auto formatted to json" - Tiptap handles JSON object directly.
-      // If it's a string, Tiptap treats it as HTML by default.
-
-      // Heuristic to detect Markdown:
-      // If it contains common markdown patterns AND doesn't look like full HTML document
-      const isHtml = /<[a-z][\s\S]*>/i.test(val);
-      if (!isHtml) {
-        // Assume Markdown if not clearly HTML
-        return marked.parse(val, { async: false }) as string;
-      }
-
-      return val;
+      return marked.parse(val, { async: false }) as string;
     }
     return val;
   };

@@ -30,7 +30,7 @@ export {
   Markdown,
   GeoMap,
   SimpleEditor,
-  SimpleEditorRender,
+  SimpleEditorViewer,
   useSimpleEditor,
   jsonToHtml,
   htmlToJson,
@@ -62,7 +62,7 @@ export type {
 
   // SimpleEditor相关类型
   SimpleEditorProps,
-  SimpleEditorRenderProps,
+  SimpleEditorViewerProps,
   SimpleEditorFeatures,
   EditorOutputFormat,
   UseSimpleEditorProps,
