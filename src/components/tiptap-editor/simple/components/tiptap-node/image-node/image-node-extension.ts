@@ -1,4 +1,3 @@
-import { mergeAttributes } from "@tiptap/react";
 import { Image as TiptapImage } from "@tiptap/extension-image";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ImageNode as ImageNodeComponent } from "./image-node";
@@ -6,7 +5,7 @@ import { ImageNode as ImageNodeComponent } from "./image-node";
 export interface ImageNodeOptions {
   inline: boolean;
   allowBase64: boolean;
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
 }
 
 declare module "@tiptap/core" {

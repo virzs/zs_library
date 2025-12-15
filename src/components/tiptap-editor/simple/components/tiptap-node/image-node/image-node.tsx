@@ -6,12 +6,9 @@ import { RiAlignLeft, RiAlignCenter, RiAlignRight } from "@remixicon/react";
 import { Button } from "../../tiptap-ui-primitive/button";
 import "./image-node.scss";
 
-const MIN_WIDTH = 60;
-const MAX_WIDTH = 100; // percentage
-
 export const ImageNode: React.FC<NodeViewProps> = (props) => {
-  const { node, updateAttributes, selected, editor } = props;
-  const { src, alt, title, width, height, textAlign } = node.attrs;
+  const { node, updateAttributes, selected } = props;
+  const { src, alt, title, width, textAlign } = node.attrs;
 
   const [isResizing, setIsResizing] = useState(false);
   const [resizeWidth, setResizeWidth] = useState<string | number | null>(width);
@@ -37,22 +34,22 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
 
         const diff = e.clientX - startX;
         const newWidth = startWidth + diff;
-        
+
         // Convert to percentage for responsiveness
         // Or keep pixel values if preferred. Let's try pixel first if width was pixel, or % if it was %.
         // For simplicity, let's stick to pixels for now or percentage logic.
         // Tiptap usually stores attributes as strings or numbers.
-        
+
         // Let's constrain it
         const newWidthPercent = Math.min(Math.max((newWidth / containerWidth) * 100, 10), 100);
-        
+
         setResizeWidth(`${newWidthPercent.toFixed(0)}%`);
       };
 
       const onMouseUp = () => {
         setIsResizing(false);
         if (resizeWidth) {
-            updateAttributes({ width: resizeWidth });
+          updateAttributes({ width: resizeWidth });
         }
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
@@ -75,30 +72,24 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
   return (
     <NodeViewWrapper
       className={`tiptap-image-view ${selected ? "is-selected" : ""}`}
-      style={{ 
+      style={{
         textAlign: textAlign,
         // We use flex to align the container itself if needed, or just block with margins
-        display: "flex", 
-        justifyContent: textAlign === "left" ? "flex-start" : textAlign === "right" ? "flex-end" : "center" 
+        display: "flex",
+        justifyContent: textAlign === "left" ? "flex-start" : textAlign === "right" ? "flex-end" : "center",
       }}
       ref={containerRef}
     >
-      <div 
+      <div
         className="tiptap-image-container"
         style={{
-            width: resizeWidth || "100%",
-            position: "relative",
-            transition: isResizing ? "none" : "width 0.2s ease",
-            ...currentAlignStyle
+          width: resizeWidth || "100%",
+          position: "relative",
+          transition: isResizing ? "none" : "width 0.2s ease",
+          ...currentAlignStyle,
         }}
       >
-        <img
-          ref={imageRef}
-          src={src}
-          alt={alt}
-          title={title}
-          className="tiptap-image"
-        />
+        <img ref={imageRef} src={src} alt={alt} title={title} className="tiptap-image" />
 
         {selected && (
           <>
@@ -132,10 +123,7 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
               </Button>
             </div>
 
-            <div
-              className="tiptap-image-resize-handle"
-              onMouseDown={handleMouseDown}
-            />
+            <div className="tiptap-image-resize-handle" onMouseDown={handleMouseDown} />
           </>
         )}
       </div>
