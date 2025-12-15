@@ -937,6 +937,36 @@ export default () => {
 };
 ```
 
+## Markdown 自动转换
+
+`SimpleEditor` 支持自动检测并转换 Markdown 格式的初始内容。
+
+```jsx
+import React from "react";
+import { SimpleEditor } from "zs_library";
+
+export default () => {
+  // 传入 Markdown 字符串作为初始值
+  // 编辑器会自动检测并将其转换为 HTML 进行渲染
+  const initialMarkdown = `
+# Markdown 自动转换
+
+这是一个 **Markdown** 示例。
+
+- 列表项 1
+- 列表项 2
+
+> 这是一个引用块
+`;
+
+  return (
+    <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+      <SimpleEditor value={initialMarkdown} onChange={(val) => console.log(val)} />
+    </div>
+  );
+};
+```
+
 ## 外部控制 (Editor Instance)
 
 支持通过 `editor` 属性传入外部创建的 `Editor` 实例，或者通过 `useSimpleEditor` Hook 创建并控制编辑器。

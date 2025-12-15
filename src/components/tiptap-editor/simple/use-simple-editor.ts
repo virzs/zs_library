@@ -163,7 +163,7 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
   });
 
   // Track if we have set the initial content
-  const hasContent = useRef(value !== undefined);
+  const hasContent = useRef(false);
 
   useEffect(() => {
     // If we already have content (tracked by ref), don't do anything.
