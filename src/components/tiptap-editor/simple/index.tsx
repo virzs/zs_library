@@ -34,4 +34,5 @@ export * from "./use-simple-editor";
 export * from "./simple-editor-render";
 export * from "./lib/feature-utils";
 export * from "./lib/format-utils";
+export type { JSONContent } from "@tiptap/react";
 export default SimpleEditor;

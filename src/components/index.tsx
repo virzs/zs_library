@@ -91,4 +91,5 @@ export type {
   SimpleEditorFeatures,
   EditorOutputFormat,
   UseSimpleEditorProps,
+  JSONContent,
 } from "./tiptap-editor/simple";
