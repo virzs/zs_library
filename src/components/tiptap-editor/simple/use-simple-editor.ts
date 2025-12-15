@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useEditor, JSONContent } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
+import { marked } from "marked";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -45,6 +46,38 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
     i18n.addResourceBundle("en-US", "simpleEditor", enUS, true, true);
     i18n.addResourceBundle("zh-CN", "simpleEditor", zhCN, true, true);
   }, [i18n]);
+
+  // Determine content type helper
+  const getContent = (val: string | JSONContent | undefined) => {
+    if (val === undefined) return undefined;
+    if (typeof val === "string") {
+      try {
+        // Try to parse as JSON first
+        const parsed = JSON.parse(val);
+        if (typeof parsed === "object" && parsed !== null) {
+          return parsed;
+        }
+      } catch {
+        // Not JSON, continue
+      }
+
+      // If output is HTML, check if input looks like Markdown and convert if necessary.
+      // Or if output is Markdown, convert Markdown to HTML for editor.
+      // But user wants "value can be auto formatted to json" - Tiptap handles JSON object directly.
+      // If it's a string, Tiptap treats it as HTML by default.
+
+      // Heuristic to detect Markdown:
+      // If it contains common markdown patterns AND doesn't look like full HTML document
+      const isHtml = /<[a-z][\s\S]*>/i.test(val);
+      if (!isHtml) {
+        // Assume Markdown if not clearly HTML
+        return marked.parse(val, { async: false }) as string;
+      }
+
+      return val;
+    }
+    return val;
+  };
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -126,25 +159,22 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
         : []),
       Markdown,
     ],
-    content: value,
+    content: getContent(value),
   });
 
+  // Track if we have set the initial content
+  const hasContent = useRef(value !== undefined);
+
   useEffect(() => {
+    // If we already have content (tracked by ref), don't do anything.
+    // This ignores subsequent updates to value, treating it as initial value only.
+    if (hasContent.current) return;
+
     if (editor && value !== undefined) {
-      const currentContent =
-        output === "markdown"
-          ? editor.getMarkdown()
-          : output === "json"
-          ? JSON.stringify(editor.getJSON())
-          : editor.getHTML();
-
-      const valueString = output === "json" && typeof value !== "string" ? JSON.stringify(value) : value;
-
-      if (currentContent !== valueString) {
-        editor.commands.setContent(value);
-      }
+      editor.commands.setContent(getContent(value) || "");
+      hasContent.current = true;
     }
-  }, [value, editor, output]);
+  }, [value, editor]);
 
   return editor;
 }
