@@ -490,19 +490,21 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 
   return (
     <NodeViewWrapper className="tiptap-image-upload" tabIndex={0} onClick={handleClick}>
-      <div className="tiptap-image-upload-delete-button">
-        <Button
-          type="button"
-          data-style="ghost"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            props.deleteNode();
-          }}
-        >
-          <CloseIcon className="tiptap-button-icon" />
-        </Button>
-      </div>
+      {!hasFiles && (
+        <div className="tiptap-image-upload-delete-button">
+          <Button
+            type="button"
+            data-style="ghost"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              props.deleteNode();
+            }}
+          >
+            <CloseIcon className="tiptap-button-icon" />
+          </Button>
+        </div>
+      )}
       {!hasFiles && (
         <ImageUploadDragArea onFile={handleUpload}>
           <DropZoneContent maxSize={maxSize} limit={limit} />
