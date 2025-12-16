@@ -14,9 +14,12 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
   const [resizeWidth, setResizeWidth] = useState<string | number | null>(width);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const latestResizeWidthRef = useRef<string | number | null>(width);
+  const isResizingRef = useRef(false);
 
   useEffect(() => {
     setResizeWidth(width);
+    latestResizeWidthRef.current = width;
   }, [width]);
 
   const selectImage = useCallback(
@@ -36,7 +39,11 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
     (e: React.MouseEvent) => {
       const target = e.target as HTMLElement;
       // If we clicked the toolbar or resize handle, ignore
-      if (target.closest(".tiptap-image-toolbar") || target.closest(".tiptap-image-resize-handle")) {
+      if (
+        target.closest(".tiptap-image-toolbar") ||
+        target.closest(".tiptap-image-resize-handle") ||
+        isResizingRef.current
+      ) {
         return;
       }
 
@@ -62,6 +69,7 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
       e.preventDefault();
       e.stopPropagation();
       setIsResizing(true);
+      isResizingRef.current = true;
 
       const startX = e.clientX;
       const startWidth = imageRef.current?.offsetWidth || 0;
@@ -81,14 +89,22 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
         // Let's constrain it
         const newWidthPercent = Math.min(Math.max((newWidth / containerWidth) * 100, 10), 100);
 
-        setResizeWidth(`${newWidthPercent.toFixed(0)}%`);
+        const newWidthStr = `${newWidthPercent.toFixed(0)}%`;
+        setResizeWidth(newWidthStr);
+        latestResizeWidthRef.current = newWidthStr;
       };
 
       const onMouseUp = () => {
         setIsResizing(false);
-        if (resizeWidth) {
-          updateAttributes({ width: resizeWidth });
+        if (latestResizeWidthRef.current) {
+          updateAttributes({ width: latestResizeWidthRef.current });
         }
+
+        // Delay resetting isResizingRef to prevent click event from triggering selection change
+        setTimeout(() => {
+          isResizingRef.current = false;
+        }, 100);
+
         document.removeEventListener("mousemove", onMouseMove);
         document.removeEventListener("mouseup", onMouseUp);
       };
@@ -96,7 +112,7 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
       document.addEventListener("mousemove", onMouseMove);
       document.addEventListener("mouseup", onMouseUp);
     },
-    [resizeWidth, updateAttributes]
+    [updateAttributes]
   );
 
   const alignStyles: Record<string, React.CSSProperties> = {
