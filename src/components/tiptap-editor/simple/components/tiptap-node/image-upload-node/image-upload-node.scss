@@ -108,6 +108,26 @@
     font-size: 0.75rem;
   }
 
+  .tiptap-image-upload-error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    background-color: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    border-radius: var(--tt-radius-md, 0.5rem);
+    color: #ef4444;
+    font-size: 0.875rem;
+
+    button {
+      color: #ef4444;
+      &:hover {
+        background-color: rgba(255, 0, 0, 0.1);
+      }
+    }
+  }
+
   .tiptap-image-upload-drag-area {
     padding: 2rem 1.5rem;
     border: 1.5px dashed var(--tiptap-image-upload-border);

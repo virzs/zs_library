@@ -1,3 +1,4 @@
+import { UploadOptions } from "../components/tiptap-node/image-upload-node/image-upload-node";
 import { handleImageUpload as mockImageUpload } from "./tiptap-utils";
 
 export type RequestMethod = "POST" | "PUT" | "PATCH" | "post" | "put" | "patch";
@@ -12,7 +13,7 @@ export interface UploadRequestOption {
   withCredentials?: boolean;
 }
 
-export interface ImageUploadProps {
+export interface ImageUploadProps extends Partial<Omit<UploadOptions, "upload">> {
   /** Upload URL */
   action?: string | ((file: File) => Promise<string>);
   /** HTTP method */

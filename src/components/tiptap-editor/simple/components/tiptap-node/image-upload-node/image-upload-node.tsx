@@ -83,11 +83,16 @@ export interface UploadOptions {
 function useFileUpload(options: UploadOptions) {
   const { t } = useTranslation("simpleEditor");
   const [fileItems, setFileItems] = useState<FileItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const clearError = () => setError(null);
 
   const uploadFile = async (file: File): Promise<string | null> => {
-    if (file.size > options.maxSize) {
-      const error = new Error(t("imageUpload.errors.tooLarge", { size: options.maxSize / 1024 / 1024 }));
+    if (options.maxSize && file.size > options.maxSize) {
+      const errorMsg = t("imageUpload.errors.tooLarge", { size: options.maxSize / 1024 / 1024 });
+      const error = new Error(errorMsg);
       options.onError?.(error);
+      setError(errorMsg);
       return null;
     }
 
@@ -103,6 +108,7 @@ function useFileUpload(options: UploadOptions) {
     };
 
     setFileItems((prev) => [...prev, newFileItem]);
+    clearError();
 
     try {
       if (!options.upload) {
@@ -135,24 +141,31 @@ function useFileUpload(options: UploadOptions) {
         setFileItems((prev) =>
           prev.map((item) => (item.id === fileId ? { ...item, status: "error", progress: 0 } : item))
         );
-        options.onError?.(error instanceof Error ? error : new Error(t("imageUpload.errors.uploadFailed")));
+        const errorMsg = error instanceof Error ? error.message : t("imageUpload.errors.uploadFailed");
+        options.onError?.(error instanceof Error ? error : new Error(errorMsg));
+        // Don't set global error for individual file failure, as the file item will show error status
+        // But maybe we want to show a toast or something? For now let's keep it local to the item or handled by onError
       }
       return null;
     }
   };
 
   const uploadFiles = async (files: File[]): Promise<string[]> => {
+    clearError();
     if (!files || files.length === 0) {
-      options.onError?.(new Error(t("imageUpload.errors.noFiles")));
+      const errorMsg = t("imageUpload.errors.noFiles");
+      options.onError?.(new Error(errorMsg));
+      setError(errorMsg);
       return [];
     }
 
     if (options.limit && files.length > options.limit) {
-      options.onError?.(
-        new Error(
-          t("imageUpload.errors.limitExceeded", { limit: options.limit, plural: options.limit === 1 ? "" : "s" })
-        )
-      );
+      const errorMsg = t("imageUpload.errors.limitExceeded", {
+        limit: options.limit,
+        plural: options.limit === 1 ? "" : "s",
+      });
+      options.onError?.(new Error(errorMsg));
+      setError(errorMsg);
       return [];
     }
 
@@ -187,6 +200,7 @@ function useFileUpload(options: UploadOptions) {
       }
     });
     setFileItems([]);
+    clearError();
   };
 
   return {
@@ -194,6 +208,8 @@ function useFileUpload(options: UploadOptions) {
     uploadFiles,
     removeFileItem,
     clearAllFiles,
+    error,
+    clearError,
   };
 }
 
@@ -421,7 +437,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
     onError: extension.options.onError,
   };
 
-  const { fileItems, uploadFiles, removeFileItem, clearAllFiles } = useFileUpload(uploadOptions);
+  const { fileItems, uploadFiles, removeFileItem, clearAllFiles, error, clearError } = useFileUpload(uploadOptions);
 
   const handleUpload = async (files: File[]) => {
     const urls = await uploadFiles(files);
@@ -507,12 +523,28 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
       )}
       {!hasFiles && (
         <ImageUploadDragArea onFile={handleUpload}>
-          <DropZoneContent maxSize={maxSize} limit={limit} />
+          <DropZoneContent maxSize={maxSize || 0} limit={limit || 0} />
+          {error && (
+            <div className="tiptap-image-upload-error">
+              <span>{error}</span>
+              <Button type="button" data-style="ghost" data-size="small" onClick={clearError}>
+                <CloseIcon className="tiptap-button-icon" />
+              </Button>
+            </div>
+          )}
         </ImageUploadDragArea>
       )}
 
       {hasFiles && (
         <div className="tiptap-image-upload-previews">
+          {error && (
+            <div className="tiptap-image-upload-error">
+              <span>{error}</span>
+              <Button type="button" data-style="ghost" data-size="small" onClick={clearError}>
+                <CloseIcon className="tiptap-button-icon" />
+              </Button>
+            </div>
+          )}
           {fileItems.length > 1 && (
             <div className="tiptap-image-upload-header">
               <span>{t("imageUpload.uploading", { count: fileItems.length })}</span>

@@ -18,7 +18,7 @@ import { Badge } from "../../tiptap-ui-primitive/badge";
 type IconProps = React.SVGProps<SVGSVGElement>;
 type IconComponent = ({ className, ...props }: IconProps) => React.ReactElement;
 
-export interface ImageUploadButtonProps extends Omit<ButtonProps, "type">, UseImageUploadConfig {
+export interface ImageUploadButtonProps extends Omit<ButtonProps, "type" | "onError">, UseImageUploadConfig {
   /**
    * Optional text to display alongside the icon.
    */
