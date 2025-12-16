@@ -2,11 +2,13 @@
   margin: 1.5rem 0;
   width: 100%;
   line-height: 0;
+  pointer-events: none;
 
   .tiptap-image-container {
     position: relative;
     max-width: 100%;
     user-select: none;
+    pointer-events: auto;
 
     img {
       width: 100%;

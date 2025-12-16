@@ -19,6 +19,44 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
     setResizeWidth(width);
   }, [width]);
 
+  const selectImage = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const { editor, getPos } = props;
+      const pos = getPos();
+      if (typeof pos === "number") {
+        editor.commands.setNodeSelection(pos);
+      }
+    },
+    [props]
+  );
+
+  const handleWrapperClick = useCallback(
+    (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // If we clicked the toolbar or resize handle, ignore
+      if (target.closest(".tiptap-image-toolbar") || target.closest(".tiptap-image-resize-handle")) {
+        return;
+      }
+
+      // If we clicked the image itself, selectImage should have handled it (and stopped prop)
+      // So if we are here, we clicked the "blank" area of the wrapper
+      const { editor, getPos } = props;
+      const pos = getPos();
+
+      if (typeof pos === "number") {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect) {
+          const isLeft = e.clientX < rect.left + rect.width / 2;
+          const newPos = isLeft ? pos : pos + props.node.nodeSize;
+          editor.commands.setTextSelection(newPos);
+        }
+      }
+    },
+    [props]
+  );
+
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -79,6 +117,7 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
         justifyContent: textAlign === "left" ? "flex-start" : textAlign === "right" ? "flex-end" : "center",
       }}
       ref={containerRef}
+      onClick={handleWrapperClick}
     >
       <div
         className="tiptap-image-container"
@@ -89,7 +128,7 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
           ...currentAlignStyle,
         }}
       >
-        <img ref={imageRef} src={src} alt={alt} title={title} className="tiptap-image" />
+        <img ref={imageRef} src={src} alt={alt} title={title} className="tiptap-image" onClick={selectImage} />
 
         {selected && (
           <>

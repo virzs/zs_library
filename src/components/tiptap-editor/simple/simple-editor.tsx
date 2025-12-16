@@ -270,6 +270,29 @@ const SimpleEditorContent = ({ editor, className, style, features }: SimpleEdito
     }
   }, [isMobile, mobileView]);
 
+  const handleGlobalClick = (e: React.MouseEvent) => {
+    // Only handle clicks directly on the editor content wrapper or the ProseMirror container
+    // when a node is selected (like an image) to facilitate deselection.
+    if (!editor) return;
+
+    // Check if we have a NodeSelection (like Image selected)
+    if (editor.state.selection.toJSON().type === "node") {
+      const target = e.target as HTMLElement;
+
+      // If clicking on the main content area (ProseMirror padding area)
+      if (target.classList.contains("ProseMirror") || target.classList.contains("simple-editor-content")) {
+        // Find position at coordinates
+        const pos = editor.view.posAtCoords({ left: e.clientX, top: e.clientY });
+        if (pos) {
+          editor.commands.setTextSelection(pos.pos);
+        } else {
+          // If we can't find a pos (e.g. way below content), move to end
+          editor.commands.focus("end");
+        }
+      }
+    }
+  };
+
   return (
     <div className={`simple-editor-wrapper ${className || ""}`} style={style}>
       <EditorContext.Provider value={{ editor }}>
@@ -299,7 +322,12 @@ const SimpleEditorContent = ({ editor, className, style, features }: SimpleEdito
           )}
         </Toolbar>
 
-        <EditorContent editor={editor} role="presentation" className="simple-editor-content" />
+        <EditorContent
+          editor={editor}
+          role="presentation"
+          className="simple-editor-content"
+          onClick={handleGlobalClick}
+        />
       </EditorContext.Provider>
     </div>
   );
