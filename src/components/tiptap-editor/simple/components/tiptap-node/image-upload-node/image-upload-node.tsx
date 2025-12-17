@@ -5,10 +5,10 @@ import type { NodeViewProps } from "@tiptap/react";
 import { NodeViewWrapper } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../tiptap-ui-primitive/button";
-import { CloseIcon } from "../../tiptap-icons/close-icon";
 import "./image-upload-node.scss";
 import { focusNextNode, isValidPosition } from "../../../lib/tiptap-utils";
 import type { ImageUploadNodeStorage } from "./image-upload-node-extension";
+import { RiCloseLine } from "@remixicon/react";
 
 export interface FileItem {
   /**
@@ -386,7 +386,7 @@ const ImageUploadPreview: React.FC<ImageUploadPreviewProps> = ({ fileItem, onRem
               onRemove();
             }}
           >
-            <CloseIcon className="tiptap-button-icon" />
+            <RiCloseLine className="tiptap-button-icon" />
           </Button>
         </div>
       </div>
@@ -517,7 +517,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
               props.deleteNode();
             }}
           >
-            <CloseIcon className="tiptap-button-icon" />
+            <RiCloseLine className="tiptap-button-icon" />
           </Button>
         </div>
       )}
@@ -528,7 +528,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
             <div className="tiptap-image-upload-error">
               <span>{error}</span>
               <Button type="button" data-style="ghost" data-size="small" onClick={clearError}>
-                <CloseIcon className="tiptap-button-icon" />
+                <RiCloseLine className="tiptap-button-icon" />
               </Button>
             </div>
           )}
@@ -541,7 +541,7 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
             <div className="tiptap-image-upload-error">
               <span>{error}</span>
               <Button type="button" data-style="ghost" data-size="small" onClick={clearError}>
-                <CloseIcon className="tiptap-button-icon" />
+                <RiCloseLine className="tiptap-button-icon" />
               </Button>
             </div>
           )}

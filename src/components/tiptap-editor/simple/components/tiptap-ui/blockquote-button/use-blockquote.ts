@@ -9,7 +9,7 @@ import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { useTiptapEditor } from "../../../hooks/use-tiptap-editor";
 
 // --- Icons ---
-import { BlockquoteIcon } from "../../tiptap-icons/blockquote-icon";
+import { RiQuoteText } from "@remixicon/react";
 
 // --- UI Utils ---
 import {
@@ -221,6 +221,6 @@ export function useBlockquote(config?: UseBlockquoteConfig) {
     canToggle,
     label: t("toolbar.blockquote"),
     shortcutKeys: BLOCKQUOTE_SHORTCUT_KEY,
-    Icon: BlockquoteIcon,
+    Icon: RiQuoteText,
   };
 }

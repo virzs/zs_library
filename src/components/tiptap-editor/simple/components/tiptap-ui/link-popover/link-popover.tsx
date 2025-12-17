@@ -9,10 +9,7 @@ import { useIsBreakpoint } from "../../../hooks/use-is-breakpoint";
 import { useTiptapEditor } from "../../../hooks/use-tiptap-editor";
 
 // --- Icons ---
-import { CornerDownLeftIcon } from "../../tiptap-icons/corner-down-left-icon";
-import { ExternalLinkIcon } from "../../tiptap-icons/external-link-icon";
-import { TrashIcon } from "../../tiptap-icons/trash-icon";
-import { RiLinksLine } from "@remixicon/react";
+import { RiCornerDownLeftLine, RiDeleteBin7Line, RiExternalLinkLine, RiLinksLine } from "@remixicon/react";
 
 // --- Tiptap UI ---
 import type { UseLinkPopoverConfig } from "./use-link-popover";
@@ -137,7 +134,7 @@ const LinkMain: React.FC<LinkMainProps> = ({ url, setUrl, setLink, removeLink, o
               disabled={!url && !isActive}
               data-style="ghost"
             >
-              <CornerDownLeftIcon className="tiptap-button-icon" />
+              <RiCornerDownLeftLine className="tiptap-button-icon" />
             </Button>
           </ButtonGroup>
 
@@ -151,7 +148,7 @@ const LinkMain: React.FC<LinkMainProps> = ({ url, setUrl, setLink, removeLink, o
               disabled={!url && !isActive}
               data-style="ghost"
             >
-              <ExternalLinkIcon className="tiptap-button-icon" />
+              <RiExternalLinkLine className="tiptap-button-icon" />
             </Button>
 
             <Button
@@ -161,7 +158,7 @@ const LinkMain: React.FC<LinkMainProps> = ({ url, setUrl, setLink, removeLink, o
               disabled={!url && !isActive}
               data-style="ghost"
             >
-              <TrashIcon className="tiptap-button-icon" />
+              <RiDeleteBin7Line className="tiptap-button-icon" />
             </Button>
           </ButtonGroup>
         </CardItemGroup>

@@ -36,8 +36,7 @@ import { UndoRedoButton } from "./components/tiptap-ui/undo-redo-button";
 import { AiButton } from "./components/tiptap-ui/ai-button";
 
 // --- Icons ---
-import { ArrowLeftIcon } from "./components/tiptap-icons/arrow-left-icon";
-import { RiLinksLine, RiMarkPenLine } from "@remixicon/react";
+import { RiArrowLeftLine, RiLinksLine, RiMarkPenLine } from "@remixicon/react";
 
 // --- Hooks ---
 import { useIsBreakpoint } from "./hooks/use-is-breakpoint";
@@ -217,7 +216,7 @@ const MobileToolbarContent = ({ type, onBack }: { type: "highlighter" | "link"; 
   <>
     <ToolbarGroup>
       <Button data-style="ghost" onClick={onBack}>
-        <ArrowLeftIcon className="tiptap-button-icon" />
+        <RiArrowLeftLine className="tiptap-button-icon" />
         {type === "highlighter" ? (
           <RiMarkPenLine className="tiptap-button-icon" />
         ) : (
