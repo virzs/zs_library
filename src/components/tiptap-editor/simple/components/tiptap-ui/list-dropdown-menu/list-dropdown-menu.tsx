@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useTiptapEditor } from "../../../hooks/use-tiptap-editor";
 
 // --- Icons ---
-import { ChevronDownIcon } from "../../tiptap-icons/chevron-down-icon";
+import { RiArrowDownSLine } from "@remixicon/react";
 
 // --- Tiptap UI ---
 import { ListButton, type ListType } from "../list-button";
@@ -95,7 +95,7 @@ export function ListDropdownMenu({
           {...props}
         >
           <Icon className="tiptap-button-icon" />
-          <ChevronDownIcon className="tiptap-button-dropdown-small" />
+          <RiArrowDownSLine className="tiptap-button-dropdown-small" />
         </Button>
       </DropdownMenuTrigger>
 

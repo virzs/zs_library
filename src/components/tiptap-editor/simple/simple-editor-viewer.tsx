@@ -11,6 +11,9 @@ import DOMPurify from "dompurify";
 import { JSONContent } from "@tiptap/react";
 import { marked } from "marked";
 import { jsonToHtml } from "./lib/format-utils";
+import "highlight.js/styles/github-dark.css";
+import { useEffect, useRef } from "react";
+import hljs from "highlight.js";
 
 export interface SimpleEditorViewerProps {
   value: string | JSONContent;
@@ -20,6 +23,8 @@ export interface SimpleEditorViewerProps {
 }
 
 export function SimpleEditorViewer({ value, className, sanitize = true, theme }: SimpleEditorViewerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Convert content to HTML string for rendering
   let htmlContent = "";
 
@@ -35,9 +40,18 @@ export function SimpleEditorViewer({ value, className, sanitize = true, theme }:
 
   const themeClass = theme === "dark" ? "dark" : "";
 
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightElement(block as HTMLElement);
+      });
+    }
+  }, [content]);
+
   return (
     <div className={`simple-editor-wrapper ${themeClass} ${className || ""}`}>
       <div
+        ref={containerRef}
         className="simple-editor-content tiptap ProseMirror simple-editor"
         dangerouslySetInnerHTML={{ __html: content }}
       />

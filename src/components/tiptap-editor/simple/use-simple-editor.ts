@@ -5,6 +5,10 @@ import { marked } from "marked";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { common, createLowlight } from "lowlight";
+import { ReactNodeViewRenderer } from "@tiptap/react";
+import { CodeBlockNodeView } from "./components/tiptap-node/code-block-node/code-block-node-view";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Typography } from "@tiptap/extension-typography";
@@ -33,6 +37,8 @@ export interface UseSimpleEditorProps {
   features?: SimpleEditorFeatures;
   output?: EditorOutputFormat;
 }
+
+const lowlight = createLowlight(common);
 
 export function useSimpleEditor({ value, onChange, features, output = "html" }: UseSimpleEditorProps) {
   const { t, i18n } = useTranslation("simpleEditor");
@@ -85,7 +91,7 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
         orderedList: isEnabled(features?.list) ? undefined : false,
         listItem: isEnabled(features?.list) ? undefined : false,
         blockquote: isEnabled(features?.blockquote) ? undefined : false,
-        codeBlock: isEnabled(features?.codeBlock) ? undefined : false,
+        codeBlock: false,
         bold: isEnabled(features?.bold) ? undefined : false,
         italic: isEnabled(features?.italic) ? undefined : false,
         strike: isEnabled(features?.strike) ? undefined : false,
@@ -99,6 +105,18 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
           : false,
         undoRedo: isEnabled(features?.undoRedo) ? undefined : false,
       }),
+      ...(isEnabled(features?.codeBlock)
+        ? [
+            CodeBlockLowlight.extend({
+              addNodeView() {
+                return ReactNodeViewRenderer(CodeBlockNodeView);
+              },
+            }).configure({
+              lowlight,
+              ...getConfig(features?.codeBlock),
+            }),
+          ]
+        : []),
       HorizontalRule,
       ...(isEnabled(features?.textAlign)
         ? [

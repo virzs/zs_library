@@ -2,7 +2,7 @@ import { forwardRef, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 // --- Icons ---
-import { ChevronDownIcon } from "../../tiptap-icons/chevron-down-icon";
+import { RiArrowDownSLine } from "@remixicon/react";
 
 // --- Hooks ---
 import { useTiptapEditor } from "../../../hooks/use-tiptap-editor";
@@ -92,7 +92,7 @@ export const HeadingDropdownMenu = forwardRef<HTMLButtonElement, HeadingDropdown
             ref={ref}
           >
             <Icon className="tiptap-button-icon" />
-            <ChevronDownIcon className="tiptap-button-dropdown-small" />
+            <RiArrowDownSLine className="tiptap-button-dropdown-small" />
           </Button>
         </DropdownMenuTrigger>
 

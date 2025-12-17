@@ -54,6 +54,7 @@
     "@remixicon/react": "^4.7.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tiptap/core": "^3.12.1",
+    "@tiptap/extension-code-block-lowlight": "^3.13.0",
     "@tiptap/extension-highlight": "^3.12.1",
     "@tiptap/extension-horizontal-rule": "^3.12.1",
     "@tiptap/extension-image": "^3.12.1",

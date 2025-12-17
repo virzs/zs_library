@@ -58,6 +58,7 @@ import { SimpleEditorFeatures, isEnabled, getConfig } from "./lib/feature-utils"
 import { EditorOutputFormat } from "./lib/format-utils";
 
 import { useSimpleEditor } from "./use-simple-editor";
+import "highlight.js/styles/github-dark.css";
 
 const MainToolbarContent = ({
   onHighlighterClick,

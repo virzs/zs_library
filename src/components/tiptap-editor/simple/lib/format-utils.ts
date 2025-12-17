@@ -11,6 +11,10 @@ import { HorizontalRule } from "../components/tiptap-node/horizontal-rule-node/h
 import { ImageUploadNode } from "../components/tiptap-node/image-upload-node/image-upload-node-extension";
 import { Link } from "@tiptap/extension-link";
 import { Markdown } from "@tiptap/markdown";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { common, createLowlight } from "lowlight";
+
+const lowlight = createLowlight(common);
 
 // Default extensions for format conversion
 const defaultExtensions = [
@@ -19,6 +23,10 @@ const defaultExtensions = [
     heading: {
       levels: [1, 2, 3, 4],
     },
+    codeBlock: false,
+  }),
+  CodeBlockLowlight.configure({
+    lowlight,
   }),
   HorizontalRule,
   TextAlign.configure({
