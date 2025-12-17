@@ -17,6 +17,7 @@ import "./components/tiptap-node/list-node/list-node.scss";
 import "./components/tiptap-node/image-node/image-node.scss";
 import "./components/tiptap-node/heading-node/heading-node.scss";
 import "./components/tiptap-node/paragraph-node/paragraph-node.scss";
+import "./components/tiptap-node/table-node/table-node.scss";
 
 // --- Tiptap UI ---
 import { HeadingDropdownMenu } from "./components/tiptap-ui/heading-dropdown-menu";
@@ -24,6 +25,8 @@ import { ImageUploadButton } from "./components/tiptap-ui/image-upload-button";
 import { ListDropdownMenu } from "./components/tiptap-ui/list-dropdown-menu";
 import { BlockquoteButton } from "./components/tiptap-ui/blockquote-button";
 import { CodeBlockButton } from "./components/tiptap-ui/code-block-button";
+import { TableTriggerButton } from "./components/tiptap-node/table-node/table-trigger-button";
+import { TableMenu } from "./components/tiptap-node/table-node/table-menu";
 import {
   ColorHighlightPopover,
   ColorHighlightPopoverContent,
@@ -194,6 +197,10 @@ const MainToolbarContent = ({
         </ToolbarGroup>
       )}
 
+      <ToolbarGroup>
+        <TableTriggerButton editor={editor} />
+      </ToolbarGroup>
+
       {showAi && (
         <ToolbarGroup>
           <AiButton editor={editor} {...aiConfig} />
@@ -321,6 +328,8 @@ const SimpleEditorContent = ({ editor, className, style, features }: SimpleEdito
             />
           )}
         </Toolbar>
+
+        <TableMenu editor={editor} />
 
         <EditorContent
           editor={editor}

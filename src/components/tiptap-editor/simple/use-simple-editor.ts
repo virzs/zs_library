@@ -21,6 +21,7 @@ import { Selection } from "@tiptap/extensions";
 import { ImageUploadNode } from "./components/tiptap-node/image-upload-node/image-upload-node-extension";
 import { ImageNode as ImageExtension } from "./components/tiptap-node/image-node/image-node-extension";
 import { HorizontalRule } from "./components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
+import { TableExtensions } from "./components/tiptap-node/table-node/table-node-extension";
 import { Markdown } from "@tiptap/markdown";
 
 // --- Lib ---
@@ -153,6 +154,7 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
           ]
         : []),
       Markdown,
+      ...TableExtensions,
     ],
     content: getContent(value),
   });
