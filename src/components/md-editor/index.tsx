@@ -3,6 +3,7 @@ import MDXEditorPreview from "./preview";
 
 /**
  * Markdown 编辑器
+ * @deprecated 请使用 SimpleEditor 组件代替
  */
 export type MdEditorType = typeof PrivMdEditor & {
   /**

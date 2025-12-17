@@ -110,6 +110,7 @@ export interface MdEditorPluginConfig {
 
 /**
  * Markdown 编辑器
+ * @deprecated 请使用 SimpleEditor 组件代替
  */
 export interface MdEditorProps
   extends Omit<MDXEditorProps, "markdown" | "onChange"> {
@@ -173,6 +174,12 @@ export const PrivMdEditor: FC<MdEditorProps> = (props) => {
   } = pluginConfig ?? {};
 
   const [markdown, setMarkdown] = useState("");
+
+  useEffect(() => {
+    console.warn(
+      "[MdEditor] is deprecated. Please use [SimpleEditor] instead."
+    );
+  }, []);
 
   useEffect(() => {
     if (value !== undefined && ref.current) {
