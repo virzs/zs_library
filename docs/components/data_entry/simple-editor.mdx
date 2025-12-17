@@ -1,0 +1,137 @@
+# Tiptap Editor 简单编辑器
+
+基于 Tiptap 的富文本编辑器，提供基础的文本编辑功能。
+
+import Basic from "./simple-editor/basic";
+import Controlled from "./simple-editor/controlled";
+import Preview from "./simple-editor/preview";
+import Features from "./simple-editor/features";
+import ImageUploadAction from "./simple-editor/image-upload-action";
+import ImageUploadCustom from "./simple-editor/image-upload-custom";
+import AiConfig from "./simple-editor/ai-config";
+import FormatConversion from "./simple-editor/format-conversion";
+import MarkdownAuto from "./simple-editor/markdown-auto";
+import UseSimpleEditor from "./simple-editor/use-simple-editor";
+import RefUsage from "./simple-editor/ref-usage";
+
+## 基础示例
+
+<Basic />
+
+## 受控模式
+
+支持 `value` 和 `onChange` 属性，可用于受控模式或表单集成。
+
+<Controlled />
+
+## 编辑与预览
+
+支持 `SimpleEditor` 与 `SimpleEditorViewer` 配合使用，实现编辑与预览分离。
+
+<Preview />
+
+## 功能开关与配置
+
+支持通过 `features` 属性控制各项功能的开关和配置。
+
+<Features />
+
+## 图片上传
+
+支持通过 `features.image` 属性配置图片上传行为。
+
+### 默认上传 (Action)
+
+使用 `action` 属性指定上传接口。以下示例使用 `https://tmpfiles.org/api/v1/upload` 作为接口。
+由于 `tmpfiles.org` 返回的 URL 是预览页面地址，我们需要通过 `formatResult` 将其转换为直接下载地址。
+
+<ImageUploadAction />
+
+### 自定义上传 (Custom Request)
+
+使用 `customRequest` 完全控制上传过程。以下示例展示了如何对接 `tmpfiles.org` 服务，并处理其特殊的返回 URL 格式。
+
+<ImageUploadCustom />
+
+## AI 功能配置
+
+支持通过 `features.ai` 属性配置 AI 辅助写作功能。支持自定义 API 地址、模型、Prompt 以及请求参数。
+
+### 自定义配置与测试
+
+以下示例展示了如何配置 AI 功能，并提供了一个输入框用于输入 API Key 进行测试。
+
+<AiConfig />
+
+## 功能特性
+
+- **文本格式化**: 粗体、斜体、删除线、下划线、代码
+- **标题**: H1 - H6
+- **列表**: 无序列表、有序列表、任务列表
+- **引用**: 块引用
+- **代码块**: 支持语法高亮
+- **链接**: 添加和编辑链接
+- **图片**: 支持图片上传和展示
+- **对齐**: 左对齐、居中、右对齐、两端对齐
+- **撤销/重做**
+- **主题**: 支持浅色/深色模式切换
+
+## 数据格式转换
+
+支持多种数据格式输出：`html` (默认)、`json`、`markdown`。
+
+<FormatConversion />
+
+## Markdown 自动转换
+
+`SimpleEditor` 支持自动检测并转换 Markdown 格式的初始内容。
+
+<MarkdownAuto />
+
+## 外部控制 (Editor Instance)
+
+支持通过 `editor` 属性传入外部创建的 `Editor` 实例，或者通过 `useSimpleEditor` Hook 创建并控制编辑器。
+
+### 使用 useSimpleEditor Hook
+
+这是推荐的高级用法，可以直接持有并操作编辑器实例。
+
+<UseSimpleEditor />
+
+### 使用 Ref (传统方式)
+
+如果您更习惯使用 Ref 来访问实例，也可以使用 `useRef`。
+
+<RefUsage />
+
+## API
+
+### SimpleEditor
+
+| 参数      | 说明           | 类型                                     | 默认值   |
+| --------- | -------------- | ---------------------------------------- | -------- |
+| value     | 编辑器内容     | `string \| JSONContent`                  | -        |
+| onChange  | 内容变化回调   | `(value: string \| JSONContent) => void` | -        |
+| className | 自定义类名     | `string`                                 | -        |
+| style     | 自定义样式     | `React.CSSProperties`                    | -        |
+| output    | 输出格式       | `'html' \| 'json' \| 'markdown'`         | `'html'` |
+| features  | 功能配置       | `SimpleEditorFeatures`                   | 见下表   |
+| editor    | 外部编辑器实例 | `Editor \| null`                         | -        |
+
+### useSimpleEditor
+
+| 参数     | 说明         | 类型                                     | 默认值   |
+| -------- | ------------ | ---------------------------------------- | -------- |
+| value    | 编辑器内容   | `string \| JSONContent`                  | -        |
+| onChange | 内容变化回调 | `(value: string \| JSONContent) => void` | -        |
+| output   | 输出格式     | `'html' \| 'json' \| 'markdown'`         | `'html'` |
+| features | 功能配置     | `SimpleEditorFeatures`                   | -        |
+
+### SimpleEditorViewer
+
+| 参数      | 说明               | 类型                    | 默认值 |
+| --------- | ------------------ | ----------------------- | ------ |
+| value     | 需要渲染的内容     | `string \| JSONContent` | -      |
+| className | 自定义类名         | `string`                | -      |
+| sanitize  | 是否开启 HTML 净化 | `boolean`               | `true` |
+| theme     | 主题               | `'light' \| 'dark'`     | -      |

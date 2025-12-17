@@ -26,4 +26,7 @@ export default defineConfig({
       },
     ],
   },
+  route: {
+    extensions: [".md", ".mdx"],
+  },
 });
