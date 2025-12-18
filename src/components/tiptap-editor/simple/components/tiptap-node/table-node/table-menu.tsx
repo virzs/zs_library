@@ -1,5 +1,6 @@
-import { Editor, findParentNodeClosestToPos } from "@tiptap/react";
+import { Editor } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
+import { posToDOMRect, findParentNode } from "@tiptap/core";
 import {
   RiInsertRowTop,
   RiInsertRowBottom,
@@ -18,120 +19,46 @@ interface TableMenuProps {
   editor: Editor | null;
 }
 
-type TippyInstanceLike = {
-  popper: Element;
-  setProps: (props: { placement?: string }) => void;
-  popperInstance?: {
-    update: () => void;
-  };
-};
-
 export function TableMenu({ editor }: TableMenuProps) {
   if (!editor) {
     return null;
   }
 
-  const getEditorBoundaryEl = () => {
+  const getEditorBoundaryEl = (): HTMLElement => {
     const dom = editor.view.dom as HTMLElement;
-    return dom.closest(".simple-editor-wrapper") ?? dom.parentElement ?? dom;
-  };
-
-  const getTableRect = () => {
-    const tableNode = findParentNodeClosestToPos(editor.state.selection.$from, (node) => node.type.name === "table");
-    if (tableNode) {
-      const dom = editor.view.nodeDOM(tableNode.pos);
-      if (dom instanceof HTMLElement) {
-        const wrapper = dom.closest(".tableWrapper") ?? dom.parentElement?.closest(".tableWrapper");
-        if (wrapper instanceof HTMLElement) {
-          return wrapper.getBoundingClientRect();
-        }
-        return dom.getBoundingClientRect();
-      }
+    const boundary = dom.closest(".simple-editor-wrapper");
+    if (boundary instanceof HTMLElement) {
+      return boundary;
     }
 
-    return editor.view.dom.getBoundingClientRect();
+    return dom.parentElement ?? dom;
   };
 
-  const updatePlacement = (instance: TippyInstanceLike) => {
-    const boundaryEl = getEditorBoundaryEl();
-    const boundaryRect = boundaryEl.getBoundingClientRect();
-    const tableRect = getTableRect();
+  const getReferencedVirtualElement = () => {
+    const parentNode = findParentNode((node) => ["table", "tableCell", "tableHeader"].includes(node.type.name))(
+      editor.state.selection
+    );
 
-    const padding = 8;
-    const popperWidth = instance.popper.getBoundingClientRect().width;
-
-    const leftMin = boundaryRect.left + padding;
-    const rightMax = boundaryRect.right - padding;
-
-    const canStart = tableRect.left >= leftMin && tableRect.left + popperWidth <= rightMax;
-    const canEnd = tableRect.right <= rightMax && tableRect.right - popperWidth >= leftMin;
-    const tableCenter = tableRect.left + tableRect.width / 2;
-    const canCenter = tableCenter - popperWidth / 2 >= leftMin && tableCenter + popperWidth / 2 <= rightMax;
-
-    let placement: "top" | "top-start" | "top-end" = "top";
-    if (!canCenter) {
-      if (!canStart && canEnd) {
-        placement = "top-end";
-      } else if (canStart && !canEnd) {
-        placement = "top-start";
-      } else if (canStart) {
-        placement = "top-start";
-      }
+    if (parentNode) {
+      const domRect = posToDOMRect(editor.view, parentNode.start, parentNode.start + parentNode.node.nodeSize);
+      return {
+        getBoundingClientRect: () => domRect,
+        getClientRects: () => [domRect],
+      };
     }
 
-    instance.setProps({ placement });
-    instance.popperInstance?.update();
-  };
-
-  const shouldShow = ({ editor }: { editor: Editor }) => {
-    return isNodeTypeSelected(editor, ["table", "tableRow", "tableCell", "tableHeader"], true);
+    return null;
   };
 
   return (
     <BubbleMenu
       editor={editor}
       pluginKey="tableMenu"
-      shouldShow={shouldShow}
-      tippyOptions={{
-        duration: 100,
-        maxWidth: "none",
-        placement: "top",
-        offset: [0, 8],
-        appendTo: getEditorBoundaryEl,
-        onMount: updatePlacement,
-        onShow: updatePlacement,
-        onAfterUpdate: updatePlacement,
-        popperOptions: {
-          strategy: "absolute",
-          modifiers: [
-            {
-              name: "shift",
-              options: {
-                boundary: getEditorBoundaryEl(),
-                padding: 8,
-              },
-            },
-            {
-              name: "preventOverflow",
-              options: {
-                boundary: getEditorBoundaryEl(),
-                padding: 8,
-                altAxis: true,
-                tether: false,
-              },
-            },
-            {
-              name: "flip",
-              options: {
-                boundary: getEditorBoundaryEl(),
-                padding: 8,
-                fallbackPlacements: ["top", "bottom", "top-start", "bottom-start", "top-end", "bottom-end"],
-              },
-            },
-          ],
-        },
-        getReferenceClientRect: getTableRect,
+      shouldShow={({ editor: currentEditor }) => {
+        return isNodeTypeSelected(currentEditor, ["table", "tableRow", "tableCell", "tableHeader"], true);
       }}
+      appendTo={getEditorBoundaryEl}
+      getReferencedVirtualElement={getReferencedVirtualElement}
     >
       <div className="tiptap-table-menu">
         <ButtonGroup orientation="horizontal">
