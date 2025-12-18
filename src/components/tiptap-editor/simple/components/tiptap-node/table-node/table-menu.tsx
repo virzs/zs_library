@@ -18,6 +18,14 @@ interface TableMenuProps {
   editor: Editor | null;
 }
 
+type TippyInstanceLike = {
+  popper: Element;
+  setProps: (props: { placement?: string }) => void;
+  popperInstance?: {
+    update: () => void;
+  };
+};
+
 export function TableMenu({ editor }: TableMenuProps) {
   if (!editor) {
     return null;
@@ -44,7 +52,7 @@ export function TableMenu({ editor }: TableMenuProps) {
     return editor.view.dom.getBoundingClientRect();
   };
 
-  const updatePlacement = (instance: any) => {
+  const updatePlacement = (instance: TippyInstanceLike) => {
     const boundaryEl = getEditorBoundaryEl();
     const boundaryRect = boundaryEl.getBoundingClientRect();
     const tableRect = getTableRect();
@@ -60,7 +68,7 @@ export function TableMenu({ editor }: TableMenuProps) {
     const tableCenter = tableRect.left + tableRect.width / 2;
     const canCenter = tableCenter - popperWidth / 2 >= leftMin && tableCenter + popperWidth / 2 <= rightMax;
 
-    let placement: string = "top";
+    let placement: "top" | "top-start" | "top-end" = "top";
     if (!canCenter) {
       if (!canStart && canEnd) {
         placement = "top-end";
@@ -125,7 +133,7 @@ export function TableMenu({ editor }: TableMenuProps) {
         getReferenceClientRect: getTableRect,
       }}
     >
-      <div className="flex items-center gap-1 p-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-lg">
+      <div className="tiptap-table-menu">
         <ButtonGroup orientation="horizontal">
           <Button onClick={() => editor.chain().focus().addColumnBefore().run()} tooltip="Add Column Before">
             <RiInsertColumnLeft size={16} />
@@ -137,7 +145,7 @@ export function TableMenu({ editor }: TableMenuProps) {
             <RiDeleteColumn size={16} />
           </Button>
         </ButtonGroup>
-        <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 mx-1" />
+        <div className="tiptap-table-menu-divider" />
         <ButtonGroup orientation="horizontal">
           <Button onClick={() => editor.chain().focus().addRowBefore().run()} tooltip="Add Row Before">
             <RiInsertRowTop size={16} />
@@ -149,7 +157,7 @@ export function TableMenu({ editor }: TableMenuProps) {
             <RiDeleteRow size={16} />
           </Button>
         </ButtonGroup>
-        <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 mx-1" />
+        <div className="tiptap-table-menu-divider" />
         <ButtonGroup orientation="horizontal">
           <Button onClick={() => editor.chain().focus().mergeCells().run()} tooltip="Merge Cells">
             <RiMergeCellsHorizontal size={16} />
@@ -158,11 +166,11 @@ export function TableMenu({ editor }: TableMenuProps) {
             <RiSplitCellsHorizontal size={16} />
           </Button>
         </ButtonGroup>
-        <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 mx-1" />
+        <div className="tiptap-table-menu-divider" />
         <Button
           onClick={() => editor.chain().focus().deleteTable().run()}
           tooltip="Delete Table"
-          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+          className="tiptap-table-menu-delete"
         >
           <RiDeleteBinLine size={16} />
         </Button>
