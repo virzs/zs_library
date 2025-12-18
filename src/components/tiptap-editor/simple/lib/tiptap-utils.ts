@@ -263,7 +263,7 @@ export function isNodeTypeSelected(
   if (!editor || !editor.state.selection) return false;
 
   const { selection } = editor.state;
-  if (selection.empty) return false;
+  if (selection.empty && !checkAncestorNodes) return false;
 
   // Direct node selection check
   if (selection instanceof NodeSelection) {

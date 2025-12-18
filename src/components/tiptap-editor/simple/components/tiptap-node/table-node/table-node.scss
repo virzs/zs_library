@@ -28,16 +28,54 @@
       text-align: left;
     }
 
-    .selectedCell:after {
-      background: var(--tt-brand-color-100);
+    td.selectedCell,
+    th.selectedCell {
+      box-shadow: none;
+    }
+
+    td.table-active-cell,
+    th.table-active-cell {
+      box-shadow: inset 0 0 0 2px var(--tt-brand-color-500);
+    }
+
+    td.table-selected-cell,
+    th.table-selected-cell {
+      --tt-table-sel-top: 0;
+      --tt-table-sel-right: 0;
+      --tt-table-sel-bottom: 0;
+      --tt-table-sel-left: 0;
+    }
+
+    td.table-selected-cell::after,
+    th.table-selected-cell::after {
       content: "";
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      pointer-events: none;
       position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-style: solid;
+      border-color: var(--tt-brand-color-500);
+      border-width: var(--tt-table-sel-top) var(--tt-table-sel-right) var(--tt-table-sel-bottom) var(--tt-table-sel-left);
       z-index: 2;
+    }
+
+    td.table-selected-cell.table-sel-top,
+    th.table-selected-cell.table-sel-top {
+      --tt-table-sel-top: 2px;
+    }
+
+    td.table-selected-cell.table-sel-right,
+    th.table-selected-cell.table-sel-right {
+      --tt-table-sel-right: 2px;
+    }
+
+    td.table-selected-cell.table-sel-bottom,
+    th.table-selected-cell.table-sel-bottom {
+      --tt-table-sel-bottom: 2px;
+    }
+
+    td.table-selected-cell.table-sel-left,
+    th.table-selected-cell.table-sel-left {
+      --tt-table-sel-left: 2px;
     }
 
     .column-resize-handle {
@@ -63,9 +101,20 @@
       th {
         background-color: var(--tt-gray-dark-a-50);
       }
-      
-      .selectedCell:after {
-        background: var(--tt-brand-color-900);
+
+      td.selectedCell,
+      th.selectedCell {
+        box-shadow: none;
+      }
+
+      td.table-active-cell,
+      th.table-active-cell {
+        box-shadow: inset 0 0 0 2px var(--tt-brand-color-400);
+      }
+
+      td.table-selected-cell::after,
+      th.table-selected-cell::after {
+        border-color: var(--tt-brand-color-400);
       }
 
       .column-resize-handle {
@@ -77,38 +126,10 @@
   .tableWrapper {
     margin: 1.5rem 0;
     overflow-x: auto;
-    padding-right: 24px;
-    padding-bottom: 24px;
     width: fit-content;
     position: relative;
     max-width: 100%;
     box-sizing: border-box;
-  }
-
-  .table-add-button {
-    position: absolute;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(59, 130, 246, 0.1);
-    color: rgb(37, 99, 235);
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgb(191, 219, 254);
-    border-radius: 0.125rem;
-
-    &:hover {
-      background-color: rgba(59, 130, 246, 0.2);
-    }
-  }
-
-  .dark & {
-    .table-add-button {
-      color: rgb(96, 165, 250);
-      border-color: rgb(30, 58, 138);
-    }
   }
 
   &.resize-cursor {
