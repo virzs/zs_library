@@ -1,4 +1,4 @@
-import { type Editor, findParentNodeClosestToPos } from "@tiptap/react";
+import { Editor, findParentNodeClosestToPos } from "@tiptap/react";
 import { BubbleMenu } from "@tiptap/react/menus";
 import {
   RiInsertRowTop,
@@ -18,18 +18,22 @@ interface TableMenuProps {
   editor: Editor | null;
 }
 
+type TippyInstanceLike = {
+  popper: Element;
+  setProps: (props: { placement?: string }) => void;
+  popperInstance?: {
+    update: () => void;
+  };
+};
+
 export function TableMenu({ editor }: TableMenuProps) {
   if (!editor) {
     return null;
   }
 
-  const getEditorBoundaryEl = (): HTMLElement => {
+  const getEditorBoundaryEl = () => {
     const dom = editor.view.dom as HTMLElement;
-    const closest = dom.closest(".simple-editor-wrapper");
-    if (closest instanceof HTMLElement) {
-      return closest;
-    }
-    return dom.parentElement ?? dom;
+    return dom.closest(".simple-editor-wrapper") ?? dom.parentElement ?? dom;
   };
 
   const getTableRect = () => {
@@ -48,6 +52,37 @@ export function TableMenu({ editor }: TableMenuProps) {
     return editor.view.dom.getBoundingClientRect();
   };
 
+  const updatePlacement = (instance: TippyInstanceLike) => {
+    const boundaryEl = getEditorBoundaryEl();
+    const boundaryRect = boundaryEl.getBoundingClientRect();
+    const tableRect = getTableRect();
+
+    const padding = 8;
+    const popperWidth = instance.popper.getBoundingClientRect().width;
+
+    const leftMin = boundaryRect.left + padding;
+    const rightMax = boundaryRect.right - padding;
+
+    const canStart = tableRect.left >= leftMin && tableRect.left + popperWidth <= rightMax;
+    const canEnd = tableRect.right <= rightMax && tableRect.right - popperWidth >= leftMin;
+    const tableCenter = tableRect.left + tableRect.width / 2;
+    const canCenter = tableCenter - popperWidth / 2 >= leftMin && tableCenter + popperWidth / 2 <= rightMax;
+
+    let placement: "top" | "top-start" | "top-end" = "top";
+    if (!canCenter) {
+      if (!canStart && canEnd) {
+        placement = "top-end";
+      } else if (canStart && !canEnd) {
+        placement = "top-start";
+      } else if (canStart) {
+        placement = "top-start";
+      }
+    }
+
+    instance.setProps({ placement });
+    instance.popperInstance?.update();
+  };
+
   const shouldShow = ({ editor }: { editor: Editor }) => {
     return isNodeTypeSelected(editor, ["table", "tableRow", "tableCell", "tableHeader"], true);
   };
@@ -57,18 +92,45 @@ export function TableMenu({ editor }: TableMenuProps) {
       editor={editor}
       pluginKey="tableMenu"
       shouldShow={shouldShow}
-      appendTo={getEditorBoundaryEl}
-      getReferencedVirtualElement={() => ({ getBoundingClientRect: getTableRect })}
-      options={{
-        strategy: "absolute",
+      tippyOptions={{
+        duration: 100,
+        maxWidth: "none",
         placement: "top",
-        offset: 8,
-        shift: { boundary: getEditorBoundaryEl(), padding: 8 },
-        flip: {
-          boundary: getEditorBoundaryEl(),
-          padding: 8,
-          fallbackPlacements: ["top", "top-start", "top-end", "bottom", "bottom-start", "bottom-end"],
+        offset: [0, 8],
+        appendTo: getEditorBoundaryEl,
+        onMount: updatePlacement,
+        onShow: updatePlacement,
+        onAfterUpdate: updatePlacement,
+        popperOptions: {
+          strategy: "absolute",
+          modifiers: [
+            {
+              name: "shift",
+              options: {
+                boundary: getEditorBoundaryEl(),
+                padding: 8,
+              },
+            },
+            {
+              name: "preventOverflow",
+              options: {
+                boundary: getEditorBoundaryEl(),
+                padding: 8,
+                altAxis: true,
+                tether: false,
+              },
+            },
+            {
+              name: "flip",
+              options: {
+                boundary: getEditorBoundaryEl(),
+                padding: 8,
+                fallbackPlacements: ["top", "bottom", "top-start", "bottom-start", "top-end", "bottom-end"],
+              },
+            },
+          ],
         },
+        getReferenceClientRect: getTableRect,
       }}
     >
       <div className="tiptap-table-menu">
