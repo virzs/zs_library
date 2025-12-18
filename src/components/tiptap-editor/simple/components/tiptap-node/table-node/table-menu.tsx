@@ -35,16 +35,16 @@ export function TableMenu({ editor }: TableMenuProps) {
   };
 
   const getReferencedVirtualElement = () => {
-    const parentNode = findParentNode((node) => ["table", "tableCell", "tableHeader"].includes(node.type.name))(
-      editor.state.selection
-    );
+    const parentNode = findParentNode((node) => node.type.name === "table")(editor.state.selection);
 
     if (parentNode) {
+      const tableEl = editor.view.nodeDOM(parentNode.pos);
+      if (tableEl instanceof HTMLElement) {
+        return tableEl;
+      }
+
       const domRect = posToDOMRect(editor.view, parentNode.start, parentNode.start + parentNode.node.nodeSize);
-      return {
-        getBoundingClientRect: () => domRect,
-        getClientRects: () => [domRect],
-      };
+      return { getBoundingClientRect: () => domRect, getClientRects: () => [domRect] };
     }
 
     return null;
