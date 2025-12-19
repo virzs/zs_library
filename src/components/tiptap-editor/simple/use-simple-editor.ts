@@ -15,6 +15,7 @@ import { Typography } from "@tiptap/extension-typography";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
+import { TextStyle, Color } from "@tiptap/extension-text-style";
 import { Selection } from "@tiptap/extensions";
 
 // --- Tiptap Node ---
@@ -131,6 +132,7 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
       ...(isEnabled(features?.highlight)
         ? [Highlight.configure({ multicolor: true, ...getConfig(features?.highlight) })]
         : []),
+      ...(isEnabled(features?.textColor) ? [TextStyle, Color] : []),
       ...(isEnabled(features?.image) ? [ImageExtension] : []),
       Typography,
       ...(isEnabled(features?.superscript) ? [Superscript] : []),

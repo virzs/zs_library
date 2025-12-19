@@ -32,6 +32,11 @@ import {
   ColorHighlightPopoverContent,
   ColorHighlightPopoverButton,
 } from "./components/tiptap-ui/color-highlight-popover";
+import {
+  TextColorPopover,
+  TextColorPopoverButton,
+  TextColorPopoverContent,
+} from "./components/tiptap-ui/text-color-popover";
 import { LinkPopover, LinkContent, LinkButton } from "./components/tiptap-ui/link-popover";
 import { MarkButton } from "./components/tiptap-ui/mark-button";
 import { TextAlignButton } from "./components/tiptap-ui/text-align-button";
@@ -39,7 +44,7 @@ import { UndoRedoButton } from "./components/tiptap-ui/undo-redo-button";
 import { AiButton } from "./components/tiptap-ui/ai-button";
 
 // --- Icons ---
-import { RiArrowLeftLine, RiLinksLine, RiMarkPenLine } from "@remixicon/react";
+import { RiArrowLeftLine, RiFontColor, RiLinksLine, RiMarkPenLine } from "@remixicon/react";
 
 // --- Hooks ---
 import { useIsBreakpoint } from "./hooks/use-is-breakpoint";
@@ -64,12 +69,14 @@ import "highlight.js/styles/github-dark.css";
 
 const MainToolbarContent = ({
   onHighlighterClick,
+  onTextColorClick,
   onLinkClick,
   isMobile,
   features,
   editor,
 }: {
   onHighlighterClick: () => void;
+  onTextColorClick: () => void;
   onLinkClick: () => void;
   isMobile: boolean;
   features?: SimpleEditorFeatures;
@@ -85,6 +92,7 @@ const MainToolbarContent = ({
   const showStrike = isEnabled(features?.strike);
   const showCode = isEnabled(features?.code);
   const showUnderline = isEnabled(features?.underline);
+  const showTextColor = isEnabled(features?.textColor);
   const showHighlight = isEnabled(features?.highlight);
   const showLink = isEnabled(features?.link);
   const showSubscript = isEnabled(features?.subscript);
@@ -104,6 +112,7 @@ const MainToolbarContent = ({
   const strikeConfig = getConfig(features?.strike);
   const codeConfig = getConfig(features?.code);
   const underlineConfig = getConfig(features?.underline);
+  const textColorConfig = getConfig(features?.textColor);
   const highlightConfig = getConfig(features?.highlight);
   const linkConfig = getConfig(features?.link);
   const subscriptConfig = getConfig(features?.subscript);
@@ -149,7 +158,7 @@ const MainToolbarContent = ({
         </>
       )}
 
-      {(showBold || showItalic || showStrike || showCode || showUnderline || showHighlight || showLink) && (
+      {(showBold || showItalic || showStrike || showCode || showUnderline || showTextColor || showHighlight || showLink) && (
         <>
           <ToolbarGroup>
             {showBold && <MarkButton type="bold" {...boldConfig} />}
@@ -157,6 +166,12 @@ const MainToolbarContent = ({
             {showStrike && <MarkButton type="strike" {...strikeConfig} />}
             {showCode && <MarkButton type="code" {...codeConfig} />}
             {showUnderline && <MarkButton type="underline" {...underlineConfig} />}
+            {showTextColor &&
+              (!isMobile ? (
+                <TextColorPopover {...textColorConfig} />
+              ) : (
+                <TextColorPopoverButton onClick={onTextColorClick} />
+              ))}
             {showHighlight &&
               (!isMobile ? (
                 <ColorHighlightPopover {...highlightConfig} />
@@ -219,20 +234,34 @@ const MainToolbarContent = ({
   );
 };
 
-const MobileToolbarContent = ({ type, onBack }: { type: "highlighter" | "link"; onBack: () => void }) => (
+const MobileToolbarContent = ({
+  type,
+  onBack,
+}: {
+  type: "highlighter" | "textColor" | "link";
+  onBack: () => void;
+}) => (
   <>
     <ToolbarGroup>
       <Button data-style="ghost" onClick={onBack}>
         <RiArrowLeftLine className="tiptap-button-icon" />
         {type === "highlighter" ? (
           <RiMarkPenLine className="tiptap-button-icon" />
+        ) : type === "textColor" ? (
+          <RiFontColor className="tiptap-button-icon" />
         ) : (
           <RiLinksLine className="tiptap-button-icon" />
         )}
       </Button>
     </ToolbarGroup>
     <ToolbarSeparator />
-    {type === "highlighter" ? <ColorHighlightPopoverContent /> : <LinkContent />}
+    {type === "highlighter" ? (
+      <ColorHighlightPopoverContent />
+    ) : type === "textColor" ? (
+      <TextColorPopoverContent />
+    ) : (
+      <LinkContent />
+    )}
   </>
 );
 
@@ -257,7 +286,7 @@ interface SimpleEditorContentProps extends SimpleEditorProps {
 const SimpleEditorContent = ({ editor, className, style, features }: SimpleEditorContentProps) => {
   const isMobile = useIsBreakpoint();
   const { height } = useWindowSize();
-  const [mobileView, setMobileView] = useState<"main" | "highlighter" | "link">("main");
+  const [mobileView, setMobileView] = useState<"main" | "highlighter" | "textColor" | "link">("main");
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { i18n } = useTranslation("simpleEditor");
 
@@ -316,6 +345,7 @@ const SimpleEditorContent = ({ editor, className, style, features }: SimpleEdito
           {mobileView === "main" ? (
             <MainToolbarContent
               onHighlighterClick={() => setMobileView("highlighter")}
+              onTextColorClick={() => setMobileView("textColor")}
               onLinkClick={() => setMobileView("link")}
               isMobile={isMobile}
               features={features}
@@ -323,7 +353,7 @@ const SimpleEditorContent = ({ editor, className, style, features }: SimpleEdito
             />
           ) : (
             <MobileToolbarContent
-              type={mobileView === "highlighter" ? "highlighter" : "link"}
+              type={mobileView === "highlighter" ? "highlighter" : mobileView === "textColor" ? "textColor" : "link"}
               onBack={() => setMobileView("main")}
             />
           )}

@@ -27,6 +27,22 @@
       "superscript": "Superscript",
       "subscript": "Subscript"
     },
+    "textColor": {
+      "label": "Text color",
+      "toggle": "Set text color ({{color}})",
+      "remove": "Clear text color",
+      "colors": {
+        "gray": "Gray text",
+        "brown": "Brown text",
+        "orange": "Orange text",
+        "yellow": "Yellow text",
+        "green": "Green text",
+        "blue": "Blue text",
+        "purple": "Purple text",
+        "pink": "Pink text",
+        "red": "Red text"
+      }
+    },
     "highlight": {
       "label": "Highlight",
       "toggle": "Toggle highlight ({{color}})",

@@ -6,6 +6,7 @@ import { Typography } from "@tiptap/extension-typography";
 import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
+import { TextStyle, Color } from "@tiptap/extension-text-style";
 import { ImageNode as ImageExtension } from "../components/tiptap-node/image-node/image-node-extension";
 import { HorizontalRule } from "../components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import { ImageUploadNode } from "../components/tiptap-node/image-upload-node/image-upload-node-extension";
@@ -35,6 +36,8 @@ const defaultExtensions = [
   TaskList,
   TaskItem.configure({ nested: true }),
   Highlight.configure({ multicolor: true }),
+  TextStyle,
+  Color,
   ImageExtension,
   Typography,
   Superscript,

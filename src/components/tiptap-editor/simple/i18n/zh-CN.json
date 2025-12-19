@@ -27,6 +27,22 @@
       "superscript": "上标",
       "subscript": "下标"
     },
+    "textColor": {
+      "label": "文字颜色",
+      "toggle": "设置文字颜色 ({{color}})",
+      "remove": "清除文字颜色",
+      "colors": {
+        "gray": "灰色文字",
+        "brown": "棕色文字",
+        "orange": "橙色文字",
+        "yellow": "黄色文字",
+        "green": "绿色文字",
+        "blue": "蓝色文字",
+        "purple": "紫色文字",
+        "pink": "粉色文字",
+        "red": "红色文字"
+      }
+    },
     "highlight": {
       "label": "高亮",
       "toggle": "切换高亮 ({{color}})",

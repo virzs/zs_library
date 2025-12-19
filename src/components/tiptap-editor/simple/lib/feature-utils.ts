@@ -1,6 +1,7 @@
 import { Level } from "../components/tiptap-ui/heading-button";
 import { ListType } from "../components/tiptap-ui/list-button";
 import { HighlightColor } from "../components/tiptap-ui/color-highlight-button";
+import { TextColor } from "../components/tiptap-ui/text-color-button";
 import { ImageUploadProps } from "./image-upload-handler";
 import { AiCompletionOptions } from "./ai-service";
 
@@ -26,6 +27,10 @@ export interface ListConfig extends BaseButtonConfig {
 export interface HighlightConfig extends BaseButtonConfig {
   multicolor?: boolean;
   colors?: HighlightColor[];
+}
+
+export interface TextColorConfig extends BaseButtonConfig {
+  colors?: TextColor[];
 }
 
 export interface LinkConfig extends BaseButtonConfig {
@@ -126,6 +131,7 @@ export interface SimpleEditorFeatures {
   strike?: boolean | FeatureConfig<BaseButtonConfig>;
   code?: boolean | FeatureConfig<BaseButtonConfig>;
   underline?: boolean | FeatureConfig<BaseButtonConfig>;
+  textColor?: boolean | FeatureConfig<TextColorConfig>;
   highlight?: boolean | FeatureConfig<HighlightConfig>;
   link?: boolean | FeatureConfig<LinkConfig>;
   subscript?: boolean | FeatureConfig<BaseButtonConfig>;
