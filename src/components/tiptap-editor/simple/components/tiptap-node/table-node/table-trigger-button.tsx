@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../tiptap-ui-primiti
 import { Button } from "../../tiptap-ui-primitive/button";
 import { useState } from "react";
 import { cn } from "../../../lib/tiptap-utils";
+import { useTranslation } from "react-i18next";
 
 interface TableTriggerButtonProps {
   editor: Editor | null;
@@ -12,6 +13,7 @@ interface TableTriggerButtonProps {
 export function TableTriggerButton({ editor }: TableTriggerButtonProps) {
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
+  const { t } = useTranslation("simpleEditor");
 
   if (!editor) {
     return null;
@@ -27,7 +29,8 @@ export function TableTriggerButton({ editor }: TableTriggerButtonProps) {
         <Button
           data-active={editor.isActive("table")}
           className={cn(editor.isActive("table") && "is-active")}
-          tooltip="Insert Table"
+          aria-label={t("toolbar.table.insertTable")}
+          tooltip={t("toolbar.table.insertTable")}
         >
           <RiTable2 />
         </Button>
@@ -39,7 +42,7 @@ export function TableTriggerButton({ editor }: TableTriggerButtonProps) {
       >
         <div className="flex flex-col gap-3">
           <div className="text-sm font-medium text-neutral-600 dark:text-neutral-400 px-1">
-            {cols > 0 && rows > 0 ? `${cols} x ${rows}` : "Insert Table"}
+            {cols > 0 && rows > 0 ? t("toolbar.table.size", { cols, rows }) : t("toolbar.table.insertTable")}
           </div>
           <div
             className="grid gap-1"

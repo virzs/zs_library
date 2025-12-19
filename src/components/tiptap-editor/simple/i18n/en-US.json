@@ -60,6 +60,19 @@
     "image": {
       "label": "Add image"
     },
+    "table": {
+      "insertTable": "Insert table",
+      "size": "{{cols}} x {{rows}}",
+      "addColumnBefore": "Add column before",
+      "addColumnAfter": "Add column after",
+      "deleteColumn": "Delete column",
+      "addRowBefore": "Add row before",
+      "addRowAfter": "Add row after",
+      "deleteRow": "Delete row",
+      "mergeCells": "Merge cells",
+      "splitCell": "Split cell",
+      "deleteTable": "Delete table"
+    },
     "ai": {
       "label": "AI Assistant",
       "placeholder": "Ask AI to write something...",

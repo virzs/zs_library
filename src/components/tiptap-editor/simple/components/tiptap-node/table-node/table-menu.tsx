@@ -12,6 +12,7 @@ import {
   RiSplitCellsHorizontal,
   RiDeleteBinLine,
 } from "@remixicon/react";
+import { useTranslation } from "react-i18next";
 import { Button, ButtonGroup } from "../../tiptap-ui-primitive/button";
 import { isNodeTypeSelected } from "../../../lib/tiptap-utils";
 
@@ -20,6 +21,8 @@ interface TableMenuProps {
 }
 
 export function TableMenu({ editor }: TableMenuProps) {
+  const { t } = useTranslation("simpleEditor");
+
   if (!editor) {
     return null;
   }
@@ -62,41 +65,74 @@ export function TableMenu({ editor }: TableMenuProps) {
     >
       <div className="tiptap-table-menu">
         <ButtonGroup orientation="horizontal">
-          <Button onClick={() => editor.chain().focus().addColumnBefore().run()} tooltip="Add Column Before">
+          <Button
+            onClick={() => editor.chain().focus().addColumnBefore().run()}
+            aria-label={t("toolbar.table.addColumnBefore")}
+            tooltip={t("toolbar.table.addColumnBefore")}
+          >
             <RiInsertColumnLeft size={16} />
           </Button>
-          <Button onClick={() => editor.chain().focus().addColumnAfter().run()} tooltip="Add Column After">
+          <Button
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+            aria-label={t("toolbar.table.addColumnAfter")}
+            tooltip={t("toolbar.table.addColumnAfter")}
+          >
             <RiInsertColumnRight size={16} />
           </Button>
-          <Button onClick={() => editor.chain().focus().deleteColumn().run()} tooltip="Delete Column">
+          <Button
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+            aria-label={t("toolbar.table.deleteColumn")}
+            tooltip={t("toolbar.table.deleteColumn")}
+          >
             <RiDeleteColumn size={16} />
           </Button>
         </ButtonGroup>
         <div className="tiptap-table-menu-divider" />
         <ButtonGroup orientation="horizontal">
-          <Button onClick={() => editor.chain().focus().addRowBefore().run()} tooltip="Add Row Before">
+          <Button
+            onClick={() => editor.chain().focus().addRowBefore().run()}
+            aria-label={t("toolbar.table.addRowBefore")}
+            tooltip={t("toolbar.table.addRowBefore")}
+          >
             <RiInsertRowTop size={16} />
           </Button>
-          <Button onClick={() => editor.chain().focus().addRowAfter().run()} tooltip="Add Row After">
+          <Button
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+            aria-label={t("toolbar.table.addRowAfter")}
+            tooltip={t("toolbar.table.addRowAfter")}
+          >
             <RiInsertRowBottom size={16} />
           </Button>
-          <Button onClick={() => editor.chain().focus().deleteRow().run()} tooltip="Delete Row">
+          <Button
+            onClick={() => editor.chain().focus().deleteRow().run()}
+            aria-label={t("toolbar.table.deleteRow")}
+            tooltip={t("toolbar.table.deleteRow")}
+          >
             <RiDeleteRow size={16} />
           </Button>
         </ButtonGroup>
         <div className="tiptap-table-menu-divider" />
         <ButtonGroup orientation="horizontal">
-          <Button onClick={() => editor.chain().focus().mergeCells().run()} tooltip="Merge Cells">
+          <Button
+            onClick={() => editor.chain().focus().mergeCells().run()}
+            aria-label={t("toolbar.table.mergeCells")}
+            tooltip={t("toolbar.table.mergeCells")}
+          >
             <RiMergeCellsHorizontal size={16} />
           </Button>
-          <Button onClick={() => editor.chain().focus().splitCell().run()} tooltip="Split Cell">
+          <Button
+            onClick={() => editor.chain().focus().splitCell().run()}
+            aria-label={t("toolbar.table.splitCell")}
+            tooltip={t("toolbar.table.splitCell")}
+          >
             <RiSplitCellsHorizontal size={16} />
           </Button>
         </ButtonGroup>
         <div className="tiptap-table-menu-divider" />
         <Button
           onClick={() => editor.chain().focus().deleteTable().run()}
-          tooltip="Delete Table"
+          aria-label={t("toolbar.table.deleteTable")}
+          tooltip={t("toolbar.table.deleteTable")}
           className="tiptap-table-menu-delete"
         >
           <RiDeleteBinLine size={16} />
