@@ -58,11 +58,11 @@
   }
 
   &[data-selected="true"] {
-    background-color: var(--tt-brand-color-500);
+    background-color: var(--tt-brand-color-200);
     border-color: var(--tt-brand-color-500);
 
     .dark & {
-      background-color: var(--tt-brand-color-400);
+      background-color: var(--tt-brand-color-900);
       border-color: var(--tt-brand-color-400);
     }
   }
