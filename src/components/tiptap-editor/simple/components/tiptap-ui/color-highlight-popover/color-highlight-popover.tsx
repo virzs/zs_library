@@ -82,10 +82,7 @@ export function ColorHighlightPopoverContent({
   const isMobile = useIsBreakpoint();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const menuItems = useMemo(
-    () => [...colors, { label: "none", value: "none" }],
-    [colors]
-  );
+  const menuItems = useMemo(() => [...colors, { label: "none", value: "none" }], [colors]);
 
   const { selectedIndex } = useMenuNavigation({
     containerRef,
@@ -153,12 +150,14 @@ export function ColorHighlightPopover({
   ...props
 }: ColorHighlightPopoverProps) {
   const { t } = useTranslation("simpleEditor");
+  const triggerLabel = t("toolbar.highlight.label");
   const { editor } = useTiptapEditor(providedEditor);
   const [isOpen, setIsOpen] = useState(false);
-  const { isVisible, canColorHighlight, isActive, label, Icon } = useColorHighlight({
+  const { isVisible, canColorHighlight, isActive, Icon } = useColorHighlight({
     editor,
     hideWhenUnavailable,
     onApplied,
+    label: triggerLabel,
   });
 
   if (!isVisible) return null;
@@ -171,8 +170,8 @@ export function ColorHighlightPopover({
           data-active-state={isActive ? "on" : "off"}
           data-disabled={!canColorHighlight}
           aria-pressed={isActive}
-          aria-label={label}
-          tooltip={label}
+          aria-label={triggerLabel}
+          tooltip={triggerLabel}
           {...props}
         >
           <Icon className="tiptap-button-icon" />
