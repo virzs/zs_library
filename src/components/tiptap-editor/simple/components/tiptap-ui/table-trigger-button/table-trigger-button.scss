@@ -1,0 +1,70 @@
+.tiptap-table-trigger-popover-content {
+  padding: 0;
+  background-color: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--tt-gray-light-200);
+  overflow: hidden;
+
+  .dark & {
+    background-color: var(--tt-gray-dark-50);
+    border-color: var(--tt-gray-dark-200);
+    box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.3), 0 4px 10px -2px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.tiptap-table-trigger-picker {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  user-select: none;
+}
+
+.tiptap-table-trigger-picker-label {
+  padding: 0 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tt-gray-light-600);
+
+  .dark & {
+    color: var(--tt-gray-dark-500);
+  }
+}
+
+.tiptap-table-trigger-picker-grid {
+  --tt-table-trigger-grid-cols: 10;
+  display: grid;
+  grid-template-columns: repeat(var(--tt-table-trigger-grid-cols), 1fr);
+  gap: 4px;
+}
+
+.tiptap-table-trigger-picker-cell {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: 1px solid var(--tt-gray-light-200);
+  background-color: var(--tt-gray-light-100);
+  cursor: pointer;
+  transition: background-color 75ms, border-color 75ms;
+
+  .dark & {
+    border-color: var(--tt-gray-dark-200);
+    background-color: var(--tt-gray-dark-100);
+  }
+
+  &:hover {
+    border-color: var(--tt-brand-color-400);
+  }
+
+  &[data-selected="true"] {
+    background-color: var(--tt-brand-color-500);
+    border-color: var(--tt-brand-color-500);
+
+    .dark & {
+      background-color: var(--tt-brand-color-400);
+      border-color: var(--tt-brand-color-400);
+    }
+  }
+}
+
