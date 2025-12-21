@@ -15,12 +15,4 @@ export default {
     restore: 'Restore',
     close: 'Close',
   },
-  editor: {
-    placeholder: 'Please enter content...',
-    bold: 'Bold',
-    italic: 'Italic',
-    code: 'Code',
-    link: 'Link',
-    image: 'Image',
-  },
 };

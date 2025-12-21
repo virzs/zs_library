@@ -1,6 +1,7 @@
 {
   "editor": {
-    "contentAriaLabel": "主要内容区域，开始输入文字。"
+    "contentAriaLabel": "主要内容区域，开始输入文字。",
+    "placeholder": "写点什么…"
   },
   "toolbar": {
     "add": "添加",

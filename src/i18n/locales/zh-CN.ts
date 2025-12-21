@@ -15,12 +15,4 @@ export default {
     restore: '还原',
     close: '关闭',
   },
-  editor: {
-    placeholder: '请输入内容...',
-    bold: '加粗',
-    italic: '斜体',
-    code: '代码',
-    link: '链接',
-    image: '图片',
-  },
 };

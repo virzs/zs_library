@@ -1,6 +1,7 @@
 {
   "editor": {
-    "contentAriaLabel": "Main content area, start typing to enter text."
+    "contentAriaLabel": "Main content area, start typing to enter text.",
+    "placeholder": "Write something..."
   },
   "toolbar": {
     "add": "Add",

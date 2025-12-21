@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { EditorContent, EditorContext, JSONContent, Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
+import type { i18n as I18nInstance } from "i18next";
 
 // --- UI Primitives ---
 import { Button } from "./components/tiptap-ui-primitive/button";
@@ -66,6 +67,15 @@ import { EditorOutputFormat } from "./lib/format-utils";
 
 import { useSimpleEditor } from "./use-simple-editor";
 import "highlight.js/styles/github-dark.css";
+
+function ensureSimpleEditorResourceBundles(i18n: I18nInstance) {
+  if (!i18n.hasResourceBundle("en-US", "simpleEditor")) {
+    i18n.addResourceBundle("en-US", "simpleEditor", enUS, true, true);
+  }
+  if (!i18n.hasResourceBundle("zh-CN", "simpleEditor")) {
+    i18n.addResourceBundle("zh-CN", "simpleEditor", zhCN, true, true);
+  }
+}
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -268,6 +278,7 @@ const MobileToolbarContent = ({
 export interface SimpleEditorProps {
   value?: string | JSONContent;
   onChange?: (value: string | JSONContent) => void;
+  placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
   features?: SimpleEditorFeatures;
@@ -289,11 +300,7 @@ const SimpleEditorContent = ({ editor, className, style, features }: SimpleEdito
   const [mobileView, setMobileView] = useState<"main" | "highlighter" | "textColor" | "link">("main");
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { i18n } = useTranslation("simpleEditor");
-
-  useEffect(() => {
-    i18n.addResourceBundle("en-US", "simpleEditor", enUS, true, true);
-    i18n.addResourceBundle("zh-CN", "simpleEditor", zhCN, true, true);
-  }, [i18n]);
+  ensureSimpleEditorResourceBundles(i18n);
 
   const rect = useCursorVisibility({
     editor,

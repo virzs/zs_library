@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useEditor, JSONContent } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 import { marked } from "marked";
+import type { i18n as I18nInstance } from "i18next";
 
 // --- Tiptap Core Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
@@ -16,7 +17,7 @@ import { Highlight } from "@tiptap/extension-highlight";
 import { Subscript } from "@tiptap/extension-subscript";
 import { Superscript } from "@tiptap/extension-superscript";
 import { TextStyle, Color } from "@tiptap/extension-text-style";
-import { Selection } from "@tiptap/extensions";
+import { Placeholder, Selection } from "@tiptap/extensions";
 
 // --- Tiptap Node ---
 import { ImageUploadNode } from "./components/tiptap-node/image-upload-node/image-upload-node-extension";
@@ -36,24 +37,30 @@ import { EditorOutputFormat } from "./lib/format-utils";
 export interface UseSimpleEditorProps {
   value?: string | JSONContent;
   onChange?: (value: string | JSONContent) => void;
+  placeholder?: string;
   features?: SimpleEditorFeatures;
   output?: EditorOutputFormat;
 }
 
 const lowlight = createLowlight(common);
 
-export function useSimpleEditor({ value, onChange, features, output = "html" }: UseSimpleEditorProps) {
+function ensureSimpleEditorResourceBundles(i18n: I18nInstance) {
+  if (!i18n.hasResourceBundle("en-US", "simpleEditor")) {
+    i18n.addResourceBundle("en-US", "simpleEditor", enUS, true, true);
+  }
+  if (!i18n.hasResourceBundle("zh-CN", "simpleEditor")) {
+    i18n.addResourceBundle("zh-CN", "simpleEditor", zhCN, true, true);
+  }
+}
+
+export function useSimpleEditor({ value, onChange, placeholder, features, output = "html" }: UseSimpleEditorProps) {
   const { t, i18n } = useTranslation("simpleEditor");
+  ensureSimpleEditorResourceBundles(i18n);
 
   const imageConfig = getConfig(features?.image);
   const finalImageProps = imageConfig;
   const imageRef = useRef(finalImageProps);
   imageRef.current = finalImageProps;
-
-  useEffect(() => {
-    i18n.addResourceBundle("en-US", "simpleEditor", enUS, true, true);
-    i18n.addResourceBundle("zh-CN", "simpleEditor", zhCN, true, true);
-  }, [i18n]);
 
   // Determine content type helper
   const getContent = (val: string | JSONContent | undefined) => {
@@ -106,6 +113,9 @@ export function useSimpleEditor({ value, onChange, features, output = "html" }: 
             }
           : false,
         undoRedo: isEnabled(features?.undoRedo) ? undefined : false,
+      }),
+      Placeholder.configure({
+        placeholder: placeholder || t("editor.placeholder"),
       }),
       ...(isEnabled(features?.codeBlock)
         ? [
