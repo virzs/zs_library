@@ -17,6 +17,7 @@ export interface BaseModalProps {
   footer?: ReactNode;
   className?: string;
   contentClassName?: string;
+  disableMaxHeight?: boolean;
 }
 
 const BaseModal = (props: BaseModalProps) => {
@@ -32,6 +33,7 @@ const BaseModal = (props: BaseModalProps) => {
     footer = null,
     className,
     contentClassName,
+    disableMaxHeight = false,
   } = props;
 
   const { theme } = useSortableConfig();
@@ -98,7 +100,7 @@ const BaseModal = (props: BaseModalProps) => {
                 padding: 40px;
               }
 
-              .rc-dialog-content {
+              .rc-dialog-section {
                 background: ${modalTheme?.content?.backgroundColor};
                 backdrop-filter: ${modalTheme?.content?.backdropFilter};
                 box-shadow: 0 20px 40px ${modalTheme?.content?.boxShadowColor},
@@ -210,9 +212,14 @@ const BaseModal = (props: BaseModalProps) => {
         >
           <div
             className={cx(
-              "zs-overflow-y-auto zs-relative",
+              "zs-relative",
               css`
-                max-height: 60vh;
+                ${disableMaxHeight
+                  ? ""
+                  : `
+                max-height: calc(100vh - 160px);
+                max-height: calc(100dvh - 160px);
+                `}
 
                 /* iOS 风格的滚动条 */
                 &::-webkit-scrollbar {
