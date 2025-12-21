@@ -1,3 +1,5 @@
+import "./styles/_variables.scss";
+import "./styles/_keyframe-animations.scss";
 import "./simple-editor.scss";
 import "./components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "./components/tiptap-node/code-block-node/code-block-node.scss";
@@ -6,6 +8,7 @@ import "./components/tiptap-node/list-node/list-node.scss";
 import "./components/tiptap-node/image-node/image-node.scss";
 import "./components/tiptap-node/heading-node/heading-node.scss";
 import "./components/tiptap-node/paragraph-node/paragraph-node.scss";
+import "./components/tiptap-node/table-node/table-node.scss";
 
 import DOMPurify from "dompurify";
 import { JSONContent } from "@tiptap/react";
@@ -50,11 +53,13 @@ export function SimpleEditorViewer({ value, className, sanitize = true, theme }:
 
   return (
     <div className={`simple-editor-wrapper ${themeClass} ${className || ""}`}>
-      <div
-        ref={containerRef}
-        className="simple-editor-content tiptap ProseMirror simple-editor"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+      <div className="simple-editor-content">
+        <div
+          ref={containerRef}
+          className="tiptap ProseMirror simple-editor"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+      </div>
     </div>
   );
 }

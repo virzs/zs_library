@@ -10,6 +10,7 @@ import { TextStyle, Color } from "@tiptap/extension-text-style";
 import { ImageNode as ImageExtension } from "../components/tiptap-node/image-node/image-node-extension";
 import { HorizontalRule } from "../components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension";
 import { ImageUploadNode } from "../components/tiptap-node/image-upload-node/image-upload-node-extension";
+import { TableExtensions } from "../components/tiptap-node/table-node/table-node-extension";
 import { Link } from "@tiptap/extension-link";
 import { Markdown } from "@tiptap/markdown";
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
@@ -30,6 +31,7 @@ const defaultExtensions = [
     lowlight,
   }),
   HorizontalRule,
+  ...TableExtensions,
   TextAlign.configure({
     types: ["heading", "paragraph"],
   }),
