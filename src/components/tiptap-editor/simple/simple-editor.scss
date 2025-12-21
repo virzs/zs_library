@@ -73,6 +73,26 @@ body,
   padding: 3rem 3rem 30vh;
 }
 
+.simple-editor-viewer {
+  .tiptap.ProseMirror.simple-editor {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  pre {
+    white-space: pre-wrap;
+    overflow-x: hidden;
+  }
+
+  pre code {
+    white-space: inherit;
+  }
+
+  code {
+    word-break: break-word;
+  }
+}
+
 @media screen and (max-width: 480px) {
   .simple-editor-content .tiptap.ProseMirror.simple-editor {
     padding: 1rem 1.5rem 30vh;

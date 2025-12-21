@@ -52,7 +52,7 @@ export function SimpleEditorViewer({ value, className, sanitize = true, theme }:
   }, [content]);
 
   return (
-    <div className={`simple-editor-wrapper ${themeClass} ${className || ""}`}>
+    <div className={`simple-editor-wrapper simple-editor-viewer ${themeClass} ${className || ""}`}>
       <div className="simple-editor-content">
         <div
           ref={containerRef}
