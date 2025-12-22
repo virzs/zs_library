@@ -72,6 +72,7 @@ const MDXEditorPreview: FC<MDXEditorPreviewProps> = (props) => {
           img(props) {
             const { preview, ...rest } = imageProps ?? ({} as ImageProps);
             return (
+              // @ts-expect-error onClick 类型不兼容
               <Image
                 {...props}
                 preview={
