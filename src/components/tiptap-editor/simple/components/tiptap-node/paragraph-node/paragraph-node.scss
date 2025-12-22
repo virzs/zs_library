@@ -34,10 +34,13 @@
   caret-color: var(--tt-cursor-color);
 
   // Paragraph spacing
-  p:not(:first-child):not(td p):not(th p) {
+  p:not(td p):not(th p) {
     font-size: 1rem;
     line-height: 1.6;
     font-weight: normal;
+  }
+
+  p:not(:first-child):not(td p):not(th p) {
     margin-top: 20px;
   }
 
@@ -164,9 +167,7 @@
 .tiptap.ProseMirror {
   // Base styles for inline threads
   .tiptap-thread.tiptap-thread--unresolved.tiptap-thread--inline {
-    transition:
-      color 0.2s ease-in-out,
-      background-color 0.2s ease-in-out;
+    transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
     color: var(--thread-text);
     border-bottom: 2px dashed var(--tt-color-yellow-base);
     font-weight: 600;
@@ -229,22 +230,16 @@
 /* =====================
      PLACEHOLDER
      ===================== */
-.is-empty:not(.with-slash)[data-placeholder]:has(
-    > .ProseMirror-trailingBreak:only-child
-  )::before {
+.is-empty:not(.with-slash)[data-placeholder]:has(> .ProseMirror-trailingBreak:only-child)::before {
   content: attr(data-placeholder);
 }
 
-.is-empty.with-slash[data-placeholder]:has(
-    > .ProseMirror-trailingBreak:only-child
-  )::before {
+.is-empty.with-slash[data-placeholder]:has(> .ProseMirror-trailingBreak:only-child)::before {
   content: "Write, type '/' for commands…";
   font-style: italic;
 }
 
-.is-empty[data-placeholder]:has(
-    > .ProseMirror-trailingBreak:only-child
-  ):before {
+.is-empty[data-placeholder]:has(> .ProseMirror-trailingBreak:only-child):before {
   pointer-events: none;
   height: 0;
   position: absolute;
