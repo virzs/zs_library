@@ -42,7 +42,6 @@ export const CodeBlockNodeView = ({ node, updateAttributes }: NodeViewProps) => 
 
   const setLanguage = useCallback(
     (lang: string | null) => {
-      console.log("🚀 ~ CodeBlockNodeView ~ lang:", lang);
       updateAttributes({ language: lang });
     },
     [updateAttributes]
@@ -57,7 +56,7 @@ export const CodeBlockNodeView = ({ node, updateAttributes }: NodeViewProps) => 
             <RiArrowDownSLine className="tiptap-button-dropdown-small" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" portal>
+        <DropdownMenuContent align="end" portal={false}>
           <Card>
             <CardBody className="p-1">
               {LANGUAGES.map((lang) => (
