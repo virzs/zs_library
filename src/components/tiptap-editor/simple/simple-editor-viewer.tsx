@@ -45,6 +45,21 @@ export function SimpleEditorViewer({ value, className, sanitize = true, theme }:
 
   useEffect(() => {
     if (containerRef.current) {
+      containerRef.current.querySelectorAll("table").forEach((table) => {
+        if (table.parentElement?.classList.contains("tableWrapper")) {
+          return;
+        }
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "tableWrapper";
+
+        const parent = table.parentNode;
+        if (!parent) return;
+
+        parent.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+
       containerRef.current.querySelectorAll("pre code").forEach((block) => {
         hljs.highlightElement(block as HTMLElement);
       });
