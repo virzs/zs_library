@@ -2,11 +2,13 @@
 
 import { NodeViewWrapper, NodeViewProps } from "@tiptap/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { RiAlignLeft, RiAlignCenter, RiAlignRight } from "@remixicon/react";
+import { RiAlignLeft, RiAlignCenter, RiAlignRight, RiDeleteBinLine } from "@remixicon/react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../tiptap-ui-primitive/button";
 import "./image-node.scss";
 
 export const ImageNode: React.FC<NodeViewProps> = (props) => {
+  const { t } = useTranslation("simpleEditor");
   const { node, updateAttributes, selected } = props;
   const { src, alt, title, width, textAlign } = node.attrs;
 
@@ -152,7 +154,7 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
       }}
       ref={containerRef}
       onClick={handleWrapperClick}
-      >
+    >
       <div
         className={`tiptap-image-container ${isImageLoading ? "is-loading" : ""} ${isImageError ? "is-error" : ""}`}
         style={{
@@ -188,6 +190,8 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
                 data-style="ghost"
                 data-size="small"
                 data-active-state={textAlign === "left" ? "on" : "off"}
+                aria-label={t("toolbar.align.left")}
+                tooltip={t("toolbar.align.left")}
                 onClick={() => updateAttributes({ textAlign: "left" })}
               >
                 <RiAlignLeft className="tiptap-button-icon" />
@@ -197,6 +201,8 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
                 data-style="ghost"
                 data-size="small"
                 data-active-state={textAlign === "center" ? "on" : "off"}
+                aria-label={t("toolbar.align.center")}
+                tooltip={t("toolbar.align.center")}
                 onClick={() => updateAttributes({ textAlign: "center" })}
               >
                 <RiAlignCenter className="tiptap-button-icon" />
@@ -206,9 +212,25 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
                 data-style="ghost"
                 data-size="small"
                 data-active-state={textAlign === "right" ? "on" : "off"}
+                aria-label={t("toolbar.align.right")}
+                tooltip={t("toolbar.align.right")}
                 onClick={() => updateAttributes({ textAlign: "right" })}
               >
                 <RiAlignRight className="tiptap-button-icon" />
+              </Button>
+              <Button
+                type="button"
+                data-style="ghost"
+                data-size="small"
+                aria-label={t("toolbar.image.delete")}
+                tooltip={t("toolbar.image.delete")}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  props.deleteNode();
+                }}
+              >
+                <RiDeleteBinLine className="tiptap-button-icon" />
               </Button>
             </div>
 

@@ -75,7 +75,8 @@
       "justify": "Align justify"
     },
     "image": {
-      "label": "Add image"
+      "label": "Add image",
+      "delete": "Delete image"
     },
     "table": {
       "insertTable": "Insert table",

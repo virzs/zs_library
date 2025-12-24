@@ -75,7 +75,8 @@
       "justify": "两端对齐"
     },
     "image": {
-      "label": "添加图片"
+      "label": "添加图片",
+      "delete": "删除图片"
     },
     "table": {
       "insertTable": "插入表格",
