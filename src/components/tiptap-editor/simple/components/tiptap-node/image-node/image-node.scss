@@ -9,6 +9,7 @@
     max-width: 100%;
     user-select: none;
     pointer-events: auto;
+    border-radius: var(--tt-radius-md, 0.5rem);
 
     img {
       width: 100%;
@@ -17,6 +18,48 @@
       border-radius: var(--tt-radius-md, 0.5rem);
       box-shadow: 0 0 0 2px transparent;
       transition: box-shadow 0.2s;
+    }
+
+    &.is-loading {
+      min-height: 7.5rem;
+      background: var(--tt-gray-light-a-50, rgba(0, 0, 0, 0.03));
+
+      .dark & {
+        background: var(--tt-gray-dark-100, rgba(255, 255, 255, 0.06));
+      }
+
+      img {
+        opacity: 0;
+      }
+
+      .tiptap-image-loading-overlay {
+        opacity: 1;
+      }
+    }
+
+    .tiptap-image-loading-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .tiptap-image-loading-spinner {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 9999px;
+      border: 2px solid var(--tt-gray-light-a-300, rgba(0, 0, 0, 0.2));
+      border-top-color: var(--tt-brand-color-500, #3b82f6);
+      animation: tiptap-image-spin 0.8s linear infinite;
+
+      .dark & {
+        border-color: var(--tt-gray-dark-300, rgba(255, 255, 255, 0.2));
+        border-top-color: var(--tt-brand-color-400, #60a5fa);
+      }
     }
   }
 
@@ -75,6 +118,15 @@
         background: var(--tt-brand-color-400);
       }
     }
+  }
+}
+
+@keyframes tiptap-image-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 

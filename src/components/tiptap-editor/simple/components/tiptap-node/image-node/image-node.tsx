@@ -12,6 +12,8 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
 
   const [isResizing, setIsResizing] = useState(false);
   const [resizeWidth, setResizeWidth] = useState<string | number | null>(width);
+  const [isImageLoading, setIsImageLoading] = useState<boolean>(Boolean(src));
+  const [isImageError, setIsImageError] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const latestResizeWidthRef = useRef<string | number | null>(width);
@@ -21,6 +23,22 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
     setResizeWidth(width);
     latestResizeWidthRef.current = width;
   }, [width]);
+
+  useEffect(() => {
+    if (!src) {
+      setIsImageLoading(false);
+      setIsImageError(false);
+      return;
+    }
+
+    setIsImageLoading(true);
+    setIsImageError(false);
+
+    const img = imageRef.current;
+    if (img && img.complete && img.naturalWidth > 0) {
+      setIsImageLoading(false);
+    }
+  }, [src]);
 
   const selectImage = useCallback(
     (e: React.MouseEvent) => {
@@ -134,9 +152,9 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
       }}
       ref={containerRef}
       onClick={handleWrapperClick}
-    >
+      >
       <div
-        className="tiptap-image-container"
+        className={`tiptap-image-container ${isImageLoading ? "is-loading" : ""} ${isImageError ? "is-error" : ""}`}
         style={{
           width: resizeWidth || "100%",
           position: "relative",
@@ -144,7 +162,23 @@ export const ImageNode: React.FC<NodeViewProps> = (props) => {
           ...currentAlignStyle,
         }}
       >
-        <img ref={imageRef} src={src} alt={alt} title={title} className="tiptap-image" onClick={selectImage} />
+        <img
+          ref={imageRef}
+          src={src}
+          alt={alt}
+          title={title}
+          className="tiptap-image"
+          onClick={selectImage}
+          onLoad={() => setIsImageLoading(false)}
+          onError={() => {
+            setIsImageLoading(false);
+            setIsImageError(true);
+          }}
+        />
+
+        <div className="tiptap-image-loading-overlay" aria-hidden={!isImageLoading}>
+          <div className="tiptap-image-loading-spinner" />
+        </div>
 
         {selected && (
           <>
