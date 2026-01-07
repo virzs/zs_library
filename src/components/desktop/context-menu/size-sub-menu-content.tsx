@@ -1,8 +1,9 @@
 import { css, cx } from "@emotion/css";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import { RiCheckLine } from "@remixicon/react";
 import { useSortableConfig } from "../context/config/hooks";
+import CapsuleBackground from "./capsule-background";
 
 export interface SizeMenuItemProps {
   sizes: string[];
@@ -35,27 +36,7 @@ export const SizeSubMenuContent = ({ sizes, currentSize, onSizeChange }: SizeMen
             whileTap={{ scale: 0.98 }}
           >
             {/* 胶囊背景 */}
-            <AnimatePresence>
-              {(isHovered || isSelected) && (
-                <motion.div
-                  className={cx(
-                    "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-rounded-lg",
-                    css`
-                      z-index: -1;
-                      background-color: ${theme.token.contextMenu?.activeColor || "rgba(0, 0, 0, 0.05)"};
-                    `
-                  )}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 400,
-                    damping: 30,
-                  }}
-                />
-              )}
-            </AnimatePresence>
+            <CapsuleBackground show={isHovered || isSelected} />
             <motion.div
               className={cx(
                 "zs-flex-1 zs-text-sm",

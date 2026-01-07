@@ -20,6 +20,8 @@ const ContextMenuContent: FC<ContentMenuContextProps> = (props) => {
           min-width: 200px;
           border: 0.75px solid ${theme.token.contextMenu?.borderColor};
           backdrop-filter: ${theme.token.contextMenu?.backdropFilter};
+          -webkit-backdrop-filter: ${theme.token.contextMenu?.backdropFilter};
+          will-change: backdrop-filter, -webkit-backdrop-filter, opacity;
         `,
         className
       )}
