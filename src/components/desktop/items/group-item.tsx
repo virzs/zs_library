@@ -26,8 +26,14 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     icon,
     iconSize = 64,
   } = props;
-  const { setList, listStatus, longPressTriggered, setMoveTargetId, setOpenGroupItemData, contextMenuFuns } =
-    useSortableState();
+  const {
+    setList,
+    listStatus,
+    longPressTriggered,
+    setMoveTargetId,
+    setOpenGroupItemData,
+    contextMenuFuns,
+  } = useSortableState();
 
   const {
     itemIconBuilder: configItemIconBuilder,
@@ -39,13 +45,19 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
 
   const { children } = data;
 
-  const { row, col } = getItemSize(data.type, data.config?.sizeId, typeConfigMap);
+  const { row, col } = getItemSize(
+    data.type,
+    data.config?.sizeId,
+    typeConfigMap,
+  );
 
   // 是否为空
   const childrenEmpty = (children?.length ?? 0) === 0;
 
   // 截取前 9 个
-  const _children = !childrenEmpty ? [...(children ?? [])]?.slice(0, 9) : [data];
+  const _children = !childrenEmpty
+    ? [...(children ?? [])]?.slice(0, 9)
+    : [data];
 
   const childrenIconCss = css`
     overflow: hidden;
@@ -61,17 +73,18 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
         <motion.div
           className={cx(
             "sortable-group-item zs-cursor-pointer zs-w-full zs-h-full zs-absolute zs-left-0 zs-top-0 zs-bottom-0 zs-right-0 zs-overflow-hidden",
-            css`
-              background-color: ${theme.token.items?.iconBackgroundColor};
-              border-radius: 0.75rem;
-            `
           )}
           onClick={(e) => {
             e.stopPropagation();
             onClick?.(data);
           }}
         >
-          {renderIcon(data, icon, configItemIconBuilderAllowNull, configItemIconBuilder)}
+          {renderIcon(
+            data,
+            icon,
+            configItemIconBuilderAllowNull,
+            configItemIconBuilder,
+          )}
         </motion.div>
       );
     }
@@ -83,7 +96,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             css`
               padding: ${col === 1 ? "0.125rem" : "0.25rem"};
               gap: ${col === 1 ? "0.125rem" : "0.5rem"};
-            `
+            `,
           )}
         >
           {_children?.slice(0, 9).map((i) => (
@@ -94,14 +107,19 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 "zs-w-full zs-h-full",
                 css`
                   border-radius: ${col === 1 ? "0.25rem" : "0.5rem"};
-                `
+                `,
               )}
               onClick={(e) => {
                 e.stopPropagation();
                 onClick?.(i);
               }}
             >
-              {renderIcon(i, undefined, configItemIconBuilderAllowNull, configItemIconBuilder)}
+              {renderIcon(
+                i,
+                undefined,
+                configItemIconBuilderAllowNull,
+                configItemIconBuilder,
+              )}
             </motion.div>
           ))}
         </motion.div>
@@ -129,7 +147,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                       border-radius: 0.375rem;
                       grid-column: span 2 / span 2;
                       grid-row: span 2 / span 2;
-                    `
+                    `,
               )}
               onClick={(e) => {
                 if (j > 2) return;
@@ -137,7 +155,12 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 onClick?.(i);
               }}
             >
-              {renderIcon(i, undefined, configItemIconBuilderAllowNull, configItemIconBuilder)}
+              {renderIcon(
+                i,
+                undefined,
+                configItemIconBuilderAllowNull,
+                configItemIconBuilder,
+              )}
             </motion.div>
           ))}
         </motion.div>
@@ -165,7 +188,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                       border-radius: 0.375rem;
                       grid-column: span 2 / span 2;
                       grid-row: span 2 / span 2;
-                    `
+                    `,
               )}
               onClick={(e) => {
                 if (j > 2) return;
@@ -173,7 +196,12 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 onClick?.(i);
               }}
             >
-              {renderIcon(i, undefined, configItemIconBuilderAllowNull, configItemIconBuilder)}
+              {renderIcon(
+                i,
+                undefined,
+                configItemIconBuilderAllowNull,
+                configItemIconBuilder,
+              )}
             </motion.div>
           ))}
         </motion.div>
@@ -211,7 +239,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
             "zs-relative zs-w-full zs-h-full flex zs-items-center zs-justify-center",
             css`
               padding: 0.375rem;
-            `
+            `,
           )}
         >
           {sizedContent()}
@@ -229,7 +257,7 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
                 > * {
                   opacity: 0;
                 }
-              `
+              `,
             )}
             group={{ name: "nested", pull: false, put: true }}
             animation={150}
