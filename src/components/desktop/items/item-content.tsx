@@ -31,7 +31,7 @@ const ItemContent = <D, C>({ className, data, children, iconSize = 64, ...rest }
         isMoveTarget ? "!scale-110" : "",
         "zs-cursor-pointer zs-relative my-0",
         css`
-          border-radius: 0.75rem;
+          border-radius: 1rem;
           overflow: hidden;
           transition: all 0.3s;
           transform-origin: ${listStatus === null ? "center" : "top left"};
