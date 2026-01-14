@@ -1,13 +1,9 @@
 import React, { useState } from "react";
 import { css, cx } from "@emotion/css";
-import { ReactSortable } from "react-sortablejs";
-import { mainDragConfig } from "../drag-styles";
 import SortableItem from "../items/sortable-item";
 import { SortItem } from "../types";
-import { useSortableState } from "../context/state/hooks";
 import { useSortableConfig } from "../context/config/hooks";
 import LaunchpadButton from "./launchpad-button";
-import { RiApps2AddLine } from "@remixicon/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useIsMobile } from "../../../hooks/useIsMobile";
 
@@ -57,6 +53,10 @@ export interface DockProps<D, C> {
    */
   onDockItemsChange?: (items: SortItem<D, C>[]) => void;
   /**
+   * 最近使用项目最大显示数量
+   */
+  maxItems?: number;
+  /**
    * 图标尺寸
    */
   itemSize?: number;
@@ -67,15 +67,14 @@ const Dock = <D, C>({
   fixedItems = [],
   position = "bottom",
   className,
+  onItemClick,
   itemBuilder,
   fixedItemBuilder,
   showLaunchpad = true,
   onLaunchpadClick,
-  onDrop,
-  onDockItemsChange,
+  maxItems = 3,
   itemSize = 56,
 }: DockProps<D, C>) => {
-  const { setListStatus } = useSortableState();
   const { theme } = useSortableConfig();
   const dockTheme = theme.token.dock;
   const baseTheme = theme.token.base;
@@ -90,10 +89,23 @@ const Dock = <D, C>({
 
   const renderDockItem = (item: SortItem, index: number) => {
     if (itemBuilder) {
-      return itemBuilder(item, index);
+      return (
+        <div onClick={() => onItemClick?.(item)}>
+          {itemBuilder(item, index)}
+        </div>
+      );
     }
 
-    return <SortableItem key={item.id} data={item} itemIndex={index} noLetters from="dock" iconSize={itemSize} />;
+    return (
+      <SortableItem
+        data={item}
+        itemIndex={index}
+        noLetters
+        from="dock"
+        iconSize={itemSize}
+        onClick={onItemClick}
+      />
+    );
   };
 
   const renderFixedItem = (item: SortItem, index: number) => {
@@ -103,18 +115,21 @@ const Dock = <D, C>({
 
     return (
       <SortableItem
-        key={item.id}
         data={item}
         itemIndex={index}
         noLetters
         from="dock"
         disabledDrag
         iconSize={itemSize}
+        onClick={onItemClick}
       />
     );
   };
 
-  if (!items.length && !fixedItems.length && !showLaunchpad) {
+  const limitedItems = items.slice(0, Math.max(0, maxItems));
+  const hasMainContent = fixedItems.length > 0 || limitedItems.length > 0;
+
+  if (!limitedItems.length && !fixedItems.length && !showLaunchpad) {
     return null;
   }
 
@@ -122,36 +137,40 @@ const Dock = <D, C>({
     <div
       className={cx(
         "zs-flex zs-transition-colors",
-        position === "top" || position === "bottom" ? "zs-w-[1px] zs-h-8 zs-mx-1" : "zs-w-8 zs-h-[1px] zs-my-1",
+        position === "top" || position === "bottom"
+          ? "zs-w-[1px] zs-h-8 zs-mx-1"
+          : "zs-w-8 zs-h-[1px] zs-my-1",
         css`
-          background-color: ${dockTheme?.divider?.color || "rgba(255, 255, 255, 0.3)"};
-        `
+          background-color: ${dockTheme?.divider?.color ||
+          "rgba(255, 255, 255, 0.3)"};
+        `,
       )}
     />
   );
 
   return (
     <>
-      <div
+      <motion.div
         className={cx(
-          "zs-flex zs-justify-between zs-items-center zs-rounded-2xl zs-py-3 zs-px-4 zs-backdrop-blur-xl zs-gap-1 zs-border zs-transition-colors zs-max-w-full",
-          position === "top" || position === "bottom" ? "zs-flex-row" : "zs-flex-col",
+          "zs-flex zs-items-center zs-rounded-2xl zs-py-3 zs-px-4 zs-backdrop-blur-xl zs-gap-1 zs-border zs-transition-colors zs-max-w-full",
+          hasMainContent ? "zs-justify-between" : "zs-justify-center",
+          position === "top" || position === "bottom"
+            ? "zs-flex-row"
+            : "zs-flex-col",
           position === "top" && "zs-mb-4",
           position === "bottom" && "zs-mt-4",
           css`
-            background-color: ${dockTheme?.backgroundColor || "rgba(255, 255, 255, 0.8)"};
-            border-color: ${dockTheme?.borderColor || "rgba(255, 255, 255, 0.2)"};
-            box-shadow: 0 8px 32px ${dockTheme?.boxShadowColor || "rgba(0, 0, 0, 0.1)"};
+            background-color: ${dockTheme?.backgroundColor ||
+            "rgba(255, 255, 255, 0.8)"};
+            border-color: ${dockTheme?.borderColor ||
+            "rgba(255, 255, 255, 0.2)"};
+            box-shadow: 0 8px 32px
+              ${dockTheme?.boxShadowColor || "rgba(0, 0, 0, 0.1)"};
           `,
-          className
+          className,
         )}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (onDrop) {
-            onDrop();
-          }
-        }}
+        layout
+        transition={{ type: "spring", stiffness: 380, damping: 38 }}
       >
         {/* 固定项目 */}
         {fixedItems.length > 0 && (
@@ -159,103 +178,86 @@ const Dock = <D, C>({
             className={cx(
               "zs-flex zs-gap-3",
               css`
-                ${position === "top" || position === "bottom" ? `flex-direction: row;` : `flex-direction: column;`}
-              `
+                ${position === "top" || position === "bottom"
+                  ? `flex-direction: row;`
+                  : `flex-direction: column;`}
+              `,
             )}
           >
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="popLayout" presenceAffectsLayout={false}>
               {fixedItems.map((item, index) => (
-                <div key={item.id}>{renderFixedItem(item, index)}</div>
+                <motion.div
+                  key={item.id}
+                  layout="position"
+                  transition={{ type: "spring", stiffness: 380, damping: 38 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  {renderFixedItem(item, index)}
+                </motion.div>
               ))}
             </AnimatePresence>
           </div>
         )}
 
         {/* 固定项目与sortable项目之间的分隔线 */}
-        {fixedItems.length > 0 && items.length > 0 && divider}
+        {fixedItems.length > 0 && limitedItems.length > 0 && divider}
 
-        {/* Sortable项目 */}
+        {/* Dock 项目 */}
+        {limitedItems.length > 0 && (
+          <div
+            className={cx(
+              "desktop-dock-sortable zs-flex zs-gap-3 flex-1 zs-relative",
+              css`
+                min-height: ${itemSize}px;
+                ${position === "top" || position === "bottom"
+                  ? `flex-direction: row; overflow-x: auto; overflow-y: hidden;`
+                  : `flex-direction: column; overflow-y: auto; overflow-x: hidden;`}
 
-        <ReactSortable
-          list={items}
-          setList={(newItems) => {
-            if (onDockItemsChange) {
-              onDockItemsChange(newItems);
-            }
-          }}
-          {...mainDragConfig}
-          className={cx(
-            "desktop-dock-sortable zs-flex zs-gap-3 flex-1 zs-relative",
-            css`
-              min-height: ${itemSize}px;
-              ${position === "top" || position === "bottom"
-                ? `flex-direction: row; overflow-x: auto; overflow-y: hidden;`
-                : `flex-direction: column; overflow-y: auto; overflow-x: hidden;`}
+                /* 隐藏滚动条但保持滚动功能 */
+                scrollbar-width: none; /* Firefox */
+                -ms-overflow-style: none; /* IE and Edge */
 
-              /* 隐藏滚动条但保持滚动功能 */
-              scrollbar-width: none; /* Firefox */
-              -ms-overflow-style: none; /* IE and Edge */
-
-              &::-webkit-scrollbar {
-                display: none; /* Chrome, Safari and Opera */
-              }
-
-              /* 确保子元素不会收缩 */
-              & > * {
-                flex-shrink: 0;
-              }
-
-              .sortable-ghost {
-                width: ${itemSize}px;
-                height: ${itemSize}px;
-                div,
-                img {
-                  width: ${itemSize}px;
-                  height: ${itemSize}px;
+                &::-webkit-scrollbar {
+                  display: none; /* Chrome, Safari and Opera */
                 }
-              }
-            `,
-            items.length === 0 && "zs-ml-2.5 zs-w-14"
-          )}
-          onMove={() => {
-            setListStatus("onMove");
-            return true;
-          }}
-          onEnd={() => {
-            setListStatus(null);
-          }}
-        >
-          {items.length > 0 ? (
-            items.map((item, index) => renderDockItem(item, index))
-          ) : (
-            <motion.div
-              className={cx(
-                "drag-disabled dock-items-empty zs-flex zs-items-center zs-justify-center zs-gap-2 zs-rounded-xl zs-border-2 zs-border-dashed zs-absolute zs-top-0 zs-left-0",
-                css`
-                  min-height: ${itemSize}px;
-                  ${position === "top" || position === "bottom"
-                    ? `width: 100%; padding: 8px 12px;`
-                    : `height: 100%; min-width: ${itemSize}px; padding: 12px 8px;`};
-                  color: ${baseTheme?.textColor || "rgba(0, 0, 0, 0.6)"};
-                  border-color: ${dockTheme?.borderColor || "rgba(0, 0, 0, 0.2)"};
-                  background-color: ${dockTheme?.backgroundColor || "rgba(255, 255, 255, 0.25)"};
-                  opacity: 0.5 !important;
-                `
-              )}
-            >
-              <RiApps2AddLine />
-            </motion.div>
-          )}
-        </ReactSortable>
+
+                /* 确保子元素不会收缩 */
+                & > * {
+                  flex-shrink: 0;
+                }
+              `,
+            )}
+          >
+            <AnimatePresence mode="popLayout" presenceAffectsLayout={false}>
+              {limitedItems.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  layout="position"
+                  transition={{ type: "spring", stiffness: 380, damping: 38 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  {renderDockItem(item, index)}
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
 
         {/* sortable项目与启动台按钮之间的分隔线 */}
-        {showLaunchpad && !isMobile && (fixedItems.length > 0 || items.length > 0) && divider}
+        {showLaunchpad &&
+          !isMobile &&
+          (fixedItems.length > 0 || limitedItems.length > 0) &&
+          divider}
 
         {/* 启动台按钮（非移动端或非底部） */}
         {showLaunchpad && (!isMobile || position !== "bottom") && (
           <LaunchpadButton onClick={onLaunchpadClick} position={position} />
         )}
-      </div>
+      </motion.div>
 
       {/* 移动端底部小白条 */}
       {showLaunchpad && isMobile && (
@@ -266,11 +268,12 @@ const Dock = <D, C>({
               width: 50vw;
               height: 8px;
               background-color: ${baseTheme?.backgroundColor || "#ffffff"};
-              box-shadow: 0 6px 18px ${baseTheme?.shadowColor || "rgba(0, 0, 0, 0.18)"};
+              box-shadow: 0 6px 18px
+                ${baseTheme?.shadowColor || "rgba(0, 0, 0, 0.18)"};
               z-index: 50;
               touch-action: none;
               overscroll-behavior-y: contain;
-            `
+            `,
           )}
           style={{
             // 根据上滑距离做轻微的视觉反馈
@@ -300,7 +303,11 @@ const Dock = <D, C>({
             setTouchDeltaY(dy);
           }}
           onTouchEnd={() => {
-            if (isSwiping && touchStartY !== null && touchDeltaY < -swipeThreshold) {
+            if (
+              isSwiping &&
+              touchStartY !== null &&
+              touchDeltaY < -swipeThreshold
+            ) {
               onLaunchpadClick?.();
             }
             setTouchStartY(null);

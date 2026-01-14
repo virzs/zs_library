@@ -2,11 +2,14 @@ import { css, cx } from "@emotion/css";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import Slider, { Settings } from "react-slick";
 import { ReactSortable } from "react-sortablejs";
+import { v4 as uuidv4 } from "uuid";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import { useSortableConfig } from "./context/config/hooks";
 import { useSortableState } from "./context/state/hooks";
-import DragTriggerPagination, { DragTriggerPaginationRef } from "./drag-trigger-pagination";
+import DragTriggerPagination, {
+  DragTriggerPaginationRef,
+} from "./drag-trigger-pagination";
 import { mainDragContainerStyle, mainDragConfig } from "./drag-styles";
 import SortableGroupItem from "./items/group-item";
 import GroupItemModal from "./items/modal/group-item-modal";
@@ -134,8 +137,14 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     setCurrentSliderIndex,
   } = useSortableState();
 
-  const { pagingDotBuilder, pagingDotsBuilder, itemBuilder, itemBuilderAllowNull, typeConfigMap, computeCellSize } =
-    useSortableConfig();
+  const {
+    pagingDotBuilder,
+    pagingDotsBuilder,
+    itemBuilder,
+    itemBuilderAllowNull,
+    typeConfigMap,
+    computeCellSize,
+  } = useSortableConfig();
 
   const cellSize = computeCellSize(iconSize);
 
@@ -144,6 +153,128 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     const dockData = list.find((item) => item.type === "dock");
     return dockData?.children ?? [];
   }, [list]);
+
+  const dockMaxItems = useMemo(() => {
+    return typeof (dock as any)?.maxItems === "number"
+      ? Math.max(0, (dock as any).maxItems)
+      : 3;
+  }, [dock]);
+
+  const findOriginalItemById = useCallback(
+    (id: string | number) => {
+      const targetId = String(id);
+      const walk = (nodes: any[]): SortItem | null => {
+        for (const node of nodes) {
+          if (!node) continue;
+          if (String(node.id) === targetId && node.type !== "dock") {
+            return node as SortItem;
+          }
+          if (Array.isArray(node.children) && node.children.length) {
+            const found = walk(node.children);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      const nonDockRoots = list.filter((x) => x.type !== "dock") as any[];
+      return walk(nonDockRoots);
+    },
+    [list],
+  );
+
+  const recordDockUse = useCallback(
+    (item: SortItem, source: "dock" | "sortable") => {
+      if (item.type !== "app") {
+        return;
+      }
+
+      if (source === "dock") {
+        return;
+      }
+
+      const fixedIds = new Set(
+        (dock.fixedItems ?? []).map((i) => String(i.id)),
+      );
+      if (fixedIds.has(String(item.id))) {
+        return;
+      }
+
+      const dockRootIndex = list.findIndex((i) => i.type === "dock");
+      const dockRoot = dockRootIndex >= 0 ? (list[dockRootIndex] as any) : null;
+      const currentDockChildren: SortItem[] = (dockRoot?.children ??
+        []) as SortItem[];
+
+      const sourceId = String(item.id);
+      const existingIndex = currentDockChildren.findIndex(
+        (i) => String((i.config as any)?.sourceId) === sourceId,
+      );
+      const dockCopy =
+        existingIndex >= 0
+          ? {
+              ...currentDockChildren[existingIndex],
+              ...item,
+              id: currentDockChildren[existingIndex].id,
+              config: {
+                ...(currentDockChildren[existingIndex].config as any),
+                ...(item.config as any),
+                sourceId,
+              },
+            }
+          : {
+              ...item,
+              id: uuidv4(),
+              config: { ...(item.config as any), sourceId },
+            };
+
+      const nextChildren = [
+        dockCopy,
+        ...currentDockChildren.filter(
+          (_, idx) =>
+            idx !== existingIndex &&
+            String((currentDockChildren[idx]?.config as any)?.sourceId) !==
+              sourceId,
+        ),
+      ];
+      const limited = nextChildren.slice(0, dockMaxItems);
+
+      const updatedDockRoot: any = {
+        ...(dockRoot ?? {
+          id: `dock_${Date.now()}`,
+          type: "dock",
+          children: [],
+        }),
+        children: limited,
+      };
+
+      const updatedList =
+        dockRootIndex >= 0
+          ? list.map((it, idx) =>
+              idx === dockRootIndex ? updatedDockRoot : it,
+            )
+          : [updatedDockRoot, ...list];
+
+      setList(updatedList);
+    },
+    [dock.fixedItems, dockMaxItems, list, setList],
+  );
+
+  const handleItemClick = useCallback(
+    (item: SortItem, source: "dock" | "sortable") => {
+      recordDockUse(item, source);
+      if (source === "dock") {
+        const sourceId = (item.config as any)?.sourceId;
+        const original =
+          sourceId !== undefined && sourceId !== null
+            ? findOriginalItemById(sourceId)
+            : null;
+        onItemClick?.((original ?? item) as SortItem<D, C>);
+        return;
+      }
+      onItemClick?.(item as SortItem<D, C>);
+    },
+    [onItemClick, recordDockUse, findOriginalItemById],
+  );
 
   const pageItems = useMemo(() => {
     return list.filter((item) => item.type !== "dock");
@@ -170,7 +301,9 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
 
   // 删除空白页面
   const removeEmptyPages = useCallback(() => {
-    const emptyPages = pageItems.filter((page) => !page.children || page.children.length === 0);
+    const emptyPages = pageItems.filter(
+      (page) => !page.children || page.children.length === 0,
+    );
 
     // 保留至少一个页面
     if (emptyPages.length === pageItems.length && pageItems.length > 1) {
@@ -181,7 +314,10 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
     } else if (emptyPages.length > 0 && pageItems.length > 1) {
       // 删除所有空白页面，但保留至少一个页面
       emptyPages.forEach((page) => {
-        if (pageItems.length - emptyPages.length > 0 || pageItems.indexOf(page) > 0) {
+        if (
+          pageItems.length - emptyPages.length > 0 ||
+          pageItems.indexOf(page) > 0
+        ) {
           removeRootItem(page.id);
         }
       });
@@ -309,19 +445,26 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
   }, [dock]);
 
   // 统一计算每页一致的行宽，并监听容器尺寸变化
-  const [pageRowWidth, setPageRowWidth] = useState<number | undefined>(undefined);
-  const [pageRowMarginLeft, setPageRowMarginLeft] = useState<number | undefined>(undefined);
+  const [pageRowWidth, setPageRowWidth] = useState<number | undefined>(
+    undefined,
+  );
+  const [pageRowMarginLeft, setPageRowMarginLeft] = useState<
+    number | undefined
+  >(undefined);
   const sortableContainerNodeRef = useRef<HTMLDivElement | null>(null);
   const sortableContainerObserverRef = useRef<ResizeObserver | null>(null);
   const sortableContainerResizeHandlerRef = useRef<(() => void) | null>(null);
 
   const applyContainerWidth = useCallback(
     (node: HTMLDivElement) => {
-      const { width, marginLeft } = SortableUtils.computeRowWidth(node, cellSize);
+      const { width, marginLeft } = SortableUtils.computeRowWidth(
+        node,
+        cellSize,
+      );
       setPageRowWidth(width);
       setPageRowMarginLeft(marginLeft);
     },
-    [cellSize]
+    [cellSize],
   );
 
   const setSortableContainerRef = useCallback(
@@ -372,7 +515,7 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         }
       }
     },
-    [applyContainerWidth]
+    [applyContainerWidth],
   );
 
   return (
@@ -396,53 +539,12 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
               fixedItems={dock.fixedItems}
               position={dock.position}
               className={dock.className}
-              onItemClick={onItemClick}
+              onItemClick={(item) => handleItemClick(item, "dock")}
               itemBuilder={dock.itemBuilder}
               fixedItemBuilder={dock.fixedItemBuilder}
               showLaunchpad={dock.showLaunchpad}
+              maxItems={(dock as any).maxItems}
               onLaunchpadClick={() => setShowLaunchpad(true)}
-              onDockItemsChange={(newDockItems) => {
-                // 更新dock数据到list中
-                const updatedList = list.map((item) => {
-                  if (item.type === "dock") {
-                    return {
-                      ...item,
-                      children: newDockItems,
-                    };
-                  }
-                  return item;
-                });
-                setList(updatedList);
-              }}
-              onDrop={() => {
-                if (dragItem) {
-                  // 添加到 dock
-                  if (dockItems.every((i) => i.id !== dragItem.id)) {
-                    // 将拖拽项添加到dock容器的children中
-                    const updatedList = list.map((item) => {
-                      if (item.type === "dock") {
-                        return {
-                          ...item,
-                          children: [...(item.children ?? []), dragItem],
-                        };
-                      }
-                      return item;
-                    });
-                    // 从原位置移除该项目
-                    const finalList = updatedList.map((item) => {
-                      if (item.type !== "dock" && item.children) {
-                        return {
-                          ...item,
-                          children: item.children.filter((child) => child.id !== dragItem.id),
-                        };
-                      }
-                      return item;
-                    });
-                    setList(finalList);
-                  }
-                }
-                setDragItem(null);
-              }}
             />
           </div>
         )}
@@ -493,9 +595,13 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   }
                 }
               `,
-              className
+              className,
             )}
-            customPaging={createCustomPagingDot(pageItems, activeSlide, pagingDotBuilder)}
+            customPaging={createCustomPagingDot(
+              pageItems,
+              activeSlide,
+              pagingDotBuilder,
+            )}
             appendDots={(dots: React.ReactNode[]) => {
               return (
                 <Pagination
@@ -515,11 +621,12 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       .slick-dots-default {
                         flex-direction: ${pagination &&
                         typeof pagination === "object" &&
-                        (pagination.position === "left" || pagination.position === "right")
+                        (pagination.position === "left" ||
+                          pagination.position === "right")
                           ? "column"
                           : "row"};
                       }
-                    `
+                    `,
                   )}
                 />
               );
@@ -537,7 +644,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                   onDrop={(e) => {
                     e.preventDefault();
                     const data = e.dataTransfer.getData("text/plain");
-                    const quickCheckJsonResult = SortableUtils.quickJSONCheck(data);
+                    const quickCheckJsonResult =
+                      SortableUtils.quickJSONCheck(data);
 
                     if (quickCheckJsonResult) {
                       try {
@@ -570,8 +678,13 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       setMoveTargetId(null);
                       // 限制：除了 type 为 app，其他类型在 relatedData 为空时不允许合并
                       // 通过拖拽项的父元素或状态获取类型，保证兼容不同包裹层级
-                      const draggedClosestType = (dragged.closest("[data-type]") as HTMLElement | null)?.dataset?.type;
-                      const draggedType = (draggedData as DOMStringMap)?.type ?? draggedClosestType ?? dragItem?.type;
+                      const draggedClosestType = (
+                        dragged.closest("[data-type]") as HTMLElement | null
+                      )?.dataset?.type;
+                      const draggedType =
+                        (draggedData as DOMStringMap)?.type ??
+                        draggedClosestType ??
+                        dragItem?.type;
                       if (
                         Object.keys(relatedData).length === 0 &&
                         draggedType !== "app" &&
@@ -582,7 +695,8 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       // 限制只有一层
                       // sortable-group-item 标记为文件夹
                       if (
-                        (Object.keys(relatedData).length === 0 || relatedData.parentIds) &&
+                        (Object.keys(relatedData).length === 0 ||
+                          relatedData.parentIds) &&
                         Number(draggedData.childrenLength) > 0 &&
                         related.classList.contains("sortable-group-item")
                       ) {
@@ -593,7 +707,9 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                       // related.parentElement?.classList 判断 dock 内有内容时
                       if (
                         (related.classList.contains("desktop-dock-sortable") ||
-                          related.parentElement?.classList.contains("desktop-dock-sortable")) &&
+                          related.parentElement?.classList.contains(
+                            "desktop-dock-sortable",
+                          )) &&
                         Number(draggedData.childrenLength) > 0
                       ) {
                         return false;
@@ -644,7 +760,11 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                           return itemBuilder(item, index);
                         }
 
-                        const { row, col } = getItemSize(item.type, item.config?.sizeId, typeConfigMap);
+                        const { row, col } = getItemSize(
+                          item.type,
+                          item.config?.sizeId,
+                          typeConfigMap,
+                        );
 
                         switch (item.type) {
                           case "group":
@@ -656,14 +776,20 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                   css`
                                     grid-row: span ${row};
                                     grid-column: span ${col};
-                                  `
+                                  `,
                                 )}
                                 key={item.id}
                                 data-id={item.id}
                                 data-type={item.type}
                                 layout={isDragging ? false : "position"}
                                 transition={
-                                  isDragging ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 38 }
+                                  isDragging
+                                    ? { duration: 0 }
+                                    : {
+                                        type: "spring",
+                                        stiffness: 380,
+                                        damping: 38,
+                                      }
                                 }
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}
@@ -672,7 +798,9 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                   data={item}
                                   itemIndex={index}
                                   parentIds={[l.id, item.id]}
-                                  onClick={onItemClick}
+                                  onClick={(clicked) =>
+                                    handleItemClick(clicked, "sortable")
+                                  }
                                   iconSize={iconSize}
                                 />
                               </motion.div>
@@ -686,19 +814,32 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
                                   css`
                                     grid-row: span ${row};
                                     grid-column: span ${col};
-                                  `
+                                  `,
                                 )}
                                 key={item.id}
                                 data-id={item.id}
                                 data-type={item.type}
                                 layout={isDragging ? false : "position"}
                                 transition={
-                                  isDragging ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 38 }
+                                  isDragging
+                                    ? { duration: 0 }
+                                    : {
+                                        type: "spring",
+                                        stiffness: 380,
+                                        damping: 38,
+                                      }
                                 }
                                 onMouseEnter={() => setTouchMoveEnabled(false)}
                                 onMouseLeave={() => setTouchMoveEnabled(true)}
                               >
-                                <SortableItem data={item} itemIndex={index} onClick={onItemClick} iconSize={iconSize} />
+                                <SortableItem
+                                  data={item}
+                                  itemIndex={index}
+                                  onClick={(clicked) =>
+                                    handleItemClick(clicked, "sortable")
+                                  }
+                                  iconSize={iconSize}
+                                />
                               </motion.div>
                             );
                             break;
@@ -731,12 +872,16 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
         onClose={() => {
           setOpenGroupItemData(null);
         }}
-        onItemClick={onItemClick}
+        onItemClick={(item) => handleItemClick(item, "sortable")}
       />
 
       {/* 启动台模态框 */}
       {showLaunchpad && (
-        <LaunchpadModal visible={showLaunchpad} onClose={() => setShowLaunchpad(false)} onItemClick={onItemClick} />
+        <LaunchpadModal
+          visible={showLaunchpad}
+          onClose={() => setShowLaunchpad(false)}
+          onItemClick={(item) => handleItemClick(item, "sortable")}
+        />
       )}
     </>
   );
