@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useLayoutEffect } from "react";
 import { useFloating, autoUpdate, offset, flip, shift, FloatingPortal } from "@floating-ui/react";
 import { useSortableState } from "../context/state/hooks";
 import ContextMenu, { ContextMenuProps } from "./index";
@@ -14,16 +14,18 @@ const CONSTANTS = {
 
 // 计算视窗边界的工具函数
 const getViewportBounds = () => ({
-  left: 0,
-  right: window.innerWidth,
+  left: window.scrollX,
+  right: window.scrollX + window.innerWidth,
   top: window.scrollY,
-  bottom: window.innerHeight + window.scrollY,
+  bottom: window.scrollY + window.innerHeight,
 });
 
 const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   const { contextMenu, setContextMenu } = useSortableState();
   const [isOpen, setIsOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+  const shouldActuallyRender = shouldRender || Boolean(contextMenu);
+  const isActuallyOpen = isOpen || Boolean(contextMenu);
   const [calculatedPosition, setCalculatedPosition] = useState({
     left: 0,
     top: 0,
@@ -33,8 +35,8 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   // 计算图标区域的工具函数
   const calculateIconRect = useCallback(
     (rect: DOMRect) => ({
-      left: rect.left,
-      right: rect.right,
+      left: rect.left + window.scrollX,
+      right: rect.right + window.scrollX,
       top: rect.top + window.scrollY,
       bottom: rect.bottom + window.scrollY,
       width: rect.width,
@@ -58,34 +60,32 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   const calculateMenuPosition = useCallback(
     (iconRect: ReturnType<typeof calculateIconRect>, menuWidth: number, menuHeight: number) => {
       const gap = CONSTANTS.GAP;
+      const viewport = getViewportBounds();
       let left = iconRect.right + gap;
       let top = iconRect.top;
 
       // 检查右侧空间是否足够
-      if (left + menuWidth > window.innerWidth) {
+      if (left + menuWidth > viewport.right) {
         left = iconRect.left - menuWidth - gap;
 
-        if (left < 0) {
+        if (left < viewport.left) {
           left = iconRect.left;
           top = iconRect.bottom + gap;
 
           // 检查下方是否超出视窗
-          const viewportBottom = window.innerHeight + window.scrollY;
-          if (top + menuHeight > viewportBottom) {
+          if (top + menuHeight > viewport.bottom) {
             top = iconRect.top - menuHeight - gap;
           }
         }
       } else {
         // 右侧有空间，检查垂直方向
-        const viewportBottom = window.innerHeight + window.scrollY;
-        if (top + menuHeight > viewportBottom) {
+        if (top + menuHeight > viewport.bottom) {
           // 让菜单的底部与图标区域的底部对齐
           top = iconRect.bottom - menuHeight;
 
           // 如果还是超出视窗顶部，至少保证在视窗顶部
-          const viewportTop = window.scrollY;
-          if (top < viewportTop + gap) {
-            top = viewportTop + gap;
+          if (top < viewport.top + gap) {
+            top = viewport.top + gap;
           }
         }
       }
@@ -130,7 +130,7 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   });
 
   // 计算动画原点
-  const calculateAnimationOrigin = (
+  const calculateAnimationOrigin = useCallback((
     menuLeft: number,
     menuTop: number,
     iconRect: { left: number; right: number; top: number; bottom: number }
@@ -157,28 +157,46 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     }
 
     return "center";
-  };
+  }, []);
+
+  const getCurrentReferenceRect = useCallback(() => {
+    const elementRect = contextMenu?.element?.getBoundingClientRect();
+    return elementRect ?? contextMenu?.rect;
+  }, [contextMenu]);
+
+  const recalculatePosition = useCallback(
+    (options?: { useEstimatedSize?: boolean }) => {
+      if (!contextMenu) return;
+      const rect = getCurrentReferenceRect();
+      if (!rect) return;
+
+      const iconRect = calculateIconRect(rect);
+      const menuElement = refs.floating.current;
+
+      const useEstimatedSize = options?.useEstimatedSize ?? false;
+      const menuWidth = useEstimatedSize
+        ? CONSTANTS.ESTIMATED_MENU_WIDTH
+        : menuElement?.offsetWidth || CONSTANTS.ESTIMATED_MENU_WIDTH;
+      const menuHeight = useEstimatedSize
+        ? CONSTANTS.ESTIMATED_MENU_HEIGHT
+        : menuElement?.offsetHeight || CONSTANTS.ESTIMATED_MENU_HEIGHT;
+
+      const { left, top } = calculateMenuPosition(iconRect, menuWidth, menuHeight);
+
+      const origin = calculateAnimationOrigin(left, top, iconRect);
+      setAnimationOrigin(origin);
+      setCalculatedPosition({ left, top });
+    },
+    [calculateAnimationOrigin, calculateIconRect, calculateMenuPosition, contextMenu, getCurrentReferenceRect, refs.floating]
+  );
 
   // 监听 contextMenu 状态变化
   useEffect(() => {
     if (contextMenu) {
       setShouldRender(true);
       setIsOpen(true);
-      // 初始计算位置（使用预估值）并进行基础边界检测
-      const { rect } = contextMenu;
-      const iconRect = calculateIconRect(rect);
-
-      const { left, top } = calculateMenuPosition(
-        iconRect,
-        CONSTANTS.ESTIMATED_MENU_WIDTH,
-        CONSTANTS.ESTIMATED_MENU_HEIGHT
-      );
-
-      // 计算动画原点
-      const origin = calculateAnimationOrigin(left, top, iconRect);
-      setAnimationOrigin(origin);
-
-      setCalculatedPosition({ left, top });
+      const floatingEl = refs.floating.current;
+      recalculatePosition({ useEstimatedSize: !floatingEl });
     } else {
       // 开始关闭动画
       setIsOpen(false);
@@ -189,35 +207,64 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
       return () => clearTimeout(timer);
     }
-  }, [contextMenu, calculateIconRect, calculateMenuPosition]);
+  }, [contextMenu, recalculatePosition, refs.floating]);
 
-  // 当菜单元素渲染完成后，重新计算精确位置
-  useEffect(() => {
-    if (isOpen && refs.floating.current && contextMenu && shouldRender) {
-      // 等待下一帧，确保元素已经渲染
-      requestAnimationFrame(() => {
-        const { rect } = contextMenu;
-        const iconRect = calculateIconRect(rect);
-
-        // 获取菜单元素的实际尺寸
-        const menuElement = refs.floating.current;
-        const menuWidth = menuElement?.offsetWidth || CONSTANTS.ESTIMATED_MENU_WIDTH;
-        const menuHeight = menuElement?.offsetHeight || CONSTANTS.ESTIMATED_MENU_HEIGHT;
-
-        const { left, top } = calculateMenuPosition(iconRect, menuWidth, menuHeight);
-
-        // 重新计算动画原点（使用实际尺寸）
-        const preciseOrigin = calculateAnimationOrigin(left, top, iconRect);
-        setAnimationOrigin(preciseOrigin);
-
-        setCalculatedPosition({ left, top });
+  // 让首次渲染立即使用真实尺寸定位（避免“第一次靠上”）
+  useLayoutEffect(() => {
+    if (!shouldActuallyRender || !contextMenu) return;
+    if (!refs.floating.current) return;
+    recalculatePosition();
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      recalculatePosition();
+      raf2 = requestAnimationFrame(() => {
+        recalculatePosition();
       });
-    }
-  }, [isOpen, contextMenu, refs, shouldRender, calculateIconRect, calculateMenuPosition]);
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [contextMenu, recalculatePosition, refs.floating, shouldActuallyRender]);
+
+  useEffect(() => {
+    if (!shouldActuallyRender || !contextMenu) return;
+    const floatingEl = refs.floating.current;
+    if (!floatingEl) return;
+    if (typeof ResizeObserver === "undefined") return;
+
+    let rafId = 0;
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        recalculatePosition();
+      });
+    });
+
+    observer.observe(floatingEl);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
+    };
+  }, [contextMenu, recalculatePosition, refs.floating, shouldActuallyRender]);
+
+  // 打开期间持续追踪 reference/floating 的变化，自动修正位置
+  useEffect(() => {
+    if (!contextMenu) return;
+    const referenceEl = contextMenu.element;
+    const floatingEl = refs.floating.current;
+    if (!referenceEl || referenceEl === document.body || !floatingEl) return;
+
+    recalculatePosition();
+    return autoUpdate(referenceEl, floatingEl, () => {
+      recalculatePosition();
+    });
+  }, [contextMenu, recalculatePosition, refs.floating]);
 
   // 添加点击外部关闭的逻辑
   useEffect(() => {
-    if (!isOpen) return;
+    if (!contextMenu) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
@@ -245,11 +292,11 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [isOpen, setContextMenu, refs.floating]);
+  }, [contextMenu, setContextMenu, refs.floating]);
 
   // ...existing code...
 
-  if (!shouldRender) {
+  if (!shouldActuallyRender) {
     return null;
   }
 
@@ -269,7 +316,7 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
           e.stopPropagation();
         }}
       >
-        <ContextMenu {...props} animationOrigin={animationOrigin} isOpen={isOpen} />
+        <ContextMenu {...props} animationOrigin={animationOrigin} isOpen={isActuallyOpen} />
       </div>
     </FloatingPortal>
   );

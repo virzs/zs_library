@@ -12,6 +12,7 @@ interface ContextMenu {
   data: any;
   pageX?: number;
   pageY?: number;
+  element?: Element | null;
 }
 
 type ListStatus = "onMove";
@@ -154,26 +155,30 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   };
 
   const getItemRectAndSetContextMenu = (e: any, data: any) => {
-    // 尝试获取最接近的图标元素的位置
     let targetElement = e.target;
 
-    // 向上查找，找到具有 data-id 属性的元素（通常是 item 容器）
     while (targetElement && !targetElement.getAttribute("data-id")) {
       targetElement = targetElement.parentElement;
     }
 
-    // 如果找不到合适的元素，使用事件目标
-    if (!targetElement) {
-      targetElement = e.target;
+    if (!targetElement || typeof targetElement.getBoundingClientRect !== "function") {
+      const currentTarget = e.currentTarget;
+      if (currentTarget && typeof currentTarget.getBoundingClientRect === "function") {
+        targetElement = currentTarget;
+      }
     }
 
-    const rect = targetElement.getBoundingClientRect();
+    const rect =
+      targetElement && typeof targetElement.getBoundingClientRect === "function"
+        ? targetElement.getBoundingClientRect()
+        : new DOMRect(e.clientX ?? 0, e.clientY ?? 0, 0, 0);
 
     setContextMenu({
       rect,
       pageX: e.pageX,
       pageY: e.pageY,
       data,
+      element: targetElement && typeof targetElement.getBoundingClientRect === "function" ? targetElement : null,
     });
     clearTimeout(contextMenuTimer);
   };

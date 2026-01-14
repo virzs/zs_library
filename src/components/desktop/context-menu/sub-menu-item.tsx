@@ -149,21 +149,18 @@ export const SubMenuItem = ({
               onMouseEnter={handleSubMenuMouseEnter}
               onMouseLeave={handleSubMenuMouseLeave}
             >
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+              <ContextMenuContent
+                className="zs-overflow-hidden"
+                style={{
+                  transformOrigin: "left",
+                }}
+                initial={{ opacity: 0, scale: 1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1 }}
                 transition={{ duration: 0.12, ease: "easeOut" }}
               >
-                <ContextMenuContent
-                  className="zs-overflow-hidden"
-                  style={{
-                    transformOrigin: "left",
-                  }}
-                >
-                  {children}
-                </ContextMenuContent>
-              </motion.div>
+                {children}
+              </ContextMenuContent>
             </div>
           </FloatingPortal>
         )}
