@@ -68,6 +68,7 @@ export const SubMenuItem = ({
     if (floatingEl && relatedTarget && floatingEl.contains(relatedTarget)) {
       return;
     }
+    setHoveredIndex(null);
     timeoutRef.current = setTimeout(() => {
       setIsSubMenuOpen(false);
     }, 150);
@@ -85,6 +86,7 @@ export const SubMenuItem = ({
     if (referenceEl && relatedTarget && referenceEl.contains(relatedTarget)) {
       return;
     }
+    setHoveredIndex(null);
     setIsSubMenuOpen(false);
   };
 

@@ -26,6 +26,7 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   const [shouldRender, setShouldRender] = useState(false);
   const shouldActuallyRender = shouldRender || Boolean(contextMenu);
   const isActuallyOpen = isOpen || Boolean(contextMenu);
+  const [isPositionReady, setIsPositionReady] = useState(false);
   const [calculatedPosition, setCalculatedPosition] = useState({
     left: 0,
     top: 0,
@@ -195,11 +196,10 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     if (contextMenu) {
       setShouldRender(true);
       setIsOpen(true);
-      const floatingEl = refs.floating.current;
-      recalculatePosition({ useEstimatedSize: !floatingEl });
     } else {
       // 开始关闭动画
       setIsOpen(false);
+      setIsPositionReady(false);
       // 延迟移除渲染，给动画时间完成
       const timer = setTimeout(() => {
         setShouldRender(false);
@@ -207,23 +207,47 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
       return () => clearTimeout(timer);
     }
-  }, [contextMenu, recalculatePosition, refs.floating]);
+  }, [contextMenu]);
 
-  // 让首次渲染立即使用真实尺寸定位（避免“第一次靠上”）
+  // 首次打开时等待 portal 节点可测量，再进行定位（避免 dock 首次用估算高度导致偏移）
   useLayoutEffect(() => {
     if (!shouldActuallyRender || !contextMenu) return;
-    if (!refs.floating.current) return;
-    recalculatePosition();
-    let raf2 = 0;
-    const raf1 = requestAnimationFrame(() => {
+
+    const floatingEl = refs.floating.current;
+    if (floatingEl && floatingEl.offsetWidth > 0 && floatingEl.offsetHeight > 0) {
       recalculatePosition();
-      raf2 = requestAnimationFrame(() => {
+      setIsPositionReady(true);
+      return;
+    }
+
+    setIsPositionReady(false);
+
+    let rafId = 0;
+    let frameCount = 0;
+    const maxFrames = 12;
+
+    const tryPosition = () => {
+      const floatingEl = refs.floating.current;
+      if (floatingEl && floatingEl.offsetWidth > 0 && floatingEl.offsetHeight > 0) {
         recalculatePosition();
-      });
-    });
+        setIsPositionReady(true);
+        return;
+      }
+
+      if (frameCount >= maxFrames) {
+        recalculatePosition({ useEstimatedSize: true });
+        setIsPositionReady(true);
+        return;
+      }
+
+      frameCount += 1;
+      rafId = requestAnimationFrame(tryPosition);
+    };
+
+    tryPosition();
+
     return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
+      cancelAnimationFrame(rafId);
     };
   }, [contextMenu, recalculatePosition, refs.floating, shouldActuallyRender]);
 
@@ -310,6 +334,8 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
           top: calculatedPosition.top,
           zIndex: 9999,
           transformOrigin: animationOrigin,
+          visibility: isPositionReady ? "visible" : "hidden",
+          pointerEvents: isPositionReady ? "auto" : "none",
           // 只设置变换原点，让内部的 motion/react 处理动画
         }}
         onMouseDown={(e) => {
