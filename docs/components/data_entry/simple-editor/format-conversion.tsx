@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { SimpleEditor, jsonToHtml, htmlToJson } from "zs_library";
+import { SimpleEditor, htmlToJson, type EditorOutputFormat, type JSONContent } from "zs_library";
 
 export default () => {
-  const [outputFormat, setOutputFormat] = useState("html");
-  const [content, setContent] = useState("<p>Hello <strong>World</strong>!</p>");
-  const [displayContent, setDisplayContent] = useState(content);
+  const [outputFormat, setOutputFormat] = useState<EditorOutputFormat>("html");
+  const [content, setContent] = useState<string | JSONContent | undefined>("<p>Hello <strong>World</strong>!</p>");
+  const [displayContent, setDisplayContent] = useState<string | JSONContent>(content ?? "");
 
-  const handleFormatChange = (e) => {
-    const newFormat = e.target.value;
+  const handleFormatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newFormat = e.target.value as EditorOutputFormat;
     setOutputFormat(newFormat);
     // Clearing content to let editor re-initialize with new format if needed
     // In real app you might want to convert current content to new format

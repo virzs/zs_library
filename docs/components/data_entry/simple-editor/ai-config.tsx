@@ -11,7 +11,7 @@ export default () => {
     if (stored) setApiKey(stored);
   }, []);
 
-  const handleApiKeyChange = (e) => {
+  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setApiKey(val);
     localStorage.setItem(STORAGE_KEY, val);

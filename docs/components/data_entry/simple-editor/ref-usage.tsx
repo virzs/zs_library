@@ -1,8 +1,9 @@
 import React, { useRef } from "react";
 import { SimpleEditor } from "zs_library";
+import type { Editor } from "@tiptap/react";
 
 export default () => {
-  const editorRef = useRef(null);
+  const editorRef = useRef<{ editor: Editor | null } | null>(null);
 
   const handleLogHtml = () => {
     if (editorRef.current?.editor) {

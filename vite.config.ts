@@ -1,7 +1,7 @@
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
-import { defineConfig } from "vite";
+import { defineConfig, type PluginOption } from "vite";
 import dts from "vite-plugin-dts";
 import autoExternal from "rollup-plugin-auto-external";
 
@@ -12,8 +12,8 @@ export default defineConfig({
     dts({
       tsconfigPath: "./tsconfig.app.json",
     }),
-    visualizer({ open: false }),
-    autoExternal(),
+    visualizer({ open: false }) as unknown as PluginOption,
+    autoExternal() as unknown as PluginOption,
   ],
   css: {
     preprocessorOptions: {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SimpleEditor } from "zs_library";
+import { SimpleEditor, type JSONContent } from "zs_library";
 
 const defaultContent = {
   type: "doc",
@@ -480,14 +480,16 @@ const defaultContent = {
 };
 
 export default () => {
-  const [value, setValue] = useState(defaultContent);
+  const [value, setValue] = useState<JSONContent>(defaultContent as JSONContent);
 
   return (
     <div style={{ border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
       <SimpleEditor
         value={value}
         onChange={(newValue) => {
-          setValue(newValue);
+          if (typeof newValue !== "string") {
+            setValue(newValue);
+          }
           console.log("Editor content changed:", newValue);
         }}
       />

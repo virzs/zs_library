@@ -35,7 +35,7 @@ export default () => {
 
                   onSuccess(url);
                 } catch (error) {
-                  onError(error);
+                  onError(error instanceof Error ? error : new Error(String(error)));
                 }
               },
             },

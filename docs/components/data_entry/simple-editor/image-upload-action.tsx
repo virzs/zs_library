@@ -11,7 +11,9 @@ export default () => {
               action: "https://tmpfiles.org/api/v1/upload",
               name: "file",
               formatResult: (response) => {
-                return response.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
+                const url = (response as { data?: { url?: unknown } } | null | undefined)?.data?.url;
+                if (typeof url !== "string") return "";
+                return url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
               },
             },
           },
