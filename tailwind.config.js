@@ -2,6 +2,9 @@
 export default {
   prefix: "zs-",
   darkMode: "class",
+  corePlugins: {
+    preflight: false,
+  },
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     container: {
