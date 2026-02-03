@@ -29,8 +29,18 @@ export interface SortableItemProps<D, C> {
   from?: string;
 }
 
-export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>) => {
-  const { data, noLetters = false, icon, iconColor, from, iconSize = 64, contextMenuProps } = props;
+export const SortableItemDefaultContent = <D, C>(
+  props: SortableItemProps<D, C>,
+) => {
+  const {
+    data,
+    noLetters = false,
+    icon,
+    iconColor,
+    from,
+    iconSize = 64,
+    contextMenuProps,
+  } = props;
   const { contextMenuFuns } = useSortableState();
   const {
     itemIconBuilder: configItemIconBuilder,
@@ -39,10 +49,13 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
     contextMenu: contextMenuState,
   } = useSortableConfig();
 
-  const contextMenu = contextMenuProps != false ? contextMenuProps || contextMenuState : contextMenuProps;
+  const contextMenu =
+    contextMenuProps != false
+      ? contextMenuProps || contextMenuState
+      : contextMenuProps;
 
   const { data: itemData = {} } = data;
-  const { name, iconColor: dataIconColor } = itemData as D & SortItemBaseData;
+  const { name } = itemData as D & SortItemBaseData;
 
   return (
     <>
@@ -50,7 +63,8 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
         data={data}
         iconSize={iconSize}
         className={css`
-          background-color: ${iconColor ?? dataIconColor ?? theme.token.items?.iconBackgroundColor};
+          background-color: ${iconColor ??
+          theme.token.items?.iconBackgroundColor};
           box-shadow: 0 0 0.5rem ${theme.token.items?.iconShadowColor};
         `}
       >
@@ -60,14 +74,22 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
             "zs-absolute zs-left-0 zs-top-0 zs-w-full zs-h-full",
             css`
               color: ${theme.token.items?.textColor};
-            `
+            `,
           )}
           {...contextMenuFuns(
-            { ...data, ...(from === "dock" ? { config: { allowResize: false } } : {}) },
-            contextMenu !== false
+            {
+              ...data,
+              ...(from === "dock" ? { config: { allowResize: false } } : {}),
+            },
+            contextMenu !== false,
           )}
         >
-          {renderIcon(data, icon, configItemIconBuilderAllowNull, configItemIconBuilder)}
+          {renderIcon(
+            data,
+            icon,
+            configItemIconBuilderAllowNull,
+            configItemIconBuilder,
+          )}
         </div>
       </ItemContent>
       <ItemName data={data} noLetters={noLetters} name={name} />
@@ -76,7 +98,16 @@ export const SortableItemDefaultContent = <D, C>(props: SortableItemProps<D, C>)
 };
 
 const SortableItem = <D, C>(props: SortableItemProps<D, C>) => {
-  const { data, className, itemIndex, onClick, disabledDrag = false, children, parentIds, childrenLength } = props;
+  const {
+    data,
+    className,
+    itemIndex,
+    onClick,
+    disabledDrag = false,
+    children,
+    parentIds,
+    childrenLength,
+  } = props;
 
   // 渲染内容元素
   const renderContent = () => (
