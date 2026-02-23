@@ -148,34 +148,81 @@ export const SortableStateProvider = <D, C>(
   const [dragItem, setDragItem] = useState<SortItem | null>(null);
   const [currentSliderIndex, setCurrentSliderIndex] = useState<number>(0);
 
+  // 当前列表结构签名，用于判断是否需要通知外部变更
   const listSignatureRef = useRef("");
+  // 记录对象引用到稳定 id 的映射（用于序列化中保留引用特征）
   const objectIdMapRef = useRef(new WeakMap<object, number>());
   const nextObjectIdRef = useRef(1);
+  // 初始化时抑制一次通知（避免首次传入 list 触发 onChange）
   const suppressNextNotifyRef = useRef(false);
+  // 合并同一轮事件循环内的多次通知
+  const pendingNotifyRef = useRef<{ signature: string; list: any[] } | null>(
+    null,
+  );
+  const notifyScheduledRef = useRef(false);
 
-  const getValueToken = useCallback((value: any) => {
-    if (value && typeof value === "object") {
-      const map = objectIdMapRef.current;
-      let id = map.get(value);
-      if (!id) {
-        id = nextObjectIdRef.current++;
-        map.set(value, id);
-      }
-      return `o${id}`;
+  // 为对象分配稳定 token，避免仅因引用不同导致误判
+  const getObjectToken = useCallback((value: object) => {
+    const map = objectIdMapRef.current;
+    let id = map.get(value);
+    if (!id) {
+      id = nextObjectIdRef.current++;
+      map.set(value, id);
     }
-    return `p${String(value)}`;
+    return `o${id}`;
   }, []);
 
+  // 将 data/config 序列化为稳定字符串，用于结构签名比较
+  // 说明：仅对 plain object 做结构序列化，其他对象保留引用 token
+  const serializeValue = useCallback(
+    (value: any, seen: WeakSet<object>): string => {
+      if (value === null) return "null";
+      const type = typeof value;
+      if (type === "string") return `s:${value}`;
+      if (type === "number" || type === "boolean" || type === "bigint") {
+        return `p:${String(value)}`;
+      }
+      if (type === "undefined") return "u";
+      if (type === "function" || type === "symbol") {
+        return `r:${getObjectToken(value as object)}`;
+      }
+      if (Array.isArray(value)) {
+        if (seen.has(value)) return `c:${getObjectToken(value)}`;
+        seen.add(value);
+        return `[${value.map((item) => serializeValue(item, seen)).join(",")}]`;
+      }
+      if (type === "object") {
+        const plain =
+          Object.prototype.toString.call(value) === "[object Object]";
+        if (!plain) {
+          return `r:${getObjectToken(value as object)}`;
+        }
+        if (seen.has(value)) return `c:${getObjectToken(value)}`;
+        seen.add(value);
+        const keys = Object.keys(value).sort();
+        const entries: string[] = keys.map(
+          (key) => `${key}:${serializeValue(value[key], seen)}`,
+        );
+        return `{${entries.join(",")}}`;
+      }
+      return `p:${String(value)}`;
+    },
+    [getObjectToken],
+  );
+
+  // 生成列表结构签名：包含 id/type 以及 data/config 的稳定序列化
   const buildListSignature = useCallback(
     (items: any[]) => {
       const parts: string[] = [];
+      const seen = new WeakSet<object>();
       const walk = (list: any[]) => {
         parts.push("[");
         for (const item of list) {
           if (!item) continue;
           parts.push(
-            `${String(item.id)}|${String(item.type)}|${getValueToken(item.data)}|${getValueToken(
+            `${String(item.id)}|${String(item.type)}|${serializeValue(item.data, seen)}|${serializeValue(
               item.config,
+              seen,
             )}|`,
           );
           if (Array.isArray(item.children) && item.children.length) {
@@ -190,21 +237,31 @@ export const SortableStateProvider = <D, C>(
       walk(items);
       return parts.join("");
     },
-    [getValueToken],
+    [serializeValue],
   );
 
+  // 通知外部列表变化：合并同一轮多次触发，并在真正变化时调用 onChange
   const notifyListChange = useCallback(
     (nextList: any[]) => {
       const signature = buildListSignature(nextList);
-      if (suppressNextNotifyRef.current) {
-        suppressNextNotifyRef.current = false;
-        listSignatureRef.current = signature;
-        return;
-      }
-      if (signature !== listSignatureRef.current) {
-        listSignatureRef.current = signature;
-        propOnChange?.(nextList);
-      }
+      pendingNotifyRef.current = { signature, list: nextList };
+      if (notifyScheduledRef.current) return;
+      notifyScheduledRef.current = true;
+      Promise.resolve().then(() => {
+        notifyScheduledRef.current = false;
+        const pending = pendingNotifyRef.current;
+        pendingNotifyRef.current = null;
+        if (!pending) return;
+        if (suppressNextNotifyRef.current) {
+          suppressNextNotifyRef.current = false;
+          listSignatureRef.current = pending.signature;
+          return;
+        }
+        if (pending.signature !== listSignatureRef.current) {
+          listSignatureRef.current = pending.signature;
+          propOnChange?.(pending.list);
+        }
+      });
     },
     [buildListSignature, propOnChange],
   );
