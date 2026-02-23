@@ -335,6 +335,7 @@ export default () => {
         list={list}
         theme={theme}
         enableCaching={false}
+        onChange={(list) => console.log(list)}
         itemIconBuilder={(item) => {
           if (item.type === "custom") {
             return (
