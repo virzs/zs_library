@@ -1,7 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useDebounceEffect, useLocalStorageState } from "ahooks";
-import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 import { SortItem, ListItem } from "../../types";
 import SortableUtils from "../../utils/index";
@@ -109,7 +116,9 @@ export interface SortableStateProviderProps<D, C> {
   children: React.ReactNode;
 }
 
-export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D, C>) => {
+export const SortableStateProvider = <D, C>(
+  props: SortableStateProviderProps<D, C>,
+) => {
   const {
     children,
     list: propList = [],
@@ -125,13 +134,80 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   const listStatusRef = useRef(listStatus);
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
   const [list, setList] = useState<any[]>([]);
-  const [showInfoItemData, setShowInfoItemData] = useState<SortItem | null>(null);
-  const [openGroupItemData, setOpenGroupItemData] = useState<SortItem | null>(null);
+  const [showInfoItemData, setShowInfoItemData] = useState<SortItem | null>(
+    null,
+  );
+  const [openGroupItemData, setOpenGroupItemData] = useState<SortItem | null>(
+    null,
+  );
   const [longPressTriggered, setLongPressTriggered] = useState(false);
   const [moveItemId, setMoveItemId] = useState<string | null>(null);
-  const [moveTargetId, setMoveTargetId] = useState<string | number | null>(null);
+  const [moveTargetId, setMoveTargetId] = useState<string | number | null>(
+    null,
+  );
   const [dragItem, setDragItem] = useState<SortItem | null>(null);
   const [currentSliderIndex, setCurrentSliderIndex] = useState<number>(0);
+
+  const listSignatureRef = useRef("");
+  const objectIdMapRef = useRef(new WeakMap<object, number>());
+  const nextObjectIdRef = useRef(1);
+  const suppressNextNotifyRef = useRef(false);
+
+  const getValueToken = useCallback((value: any) => {
+    if (value && typeof value === "object") {
+      const map = objectIdMapRef.current;
+      let id = map.get(value);
+      if (!id) {
+        id = nextObjectIdRef.current++;
+        map.set(value, id);
+      }
+      return `o${id}`;
+    }
+    return `p${String(value)}`;
+  }, []);
+
+  const buildListSignature = useCallback(
+    (items: any[]) => {
+      const parts: string[] = [];
+      const walk = (list: any[]) => {
+        parts.push("[");
+        for (const item of list) {
+          if (!item) continue;
+          parts.push(
+            `${String(item.id)}|${String(item.type)}|${getValueToken(item.data)}|${getValueToken(
+              item.config,
+            )}|`,
+          );
+          if (Array.isArray(item.children) && item.children.length) {
+            walk(item.children);
+          } else {
+            parts.push("[]");
+          }
+          parts.push(";");
+        }
+        parts.push("]");
+      };
+      walk(items);
+      return parts.join("");
+    },
+    [getValueToken],
+  );
+
+  const notifyListChange = useCallback(
+    (nextList: any[]) => {
+      const signature = buildListSignature(nextList);
+      if (suppressNextNotifyRef.current) {
+        suppressNextNotifyRef.current = false;
+        listSignatureRef.current = signature;
+        return;
+      }
+      if (signature !== listSignatureRef.current) {
+        listSignatureRef.current = signature;
+        propOnChange?.(nextList);
+      }
+    },
+    [buildListSignature, propOnChange],
+  );
 
   const [init, setInit] = useState(false);
   const [localList, setLocalList] = useLocalStorageState<any[]>(storageKey, {
@@ -161,9 +237,15 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
       targetElement = targetElement.parentElement;
     }
 
-    if (!targetElement || typeof targetElement.getBoundingClientRect !== "function") {
+    if (
+      !targetElement ||
+      typeof targetElement.getBoundingClientRect !== "function"
+    ) {
       const currentTarget = e.currentTarget;
-      if (currentTarget && typeof currentTarget.getBoundingClientRect === "function") {
+      if (
+        currentTarget &&
+        typeof currentTarget.getBoundingClientRect === "function"
+      ) {
         targetElement = currentTarget;
       }
     }
@@ -178,7 +260,11 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
       pageX: e.pageX,
       pageY: e.pageY,
       data,
-      element: targetElement && typeof targetElement.getBoundingClientRect === "function" ? targetElement : null,
+      element:
+        targetElement &&
+        typeof targetElement.getBoundingClientRect === "function"
+          ? targetElement
+          : null,
     });
     clearTimeout(contextMenuTimer);
   };
@@ -198,14 +284,14 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
             // 解决闭包导致拖拽时右键菜单不消失的问题
             if (listStatusRef.current !== null) return;
             getItemRectAndSetContextMenu(e, data);
-          }, 800)
+          }, 800),
         );
         setLongPressTriggered(false);
         setPressTimer(
           setTimeout(() => {
             setLongPressTriggered(true);
             // 这里处理长按事件
-          }, 800)
+          }, 800),
         );
       },
       onMouseUp: () => {
@@ -224,81 +310,88 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   };
 
   const _setList = useCallback(
-    (newList: any[], parentIds?: string[]) => {
-      const _parentIds = [...(parentIds || [])];
+    (newList: any[], parentIds?: (string | number)[]) => {
+      const _parentIds = parentIds || [];
 
       if (_parentIds.length > 0) {
+        const newListIdSet = new Set(newList.map((item) => item.id));
         setList((oldList: any[]) => {
           const _items = [...oldList];
 
-          const updateChild = (_list: any[]): any[] => {
-            const parentId = _parentIds.shift();
-            const parent = _list.find((item) => item.id === parentId);
-            const parentIndex = _list.findIndex((item) => item.id === parentId);
+          const updateChild = (_list: any[], depth: number): any[] => {
+            const parentId = _parentIds[depth];
+            if (parentId === undefined) {
+              return SortableUtils.uniqueArray<SortItem>(newList);
+            }
 
-            /** 当第一个 parentId 匹配到，但剩余 parentIds > 0 表明需要继续向下匹配 */
-            if (_parentIds.length && parent) {
-              /** 如果当前数据实际只有一个子数据，则取消 group 状态 */
-              if (
-                parent.children?.filter((i: any) => !newList.some((k) => k.id === i.id)).length === 1 &&
-                newList.length === 1
-              ) {
-                const current = { ...newList[0] };
-
-                _list.splice(parentIndex, 1, current);
-
-                propOnChange?.(_list);
-                return _list;
+            let parentIndex = -1;
+            for (let i = 0; i < _list.length; i++) {
+              if (_list[i].id === parentId) {
+                parentIndex = i;
+                break;
               }
-              parent.children = updateChild(parent.children || []);
+            }
 
+            if (parentIndex === -1) {
+              return SortableUtils.uniqueArray<SortItem>(newList);
+            }
+
+            const parent = _list[parentIndex];
+
+            if (depth < _parentIds.length - 1) {
+              if (parent.children?.length && newList.length === 1) {
+                let remainingCount = 0;
+                for (const child of parent.children) {
+                  if (!newListIdSet.has(child.id)) {
+                    remainingCount += 1;
+                    if (remainingCount > 1) break;
+                  }
+                }
+                if (remainingCount === 1) {
+                  const current = { ...newList[0] };
+                  _list.splice(parentIndex, 1, current);
+                  return _list;
+                }
+              }
+
+              parent.children = updateChild(parent.children || [], depth + 1);
               _list.splice(parentIndex, 1, parent);
-
-              propOnChange?.(_list);
               return _list;
             }
 
-            /** 当 parentIds = 0 且匹配到，表明当前为实际需要更新的数据 */
-            if (parent) {
-              /** 没有子数据，且有新增数据，则将当前数据更改为 group 类型 */
-              /** 但是如果当前是页面类型(type为page)，则不进行group转换，直接添加到children */
-              if (!parent.children?.length && newList.length && parent.type !== "page") {
-                const current = { ...parent };
-                parent.data = { name: "文件夹" };
-                parent.type = "group";
-                parent.children = [current, ...newList];
-                parent.id = uuidv4();
-
-                _list.splice(parentIndex, 1, parent);
-
-                propOnChange?.(_list);
-                return _list;
-              }
-
-              // ! 当前已经是 group 时，直接将 children 更改为最新的 list
-              // ! 或者当前是页面类型时，也直接将 children 更改为最新的 list
-              parent.children = SortableUtils.uniqueArray<SortItem>(newList);
-
+            if (
+              !parent.children?.length &&
+              newList.length &&
+              parent.type !== "page"
+            ) {
+              const current = { ...parent };
+              parent.data = { name: "文件夹" };
+              parent.type = "group";
+              parent.children = [current, ...newList];
+              parent.id = uuidv4();
               _list.splice(parentIndex, 1, parent);
-
-              propOnChange?.(_list);
               return _list;
             }
 
-            return SortableUtils.uniqueArray<SortItem>(newList);
+            parent.children = SortableUtils.uniqueArray<SortItem>(newList);
+            _list.splice(parentIndex, 1, parent);
+            return _list;
           };
 
-          return SortableUtils.uniqueArray<ListItem<D, C>>(updateChild(_items));
+          const updatedList = SortableUtils.uniqueArray<ListItem<D, C>>(
+            updateChild(_items, 0),
+          );
+          notifyListChange(updatedList);
+          return updatedList;
         });
       } else {
         const _newList = SortableUtils.uniqueArray<ListItem<D, C>>(newList);
 
-        // ! 根节点直接排序
-        propOnChange?.(_newList);
+        notifyListChange(_newList);
         setList(_newList);
       }
     },
-    [propOnChange]
+    [notifyListChange],
   );
 
   const updateItemConfig = (id: string | number, config: any) => {
@@ -317,7 +410,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
 
       updateItem(_list);
 
-      propOnChange?.(_list);
+      notifyListChange(_list);
       return _list;
     });
   };
@@ -338,7 +431,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
 
       updateItem(_list);
 
-      propOnChange?.(_list);
+      notifyListChange(_list);
       return _list;
     });
   };
@@ -359,7 +452,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
 
       removeItem(_list);
 
-      propOnChange?.(_list);
+      notifyListChange(_list);
       return _list;
     });
   };
@@ -370,7 +463,9 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
     // 目标父级路径：未传入或为空则指向当前滑块页面
     const targetParentIds = (() => {
       if (!parentIds || parentIds.length === 0) {
-        return currentSliderPage?.id !== undefined ? [currentSliderPage.id] : [];
+        return currentSliderPage?.id !== undefined
+          ? [currentSliderPage.id]
+          : [];
       }
       return parentIds;
     })();
@@ -423,7 +518,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
       };
 
       const newList = [...prevList, newItem];
-      propOnChange?.(newList);
+      notifyListChange(newList);
       return newList;
     });
   };
@@ -440,7 +535,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
 
       if (index !== -1) {
         newList[index] = { ...newList[index], ...data };
-        propOnChange?.(newList);
+        notifyListChange(newList);
       }
 
       return newList;
@@ -454,13 +549,14 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   const removeRootItem = (id: string | number) => {
     setList((prevList) => {
       const newList = prevList.filter((item) => item.id !== id);
-      propOnChange?.(newList);
+      notifyListChange(newList);
       return newList;
     });
   };
 
   useEffect(() => {
     if (propList?.length > 0 && list.length === 0) {
+      suppressNextNotifyRef.current = true;
       _setList(propList);
     }
     // eslint-disable-next-line
@@ -476,6 +572,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
   useEffect(() => {
     if (!enableCaching) return;
     if (localList?.length && !init) {
+      suppressNextNotifyRef.current = true;
       _setList(localList as any);
       setInit(true);
     }
@@ -489,7 +586,7 @@ export const SortableStateProvider = <D, C>(props: SortableStateProviderProps<D,
     [list, enableCaching],
     {
       wait: 1000,
-    }
+    },
   );
 
   const pageItems = useMemo(() => {
