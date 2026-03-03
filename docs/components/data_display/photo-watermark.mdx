@@ -1,0 +1,211 @@
+import SimpleForm from "./photo-watermark/simple-form";
+
+# PhotoWatermark 照片水印
+
+基于 Canvas 的照片水印生成组件，支持多种相机品牌的照片风格水印，自动提取 EXIF 信息。
+## 快速上手（推荐）
+
+参考 picseal 的参数编辑思路，下面示例合并了：
+
+- 默认示例图片（开箱即用）
+- 原生 HTML 文件选择器（可替换本地图片）
+- 上传后自动读取 EXIF，并回填到表单
+- 原生 HTML 表单（修改后直接传给 `PhotoWatermark` 的 `data`）
+- 支持 canvas/html 渲染模式切换
+- 支持导出合成后的水印图片
+
+<SimpleForm />
+
+### EXIF 控制与回调示例
+
+```tsx
+import { PhotoWatermark, parseExifData } from "zs_library";
+
+export default () => {
+  const imageUrl = "/photo-watermark/exhibition/xiaomi.jpg";
+
+  return (
+    <PhotoWatermark
+      image={imageUrl}
+      template="xiaomiLeica"
+      autoExtractExif={true}
+      onExifExtracted={({ rawExif, parsedExif, templateExifData }) => {
+        console.log("raw exif list", rawExif);
+        console.log("parsed exif", parsedExif);
+        console.log("template exif", templateExifData);
+      }}
+      data={{
+        showGps: false,
+        showBrandIcon: true,
+        brand_url: "https://example.com/custom-brand.svg",
+      }}
+    />
+  );
+};
+```
+
+手动传入 EXIF（跳过自动读取）：
+
+```tsx
+import { useEffect, useState } from "react";
+import {
+  extractExifData,
+  parseExifData,
+  PhotoWatermark,
+} from "zs_library";
+
+export default () => {
+  const [rawExif, setRawExif] = useState([]);
+  const [parsed, setParsed] = useState({});
+
+  useEffect(() => {
+    const load = async () => {
+      const imageFile = new File([/* ... */], "photo.jpg", {
+        type: "image/jpeg",
+      });
+      const exifList = await extractExifData(imageFile);
+      setRawExif(exifList);
+      setParsed(parseExifData(exifList));
+    };
+    load();
+  }, []);
+
+  return (
+    <PhotoWatermark
+      image="/photo-watermark/exhibition/xiaomi.jpg"
+      template="xiaomiLeica"
+      exif={rawExif}
+      autoExtractExif={false}
+      data={{ ...parsed, showGps: false, showBrandIcon: false }}
+    />
+  );
+};
+```
+
+### 内置模板
+
+| 模板名称      | 说明         |
+| ------------- | ------------ |
+| `xiaomiLeica` | 小米徕卡风格 |
+
+支持的自定义字段：
+
+```typescript
+interface ExifParamsForm {
+  model: string; // 相机型号
+  date: string; // 拍摄时间，格式：YYYY.MM.DD HH:mm
+  gps: string; // GPS位置信息
+  showGps?: boolean; // 是否显示GPS
+  device: string; // 拍摄参数（焦距、光圈、快门、ISO）
+  brand: string; // 相机品牌
+  brand_url: string; // 自定义品牌图标URL（可选）
+  showBrandIcon?: boolean; // 是否显示品牌图标
+}
+```
+
+## EXIF 自动提取
+
+组件内置了 EXIF 数据提取功能，可以从图片中自动获取：
+
+- 相机制造商和型号
+- 拍摄时间和日期
+- GPS 位置信息
+- 拍摄参数（焦距、光圈、快门速度、ISO）
+- 镜头信息
+
+如果图片不包含 EXIF 信息，将使用模板的默认数据。
+
+## 特性优势
+
+- 🎨 **Canvas 渲染**: 高性能渲染，支持高质量图片输出
+- 📱 **多品牌支持**: 内置主流相机品牌水印样式
+- 🔧 **模板化设计**: 易于扩展和自定义
+- 📸 **EXIF 自动解析**: 智能提取图片元信息
+- 📐 **响应式布局**: 支持各种尺寸输出
+- 🎛️ **类型安全**: 完整的 TypeScript 支持
+
+## 最佳实践
+
+### 1. 选择合适的模板
+
+- 当前内置模板为 `xiaomiLeica`，适合手机与相机照片的通用场景
+- 如需品牌化风格，可通过 `data` 字段覆盖型号、时间、参数和地点
+
+### 2. 数据处理
+
+```tsx
+// 处理EXIF数据格式化
+const formatExif = (exif) => ({
+  ...exif,
+  date: new Date(exif.dateTime)
+    .toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    .replace(/\//g, "."),
+});
+```
+
+### 3. 性能优化
+
+- 对于大量图片处理，建议使用 Web Worker
+- 图片上传时进行压缩可以提升处理速度
+- 缓存处理结果避免重复计算
+
+## API
+
+### PhotoWatermark
+
+| 参数             | 说明         | 类型                                 | 默认值               |
+| ---------------- | ------------ | ------------------------------------ | -------------------- |
+| image            | 图片源       | `string \| HTMLImageElement \| File` | -                    |
+| template         | 水印模板     | `string \| TemplateConfig`           | `'xiaomiLeica'`      |
+| exif             | 手动传入原始EXIF | `ExifData[]`                       | -                    |
+| renderer         | 渲染模式       | `'canvas' \| 'html'`               | `'canvas'`           |
+| autoExtractExif  | 是否自动读取图片EXIF | `boolean`                     | `true`               |
+| data             | 自定义数据   | `Partial<ExifParamsForm>`            | `{}`                 |
+| width            | 输出宽度     | `number`                             | `800`                |
+| height           | 输出高度     | `number`                             | 自动根据图片比例计算 |
+| className        | 自定义类名   | `string`                             | -                    |
+| loadingComponent | 自定义加载态组件 | `ReactNode`                        | 默认 Loading         |
+| errorComponent   | 自定义错误态组件 | `ReactNode`                        | 默认错误提示         |
+| onExifExtracted  | EXIF读取完成回调 | `(result: ExifExtractResult) => void` | -                 |
+| onRenderComplete | 渲染完成回调 | `(dataUrl: string) => void`          | -                    |
+
+### 工具函数
+
+#### extractExifData
+
+从图片中提取 EXIF 信息：
+
+```tsx
+import { extractExifData, parseExifData } from "zs_library";
+
+async function readExif(file: File | string) {
+  const rawExifList = await extractExifData(file); // 完整 EXIF 列表（tag/value/value_with_unit）
+  console.log(rawExifList);
+
+  const watermarkData = parseExifData(rawExifList); // 转成组件可直接使用的数据
+  console.log(watermarkData);
+}
+```
+
+#### availableTemplates
+
+获取所有可用模板：
+
+```tsx
+import { availableTemplates } from "zs_library";
+
+console.log(Object.keys(availableTemplates));
+// ['xiaomiLeica']
+```
+
+## 致谢
+
+感谢原作者项目支持与灵感来源：
+
+- https://github.com/zhiweio/picseal

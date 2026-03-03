@@ -35,6 +35,12 @@ export {
   jsonToHtml,
   htmlToJson,
   EditorFormatConverter,
+  PhotoWatermark,
+  HtmlRenderer,
+  availableTemplates,
+  extractExifData,
+  parseExifData,
+  formatXiaomiLeicaExifData,
 } from "./components";
 
 export type {
@@ -67,6 +73,8 @@ export type {
   EditorOutputFormat,
   UseSimpleEditorProps,
   JSONContent,
+  ExifData,
+  ExifExtractResult,
 } from "./components";
 
 // 导出所有组件作为默认导出

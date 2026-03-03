@@ -1,0 +1,15 @@
+export const BrandsList = [
+  "Apple",
+  "Canon",
+  "DJI",
+  "Fujifilm",
+  "Huawei",
+  "Insta360",
+  "Leica",
+  "Nikon Corporation",
+  "Olympus",
+  "Panasonic",
+  "Ricoh",
+  "Sony",
+  "Xiaomi",
+] as const;

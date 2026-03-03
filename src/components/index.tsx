@@ -93,3 +93,19 @@ export type {
   UseSimpleEditorProps,
   JSONContent,
 } from "./tiptap-editor/simple";
+
+export {
+  PhotoWatermark,
+  availableTemplates,
+  extractExifData,
+  parseExifData,
+  formatXiaomiLeicaExifData,
+  HtmlRenderer,
+} from "./photo-watermark";
+export type { 
+  ExifData,
+  ExifExtractResult,
+  WatermarkComponentProps as PhotoWatermarkProps,
+  TemplateConfig,
+  ExifParamsForm
+} from "./photo-watermark";
