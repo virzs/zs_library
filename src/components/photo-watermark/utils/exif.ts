@@ -21,7 +21,7 @@ export async function extractExifData(
 
 export function parseExifData(data: ExifData[]): Partial<ExifParamsForm> {
   if (!data.length) {
-    return getDefaultExifData();
+    return {};
   }
 
   const exifValues = new Map(data.map((item) => [item.tag, item.value]));
@@ -84,18 +84,5 @@ export function parseExifData(data: ExifData[]): Partial<ExifParamsForm> {
     gps,
     device,
     brand,
-  };
-}
-
-export function getDefaultExifData(): Partial<ExifParamsForm> {
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-
-  return {
-    model: "PICSEAL CAMERA",
-    date: dateStr,
-    gps: "39°54'26\"N 116°23'44\"E",
-    device: "50mm f/1.8 1/125s ISO200",
-    brand: "unknown",
   };
 }
