@@ -106,16 +106,23 @@ const renderXiaomiLeicaHtml = ({
   width,
 }: HtmlRenderParams) => {
   const { style, layout, fonts, defaultData } = xiaomiLeicaBase;
+  const scale =
+    typeof data.scale === "number" && Number.isFinite(data.scale)
+      ? data.scale
+      : style.scale;
+  const fontSizeMode = data.fontSize ?? style.fontSize;
+  const fontWeightMode = data.fontWeight ?? style.fontWeight;
+  const fontFamilyMode = data.fontFamily ?? style.fontFamily;
   const fontScale =
-    style.fontSize === "small" ? 0.85 : style.fontSize === "large" ? 1.15 : 1;
+    fontSizeMode === "small" ? 0.85 : fontSizeMode === "large" ? 1.15 : 1;
   const fontWeight =
-    style.fontWeight === "normal" ? 400 : style.fontWeight === "bold" ? 700 : 900;
-  const fontFamily = fonts[style.fontFamily] || fonts.default;
+    fontWeightMode === "normal" ? 400 : fontWeightMode === "bold" ? 700 : 900;
+  const fontFamily = fonts[fontFamilyMode] || fonts.default;
 
-  const padding = layout.padding * style.scale;
-  const margin = layout.margin * style.scale;
-  const titleSize = layout.titleSize * style.scale * fontScale;
-  const textSize = layout.textSize * style.scale * fontScale;
+  const padding = layout.padding * scale;
+  const margin = layout.margin * scale;
+  const titleSize = layout.titleSize * scale * fontScale;
+  const textSize = layout.textSize * scale * fontScale;
   const bannerHeight = padding * 2 + titleSize + margin + textSize;
   const imageRatio =
     (image.naturalWidth || image.width) / (image.naturalHeight || image.height || 1);
@@ -181,7 +188,7 @@ const renderXiaomiLeicaHtml = ({
               src={brandIconSrc}
               alt="Brand"
               style={{
-                height: layout.bannerHeight * style.scale,
+                height: layout.bannerHeight * scale,
                 width: "auto",
                 marginLeft: margin * 2,
                 objectFit: "contain",
@@ -195,7 +202,7 @@ const renderXiaomiLeicaHtml = ({
           style={{
             width: 1,
             alignSelf: "stretch",
-            margin: `${(bannerHeight - layout.bannerHeight * style.scale) / 2}px 0`,
+            margin: `${(bannerHeight - layout.bannerHeight * scale) / 2}px 0`,
             background: "#ddd",
             flexShrink: 0,
           }}
@@ -245,15 +252,23 @@ const renderXiaomiLeica = async ({
   height,
 }: TemplateRenderParams) => {
   const { style, layout, fonts, defaultData } = xiaomiLeicaBase;
+  const scale =
+    typeof data.scale === "number" && Number.isFinite(data.scale)
+      ? data.scale
+      : style.scale;
+  const fontSizeMode = data.fontSize ?? style.fontSize;
+  const fontWeightMode = data.fontWeight ?? style.fontWeight;
+  const fontFamilyMode = data.fontFamily ?? style.fontFamily;
   const fontScale =
-    style.fontSize === "small" ? 0.85 : style.fontSize === "large" ? 1.15 : 1;
-  const fontWeight = style.fontWeight === "normal" ? 400 : style.fontWeight === "bold" ? 700 : 900;
-  const fontFamily = fonts[style.fontFamily] || fonts.default;
+    fontSizeMode === "small" ? 0.85 : fontSizeMode === "large" ? 1.15 : 1;
+  const fontWeight =
+    fontWeightMode === "normal" ? 400 : fontWeightMode === "bold" ? 700 : 900;
+  const fontFamily = fonts[fontFamilyMode] || fonts.default;
 
-  const padding = layout.padding * style.scale;
-  const margin = layout.margin * style.scale;
-  const titleSize = layout.titleSize * style.scale * fontScale;
-  const textSize = layout.textSize * style.scale * fontScale;
+  const padding = layout.padding * scale;
+  const margin = layout.margin * scale;
+  const titleSize = layout.titleSize * scale * fontScale;
+  const textSize = layout.textSize * scale * fontScale;
   const bannerHeight = padding * 2 + titleSize + margin + textSize;
 
   const imageRatio = (image.naturalWidth || image.width) / (image.naturalHeight || image.height);
@@ -283,10 +298,10 @@ const renderXiaomiLeica = async ({
   const rightBlockX = width - padding - rightBlockWidth;
   const splitX = rightBlockX - splitMargin - splitLineWidth / 2;
   const leftStartX = padding;
-  const splitHeight = layout.bannerHeight * style.scale;
+  const splitHeight = layout.bannerHeight * scale;
   const splitTop = (bannerHeight - splitHeight) / 2;
 
-  const iconHeight = layout.bannerHeight * style.scale;
+  const iconHeight = layout.bannerHeight * scale;
   const iconWidth = showBrandIcon
     ? await resolveIconWidth(brandIconSrc, iconHeight)
     : iconHeight;
