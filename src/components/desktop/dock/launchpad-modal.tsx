@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { SortItem } from "../types";
 import SortableItem from "../items/sortable-item";
-import { useSortableState } from "../context/state/hooks";
+import { useListData } from "../context/state/hooks";
 import SearchBox from "./search-box";
 import { BaseModal } from "../modal";
 import { BaseDrawer } from "../drawer";
@@ -27,7 +27,7 @@ export interface LaunchpadModalProps<D, C> {
 }
 
 const LaunchpadModal = <D, C>({ visible, onClose, onItemClick }: LaunchpadModalProps<D, C>) => {
-  const { list } = useSortableState();
+  const { list } = useListData();
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
 

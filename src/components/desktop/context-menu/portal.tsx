@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useLayoutEffect } from "react";
 import { useFloating, autoUpdate, offset, flip, shift, FloatingPortal } from "@floating-ui/react";
-import { useSortableState } from "../context/state/hooks";
+import { useContextMenuState } from "../context/state/hooks";
 import ContextMenu, { ContextMenuProps } from "./index";
 
 // 常量定义
@@ -21,7 +21,7 @@ const getViewportBounds = () => ({
 });
 
 const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
-  const { contextMenu, setContextMenu } = useSortableState();
+  const { contextMenu, setContextMenu } = useContextMenuState();
   const [isOpen, setIsOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const shouldActuallyRender = shouldRender || Boolean(contextMenu);

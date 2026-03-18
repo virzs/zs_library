@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css";
 import { motion } from "motion/react";
 import { ComponentProps, useMemo } from "react";
-import { useSortableState } from "../context/state/hooks";
+import { useDragState } from "../context/state/hooks";
 import { SortItem } from "../types";
 import { getItemSize } from "../config";
 import { useSortableConfig } from "../context/config/hooks";
@@ -12,7 +12,7 @@ interface ItemContentProps<D, C> extends ComponentProps<typeof motion.div> {
 }
 
 const ItemContent = <D, C>({ className, data, children, iconSize = 64, ...rest }: ItemContentProps<D, C>) => {
-  const { moveTargetId, listStatus } = useSortableState();
+  const { moveTargetId, listStatus } = useDragState();
 
   const { typeConfigMap, computeGap } = useSortableConfig();
 

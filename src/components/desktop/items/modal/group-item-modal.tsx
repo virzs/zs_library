@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ReactSortable } from "react-sortablejs";
-import { useSortableState } from "../../context/state/hooks";
+import { useListData, useDragState } from "../../context/state/hooks";
 import { dragContainerStyle, modalDragConfig } from "../../drag-styles";
 import { ghostClass } from "../../style";
 import { SortItem } from "../../types";
@@ -19,7 +19,8 @@ interface GroupItemModalProps<D, C> {
 
 const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
   const { data, onClose, onItemClick } = props;
-  const { list, setList, setListStatus, setMoveItemId, setMoveTargetId, updateItem } = useSortableState();
+  const { list, setList, updateItem } = useListData();
+  const { setListStatus, setMoveItemId, setMoveTargetId } = useDragState();
 
   const [name, setName] = useState("文件夹");
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -27,7 +28,28 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
   const [rowWidth, setRowWidth] = useState<number>();
   const [rowMarginLeft, setRowMarginLeft] = useState<number>();
 
-  const _children = [...(data?.children ?? [])];
+  const liveChildren = useMemo(() => {
+    if (!data) return [];
+    const findChildren = (items: SortItem[]): SortItem[] | undefined => {
+      for (const item of items) {
+        if (item.id === data.id) return item.children;
+        if (item.children) {
+          const found = findChildren(item.children);
+          if (found) return found;
+        }
+      }
+      return undefined;
+    };
+    for (const root of list) {
+      if (root.id === data.id) return root.children ?? [];
+      if (root.children) {
+        const found = findChildren(root.children);
+        if (found) return found;
+      }
+    }
+    return data?.children ?? [];
+  }, [data, list]);
+  const _children = [...liveChildren];
 
   useEffect(() => {
     if (!data) return;
@@ -134,20 +156,14 @@ const GroupItemModal = <D, C>(props: GroupItemModalProps<D, C>) => {
           className={cx("zs-grid zs-place-items-center zs-grid-flow-row-dense zs-mx-auto", dragContainerStyle)}
           style={{ width: rowWidth, marginLeft: rowMarginLeft }}
           {...modalDragConfig}
-          list={data?.children ?? []}
+          list={liveChildren}
           setList={(x) => {
             const xIds = x.map((item) => item.id);
-            const parentChildrenIds = list.find((item) => item.id === data?.id)?.children?.map((item) => item.id);
-            // ! 如果ids个数相同，顺序相同 return，优化性能
+            const parentChildrenIds = liveChildren.map((item) => item.id);
             if (
               xIds.length === parentChildrenIds?.length &&
               xIds.every((id, index) => id === parentChildrenIds[index])
             ) {
-              return;
-            }
-
-            // ! 解决文件夹中移出再移入会触发setList导致元素丢失bug
-            if (xIds.length < (parentChildrenIds?.length ?? 0)) {
               return;
             }
 

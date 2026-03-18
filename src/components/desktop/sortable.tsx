@@ -6,7 +6,12 @@ import { v4 as uuidv4 } from "uuid";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import { useSortableConfig } from "./context/config/hooks";
-import { useSortableState } from "./context/state/hooks";
+import {
+  useListData,
+  useDragState,
+  useContextMenuState,
+  useModalState,
+} from "./context/state/hooks";
 import DragTriggerPagination, {
   DragTriggerPaginationRef,
 } from "./drag-trigger-pagination";
@@ -122,20 +127,15 @@ const Sortable = <D, C>(props: SortableProps<D, C>) => {
   const {
     list,
     setList,
-    setListStatus,
-    showInfoItemData,
-    setShowInfoItemData,
-    openGroupItemData,
-    setOpenGroupItemData,
-    setMoveItemId,
-    setMoveTargetId,
     addItem,
-    dragItem,
-    setDragItem,
     addRootItem,
     removeRootItem,
     setCurrentSliderIndex,
-  } = useSortableState();
+  } = useListData();
+  const { setListStatus, setMoveItemId, setMoveTargetId, dragItem, setDragItem } =
+    useDragState();
+  const { showInfoItemData, setShowInfoItemData } = useContextMenuState();
+  const { openGroupItemData, setOpenGroupItemData } = useModalState();
 
   const {
     pagingDotBuilder,

@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import React from "react";
 import { ContextMenuProps } from "../context-menu";
 import { useSortableConfig } from "../context/config/hooks";
-import { useSortableState } from "../context/state/hooks";
+import { useContextMenuState } from "../context/state/hooks";
 import { SortItem, SortItemBaseData } from "../types";
 import { renderIcon } from "../utils/render-icon";
 import ItemName from "./item-name";
@@ -41,7 +41,7 @@ export const SortableItemDefaultContent = <D, C>(
     iconSize = 64,
     contextMenuProps,
   } = props;
-  const { contextMenuFuns } = useSortableState();
+  const { contextMenuFuns } = useContextMenuState();
   const {
     itemIconBuilder: configItemIconBuilder,
     itemIconBuilderAllowNull: configItemIconBuilderAllowNull,

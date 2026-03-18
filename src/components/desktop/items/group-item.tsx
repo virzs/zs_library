@@ -3,7 +3,12 @@ import { motion } from "motion/react";
 import { ReactSortable } from "react-sortablejs";
 import { getItemSize } from "../config";
 import { useSortableConfig } from "../context/config/hooks";
-import { useSortableState } from "../context/state/hooks";
+import {
+  useListData,
+  useDragState,
+  useContextMenuState,
+  useModalState,
+} from "../context/state/hooks";
 import { SortItem } from "../types";
 import { renderIcon } from "../utils/render-icon";
 import ItemName from "./item-name";
@@ -26,14 +31,10 @@ const SortableGroupItem = <D, C>(props: SortableGroupItemProps<D, C>) => {
     icon,
     iconSize = 64,
   } = props;
-  const {
-    setList,
-    listStatus,
-    longPressTriggered,
-    setMoveTargetId,
-    setOpenGroupItemData,
-    contextMenuFuns,
-  } = useSortableState();
+  const { setList } = useListData();
+  const { listStatus, longPressTriggered, setMoveTargetId } = useDragState();
+  const { contextMenuFuns } = useContextMenuState();
+  const { setOpenGroupItemData } = useModalState();
 
   const {
     itemIconBuilder: configItemIconBuilder,

@@ -12,35 +12,10 @@ import React, {
 import { v4 as uuidv4 } from "uuid";
 import { SortItem, ListItem } from "../../types";
 import SortableUtils from "../../utils/index";
-import { useSortableConfig } from "../config/hooks";
-
-interface ContextMenu {
-  rect: DOMRect;
-  data: any;
-  pageX?: number;
-  pageY?: number;
-  element?: Element | null;
-}
-
-type ListStatus = "onMove";
 
 export interface SortableState {
   list: ListItem[];
   setList: any;
-  contextMenu: ContextMenu | null;
-  setContextMenu: (e: ContextMenu | null) => void;
-  listStatus: ListStatus | null;
-  setListStatus: (e: ListStatus | null) => void;
-  contextMenuFuns: (data: any, enable: boolean) => any;
-  hideContextMenu: () => void;
-  /** 点击右键菜单信息数据 */
-  showInfoItemData: SortItem | null;
-  setShowInfoItemData: (e: SortItem | null) => void;
-  /** group item 点击打开弹窗数据 */
-  openGroupItemData: SortItem | null;
-  setOpenGroupItemData: (e: SortItem | null) => void;
-  /** 长按事件状态 */
-  longPressTriggered: boolean;
   updateItem: (id: string | number, data: any) => void;
   updateItemConfig: (id: string | number, config: any) => void;
   removeItem: (id: string) => void;
@@ -48,15 +23,6 @@ export interface SortableState {
   addRootItem: (data: ListItem) => void;
   updateRootItem: (id: string | number, data: any) => void;
   removeRootItem: (id: string | number) => void;
-  /** 当前移动的元素id */
-  moveItemId: string | null;
-  setMoveItemId: (e: string | null) => void;
-  /** 当前元素将要移动到的元素id */
-  moveTargetId: string | number | null;
-  setMoveTargetId: (e: string | number | null) => void;
-  /** 当前拖拽的元素 */
-  dragItem: SortItem | null;
-  setDragItem: (e: SortItem | null) => void;
   /** 当前滑块索引 */
   currentSliderIndex: number;
   setCurrentSliderIndex: (e: number) => void;
@@ -67,17 +33,6 @@ export interface SortableState {
 export const SortableStateContext = createContext<SortableState>({
   list: [],
   setList: () => {},
-  contextMenu: null,
-  setContextMenu: () => {},
-  listStatus: null,
-  setListStatus: () => {},
-  contextMenuFuns: () => {},
-  hideContextMenu: () => {},
-  showInfoItemData: null,
-  setShowInfoItemData: () => {},
-  openGroupItemData: null,
-  setOpenGroupItemData: () => {},
-  longPressTriggered: false,
   updateItem: () => {},
   updateItemConfig: () => {},
   removeItem: () => {},
@@ -85,12 +40,6 @@ export const SortableStateContext = createContext<SortableState>({
   addRootItem: () => {},
   updateRootItem: () => {},
   removeRootItem: () => {},
-  moveItemId: null,
-  setMoveItemId: () => {},
-  moveTargetId: null,
-  setMoveTargetId: () => {},
-  dragItem: null,
-  setDragItem: () => {},
   currentSliderIndex: 0,
   setCurrentSliderIndex: () => {},
   currentSliderPage: null,
@@ -126,26 +75,7 @@ export const SortableStateProvider = <D, C>(
     storageKey = "ZS_LIBRARY_DESKTOP_SORTABLE_CONFIG",
     enableCaching = true,
   } = props;
-  const { typeConfigMap } = useSortableConfig();
-
-  const [contextMenuTimer, setContextMenuTimer] = useState<NodeJS.Timeout>();
-  const [pressTimer, setPressTimer] = useState<NodeJS.Timeout>();
-  const [listStatus, setListStatus] = useState<ListStatus | null>(null);
-  const listStatusRef = useRef(listStatus);
-  const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
   const [list, setList] = useState<any[]>([]);
-  const [showInfoItemData, setShowInfoItemData] = useState<SortItem | null>(
-    null,
-  );
-  const [openGroupItemData, setOpenGroupItemData] = useState<SortItem | null>(
-    null,
-  );
-  const [longPressTriggered, setLongPressTriggered] = useState(false);
-  const [moveItemId, setMoveItemId] = useState<string | null>(null);
-  const [moveTargetId, setMoveTargetId] = useState<string | number | null>(
-    null,
-  );
-  const [dragItem, setDragItem] = useState<SortItem | null>(null);
   const [currentSliderIndex, setCurrentSliderIndex] = useState<number>(0);
 
   // 当前列表结构签名，用于判断是否需要通知外部变更
@@ -271,100 +201,6 @@ export const SortableStateProvider = <D, C>(
     defaultValue: [],
     listenStorageChange: true,
   });
-
-  const hideContextMenu = () => {
-    setContextMenu(null);
-    clearTimeout(contextMenuTimer);
-    setContextMenuTimer(undefined);
-    listStatusRef.current = null;
-  };
-
-  /**
-   * 检查类型是否允许上下文菜单
-   */
-  const checkTypeAllowContextMenu = (data: any) => {
-    const typeConfig = typeConfigMap?.[data.type];
-    return typeConfig?.allowContextMenu !== false;
-  };
-
-  const getItemRectAndSetContextMenu = (e: any, data: any) => {
-    let targetElement = e.target;
-
-    while (targetElement && !targetElement.getAttribute("data-id")) {
-      targetElement = targetElement.parentElement;
-    }
-
-    if (
-      !targetElement ||
-      typeof targetElement.getBoundingClientRect !== "function"
-    ) {
-      const currentTarget = e.currentTarget;
-      if (
-        currentTarget &&
-        typeof currentTarget.getBoundingClientRect === "function"
-      ) {
-        targetElement = currentTarget;
-      }
-    }
-
-    const rect =
-      targetElement && typeof targetElement.getBoundingClientRect === "function"
-        ? targetElement.getBoundingClientRect()
-        : new DOMRect(e.clientX ?? 0, e.clientY ?? 0, 0, 0);
-
-    setContextMenu({
-      rect,
-      pageX: e.pageX,
-      pageY: e.pageY,
-      data,
-      element:
-        targetElement &&
-        typeof targetElement.getBoundingClientRect === "function"
-          ? targetElement
-          : null,
-    });
-    clearTimeout(contextMenuTimer);
-  };
-
-  const contextMenuFuns = (data: any, enable = true) => {
-    const { config = {} } = data;
-
-    if (config?.allowContextMenu === false) {
-      return {};
-    }
-    return {
-      onMouseDown: (e: any) => {
-        if (!checkTypeAllowContextMenu(data)) return;
-        setContextMenuTimer(
-          setTimeout(() => {
-            if (!enable) return;
-            // 解决闭包导致拖拽时右键菜单不消失的问题
-            if (listStatusRef.current !== null) return;
-            getItemRectAndSetContextMenu(e, data);
-          }, 800),
-        );
-        setLongPressTriggered(false);
-        setPressTimer(
-          setTimeout(() => {
-            setLongPressTriggered(true);
-            // 这里处理长按事件
-          }, 800),
-        );
-      },
-      onMouseUp: () => {
-        clearTimeout(pressTimer);
-        setPressTimer(undefined);
-        clearTimeout(contextMenuTimer);
-        setContextMenuTimer(undefined);
-      },
-      onContextMenu: (e: any) => {
-        if (!checkTypeAllowContextMenu(data)) return;
-        if (!enable) return;
-        e.preventDefault();
-        getItemRectAndSetContextMenu(e, data);
-      },
-    };
-  };
 
   const _setList = useCallback(
     (newList: any[], parentIds?: (string | number)[]) => {
@@ -620,13 +456,6 @@ export const SortableStateProvider = <D, C>(
   }, [propList]);
 
   useEffect(() => {
-    listStatusRef.current = listStatus;
-    if (listStatus !== null) {
-      hideContextMenu();
-    }
-    // eslint-disable-next-line
-  }, [listStatus]);
-  useEffect(() => {
     if (!enableCaching) return;
     if (localList?.length && !init) {
       suppressNextNotifyRef.current = true;
@@ -660,40 +489,38 @@ export const SortableStateProvider = <D, C>(
     }
   }, [currentSliderIndex, pageItems.length]);
 
+  const value = useMemo<SortableState>(
+    () => ({
+      list,
+      setList: _setList,
+      updateItemConfig,
+      updateItem,
+      removeItem,
+      addItem,
+      addRootItem,
+      updateRootItem,
+      removeRootItem,
+      currentSliderIndex,
+      setCurrentSliderIndex,
+      currentSliderPage,
+    }),
+    [
+      list,
+      _setList,
+      updateItemConfig,
+      updateItem,
+      removeItem,
+      addItem,
+      addRootItem,
+      updateRootItem,
+      removeRootItem,
+      currentSliderIndex,
+      currentSliderPage,
+    ],
+  );
+
   return (
-    <SortableStateContext.Provider
-      value={{
-        list,
-        setList: _setList,
-        contextMenu,
-        setContextMenu,
-        listStatus,
-        setListStatus,
-        contextMenuFuns,
-        hideContextMenu,
-        showInfoItemData,
-        setShowInfoItemData,
-        openGroupItemData,
-        setOpenGroupItemData,
-        longPressTriggered,
-        updateItemConfig,
-        updateItem,
-        removeItem,
-        addItem,
-        addRootItem,
-        updateRootItem,
-        removeRootItem,
-        moveItemId,
-        setMoveItemId,
-        moveTargetId,
-        setMoveTargetId,
-        dragItem,
-        setDragItem,
-        currentSliderIndex,
-        setCurrentSliderIndex,
-        currentSliderPage,
-      }}
-    >
+    <SortableStateContext.Provider value={value}>
       {children}
     </SortableStateContext.Provider>
   );

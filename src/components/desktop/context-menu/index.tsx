@@ -1,6 +1,6 @@
 import { AnimatePresence } from "motion/react";
 import { getDefaultConfig, getSizeConfig } from "../config";
-import { useSortableState } from "../context/state/hooks";
+import { useContextMenuState, useListData } from "../context/state/hooks";
 import { useSortableConfig } from "../context/config/hooks";
 import { SortItem, SortItemDefaultConfig, MenuItemConfig } from "../types";
 import { RiApps2Line, RiIndeterminateCircleLine, RiInformationLine, RiShare2Line } from "@remixicon/react";
@@ -35,8 +35,9 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     onShareClick,
     onRemoveClick,
   } = props;
-  const { contextMenu, setContextMenu, hideContextMenu, setShowInfoItemData, removeItem, updateItemConfig } =
-    useSortableState();
+  const { contextMenu, setContextMenu, hideContextMenu, setShowInfoItemData } =
+    useContextMenuState();
+  const { removeItem, updateItemConfig } = useListData();
   const { typeConfigMap, dataTypeMenuConfigMap, theme } = useSortableConfig();
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);

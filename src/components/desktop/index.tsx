@@ -3,6 +3,9 @@ import React, { forwardRef, JSX, useEffect } from "react";
 import Sortable, { SortableProps } from "./sortable";
 import { SortableConfigProvider, SortableConfigProviderProps, SortableConfig } from "./context/config/context";
 import { SortableStateProvider, SortableStateProviderProps, SortableState } from "./context/state/context";
+import { DragStateProvider } from "./context/state/drag-context";
+import { ContextMenuStateProvider } from "./context/state/context-menu-context";
+import { ModalStateProvider } from "./context/state/modal-context";
 import { useSortableState } from "./context/state/hooks";
 import { useSortableConfig } from "./context/config/hooks";
 import GlobalContextMenu from "./context-menu/portal";
@@ -87,11 +90,17 @@ const Desktop = forwardRef(<D, C>(props: DesktopProps<D, C>, ref: React.Forwarde
 
   return (
     <SortableConfigProvider<D, C> {...configProps}>
-      <SortableStateProvider<D, C> {...stateProps}>
-        <StateAndConfigAccessor />
-        <Sortable<D, C> {...rest} />
-        <GlobalContextMenu<D, C> />
-      </SortableStateProvider>
+      <DragStateProvider>
+        <ContextMenuStateProvider>
+          <ModalStateProvider>
+            <SortableStateProvider<D, C> {...stateProps}>
+              <StateAndConfigAccessor />
+              <Sortable<D, C> {...rest} />
+              <GlobalContextMenu<D, C> />
+            </SortableStateProvider>
+          </ModalStateProvider>
+        </ContextMenuStateProvider>
+      </DragStateProvider>
     </SortableConfigProvider>
   );
 }) as <D = any, C = any>(props: DesktopProps<D, C> & { ref?: React.ForwardedRef<DesktopHandle<D, C>> }) => JSX.Element;

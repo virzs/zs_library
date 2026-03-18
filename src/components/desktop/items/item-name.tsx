@@ -2,7 +2,7 @@ import { css, cx } from "@emotion/css";
 import { motion } from "motion/react";
 import { useMemo } from "react";
 import { useSortableConfig } from "../context/config/hooks";
-import { useSortableState } from "../context/state/hooks";
+import { useDragState } from "../context/state/hooks";
 import { SortItem, SortItemBaseData } from "../types";
 
 export interface ItemNameProps<D, C> {
@@ -15,7 +15,7 @@ export interface ItemNameProps<D, C> {
 
 const ItemName = <D, C>(props: ItemNameProps<D, C>) => {
   const { data, noLetters = false, name, defaultName, className } = props;
-  const { moveItemId } = useSortableState();
+  const { moveItemId } = useDragState();
   const { theme } = useSortableConfig();
 
   const variants = {
