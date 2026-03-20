@@ -15,6 +15,7 @@ import ItemName from "./item-name";
 import SortableItem, { SortableItemProps } from "./sortable-item";
 import ItemContent from "./item-content";
 
+/** @deprecated 请使用 DesktopNext 代替 */
 export interface SortableGroupItemProps<D, C> extends SortableItemProps<D, C> {
   data: SortItem<D, C>;
 }

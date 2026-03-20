@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import { SortItem, ListItem } from "../../types";
 import SortableUtils from "../../utils/index";
 
+/** @deprecated 请使用 DesktopNext 代替 */
 export interface SortableState {
   list: ListItem[];
   setList: any;
@@ -45,6 +46,7 @@ export const SortableStateContext = createContext<SortableState>({
   currentSliderPage: null,
 });
 
+/** @deprecated 请使用 DesktopNext 代替 */
 export interface SortableStateProviderProps<D, C> {
   /**
    * 列表数据

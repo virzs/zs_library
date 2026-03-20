@@ -30,10 +30,12 @@ import LaunchpadModal from "./dock/launchpad-modal";
 import { AnimatePresence, motion } from "motion/react";
 import { getItemSize } from "./config";
 
+/** @deprecated 请使用 DesktopNext 代替 */
 export interface Pagination {
   position?: "top" | "bottom" | "left" | "right";
 }
 
+/** @deprecated 请使用 DesktopNext 代替 */
 export interface SortableProps<D, C> {
   /**
    * className

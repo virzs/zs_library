@@ -4,9 +4,7 @@ import { Theme, themeDark, themeLight, defaultTheme } from "../../themes";
 import { ContextMenuProps } from "../../context-menu";
 import { SortItem, ListItem, TypeConfigMap, DataTypeMenuConfigMap } from "../../types";
 
-/**
- * 需要跨多个组件传递的配置，使用 context 传递
- */
+/** @deprecated 请使用 DesktopNext 代替 */
 export interface SortableConfig<D, C> {
   theme: Theme;
   /**
@@ -64,6 +62,7 @@ export const SortableConfigContext = createContext<SortableConfig<any, any>>({
   theme: defaultTheme,
 });
 
+/** @deprecated 请使用 DesktopNext 代替 */
 export interface SortableConfigProviderProps<D, C> extends Omit<SortableConfig<D, C>, "theme"> {
   readonly theme?: "light" | "dark" | Theme;
   children: React.ReactNode;

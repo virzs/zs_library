@@ -94,6 +94,60 @@ export type {
   JSONContent,
 } from "./tiptap-editor/simple";
 
+export { default as DesktopNext } from "./desktop-next";
+export {
+  commonSizeConfigs as desktopNextCommonSizeConfigs,
+  appDefaultConfig as desktopNextAppDefaultConfig,
+  groupDefaultConfig as desktopNextGroupDefaultConfig,
+  builtinConfigMap as desktopNextBuiltinConfigMap,
+  getDefaultConfig as getDesktopNextDefaultConfig,
+  getSizeConfig as getDesktopNextSizeConfig,
+  getItemSize as getDesktopNextItemSize,
+} from "./desktop-next/config";
+export {
+  themeLight as desktopNextThemeLight,
+  themeDark as desktopNextThemeDark,
+  defaultTheme as desktopNextDefaultTheme,
+  themes as desktopNextThemes,
+} from "./desktop-next/themes";
+export type {
+  Theme as DesktopNextTheme,
+  ThemeType as DesktopNextThemeType,
+} from "./desktop-next/themes";
+export type {
+  DesktopDndProps as DesktopNextProps,
+  DndSortItem,
+  DndPageItem,
+  DndItemBaseData,
+  SizeConfig,
+  SortItemUserConfig,
+  MenuItemConfig,
+  DataTypeMenuConfigMap,
+  SortItemDefaultConfig,
+  TypeConfigMap,
+  ContextMenuData,
+  DesktopDndContextMenuProps as DesktopNextContextMenuProps,
+  ContextMenuActionPayload,
+  ContextMenuActionType,
+} from "./desktop-next/types";
+
+// @deprecated Use DesktopNext instead
+export { default as DesktopDnd } from "./desktop-next";
+/** @deprecated Use desktopNextCommonSizeConfigs instead */
+export {
+  commonSizeConfigs as desktopDndCommonSizeConfigs,
+  appDefaultConfig as desktopDndAppDefaultConfig,
+  groupDefaultConfig as desktopDndGroupDefaultConfig,
+  builtinConfigMap as desktopDndBuiltinConfigMap,
+  getDefaultConfig as getDesktopDndDefaultConfig,
+  getSizeConfig as getDesktopDndSizeConfig,
+  getItemSize as getDesktopDndItemSize,
+} from "./desktop-next/config";
+export type {
+  DesktopDndProps,
+  DesktopDndContextMenuProps,
+} from "./desktop-next/types";
+
 export {
   PhotoWatermark,
   availableTemplates,

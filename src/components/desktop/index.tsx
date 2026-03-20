@@ -10,6 +10,9 @@ import { useSortableState } from "./context/state/hooks";
 import { useSortableConfig } from "./context/config/hooks";
 import GlobalContextMenu from "./context-menu/portal";
 
+/**
+ * @deprecated 请使用 {@link DesktopNext} 代替。该组件基于 react-sortablejs 实现，已停止维护。
+ */
 export interface DesktopProps<D = any, C = any>
   extends SortableProps<D, C>,
     Omit<SortableStateProviderProps<D, C>, "children">,
@@ -20,12 +23,18 @@ export interface DesktopProps<D = any, C = any>
   dataTypeMenuConfigMap?: import("./types").DataTypeMenuConfigMap;
 }
 
-// 导出访问实例的接口
+/**
+ * @deprecated 请使用 {@link DesktopNext} 代替。该组件基于 react-sortablejs 实现，已停止维护。
+ */
 export interface DesktopHandle<D = any, C = any> {
   state: SortableState;
   config: SortableConfig<D, C>;
 }
 
+/**
+ * 桌面组件（已废弃）
+ * @deprecated 请使用 {@link DesktopNext} 代替。该组件基于 react-sortablejs 实现，已停止维护。
+ */
 // 使用 forwardRef 创建组件，允许父组件访问内部 state 和 config
 const Desktop = forwardRef(<D, C>(props: DesktopProps<D, C>, ref: React.ForwardedRef<DesktopHandle<D, C>>) => {
   const {

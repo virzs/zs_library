@@ -2,14 +2,14 @@ import Drawer, { DrawerProps } from "rc-drawer";
 import "rc-drawer/assets/index.css";
 import { css, cx } from "@emotion/css";
 import { FC, ReactNode, useEffect, useState } from "react";
-import { useSortableConfig } from "../context/config/hooks";
+import { Theme } from "../themes";
 
-/** @deprecated 请使用 DesktopNext 代替 */
 export type BaseDrawerProps = DrawerProps & {
   title?: ReactNode;
   contentClassName?: string;
   destroyOnClose?: boolean;
   className?: string;
+  theme?: Theme;
 };
 
 const BaseDrawer: FC<BaseDrawerProps> = (props) => {
@@ -25,11 +25,11 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
     maskClosable = true,
     className,
     contentClassName,
+    theme,
     ...rest
   } = props;
 
-  const { theme } = useSortableConfig();
-  const modalTheme = theme.token.modal;
+  const modalTheme = theme?.token?.modal;
 
   const [open, setOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -51,7 +51,28 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
     }, 300);
   };
 
-  const contentWrapperSizeProps = placement === "left" || placement === "right" ? { width } : { height: height ?? 300 };
+  const contentWrapperSizeProps =
+    placement === "left" || placement === "right"
+      ? { width }
+      : { height: height ?? 300 };
+
+  const maskBg = modalTheme?.mask?.backgroundColor ?? "rgba(0,0,0,0.5)";
+  const maskBdFilter = modalTheme?.mask?.backdropFilter ?? "blur(8px)";
+  const bgColor = modalTheme?.content?.backgroundColor ?? "rgba(30,30,30,0.85)";
+  const bdFilter = modalTheme?.content?.backdropFilter ?? "blur(40px)";
+  const shadowColor = modalTheme?.content?.boxShadowColor ?? "rgba(0,0,0,0.4)";
+  const shadowBorderColor =
+    modalTheme?.content?.boxShadowBorderColor ?? "rgba(255,255,255,0.08)";
+  const borderColor =
+    modalTheme?.content?.borderColor ?? "rgba(255,255,255,0.1)";
+  const borderRadius = modalTheme?.content?.borderRadius ?? "20px";
+  const headerColor = modalTheme?.header?.textColor ?? "rgba(255,255,255,0.9)";
+  const sbWidth = modalTheme?.scrollbar?.width ?? "4px";
+  const sbTrack = modalTheme?.scrollbar?.trackColor ?? "transparent";
+  const sbThumb = modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
+  const sbThumbHover =
+    modalTheme?.scrollbar?.thumbHoverColor ?? "rgba(255,255,255,0.25)";
+  const sbRadius = modalTheme?.scrollbar?.borderRadius ?? "2px";
 
   return externalOpen ? (
     <Drawer
@@ -64,11 +85,10 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
         "base-drawer",
         { "drawer-closing": isClosing },
         css`
-          /* Mask styling */
           .drawer-mask,
           .rc-drawer-mask {
-            background: ${modalTheme?.mask?.backgroundColor};
-            backdrop-filter: ${modalTheme?.mask?.backdropFilter};
+            background: ${maskBg};
+            backdrop-filter: ${maskBdFilter};
             animation: maskFadeIn 0.2s ease-out;
           }
 
@@ -79,14 +99,14 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
             }
             to {
               opacity: 1;
-              backdrop-filter: ${modalTheme?.mask?.backdropFilter};
+              backdrop-filter: ${maskBdFilter};
             }
           }
 
           @keyframes maskFadeOut {
             from {
               opacity: 1;
-              backdrop-filter: ${modalTheme?.mask?.backdropFilter};
+              backdrop-filter: ${maskBdFilter};
             }
             to {
               opacity: 0;
@@ -94,15 +114,16 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
             }
           }
 
-          /* Drawer content wrapper styling */
           .drawer-content-wrapper,
           .rc-drawer-content-wrapper {
-            background: ${modalTheme?.content?.backgroundColor};
-            backdrop-filter: ${modalTheme?.content?.backdropFilter};
-            box-shadow: 0 20px 40px ${modalTheme?.content?.boxShadowColor},
-              0 0 0 0.75px ${modalTheme?.content?.boxShadowBorderColor};
-            border: 0.75px solid ${modalTheme?.content?.borderColor};
-            border-radius: ${modalTheme?.content?.borderRadius};
+            background: ${bgColor};
+            backdrop-filter: ${bdFilter};
+            -webkit-backdrop-filter: ${bdFilter};
+            box-shadow:
+              0 20px 40px ${shadowColor},
+              0 0 0 0.75px ${shadowBorderColor};
+            border: 0.75px solid ${borderColor};
+            border-radius: ${borderRadius};
             overflow: hidden;
             animation: drawerFadeIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
           }
@@ -129,7 +150,6 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
             }
           }
 
-          /* Content area */
           .drawer-content,
           .rc-drawer-content {
             background: transparent;
@@ -143,31 +163,31 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
             }
             .drawer-content-wrapper,
             .rc-drawer-content-wrapper {
-              animation: drawerFadeOut 0.3s cubic-bezier(0.175, 0.885, 0.32, 1) forwards;
+              animation: drawerFadeOut 0.3s cubic-bezier(0.175, 0.885, 0.32, 1)
+                forwards;
             }
           }
 
-          /* Global scrollbar styles inside drawer */
           * {
             &::-webkit-scrollbar {
-              width: ${modalTheme?.scrollbar?.width ?? "8px"};
+              width: ${sbWidth};
             }
             &::-webkit-scrollbar-track {
-              background: ${modalTheme?.scrollbar?.trackColor};
+              background: ${sbTrack};
             }
             &::-webkit-scrollbar-thumb {
-              background: ${modalTheme?.scrollbar?.thumbColor};
-              border-radius: ${modalTheme?.scrollbar?.borderRadius};
+              background: ${sbThumb};
+              border-radius: ${sbRadius};
               transition: background-color 0.2s ease;
             }
             &::-webkit-scrollbar-thumb:hover {
-              background: ${modalTheme?.scrollbar?.thumbHoverColor};
+              background: ${sbThumbHover};
             }
             scrollbar-width: thin;
-            scrollbar-color: ${modalTheme?.scrollbar?.thumbColor} ${modalTheme?.scrollbar?.trackColor};
+            scrollbar-color: ${sbThumb} ${sbTrack};
           }
         `,
-        className
+        className,
       )}
       {...contentWrapperSizeProps}
       {...rest}
@@ -176,23 +196,22 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
         className={cx(
           "zs-relative zs-overflow-y-auto",
           css`
-            /* iOS-like scrollbar */
             &::-webkit-scrollbar {
-              width: ${modalTheme?.scrollbar?.width};
+              width: ${sbWidth};
             }
             &::-webkit-scrollbar-track {
-              background: ${modalTheme?.scrollbar?.trackColor};
+              background: ${sbTrack};
             }
             &::-webkit-scrollbar-thumb {
-              background: ${modalTheme?.scrollbar?.thumbColor};
-              border-radius: ${modalTheme?.scrollbar?.borderRadius};
+              background: ${sbThumb};
+              border-radius: ${sbRadius};
               transition: background 0.2s ease;
             }
             &::-webkit-scrollbar-thumb:hover {
-              background: ${modalTheme?.scrollbar?.thumbHoverColor};
+              background: ${sbThumbHover};
             }
           `,
-          contentClassName
+          contentClassName,
         )}
       >
         {title && (
@@ -200,8 +219,8 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
             className={cx(
               "base-drawer-title zs-px-4 zs-pt-4 zs-pb-0",
               css`
-                color: ${modalTheme?.header?.textColor};
-              `
+                color: ${headerColor};
+              `,
             )}
           >
             {title}

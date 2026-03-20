@@ -1,5 +1,7 @@
 # 桌面
 
+> **已废弃**：该组件已废弃，请使用 [DesktopNext](./desktop-next) 代替。`DesktopNext` 基于 motion 动画库实现，更轻量、功能更完善。
+
 基于 react-sortablejs 封装实现的桌面组件
 
 ## 依赖

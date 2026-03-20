@@ -9,6 +9,7 @@ import { renderIcon } from "../utils/render-icon";
 import ItemName from "./item-name";
 import ItemContent from "./item-content";
 
+/** @deprecated 请使用 DesktopNext 代替 */
 export interface SortableItemProps<D, C> {
   data: SortItem<D, C>;
   className?: string;
