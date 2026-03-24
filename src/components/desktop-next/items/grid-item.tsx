@@ -16,17 +16,8 @@ import {
 } from "../component-registry/remote-loader";
 
 const itemNameStyle = css`
-  text-align: center;
-  font-size: 11px;
-  line-height: 1.2;
   color: rgba(255, 255, 255, 0.9);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-  padding: 0 2px;
-  margin-top: 4px;
 `;
 
 const mergeTargetHighlightStyle = css`
@@ -104,8 +95,11 @@ const GridItem = ({
 
   const isBeingDragged = dragState.activeId === item.id && dragState.isDragging;
   const isMergeTarget = dragState.mergeTargetId === item.id;
-  const itemWidth = iconSize * (size?.col ?? 1);
-  const itemHeight = iconSize * (size?.row ?? 1);
+  const gap = Math.round((iconSize / 64) * 48);
+  const col = size?.col ?? 1;
+  const row = size?.row ?? 1;
+  const itemWidth = iconSize * col + gap * (col - 1);
+  const itemHeight = iconSize * row + gap * (row - 1);
 
   const clearPressTimer = useCallback(() => {
     if (pressTimerRef.current) {
@@ -276,12 +270,11 @@ const GridItem = ({
   const iconContent = (
     <div
       className={cx(
-        "zs-overflow-hidden",
+        "zs-overflow-hidden zs-rounded-2xl",
         isMergeTarget && mergeTargetHighlightStyle,
         css`
           width: ${itemWidth}px;
           height: ${itemHeight}px;
-          border-radius: 1rem;
         `,
       )}
     >
@@ -327,7 +320,14 @@ const GridItem = ({
           >
             {iconContent}
             {!noLabel && (
-              <div className={itemNameStyle}>{item.data?.name ?? ""}</div>
+              <div
+                className={cx(
+                  "zs-text-center zs-text-[11px] zs-leading-[1.2] zs-overflow-hidden zs-text-ellipsis zs-whitespace-nowrap zs-max-w-full zs-px-0.5 zs-mt-1",
+                  itemNameStyle,
+                )}
+              >
+                {item.data?.name ?? ""}
+              </div>
             )}
           </div>,
           document.body,
@@ -340,11 +340,10 @@ const GridItem = ({
         ref={elRef}
         data-grid-item-id={String(item.id)}
         className={cx(
-          "zs-relative zs-cursor-pointer zs-flex zs-flex-col zs-items-center",
+          "zs-relative zs-cursor-pointer zs-flex zs-flex-col zs-items-center zs-touch-none",
           css`
             width: ${itemWidth}px;
             min-height: ${itemHeight}px;
-            touch-action: none;
           `,
         )}
         animate={{
@@ -360,7 +359,14 @@ const GridItem = ({
       >
         {iconContent}
         {!noLabel && (
-          <div className={itemNameStyle}>{item.data?.name ?? ""}</div>
+          <div
+            className={cx(
+              "zs-text-center zs-text-[11px] zs-leading-[1.2] zs-overflow-hidden zs-text-ellipsis zs-whitespace-nowrap zs-max-w-full zs-px-0.5 zs-mt-1",
+              itemNameStyle,
+            )}
+          >
+            {item.data?.name ?? ""}
+          </div>
         )}
       </motion.div>
       {floatingOverlay}
