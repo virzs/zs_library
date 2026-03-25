@@ -61,6 +61,9 @@ export {
   extractExifData,
   parseExifData,
   formatXiaomiLeicaExifData,
+
+  IdPhotoChecker,
+  useIdPhotoChecker,
 } from "./components";
 
 export type {
@@ -113,6 +116,18 @@ export type {
   JSONContent,
   ExifData,
   ExifExtractResult,
+
+  // IdPhotoChecker相关类型
+  IdPhotoCheckerProps,
+  UseIdPhotoCheckerReturn,
+  IdPhotoValidationResult,
+  IdPhotoValidationItem,
+  IdPhotoValidationStatus,
+  IdPhotoRuleConfig,
+  IdPhotoBoundsConfig,
+  IdPhotoThresholdConfig,
+  IdPhotoCameraConfig,
+  IdPhotoMessageConfig,
 } from "./components";
 
 // 导出所有组件作为默认导出

@@ -163,3 +163,20 @@ export type {
   TemplateConfig,
   ExifParamsForm
 } from "./photo-watermark";
+
+export {
+  IdPhotoChecker,
+  useIdPhotoChecker,
+} from "./id-photo-checker";
+export type {
+  IdPhotoCheckerProps,
+  UseIdPhotoCheckerReturn,
+  ValidationResult as IdPhotoValidationResult,
+  ValidationItem as IdPhotoValidationItem,
+  ValidationStatus as IdPhotoValidationStatus,
+  ValidationRuleConfig as IdPhotoRuleConfig,
+  BoundsConfig as IdPhotoBoundsConfig,
+  ThresholdConfig as IdPhotoThresholdConfig,
+  CameraConfig as IdPhotoCameraConfig,
+  MessageConfig as IdPhotoMessageConfig,
+} from "./id-photo-checker";

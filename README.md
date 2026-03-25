@@ -20,6 +20,7 @@
 | 组件 | 说明 |
 | --- | --- |
 | `SimpleEditor` | 基于 Tiptap 的富文本编辑器，支持常见文本格式、图片上传、AI 辅助写作、多种输出格式（HTML / JSON / Markdown）、受控模式 |
+| `IdPhotoChecker` | 基于 @vladmandic/human 的实时证件照检测组件，支持边框偏离检测、戴帽检测、戴眼镜检测、面部遮挡检测，提供中文提示 |
 | `MdEditor` | Markdown 编辑器，支持实时预览、图片上传、主题切换。**已废弃，请使用 SimpleEditor** |
 
 ### 数据展示
