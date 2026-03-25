@@ -32,8 +32,76 @@
 import { DesktopNext } from "zs_library";
 import { useState } from "react";
 
+// 自定义主题：薄荷绿
+const mintTheme = {
+  token: {
+    base: {
+      primaryColor: "#4ecdc4",
+      backgroundColor: "rgba(78, 205, 196, 0.12)",
+      textColor: "#ffffff",
+      shadowColor: "rgba(78, 205, 196, 0.3)",
+      borderColor: "rgba(78, 205, 196, 0.35)",
+    },
+  },
+};
+
+// 自定义主题：暖橙
+const sunsetTheme = {
+  token: {
+    base: {
+      primaryColor: "#ff6b35",
+      backgroundColor: "rgba(255, 107, 53, 0.12)",
+      textColor: "#ffffff",
+      shadowColor: "rgba(255, 107, 53, 0.3)",
+      borderColor: "rgba(255, 107, 53, 0.35)",
+    },
+  },
+};
+
+// 自定义主题：极光紫（精细配置各子项）
+const auroraTheme = {
+  token: {
+    base: {
+      primaryColor: "#a855f7",
+      backgroundColor: "rgba(168, 85, 247, 0.12)",
+      textColor: "#ffffff",
+      shadowColor: "rgba(168, 85, 247, 0.3)",
+      borderColor: "rgba(168, 85, 247, 0.35)",
+    },
+    contextMenu: {
+      textColor: "#f3e8ff",
+      activeColor: "rgba(168, 85, 247, 0.25)",
+      dangerColor: "#f87171",
+      backgroundColor: "rgba(30, 10, 50, 0.85)",
+      shadowColor: "rgba(168, 85, 247, 0.4)",
+      borderColor: "rgba(168, 85, 247, 0.3)",
+    },
+    dock: {
+      backgroundColor: "rgba(30, 10, 50, 0.6)",
+      borderColor: "rgba(168, 85, 247, 0.3)",
+      boxShadowColor: "rgba(168, 85, 247, 0.25)",
+    },
+  },
+};
+
+const themeMap = {
+  dark: "dark",
+  light: "light",
+  mint: mintTheme,
+  sunset: sunsetTheme,
+  aurora: auroraTheme,
+};
+
+const themeConfigs = {
+  dark:    { label: "🌙 深色",   background: "linear-gradient(135deg, #2d3748 0%, #1a202c 100%)" },
+  light:   { label: "☀️ 浅色",   background: "linear-gradient(135deg, #4a90d9 0%, #357abd 100%)" },
+  mint:    { label: "🌿 薄荷",   background: "linear-gradient(135deg, #0f766e 0%, #134e4a 100%)" },
+  sunset:  { label: "🌅 暖橙",   background: "linear-gradient(135deg, #c2410c 0%, #7c2d12 100%)" },
+  aurora:  { label: "✨ 极光",   background: "linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%)" },
+};
+
 export default () => {
-  const [theme, setTheme] = useState("dark");
+  const [currentTheme, setCurrentTheme] = useState("dark");
   const [transition, setTransition] = useState("slide");
 
   const [pages, setPages] = useState([
@@ -68,7 +136,6 @@ export default () => {
     },
   ]);
 
-  const themes = ["dark", "light"];
   const transitions = ["slide", "fade", "zoom", "cube"];
 
   const btnBase = {
@@ -82,24 +149,21 @@ export default () => {
     background: "transparent",
   };
 
-  const btnActive = {
-    ...btnBase,
-    opacity: 1,
-    fontWeight: 600,
-  };
-
-  const btnInactive = {
-    ...btnBase,
-  };
+  const btnActive = { ...btnBase, opacity: 1, fontWeight: 600 };
+  const btnInactive = { ...btnBase };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={{ display: "flex", gap: 16, alignItems: "center", padding: "0 8px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "0 8px" }}>
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           <span style={{ fontSize: 12, opacity: 0.5, marginRight: 4 }}>主题</span>
-          {themes.map((t) => (
-            <button key={t} style={theme === t ? btnActive : btnInactive} onClick={() => setTheme(t)}>
-              {t}
+          {Object.keys(themeConfigs).map((key) => (
+            <button
+              key={key}
+              style={currentTheme === key ? btnActive : btnInactive}
+              onClick={() => setCurrentTheme(key)}
+            >
+              {themeConfigs[key].label}
             </button>
           ))}
         </div>
@@ -112,12 +176,12 @@ export default () => {
           ))}
         </div>
       </div>
-      <div style={{ width: "100%", height: 500, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", borderRadius: 16 }}>
+      <div style={{ width: "100%", height: 500, background: themeConfigs[currentTheme].background, borderRadius: 16, transition: "background 0.4s ease" }}>
         <DesktopNext
           pages={pages}
           onChange={setPages}
           iconSize={64}
-          theme={theme}
+          theme={themeMap[currentTheme]}
           pageTransition={transition}
           onItemClick={(item) => console.log("clicked:", item.data?.name)}
           dockProps={{
@@ -152,7 +216,7 @@ export default () => {
   ]);
 
   return (
-    <div style={{ width: "100%", height: 400, background: "#1a1a2e", borderRadius: 16 }}>
+    <div style={{ width: "100%", height: 400, background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)", borderRadius: 16 }}>
       <DesktopNext
         pages={pages}
         onChange={setPages}
