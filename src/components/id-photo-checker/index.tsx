@@ -8,9 +8,9 @@ import type {
 
 const DEFAULT_BOUNDS: BoundsConfig = {
   left: 0.2,
-  top: 0.1,
+  top: 0.05,
   width: 0.6,
-  height: 0.75,
+  height: 0.85,
 };
 
 const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
@@ -28,6 +28,7 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
   autoStart = true,
   guideBorderPassColor = "#4ade80",
   guideBorderFailColor = "#f87171",
+  guideShape = "bust",
   loadingComponent,
   errorComponent,
   value,
@@ -62,22 +63,6 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
   const borderColor = validation.isValid
     ? guideBorderPassColor
     : guideBorderFailColor;
-
-  const guideBoxStyle: React.CSSProperties = useMemo(
-    () => ({
-      position: "absolute",
-      left: `${bounds.left * 100}%`,
-      top: `${bounds.top * 100}%`,
-      width: `${bounds.width * 100}%`,
-      height: `${bounds.height * 100}%`,
-      border: `3px solid ${borderColor}`,
-      borderRadius: "50%",
-      boxSizing: "border-box",
-      pointerEvents: "none",
-      transition: "border-color 0.3s ease",
-    }),
-    [bounds, borderColor],
-  );
 
   const containerStyle: React.CSSProperties = useMemo(
     () => ({
@@ -137,6 +122,66 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
       : validation.isValid
         ? (messages?.allPassed ?? "检测通过，可以拍照")
         : "";
+
+  const guideOverlay = useMemo(() => {
+    if (!isCameraReady) return null;
+
+    if (guideShape !== "bust" && guideShape !== "oval") {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+          }}
+        >
+          {guideShape}
+        </div>
+      );
+    }
+
+    const x = bounds.left * 100;
+    const y = bounds.top * 100;
+    const w = bounds.width * 100;
+    const h = bounds.height * 100;
+
+    if (guideShape === "oval") {
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+      const rx = w / 2;
+      const ry = h / 2;
+      return (
+        <svg
+          style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+          width="100%"
+          height="100%"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <ellipse
+            cx={cx}
+            cy={cy}
+            rx={rx}
+            ry={ry}
+            fill="none"
+            stroke={borderColor}
+            strokeWidth="0.6"
+            style={{ transition: "stroke 0.3s ease" }}
+          />
+        </svg>
+      );
+    }
+
+    return (
+      <BustGuide
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        color={borderColor}
+      />
+    );
+  }, [isCameraReady, guideShape, bounds, borderColor]);
 
   if (value) {
     return (
@@ -266,7 +311,7 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
         muted
       />
 
-      {isCameraReady && <div style={guideBoxStyle} />}
+      {guideOverlay}
 
       <div style={overlayStyle}>
         <div
@@ -313,6 +358,93 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
         <DebugPanel validation={validation} />
       )}
     </div>
+  );
+};
+
+interface BustGuideProps {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  color: string;
+}
+
+const BustGuide: React.FC<BustGuideProps> = ({ x, y, w, h, color }) => {
+  const cx = x + w / 2;
+
+  const headH = h * 0.42;
+  const headW = w * 0.52;
+  const headCy = y + headH * 0.54;
+  const headRx = headW / 2;
+  const headRy = headH / 2;
+
+  const neckW = w * 0.14;
+  const neckTop = headCy + headRy * 0.75;
+  const neckBot = y + h * 0.62;
+
+  const shoulderY = y + h * 0.72;
+  const bustBotY = y + h;
+
+  const shoulderSpread = w * 0.72;
+  const bustW = w * 0.96;
+
+  const neckL = cx - neckW / 2;
+  const neckR = cx + neckW / 2;
+  const shoulderL = cx - shoulderSpread / 2;
+  const shoulderR = cx + shoulderSpread / 2;
+  const bustL = cx - bustW / 2;
+  const bustR = cx + bustW / 2;
+
+  const cp1Lx = neckL - w * 0.04;
+  const cp1Ly = neckBot + (shoulderY - neckBot) * 0.3;
+  const cp2Lx = shoulderL + w * 0.04;
+  const cp2Ly = shoulderY - h * 0.02;
+
+  const cp1Rx = neckR + w * 0.04;
+  const cp1Ry = cp1Ly;
+  const cp2Rx = shoulderR - w * 0.04;
+  const cp2Ry = cp2Ly;
+
+  const bustPath = [
+    `M ${neckL} ${neckTop}`,
+    `C ${cp1Lx} ${cp1Ly}, ${cp2Lx} ${cp2Ly}, ${shoulderL} ${shoulderY}`,
+    `L ${bustL} ${bustBotY}`,
+    `L ${bustR} ${bustBotY}`,
+    `L ${shoulderR} ${shoulderY}`,
+    `C ${cp2Rx} ${cp2Ry}, ${cp1Rx} ${cp1Ry}, ${neckR} ${neckTop}`,
+  ].join(" ");
+
+  const headPath = `
+    M ${cx - headRx} ${headCy}
+    A ${headRx} ${headRy} 0 1 1 ${cx + headRx} ${headCy}
+    A ${headRx} ${headRy} 0 1 1 ${cx - headRx} ${headCy}
+  `;
+
+  return (
+    <svg
+      style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+      width="100%"
+      height="100%"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+    >
+      <path
+        d={bustPath}
+        fill="none"
+        stroke={color}
+        strokeWidth="0.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ transition: "stroke 0.3s ease" }}
+      />
+      <path
+        d={headPath}
+        fill="none"
+        stroke={color}
+        strokeWidth="0.6"
+        style={{ transition: "stroke 0.3s ease" }}
+      />
+    </svg>
   );
 };
 
