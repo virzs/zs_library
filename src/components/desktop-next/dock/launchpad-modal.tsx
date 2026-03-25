@@ -172,10 +172,11 @@ const LaunchpadModal = ({
       ) : (
         <div
           className={css`
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(${iconSize + 16}px, 1fr));
             gap: 16px;
             padding: 4px 2px 16px;
+            justify-items: center;
           `}
         >
           <AnimatePresence mode="popLayout">
