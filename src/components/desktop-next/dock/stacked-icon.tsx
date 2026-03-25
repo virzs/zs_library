@@ -113,24 +113,12 @@ const StackedIcon: React.FC<StackedIconProps> = ({
           >
             {isTop && (
               <div
-                className={css`
-                  display: grid;
-                  grid-template-columns: 1fr 1fr;
-                  grid-template-rows: 1fr 1fr;
-                   gap: 5px;
-                  width: 100%;
-                  height: 100%;
-                `}
+                className="zs-grid zs-grid-cols-2 zs-grid-rows-2 zs-gap-[5px] zs-w-full zs-h-full"
               >
                 {slots.map((app, i) => (
                   <div
                     key={app?.id ?? i}
-                    className={css`
-                      border-radius: 4px;
-                      overflow: hidden;
-                      width: 100%;
-                      height: 100%;
-                    `}
+                    className="zs-rounded-[4px] zs-overflow-hidden zs-w-full zs-h-full"
                   >
                     <MiniAppIcon app={app} />
                   </div>

@@ -30,12 +30,7 @@ export const SizeSubMenuContent = ({
         return (
           <motion.div
             key={optionId}
-            className={cx(
-              "zs-h-10 zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-outline-none",
-              css`
-                z-index: 1;
-              `,
-            )}
+            className="zs-h-10 zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-outline-none zs-z-[1]"
             onMouseEnter={() => setHoveredSizeId(optionId)}
             onMouseLeave={() => setHoveredSizeId(undefined)}
             onClick={() => onSizeChange(size)}
@@ -57,14 +52,7 @@ export const SizeSubMenuContent = ({
             </motion.div>
             {isSelected && (
               <motion.div
-                className={cx(
-                  "zs-flex zs-items-center zs-justify-center zs-shrink-0",
-                  css`
-                    color: rgba(255, 255, 255, 0.9);
-                    width: 18px;
-                    height: 18px;
-                  `,
-                )}
+                className="zs-flex zs-items-center zs-justify-center zs-shrink-0 zs-w-[18px] zs-h-[18px] zs-text-white/90"
               >
                 <RiCheckLine size={14} />
               </motion.div>

@@ -1,4 +1,4 @@
-import { css } from "@emotion/css";
+import { css, cx } from "@emotion/css";
 import React, { useCallback } from "react";
 import { useDesktopDnd } from "../context";
 import { DndSortItem } from "../types";
@@ -24,7 +24,7 @@ const FolderItem = ({
   iconBuilder,
   size,
 }: FolderItemProps) => {
-  const { iconSize, setFolderModal, dragState } = useDesktopDnd();
+  const { iconSize, setFolderModal, dragState, theme } = useDesktopDnd();
 
   const preview = (item.children ?? []).slice(0, 9);
 
@@ -50,32 +50,43 @@ const FolderItem = ({
     const totalWidth = iconSize * col + gap * (col - 1);
     const totalHeight = iconSize * row + gap * (row - 1);
 
+    const itemsTheme = theme.token.items;
+    const groupBg =
+      itemsTheme?.groupIconBackgroundColor ?? "rgba(128, 128, 128, 0.3)";
+    const groupShadow =
+      itemsTheme?.groupIconShadowColor ?? "rgba(0, 0, 0, 0.15)";
+    const slotBg =
+      itemsTheme?.iconBackgroundColor ?? "rgba(255, 255, 255, 0.15)";
+    const fallbackBg = itemsTheme?.iconBackgroundColor ?? "rgba(64, 148, 229, 0.9)";
+
     return (
       <div
-        className={css`
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          grid-template-rows: repeat(3, 1fr);
-          gap: ${innerGap}px;
-          padding: ${padding}px;
-          width: ${totalWidth}px;
-          height: ${totalHeight}px;
-          border-radius: 1rem;
-          overflow: hidden;
-          background: rgba(128, 128, 128, 0.3);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.15);
-        `}
+        className={cx(
+          "zs-grid zs-rounded-2xl zs-overflow-hidden",
+          css`
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: ${innerGap}px;
+            padding: ${padding}px;
+            width: ${totalWidth}px;
+            height: ${totalHeight}px;
+            background: ${groupBg};
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 0 0.5rem ${groupShadow};
+          `,
+        )}
       >
         {preview.map((child) => (
           <div
             key={child.id}
-            className={css`
-              border-radius: ${borderRadius}px;
-              overflow: hidden;
-              background: rgba(255, 255, 255, 0.15);
-            `}
+            className={cx(
+              "zs-overflow-hidden",
+              css`
+                border-radius: ${borderRadius}px;
+                background: ${slotBg};
+              `,
+            )}
           >
             {iconBuilder ? (
               iconBuilder(child)
@@ -89,7 +100,10 @@ const FolderItem = ({
                 className="zs-w-full zs-h-full zs-object-cover"
               />
             ) : (
-              <div className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-bg-blue-400 zs-text-white zs-text-xs">
+              <div
+                className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-xs"
+                style={{ background: fallbackBg }}
+              >
                 {(child.data?.name ?? "?").charAt(0)}
               </div>
             )}

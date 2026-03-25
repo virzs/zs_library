@@ -10,50 +10,12 @@ import {
   ComponentRegistry,
 } from "./types";
 
-const desktopContainerStyle = css`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
-`;
-
 const pagesContainerStyle = css`
-  display: flex;
-  width: 100%;
-  height: 100%;
   transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform;
-`;
-
-const pageStyle = css`
-  flex: 0 0 100%;
-  width: 100%;
-  min-height: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 28px;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: auto;
-`;
-
-const paginationDotsStyle = css`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 0;
 `;
 
 const paginationDotStyle = css`
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
   background: rgba(255, 255, 255, 0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
 
   &[data-active="true"] {
     background: rgba(255, 255, 255, 0.9);
@@ -84,7 +46,18 @@ const DesktopDndInner = ({
   dockProps,
   onDockItemsChange,
 }: DesktopDndInnerProps) => {
-  const { pages, currentPage, setCurrentPage, dragState, hideContextMenu, theme, pagingDotBuilder, pagingDotsBuilder } = useDesktopDnd();
+  const { pages, currentPage, setCurrentPage, dragState, hideContextMenu, theme, pagingDotBuilder, pagingDotsBuilder, pageTransition = "slide" } = useDesktopDnd();
+
+  const [noTransition, setNoTransition] = useState(false);
+  const prevPageTransitionRef = useRef(pageTransition);
+  useEffect(() => {
+    if (prevPageTransitionRef.current !== pageTransition) {
+      prevPageTransitionRef.current = pageTransition;
+      setNoTransition(true);
+      const timer = setTimeout(() => setNoTransition(false), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [pageTransition]);
 
   const [recentDockItems, setRecentDockItems] = useState<DndSortItem[]>(
     () => dockProps?.items ?? [],
@@ -257,6 +230,127 @@ const DesktopDndInner = ({
     return -(currentPage * 100) + (swipeOffset / (containerRef.current?.clientWidth ?? 1)) * 100;
   }, [currentPage, swipeOffset, containerRef]);
 
+  const swipeRatio = swipeOffset / (containerRef.current?.clientWidth ?? 1);
+
+  const renderPages = () => {
+    if (pageTransition === "fade") {
+      return (
+        <div className="zs-relative zs-w-full zs-h-full">
+          {pages.map((page, index) => {
+            const isActive = index === currentPage;
+            const isNearby = Math.abs(index - currentPage) <= 1;
+            return (
+              <div
+                key={page.id}
+                className={cx(
+                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-p-7 zs-box-border zs-overflow-x-hidden zs-overflow-y-auto",
+                  css`
+                    opacity: ${isActive ? 1 : 0};
+                    transition: ${noTransition ? "none" : "opacity 0.4s ease"};
+                    pointer-events: ${isActive ? "auto" : "none"};
+                  `,
+                )}
+              >
+                {isNearby && (
+                  <PageGrid pageIndex={index} onItemClick={handleItemClick} iconBuilder={iconBuilder} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (pageTransition === "zoom") {
+      return (
+        <div className="zs-relative zs-w-full zs-h-full">
+          {pages.map((page, index) => {
+            const isActive = index === currentPage;
+            const isNearby = Math.abs(index - currentPage) <= 1;
+            const direction = index < currentPage ? -1 : 1;
+            return (
+              <div
+                key={page.id}
+                className={cx(
+                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-p-7 zs-box-border zs-overflow-x-hidden zs-overflow-y-auto",
+                  css`
+                    opacity: ${isActive ? 1 : 0};
+                    transform: ${isActive
+                      ? "scale(1)"
+                      : `scale(0.85) translateX(${direction * 60}px)`};
+                    transition: ${noTransition ? "none" : "opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)"};
+                    pointer-events: ${isActive ? "auto" : "none"};
+                  `,
+                )}
+              >
+                {isNearby && (
+                  <PageGrid pageIndex={index} onItemClick={handleItemClick} iconBuilder={iconBuilder} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (pageTransition === "cube") {
+      return (
+        <div
+          className="zs-relative zs-w-full zs-h-full"
+          style={{ perspective: "1200px", perspectiveOrigin: "50% 50%" }}
+        >
+          {pages.map((page, index) => {
+            const isNearby = Math.abs(index - currentPage) <= 1;
+            const offset = index - currentPage - swipeRatio;
+            const rotateY = offset * -90;
+            const translateXCube = offset * 100;
+            const isVisible = Math.abs(offset) < 1.5;
+            return (
+              <div
+                key={page.id}
+                className={cx(
+                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-p-7 zs-box-border zs-overflow-x-hidden zs-overflow-y-auto zs-backface-hidden",
+                  css`
+                    transform-origin: 50% 50%;
+                    transform: translateX(${translateXCube}%) rotateY(${rotateY}deg);
+                    transition: ${noTransition || swipeOffset !== 0
+                      ? "none"
+                      : "transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.45s ease"};
+                    opacity: ${isVisible ? 1 - Math.abs(offset) * 0.5 : 0};
+                    pointer-events: ${index === currentPage ? "auto" : "none"};
+                    backface-visibility: hidden;
+                  `,
+                )}
+              >
+                {isNearby && (
+                  <PageGrid pageIndex={index} onItemClick={handleItemClick} iconBuilder={iconBuilder} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        className={cx("zs-flex zs-w-full zs-h-full zs-will-change-transform", noTransition ? css`transition: none;` : pagesContainerStyle)}
+        style={{ transform: `translateX(${translateX}%)` }}
+      >
+        {pages.map((page, index) => {
+          const isNearby = Math.abs(index - currentPage) <= 1;
+          return (
+            <div key={page.id} className="zs-flex-none zs-basis-full zs-w-full zs-min-h-full zs-flex zs-justify-center zs-p-7 zs-box-border zs-overflow-x-hidden zs-overflow-y-auto">
+              {isNearby && (
+                <PageGrid pageIndex={index} onItemClick={handleItemClick} iconBuilder={iconBuilder} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   useEffect(() => {
     if (dragState.isDragging) {
       hideContextMenu();
@@ -273,7 +367,7 @@ const DesktopDndInner = ({
       return (
         <div
           key={page.id}
-          className={paginationDotStyle}
+          className={cx("zs-w-[7px] zs-h-[7px] zs-rounded-full zs-transition-all zs-duration-300 zs-ease-in-out zs-cursor-pointer", paginationDotStyle)}
           data-active={index === currentPage}
           onClick={() => goToPage(index)}
         />
@@ -281,17 +375,17 @@ const DesktopDndInner = ({
     });
 
     if (pagingDotsBuilder) {
-      return <div className={paginationDotsStyle}>{pagingDotsBuilder(dotNodes)}</div>;
+      return <div className="zs-flex zs-justify-center zs-items-center zs-gap-1.5 zs-py-2">{pagingDotsBuilder(dotNodes)}</div>;
     }
 
-    return <div className={paginationDotsStyle}>{dotNodes}</div>;
+    return <div className="zs-flex zs-justify-center zs-items-center zs-gap-1.5 zs-py-2">{dotNodes}</div>;
   }, [totalPages, pages, currentPage, pagingDotBuilder, pagingDotsBuilder, goToPage]);
 
   return (
     <>
       <div
         ref={containerRef}
-        className={cx(desktopContainerStyle, className)}
+        className={cx("zs-relative zs-w-full zs-h-full zs-overflow-hidden zs-select-none", className)}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -302,25 +396,7 @@ const DesktopDndInner = ({
       >
         <div className="zs-flex zs-flex-col zs-h-full">
           <div className="zs-flex-1 zs-overflow-hidden">
-            <div
-              className={pagesContainerStyle}
-              style={{ transform: `translateX(${translateX}%)` }}
-            >
-              {pages.map((page, index) => {
-                const isNearby = Math.abs(index - currentPage) <= 1;
-                return (
-                  <div key={page.id} className={pageStyle}>
-                    {isNearby && (
-                      <PageGrid
-                        pageIndex={index}
-                        onItemClick={handleItemClick}
-                        iconBuilder={iconBuilder}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {renderPages()}
           </div>
         </div>
 
@@ -372,6 +448,7 @@ export interface DesktopDndExtendedProps<D = unknown> extends DesktopDndProps<D>
   theme?: Theme | "light" | "dark";
   noLetters?: boolean;
   storageKey?: string;
+  pageTransition?: import("./types").PageTransition;
   itemBuilder?: (item: DndSortItem, index: number) => React.ReactNode | null;
   itemBuilderAllowNull?: boolean;
   itemIconBuilderAllowNull?: boolean;
@@ -401,6 +478,7 @@ const DesktopDnd = forwardRef(
       theme,
       noLetters,
       storageKey,
+      pageTransition,
       itemBuilder,
       itemBuilderAllowNull,
       itemIconBuilderAllowNull,
@@ -429,6 +507,7 @@ const DesktopDnd = forwardRef(
         theme={theme}
         noLetters={noLetters}
         storageKey={storageKey}
+        pageTransition={pageTransition}
         itemBuilder={itemBuilder as ((item: DndSortItem, index: number) => React.ReactNode | null) | undefined}
         itemBuilderAllowNull={itemBuilderAllowNull}
         itemIconBuilder={itemIconBuilder as ((item: DndSortItem) => React.ReactNode) | undefined}
@@ -475,6 +554,7 @@ export type {
   SortItemBaseConfig,
   ComponentRegistryEntry,
   ComponentRegistry,
+  PageTransition,
 } from "./types";
 
 export { loadRemoteComponent, RemoteComponentErrorBoundary } from "./component-registry/remote-loader";

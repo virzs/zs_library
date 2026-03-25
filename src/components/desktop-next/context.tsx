@@ -19,6 +19,7 @@ import {
   SortItemUserConfig,
   TypeConfigMap,
   DataTypeMenuConfigMap,
+  PageTransition,
 } from "./types";
 import { Theme, defaultTheme } from "./themes";
 import { mergeTheme } from "./themes/utils";
@@ -57,6 +58,7 @@ interface DesktopDndContextValue {
   itemIconBuilderAllowNull?: boolean;
   pagingDotBuilder?: (index: number, isActive: boolean) => React.ReactNode;
   pagingDotsBuilder?: (dots: React.ReactNode[]) => React.ReactNode;
+  pageTransition?: PageTransition;
   extraItems?: DndSortItem[];
   componentRegistry?: ComponentRegistry;
 
@@ -141,6 +143,7 @@ interface DesktopDndProviderProps {
   itemIconBuilderAllowNull?: boolean;
   pagingDotBuilder?: (index: number, isActive: boolean) => React.ReactNode;
   pagingDotsBuilder?: (dots: React.ReactNode[]) => React.ReactNode;
+  pageTransition?: PageTransition;
   extraItems?: DndSortItem[];
   storageKey?: string;
   componentRegistry?: ComponentRegistry;
@@ -165,9 +168,10 @@ export const DesktopDndProvider = ({
   itemBuilderAllowNull,
   itemIconBuilder,
   itemIconBuilderAllowNull,
-  pagingDotBuilder,
-  pagingDotsBuilder,
-  extraItems,
+      pagingDotBuilder,
+      pagingDotsBuilder,
+      pageTransition,
+      extraItems,
   storageKey,
   componentRegistry,
   children,
@@ -606,6 +610,7 @@ export const DesktopDndProvider = ({
       itemIconBuilderAllowNull,
       pagingDotBuilder,
       pagingDotsBuilder,
+      pageTransition,
       extraItems,
       componentRegistry,
       removeItem,
@@ -644,6 +649,7 @@ export const DesktopDndProvider = ({
       itemIconBuilderAllowNull,
       pagingDotBuilder,
       pagingDotsBuilder,
+      pageTransition,
       extraItems,
       componentRegistry,
       removeItem,

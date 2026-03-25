@@ -43,6 +43,8 @@ export interface FolderModalState {
   openPosition: { x: number; y: number } | null;
 }
 
+export type PageTransition = "slide" | "cube" | "fade" | "zoom";
+
 /** 组件 Props */
 export interface DesktopDndProps<D = any> {
   pages: DndPageItem<D>[];

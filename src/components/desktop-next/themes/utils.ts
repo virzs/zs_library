@@ -2,6 +2,30 @@ import { Theme, BaseTheme } from "./index";
 import { themeLight } from "./light";
 import { themeDark } from "./dark";
 
+function withAlpha(color: string | undefined, alpha: number): string | undefined {
+  if (!color) return undefined;
+  const rgbaMatch = color.match(
+    /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*[\d.]+)?\s*\)$/,
+  );
+  if (rgbaMatch) {
+    return `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${alpha})`;
+  }
+  const hexMatch = color.match(/^#([0-9a-fA-F]{3,8})$/);
+  if (hexMatch) {
+    let hex = hexMatch[1];
+    if (hex.length === 3)
+      hex = hex
+        .split("")
+        .map((c) => c + c)
+        .join("");
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return color;
+}
+
 function generateThemeFromBase(base: BaseTheme): Theme["token"] {
   const lightToken = themeLight.token;
 
@@ -20,7 +44,7 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
       textColor: base.textColor,
       iconBackgroundColor: base.backgroundColor,
       iconShadowColor: base.shadowColor,
-      groupIconBackgroundColor: base.backgroundColor,
+      groupIconBackgroundColor: withAlpha(base.backgroundColor, 0.5) ?? base.backgroundColor,
       groupIconShadowColor: base.shadowColor,
       infoModalBackgroundColor: base.backgroundColor,
       groupModal: {

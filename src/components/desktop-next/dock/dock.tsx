@@ -144,11 +144,7 @@ const Dock: React.FC<DockProps> = ({
           <div
             className={cx(
               "zs-flex zs-gap-3",
-              css`
-                ${isHorizontal
-                  ? "flex-direction: row;"
-                  : "flex-direction: column;"}
-              `,
+              isHorizontal ? "zs-flex-row" : "zs-flex-col",
             )}
           >
             <AnimatePresence mode="popLayout" presenceAffectsLayout={false}>
@@ -222,16 +218,11 @@ const Dock: React.FC<DockProps> = ({
       {showLaunchpad && isMobile && (
         <motion.div
           className={cx(
-            "zs-absolute zs-left-1/2 -zs-bottom-3 zs--translate-x-1/2 zs-rounded-full zs-cursor-pointer",
+            "zs-absolute zs-left-1/2 -zs-bottom-3 zs--translate-x-1/2 zs-rounded-full zs-cursor-pointer zs-w-[50vw] zs-h-2 zs-z-50 zs-touch-none zs-overscroll-y-contain",
             css`
-              width: 50vw;
-              height: 8px;
               background-color: ${baseTheme?.backgroundColor ?? "#ffffff"};
               box-shadow: 0 6px 18px
                 ${baseTheme?.shadowColor ?? "rgba(0, 0, 0, 0.18)"};
-              z-index: 50;
-              touch-action: none;
-              overscroll-behavior-y: contain;
             `,
           )}
           style={{

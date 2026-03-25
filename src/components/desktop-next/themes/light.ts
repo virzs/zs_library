@@ -77,15 +77,15 @@ export const themeLight: Theme = {
     },
     modal: {
       mask: {
-        backgroundColor: "rgba(0, 0, 0, 0.3)",
+        backgroundColor: "rgba(0, 0, 0, 0.2)",
         backdropFilter: "blur(8px)",
       },
       content: {
-        backgroundColor: "rgba(30, 30, 30, 0.85)",
+        backgroundColor: "rgba(255, 255, 255, 0.25)",
         backdropFilter: "blur(40px)",
-        boxShadowColor: "rgba(0, 0, 0, 0.4)",
-        boxShadowBorderColor: "rgba(255, 255, 255, 0.1)",
-        borderColor: "rgba(255, 255, 255, 0.12)",
+        boxShadowColor: "rgba(0, 0, 0, 0.2)",
+        boxShadowBorderColor: "rgba(255, 255, 255, 0.3)",
+        borderColor: "rgba(255, 255, 255, 0.25)",
         borderRadius: "20px",
       },
       header: {

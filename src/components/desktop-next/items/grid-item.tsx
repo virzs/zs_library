@@ -15,11 +15,6 @@ import {
   RemoteComponentErrorBoundary,
 } from "../component-registry/remote-loader";
 
-const itemNameStyle = css`
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-`;
-
 const mergeTargetHighlightStyle = css`
   box-shadow:
     0 0 0 3px rgba(255, 255, 255, 0.5),
@@ -77,9 +72,16 @@ const GridItem = ({
     hideContextMenu,
     pointerPositionRef,
     componentRegistry,
+    theme,
   } = useDesktopDnd();
   const iconSize = iconSizeProp ?? contextIconSize;
   const [isPressed, setIsPressed] = useState(false);
+
+  const itemsTheme = theme.token.items;
+  const itemNameStyle = css`
+    color: ${itemsTheme?.textColor ?? "rgba(255, 255, 255, 0.9)"};
+    text-shadow: 0 1px 2px ${itemsTheme?.iconShadowColor ?? "rgba(0, 0, 0, 0.5)"};
+  `;
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDraggingRef = useRef(false);
   const longPressReadyRef = useRef(false);
@@ -219,7 +221,13 @@ const GridItem = ({
             className="zs-w-full zs-h-full zs-object-cover"
           />
         ) : (
-          <div className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-bg-blue-500 zs-rounded-xl zs-text-white zs-text-lg zs-font-bold">
+          <div
+            className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-rounded-xl zs-text-white zs-text-lg zs-font-bold"
+            style={{
+              background:
+                itemsTheme?.iconBackgroundColor ?? "rgba(64, 148, 229, 0.9)",
+            }}
+          >
             {(item.data?.name ?? "?").charAt(0)}
           </div>
         );
@@ -261,7 +269,13 @@ const GridItem = ({
     if (iconData) return <>{iconData}</>;
 
     return (
-      <div className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-bg-blue-500 zs-rounded-xl zs-text-white zs-text-lg zs-font-bold">
+      <div
+        className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-rounded-xl zs-text-white zs-text-lg zs-font-bold"
+        style={{
+          background:
+            itemsTheme?.iconBackgroundColor ?? "rgba(64, 148, 229, 0.9)",
+        }}
+      >
         {(item.data?.name ?? "?").charAt(0)}
       </div>
     );

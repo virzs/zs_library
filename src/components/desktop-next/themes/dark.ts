@@ -16,7 +16,7 @@ export const themeDark: Theme = {
       textColor: "rgba(255, 255, 255, 0.9)",
       iconBackgroundColor: "rgba(40, 40, 40, 0.9)",
       iconShadowColor: "rgba(0, 0, 0, 0.4)",
-      groupIconBackgroundColor: "rgba(40, 40, 40, 0.9)",
+      groupIconBackgroundColor: "rgba(40, 40, 40, 0.5)",
       groupIconShadowColor: "rgba(0, 0, 0, 0.4)",
       infoModalBackgroundColor: "rgba(30, 30, 30, 0.85)",
       groupModal: {

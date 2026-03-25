@@ -21,11 +21,11 @@ const CapsuleBackground: FC<CapsuleBackgroundProps> = ({
           className={cx(
             "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-rounded-xl",
             css`
-              z-index: -1;
               background: rgba(255, 255, 255, 0.08);
             `,
             className,
           )}
+          style={{ zIndex: -1 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

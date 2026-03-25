@@ -33,6 +33,9 @@ import { DesktopNext } from "zs_library";
 import { useState } from "react";
 
 export default () => {
+  const [theme, setTheme] = useState("dark");
+  const [transition, setTransition] = useState("slide");
+
   const [pages, setPages] = useState([
     {
       id: "page-1",
@@ -65,20 +68,66 @@ export default () => {
     },
   ]);
 
+  const themes = ["dark", "light"];
+  const transitions = ["slide", "fade", "zoom", "cube"];
+
+  const btnBase = {
+    padding: "4px 12px",
+    borderRadius: 6,
+    border: "1px solid currentColor",
+    cursor: "pointer",
+    fontSize: 12,
+    opacity: 0.55,
+    transition: "all 0.2s",
+    background: "transparent",
+  };
+
+  const btnActive = {
+    ...btnBase,
+    opacity: 1,
+    fontWeight: 600,
+  };
+
+  const btnInactive = {
+    ...btnBase,
+  };
+
   return (
-    <div style={{ width: "100%", height: 500, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", borderRadius: 16 }}>
-      <DesktopNext
-        pages={pages}
-        onChange={setPages}
-        iconSize={64}
-        onItemClick={(item) => console.log("clicked:", item.data?.name)}
-        dockProps={{
-          showLaunchpad: true,
-          fixedItems: [
-            { id: "settings", type: "app", data: { name: "设置", icon: "https://placehold.co/100x100/8E8E93/FFFFFF?text=S" } },
-          ],
-        }}
-      />
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", gap: 16, alignItems: "center", padding: "0 8px" }}>
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          <span style={{ fontSize: 12, opacity: 0.5, marginRight: 4 }}>主题</span>
+          {themes.map((t) => (
+            <button key={t} style={theme === t ? btnActive : btnInactive} onClick={() => setTheme(t)}>
+              {t}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          <span style={{ fontSize: 12, opacity: 0.5, marginRight: 4 }}>翻页</span>
+          {transitions.map((tr) => (
+            <button key={tr} style={transition === tr ? btnActive : btnInactive} onClick={() => setTransition(tr)}>
+              {tr}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ width: "100%", height: 500, background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", borderRadius: 16 }}>
+        <DesktopNext
+          pages={pages}
+          onChange={setPages}
+          iconSize={64}
+          theme={theme}
+          pageTransition={transition}
+          onItemClick={(item) => console.log("clicked:", item.data?.name)}
+          dockProps={{
+            showLaunchpad: true,
+            fixedItems: [
+              { id: "settings", type: "app", data: { name: "设置", icon: "https://placehold.co/100x100/8E8E93/FFFFFF?text=S" } },
+            ],
+          }}
+        />
+      </div>
     </div>
   );
 };

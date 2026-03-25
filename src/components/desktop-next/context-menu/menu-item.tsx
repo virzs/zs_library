@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { useContext } from "react";
 import { HoverContext } from "./hover-context";
 import CapsuleBackground from "./capsule-background";
+import { useDesktopDnd } from "../context";
 
 export interface MenuItemProps {
   icon?: React.ReactNode;
@@ -26,18 +27,15 @@ export const MenuItem = ({
 }: MenuItemProps) => {
   const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
   const isHovered = hoveredIndex === index;
+  const { theme } = useDesktopDnd();
+  const cmTheme = theme.token.contextMenu;
 
-  const finalTextColor = textColor || "rgba(255, 255, 255, 0.9)";
-  const finalIconColor = color || "rgba(255, 255, 255, 0.9)";
+  const finalTextColor = textColor || cmTheme?.textColor || "rgba(255, 255, 255, 0.9)";
+  const finalIconColor = color || cmTheme?.textColor || "rgba(255, 255, 255, 0.9)";
 
   return (
     <motion.div
-      className={cx(
-        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none",
-        css`
-          z-index: 1;
-        `,
-      )}
+      className="zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none zs-z-[1]"
       onMouseEnter={() => setHoveredIndex(index)}
       onMouseLeave={() => setHoveredIndex(null)}
       onClick={onClick}
@@ -60,11 +58,9 @@ export const MenuItem = ({
       {icon && (
         <motion.div
           className={cx(
-            "zs-flex zs-items-center zs-justify-center zs-shrink-0",
+            "zs-flex zs-items-center zs-justify-center zs-shrink-0 zs-w-[18px] zs-h-[18px]",
             css`
               color: ${finalIconColor};
-              width: 18px;
-              height: 18px;
             `,
           )}
         >

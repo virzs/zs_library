@@ -9,11 +9,6 @@ import GridItem from "./items/grid-item";
 import FolderItem from "./items/folder-item";
 import { getItemSize } from "./config";
 
-const gridContainerStyle = css`
-  display: grid;
-  align-content: start;
-`;
-
 interface PageGridProps {
   pageIndex: number;
   onItemClick?: (item: DndSortItem) => void;
@@ -76,7 +71,7 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
       <div
         ref={gridRef}
         className={cx(
-          gridContainerStyle,
+          "zs-grid zs-content-start",
           css`
             width: ${containerWidth}px;
             grid-template-columns: repeat(${cols}, ${cellSize}px);

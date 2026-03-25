@@ -143,6 +143,8 @@ const BaseModal = (props: BaseModalProps) => {
             css`
               .rc-dialog-section {
                 background: ${bgColor};
+                /* backdrop-filter causes a 1-frame flash on open due to browser rendering constraints —
+                   blur is computed after the element is first painted, not fixable via CSS alone */
                 backdrop-filter: ${bdFilter};
                 -webkit-backdrop-filter: ${bdFilter};
                 box-shadow: 0 20px 40px ${shadowColor};

@@ -59,10 +59,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
           style={{ color: isFocused || value ? "transparent" : iconColor }}
         />
         <span
-          className={css`
-            font-size: 15px;
-            line-height: 1;
-          `}
+          className="zs-text-[15px] zs-leading-none"
         >
           {!value && placeholder}
         </span>

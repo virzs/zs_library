@@ -8,52 +8,49 @@ import React, {
   useState,
 } from "react";
 import { useDesktopDnd } from "../context";
+import { Theme } from "../themes";
 import { DndSortItem } from "../types";
 import GridItem from "../items/grid-item";
 import { useFolderSortEngine } from "../hooks/use-folder-sort-engine";
 import BaseModal from "./base-modal";
 
-const gridContainerStyle = css`
-  display: grid;
-  align-content: start;
-`;
-
 const GRID_GAP = 16;
 
-const editableTitleStyle = css`
-  border-style: none;
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 600;
-  font-size: 18px;
-  letter-spacing: -0.5px;
-  transition: all 0.2s ease-out;
-  background: transparent;
-  text-align: center;
-  width: 100%;
-  padding: 4px 12px;
-  border-radius: 8px;
+const makeEditableTitleStyle = (theme: Theme) => {
+  const t = theme.token.items?.groupModal?.title;
+  return css`
+    border-style: none;
+    color: ${t?.textColor ?? "rgba(255, 255, 255, 0.95)"};
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    transition: all 0.2s ease-out;
+    background: ${t?.backgroundColor ?? "transparent"};
+    padding: 4px 12px;
+    border-radius: 8px;
 
-  &:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-    transform: scale(1.02);
-  }
+    &:focus {
+      outline: none;
+      background: ${t?.focusBackgroundColor ?? "rgba(255, 255, 255, 0.1)"};
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 0 0 2px ${t?.shadowColor ?? "rgba(255, 255, 255, 0.2)"};
+      transform: scale(1.02);
+    }
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.06);
-  }
+    &:hover {
+      background: ${t?.hoverBackgroundColor ?? "rgba(255, 255, 255, 0.06)"};
+    }
 
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-  }
+    &::placeholder {
+      color: ${t?.placeholderColor ?? "rgba(255, 255, 255, 0.4)"};
+    }
 
-  &::selection {
-    background: rgba(255, 255, 255, 0.2);
-  }
-`;
+    &::selection {
+      background: ${t?.selectionBackgroundColor ?? "rgba(255, 255, 255, 0.2)"};
+    }
+  `;
+};
 
 /* ── Editable Title ────────────────────────────────────────────── */
 
@@ -61,14 +58,17 @@ interface EditableFolderTitleProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
+  theme: Theme;
 }
 
 const EditableFolderTitle: React.FC<EditableFolderTitleProps> = ({
   value,
   onChange,
   onBlur,
+  theme,
 }) => {
   const [localValue, setLocalValue] = useState(value);
+  const editableTitleStyle = makeEditableTitleStyle(theme);
 
   useEffect(() => {
     setLocalValue(value);
@@ -82,7 +82,7 @@ const EditableFolderTitle: React.FC<EditableFolderTitleProps> = ({
 
   return (
     <input
-      className={editableTitleStyle}
+      className={cx("zs-text-center zs-w-full", editableTitleStyle)}
       value={localValue}
       onChange={handleChange}
       onBlur={onBlur}
@@ -278,6 +278,7 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
               value={folderName}
               onChange={setFolderName}
               onBlur={handleTitleBlur}
+              theme={theme}
             />
           }
           footer={null}
@@ -290,7 +291,7 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
             <div
               ref={gridRef}
               className={cx(
-                gridContainerStyle,
+                "zs-grid zs-content-start",
                 css`
                   width: ${containerWidth}px;
                   grid-template-columns: repeat(${cols}, ${cellSize}px);
