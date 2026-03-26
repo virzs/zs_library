@@ -179,4 +179,5 @@ export type {
   ThresholdConfig as IdPhotoThresholdConfig,
   CameraConfig as IdPhotoCameraConfig,
   MessageConfig as IdPhotoMessageConfig,
+  ValidatableImage as IdPhotoValidatableImage,
 } from "./id-photo-checker";

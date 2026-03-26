@@ -128,6 +128,7 @@ export type {
   IdPhotoThresholdConfig,
   IdPhotoCameraConfig,
   IdPhotoMessageConfig,
+  IdPhotoValidatableImage,
 } from "./components";
 
 // 导出所有组件作为默认导出

@@ -133,13 +133,7 @@ export interface IdPhotoCheckerProps {
   guideBorderPassColor?: string;
   /** 边框颜色——不通过时 */
   guideBorderFailColor?: string;
-  /**
-   * 引导框形状。
-   * - `'bust'`（默认）：半身胸像 SVG 轮廓；
-   * - `'oval'`：椭圆；
-   * - 传入 `ReactNode` 时完全自定义，组件会将其绝对定位在容器内、叠加在视频上层。
-   */
-  guideShape?: "bust" | "oval" | ReactNode;
+  guideShape?: "bust" | ReactNode;
   /** 自定义加载态组件 */
   loadingComponent?: ReactNode;
   /**
@@ -191,4 +185,15 @@ export interface UseIdPhotoCheckerReturn {
   stop: () => void;
   /** 拍照（返回 base64 图片） */
   capture: () => string | null;
+  /** 对静态图片执行一次检测，返回验证结果 */
+  validateImage: (image: ValidatableImage) => Promise<ValidationResult>;
 }
+
+/** validateIdPhoto 的输入图片类型 */
+export type ValidatableImage =
+  | File
+  | Blob
+  | HTMLImageElement
+  | HTMLCanvasElement
+  | ImageData
+  | string;

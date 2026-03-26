@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Human } from "@vladmandic/human";
 import type { Result as HumanResult } from "@vladmandic/human";
 import { createHumanConfig } from "../utils/human-config";
+import { getHumanInstance, resolveToImageElement } from "../utils/validate-image";
 import {
   mergeMessages,
   mergeThresholds,
@@ -20,6 +21,7 @@ import type {
   CameraConfig,
   MessageConfig,
   UseIdPhotoCheckerReturn,
+  ValidatableImage,
 } from "../types";
 
 const DEFAULT_RULES: Required<ValidationRuleConfig> = {
@@ -89,7 +91,7 @@ export function useIdPhotoChecker(
 
   const [validation, setValidation] =
     useState<ValidationResult>(EMPTY_VALIDATION);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(autoStart);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -319,6 +321,79 @@ export function useIdPhotoChecker(
     return canvas.toDataURL("image/jpeg", 0.95);
   }, [isCameraReady]);
 
+  const validateImage = useCallback(
+    async (image: ValidatableImage): Promise<ValidationResult> => {
+      const input = await resolveToImageElement(image);
+
+      let imageWidth: number;
+      let imageHeight: number;
+      if (input instanceof HTMLImageElement) {
+        imageWidth = input.naturalWidth || input.width;
+        imageHeight = input.naturalHeight || input.height;
+      } else if (input instanceof HTMLCanvasElement) {
+        imageWidth = input.width;
+        imageHeight = input.height;
+      } else {
+        imageWidth = input.width;
+        imageHeight = input.height;
+      }
+
+      let human = humanRef.current;
+      if (!human) {
+        setIsLoading(true);
+        try {
+          human = await getHumanInstance(modelBasePath);
+          humanRef.current = human;
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      const result = await (human as NonNullable<typeof human>).detect(input);
+      const faces = result.face;
+      const gestures = result.gesture;
+
+      const faceCountItem = validateFaceCount(faces.length, mergedMessages);
+      if (faceCountItem) {
+        return {
+          isValid: false,
+          items: [faceCountItem],
+          faceCount: faces.length,
+          faceScore: 0,
+        };
+      }
+
+      const face = faces[0];
+      const items = [];
+
+      if (rules.checkBounds) {
+        items.push(
+          validateBounds(face, bounds, imageWidth, imageHeight, mergedThresholds, mergedMessages),
+        );
+      }
+      if (rules.checkOrientation) {
+        items.push(validateOrientation(face, gestures, mergedThresholds, mergedMessages));
+      }
+      if (rules.checkHat) {
+        items.push(validateHat(face, mergedThresholds, mergedMessages));
+      }
+      if (rules.checkGlasses) {
+        items.push(validateGlasses(face, mergedThresholds, mergedMessages));
+      }
+      if (rules.checkOcclusion) {
+        items.push(validateOcclusion(face, mergedThresholds, mergedMessages));
+      }
+
+      return {
+        isValid: items.every((item) => item.status === "pass"),
+        items,
+        faceCount: 1,
+        faceScore: face.score,
+      };
+    },
+    [bounds, mergedMessages, mergedThresholds, rules, resolveToImageElement],
+  );
+
   useEffect(() => {
     if (autoStart) {
       start();
@@ -340,5 +415,6 @@ export function useIdPhotoChecker(
     start,
     stop,
     capture,
+    validateImage,
   };
 }

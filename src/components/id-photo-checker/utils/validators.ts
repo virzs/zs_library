@@ -7,7 +7,7 @@ import type {
 } from "../types";
 
 const DEFAULT_MESSAGES: Required<MessageConfig> = {
-  noFace: "未检测到人脸，请将面部对准框内",
+  noFace: "未检测到人脸",
   multipleFaces: "检测到多张人脸，请确保仅一人入镜",
   outOfBounds: "面部偏离拍照区域，请调整位置",
   hatDetected: "疑似佩戴帽子，请摘除帽子",

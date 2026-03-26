@@ -126,7 +126,7 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
   const guideOverlay = useMemo(() => {
     if (!isCameraReady) return null;
 
-    if (guideShape !== "bust" && guideShape !== "oval") {
+    if (guideShape !== "bust") {
       return (
         <div
           style={{
@@ -144,33 +144,6 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
     const y = bounds.top * 100;
     const w = bounds.width * 100;
     const h = bounds.height * 100;
-
-    if (guideShape === "oval") {
-      const cx = x + w / 2;
-      const cy = y + h / 2;
-      const rx = w / 2;
-      const ry = h / 2;
-      return (
-        <svg
-          style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
-          width="100%"
-          height="100%"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-        >
-          <ellipse
-            cx={cx}
-            cy={cy}
-            rx={rx}
-            ry={ry}
-            fill="none"
-            stroke={borderColor}
-            strokeWidth="0.6"
-            style={{ transition: "stroke 0.3s ease" }}
-          />
-        </svg>
-      );
-    }
 
     return (
       <BustGuide
@@ -370,78 +343,47 @@ interface BustGuideProps {
 }
 
 const BustGuide: React.FC<BustGuideProps> = ({ x, y, w, h, color }) => {
-  const cx = x + w / 2;
+  const vw = 100;
+  const vh = 130;
 
-  const headH = h * 0.42;
-  const headW = w * 0.52;
-  const headCy = y + headH * 0.54;
-  const headRx = headW / 2;
-  const headRy = headH / 2;
+  const top = y;
+  const left = x;
 
-  const neckW = w * 0.14;
-  const neckTop = headCy + headRy * 0.75;
-  const neckBot = y + h * 0.62;
+  const scaleX = (v: number) => (v / vw) * 100;
+  const scaleY = (v: number) => (v / vh) * 100;
 
-  const shoulderY = y + h * 0.72;
-  const bustBotY = y + h;
+  const toX = (px: number) => left + scaleX(px) * (w / 100);
+  const toY = (py: number) => top + scaleY(py) * (h / 100);
 
-  const shoulderSpread = w * 0.72;
-  const bustW = w * 0.96;
-
-  const neckL = cx - neckW / 2;
-  const neckR = cx + neckW / 2;
-  const shoulderL = cx - shoulderSpread / 2;
-  const shoulderR = cx + shoulderSpread / 2;
-  const bustL = cx - bustW / 2;
-  const bustR = cx + bustW / 2;
-
-  const cp1Lx = neckL - w * 0.04;
-  const cp1Ly = neckBot + (shoulderY - neckBot) * 0.3;
-  const cp2Lx = shoulderL + w * 0.04;
-  const cp2Ly = shoulderY - h * 0.02;
-
-  const cp1Rx = neckR + w * 0.04;
-  const cp1Ry = cp1Ly;
-  const cp2Rx = shoulderR - w * 0.04;
-  const cp2Ry = cp2Ly;
-
-  const bustPath = [
-    `M ${neckL} ${neckTop}`,
-    `C ${cp1Lx} ${cp1Ly}, ${cp2Lx} ${cp2Ly}, ${shoulderL} ${shoulderY}`,
-    `L ${bustL} ${bustBotY}`,
-    `L ${bustR} ${bustBotY}`,
-    `L ${shoulderR} ${shoulderY}`,
-    `C ${cp2Rx} ${cp2Ry}, ${cp1Rx} ${cp1Ry}, ${neckR} ${neckTop}`,
+  const outline = [
+    `M ${toX(50)} ${toY(2)}`,
+    `C ${toX(72)} ${toY(2)}, ${toX(84)} ${toY(14)}, ${toX(84)} ${toY(30)}`,
+    `C ${toX(84)} ${toY(46)}, ${toX(74)} ${toY(55)}, ${toX(62)} ${toY(58)}`,
+    `C ${toX(60)} ${toY(62)}, ${toX(60)} ${toY(66)}, ${toX(62)} ${toY(68)}`,
+    `C ${toX(72)} ${toY(70)}, ${toX(90)} ${toY(78)}, ${toX(98)} ${toY(92)}`,
+    `L ${toX(100)} ${toY(130)}`,
+    `L ${toX(0)} ${toY(130)}`,
+    `L ${toX(2)} ${toY(92)}`,
+    `C ${toX(10)} ${toY(78)}, ${toX(28)} ${toY(70)}, ${toX(38)} ${toY(68)}`,
+    `C ${toX(40)} ${toY(66)}, ${toX(40)} ${toY(62)}, ${toX(38)} ${toY(58)}`,
+    `C ${toX(26)} ${toY(55)}, ${toX(16)} ${toY(46)}, ${toX(16)} ${toY(30)}`,
+    `C ${toX(16)} ${toY(14)}, ${toX(28)} ${toY(2)}, ${toX(50)} ${toY(2)}`,
+    `Z`,
   ].join(" ");
-
-  const headPath = `
-    M ${cx - headRx} ${headCy}
-    A ${headRx} ${headRy} 0 1 1 ${cx + headRx} ${headCy}
-    A ${headRx} ${headRy} 0 1 1 ${cx - headRx} ${headCy}
-  `;
 
   return (
     <svg
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
       width="100%"
       height="100%"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
     >
       <path
-        d={bustPath}
+        d={outline}
         fill="none"
         stroke={color}
-        strokeWidth="0.6"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        style={{ transition: "stroke 0.3s ease" }}
-      />
-      <path
-        d={headPath}
-        fill="none"
-        stroke={color}
-        strokeWidth="0.6"
         style={{ transition: "stroke 0.3s ease" }}
       />
     </svg>
@@ -500,6 +442,7 @@ export type {
   ThresholdConfig,
   CameraConfig,
   MessageConfig,
+  ValidatableImage,
 } from "./types";
 
 export default IdPhotoChecker;
