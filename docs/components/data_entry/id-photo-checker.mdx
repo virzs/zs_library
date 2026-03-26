@@ -1,3 +1,5 @@
+import GuidePreview from "./id-photo-checker/guide-preview";
+
 # IdPhotoChecker 证件照检测
 
 基于 [@vladmandic/human](https://github.com/vladmandic/human) 的实时证件照拍摄检测组件，通过摄像头实时检测人脸，支持边框偏离检测、戴帽检测、戴眼镜检测、面部遮挡检测等，适用于证件照拍摄场景。
@@ -222,6 +224,12 @@ export default () => {
   );
 };
 ```
+
+## 引导框预览
+
+半身剪影引导框效果（通过/未通过两种颜色状态）：
+
+<GuidePreview />
 
 ## 自定义引导框形状
 

@@ -7,10 +7,10 @@ import type {
 } from "./types";
 
 const DEFAULT_BOUNDS: BoundsConfig = {
-  left: 0.2,
-  top: 0.05,
-  width: 0.6,
-  height: 0.85,
+  left: 0,
+  top: 0,
+  width: 1,
+  height: 1,
 };
 
 const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
@@ -124,8 +124,6 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
         : "";
 
   const guideOverlay = useMemo(() => {
-    if (!isCameraReady) return null;
-
     if (guideShape !== "bust") {
       return (
         <div
@@ -140,21 +138,18 @@ const IdPhotoChecker: React.FC<IdPhotoCheckerProps> = ({
       );
     }
 
-    const x = bounds.left * 100;
-    const y = bounds.top * 100;
-    const w = bounds.width * 100;
-    const h = bounds.height * 100;
-
     return (
       <BustGuide
-        x={x}
-        y={y}
-        w={w}
-        h={h}
+        x={bounds.left}
+        y={bounds.top}
+        w={bounds.width}
+        h={bounds.height}
         color={borderColor}
+        containerWidth={width}
+        containerHeight={height}
       />
     );
-  }, [isCameraReady, guideShape, bounds, borderColor]);
+  }, [guideShape, bounds, borderColor]);
 
   if (value) {
     return (
@@ -340,34 +335,33 @@ interface BustGuideProps {
   w: number;
   h: number;
   color: string;
+  containerWidth: number;
+  containerHeight: number;
 }
 
-const BustGuide: React.FC<BustGuideProps> = ({ x, y, w, h, color }) => {
+const BustGuide: React.FC<BustGuideProps> = ({ x, y, w, h, color, containerWidth, containerHeight }) => {
   const vw = 100;
-  const vh = 130;
+  const vh = 100;
 
-  const top = y;
-  const left = x;
+  const pxLeft = x * containerWidth;
+  const pxTop = y * containerHeight;
+  const pxW = w * containerWidth;
+  const pxH = h * containerHeight;
 
-  const scaleX = (v: number) => (v / vw) * 100;
-  const scaleY = (v: number) => (v / vh) * 100;
-
-  const toX = (px: number) => left + scaleX(px) * (w / 100);
-  const toY = (py: number) => top + scaleY(py) * (h / 100);
+  const toX = (px: number) => pxLeft + (px / vw) * pxW;
+  const toY = (py: number) => pxTop + (py / vh) * pxH;
 
   const outline = [
-    `M ${toX(50)} ${toY(2)}`,
-    `C ${toX(72)} ${toY(2)}, ${toX(84)} ${toY(14)}, ${toX(84)} ${toY(30)}`,
-    `C ${toX(84)} ${toY(46)}, ${toX(74)} ${toY(55)}, ${toX(62)} ${toY(58)}`,
-    `C ${toX(60)} ${toY(62)}, ${toX(60)} ${toY(66)}, ${toX(62)} ${toY(68)}`,
-    `C ${toX(72)} ${toY(70)}, ${toX(90)} ${toY(78)}, ${toX(98)} ${toY(92)}`,
-    `L ${toX(100)} ${toY(130)}`,
-    `L ${toX(0)} ${toY(130)}`,
-    `L ${toX(2)} ${toY(92)}`,
-    `C ${toX(10)} ${toY(78)}, ${toX(28)} ${toY(70)}, ${toX(38)} ${toY(68)}`,
-    `C ${toX(40)} ${toY(66)}, ${toX(40)} ${toY(62)}, ${toX(38)} ${toY(58)}`,
-    `C ${toX(26)} ${toY(55)}, ${toX(16)} ${toY(46)}, ${toX(16)} ${toY(30)}`,
-    `C ${toX(16)} ${toY(14)}, ${toX(28)} ${toY(2)}, ${toX(50)} ${toY(2)}`,
+    `M ${toX(50)} ${toY(5)}`,
+    `C ${toX(70)} ${toY(4)}, ${toX(86)} ${toY(16)}, ${toX(86)} ${toY(36)}`,
+    `C ${toX(86)} ${toY(55)}, ${toX(74)} ${toY(63)}, ${toX(66)} ${toY(65)}`,
+    `C ${toX(76)} ${toY(67)}, ${toX(90)} ${toY(72)}, ${toX(100)} ${toY(78)}`,
+    `L ${toX(100)} ${toY(100)}`,
+    `L ${toX(0)} ${toY(100)}`,
+    `L ${toX(0)} ${toY(78)}`,
+    `C ${toX(10)} ${toY(72)}, ${toX(24)} ${toY(67)}, ${toX(34)} ${toY(65)}`,
+    `C ${toX(26)} ${toY(63)}, ${toX(14)} ${toY(55)}, ${toX(14)} ${toY(36)}`,
+    `C ${toX(14)} ${toY(16)}, ${toX(30)} ${toY(4)}, ${toX(50)} ${toY(5)}`,
     `Z`,
   ].join(" ");
 
