@@ -11,7 +11,7 @@ export interface DndItemBaseData {
 export interface DndSortItem<D = any> {
   id: string | number;
   /** 项目类型: app 或 group(文件夹) */
-  type: "app" | "group";
+  type: "app" | "group" | string;
   dataType?: string;
   config?: SortItemUserConfig;
   data?: D & DndItemBaseData;
