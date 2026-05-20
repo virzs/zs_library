@@ -16,6 +16,7 @@ export interface ContextMenuProps<D, C> {
   showInfoButton?: boolean;
   showRemoveButton?: boolean;
   showSizeButton?: boolean;
+  menuItems?: MenuItemConfig[];
   onShareClick?: (item: SortItem<D, C>) => void;
   onInfoClick?: (item: SortItem<D, C>) => void;
   onRemoveClick?: (item: SortItem<D, C>, remove: (id: string) => void) => void;
@@ -29,6 +30,7 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     showRemoveButton = true,
     showShareButton = true,
     showSizeButton = true,
+    menuItems = [],
     animationOrigin = "center",
     isOpen = true,
     onInfoClick,
@@ -60,13 +62,12 @@ const ContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     return sizeConfigs.map((sizeConfig) => sizeConfig.name);
   };
 
-  // 获取当前item的dataType对应的自定义菜单项
+  // 获取当前item的dataType和当前菜单配置对应的自定义菜单项
   const getCustomMenuItems = (): MenuItemConfig[] => {
     const dataType = contextMenu?.data?.dataType;
-    if (!dataType || !dataTypeMenuConfigMap) {
-      return [];
-    }
-    return dataTypeMenuConfigMap[dataType] || [];
+    const dataTypeMenuItems =
+      dataType && dataTypeMenuConfigMap ? dataTypeMenuConfigMap[dataType] || [] : [];
+    return [...dataTypeMenuItems, ...menuItems];
   };
 
   // 创建上下文操作对象，供自定义菜单项使用
