@@ -28,7 +28,6 @@
     "dist"
   ],
   "scripts": {
-    "build:photo-watermark-wasm": "node src/components/photo-watermark/src-wasm/build-wasm.mjs",
     "release": "bumpp && pnpm vite build && pnpm publish",
     "build": "tsc -b && vite build",
     "dev": "vite",
