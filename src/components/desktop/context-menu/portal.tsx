@@ -1,5 +1,19 @@
-import { useEffect, useState, useCallback, useLayoutEffect } from "react";
-import { useFloating, autoUpdate, offset, flip, shift, FloatingPortal } from "@floating-ui/react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+} from "react";
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+  FloatingPortal,
+} from "@floating-ui/react";
+import { useSortableConfig } from "../context/config/hooks";
 import { useContextMenuState } from "../context/state/hooks";
 import ContextMenu, { ContextMenuProps } from "./index";
 
@@ -22,6 +36,8 @@ const getViewportBounds = () => ({
 
 const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   const { contextMenu, setContextMenu } = useContextMenuState();
+  const { contextMenu: contextMenuConfig, contextMenuBuilder } =
+    useSortableConfig();
   const [isOpen, setIsOpen] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
   const shouldActuallyRender = shouldRender || Boolean(contextMenu);
@@ -33,6 +49,33 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   });
   const [animationOrigin, setAnimationOrigin] = useState("center");
 
+  const resolvedContextMenuProps = useMemo(() => {
+    if (!contextMenu) return props;
+
+    if (typeof contextMenuConfig === "function") {
+      const resolved = contextMenuConfig(contextMenu.data);
+      return resolved === false ? false : { ...props, ...resolved };
+    }
+
+    if (contextMenuConfig !== undefined) {
+      return contextMenuConfig === false
+        ? false
+        : { ...props, ...contextMenuConfig };
+    }
+
+    if (contextMenuBuilder) {
+      return { ...props, ...contextMenuBuilder(contextMenu.data) };
+    }
+
+    return props;
+  }, [contextMenu, contextMenuBuilder, contextMenuConfig, props]);
+
+  useEffect(() => {
+    if (resolvedContextMenuProps === false) {
+      setContextMenu(null);
+    }
+  }, [resolvedContextMenuProps, setContextMenu]);
+
   // 计算图标区域的工具函数
   const calculateIconRect = useCallback(
     (rect: DOMRect) => ({
@@ -43,23 +86,36 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
       width: rect.width,
       height: rect.height,
     }),
-    []
+    [],
   );
 
   // 应用边界约束的工具函数
-  const applyBoundaryConstraints = useCallback((left: number, top: number, menuWidth: number, menuHeight: number) => {
-    const viewport = getViewportBounds();
-    const gap = CONSTANTS.GAP;
+  const applyBoundaryConstraints = useCallback(
+    (left: number, top: number, menuWidth: number, menuHeight: number) => {
+      const viewport = getViewportBounds();
+      const gap = CONSTANTS.GAP;
 
-    return {
-      left: Math.max(viewport.left + gap, Math.min(left, viewport.right - menuWidth - gap)),
-      top: Math.max(viewport.top + gap, Math.min(top, viewport.bottom - menuHeight - gap)),
-    };
-  }, []);
+      return {
+        left: Math.max(
+          viewport.left + gap,
+          Math.min(left, viewport.right - menuWidth - gap),
+        ),
+        top: Math.max(
+          viewport.top + gap,
+          Math.min(top, viewport.bottom - menuHeight - gap),
+        ),
+      };
+    },
+    [],
+  );
 
   // 计算菜单位置的核心逻辑
   const calculateMenuPosition = useCallback(
-    (iconRect: ReturnType<typeof calculateIconRect>, menuWidth: number, menuHeight: number) => {
+    (
+      iconRect: ReturnType<typeof calculateIconRect>,
+      menuWidth: number,
+      menuHeight: number,
+    ) => {
       const gap = CONSTANTS.GAP;
       const viewport = getViewportBounds();
       let left = iconRect.right + gap;
@@ -93,7 +149,7 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
       return applyBoundaryConstraints(left, top, menuWidth, menuHeight);
     },
-    [applyBoundaryConstraints]
+    [applyBoundaryConstraints],
   );
 
   // 创建虚拟元素作为定位参考
@@ -131,34 +187,37 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
   });
 
   // 计算动画原点
-  const calculateAnimationOrigin = useCallback((
-    menuLeft: number,
-    menuTop: number,
-    iconRect: { left: number; right: number; top: number; bottom: number }
-  ) => {
-    // 确定菜单相对于图标的方向
-    const isLeft = menuLeft < iconRect.left;
-    const isRight = menuLeft > iconRect.right;
-    const isTop = menuTop < iconRect.top;
-    const isBottom = menuTop > iconRect.bottom;
+  const calculateAnimationOrigin = useCallback(
+    (
+      menuLeft: number,
+      menuTop: number,
+      iconRect: { left: number; right: number; top: number; bottom: number },
+    ) => {
+      // 确定菜单相对于图标的方向
+      const isLeft = menuLeft < iconRect.left;
+      const isRight = menuLeft > iconRect.right;
+      const isTop = menuTop < iconRect.top;
+      const isBottom = menuTop > iconRect.bottom;
 
-    // 根据位置关系确定动画原点
-    if (isRight) {
-      if (isTop) return "bottom left";
-      if (isBottom) return "top left";
-      return "center left";
-    } else if (isLeft) {
-      if (isTop) return "bottom right";
-      if (isBottom) return "top right";
-      return "center right";
-    } else if (isBottom) {
-      return "top center";
-    } else if (isTop) {
-      return "bottom center";
-    }
+      // 根据位置关系确定动画原点
+      if (isRight) {
+        if (isTop) return "bottom left";
+        if (isBottom) return "top left";
+        return "center left";
+      } else if (isLeft) {
+        if (isTop) return "bottom right";
+        if (isBottom) return "top right";
+        return "center right";
+      } else if (isBottom) {
+        return "top center";
+      } else if (isTop) {
+        return "bottom center";
+      }
 
-    return "center";
-  }, []);
+      return "center";
+    },
+    [],
+  );
 
   const getCurrentReferenceRect = useCallback(() => {
     const elementRect = contextMenu?.element?.getBoundingClientRect();
@@ -182,13 +241,24 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
         ? CONSTANTS.ESTIMATED_MENU_HEIGHT
         : menuElement?.offsetHeight || CONSTANTS.ESTIMATED_MENU_HEIGHT;
 
-      const { left, top } = calculateMenuPosition(iconRect, menuWidth, menuHeight);
+      const { left, top } = calculateMenuPosition(
+        iconRect,
+        menuWidth,
+        menuHeight,
+      );
 
       const origin = calculateAnimationOrigin(left, top, iconRect);
       setAnimationOrigin(origin);
       setCalculatedPosition({ left, top });
     },
-    [calculateAnimationOrigin, calculateIconRect, calculateMenuPosition, contextMenu, getCurrentReferenceRect, refs.floating]
+    [
+      calculateAnimationOrigin,
+      calculateIconRect,
+      calculateMenuPosition,
+      contextMenu,
+      getCurrentReferenceRect,
+      refs.floating,
+    ],
   );
 
   // 监听 contextMenu 状态变化
@@ -214,7 +284,11 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
     if (!shouldActuallyRender || !contextMenu) return;
 
     const floatingEl = refs.floating.current;
-    if (floatingEl && floatingEl.offsetWidth > 0 && floatingEl.offsetHeight > 0) {
+    if (
+      floatingEl &&
+      floatingEl.offsetWidth > 0 &&
+      floatingEl.offsetHeight > 0
+    ) {
       recalculatePosition();
       setIsPositionReady(true);
       return;
@@ -228,7 +302,11 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
     const tryPosition = () => {
       const floatingEl = refs.floating.current;
-      if (floatingEl && floatingEl.offsetWidth > 0 && floatingEl.offsetHeight > 0) {
+      if (
+        floatingEl &&
+        floatingEl.offsetWidth > 0 &&
+        floatingEl.offsetHeight > 0
+      ) {
         recalculatePosition();
         setIsPositionReady(true);
         return;
@@ -320,7 +398,7 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
 
   // ...existing code...
 
-  if (!shouldActuallyRender) {
+  if (!shouldActuallyRender || resolvedContextMenuProps === false) {
     return null;
   }
 
@@ -342,7 +420,11 @@ const GlobalContextMenu = <D, C>(props: ContextMenuProps<D, C>) => {
           e.stopPropagation();
         }}
       >
-        <ContextMenu {...props} animationOrigin={animationOrigin} isOpen={isActuallyOpen} />
+        <ContextMenu
+          {...resolvedContextMenuProps}
+          animationOrigin={animationOrigin}
+          isOpen={isActuallyOpen}
+        />
       </div>
     </FloatingPortal>
   );
