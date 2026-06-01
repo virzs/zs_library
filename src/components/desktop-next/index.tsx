@@ -36,6 +36,7 @@ interface DesktopDndInnerProps {
   className?: string;
   dockProps?: DockProps;
   onDockItemsChange?: (items: DndSortItem[]) => void;
+  showPagination?: boolean;
 }
 
 const DesktopDndInner = ({
@@ -45,6 +46,7 @@ const DesktopDndInner = ({
   className,
   dockProps,
   onDockItemsChange,
+  showPagination = true,
 }: DesktopDndInnerProps) => {
   const { pages, currentPage, setCurrentPage, dragState, hideContextMenu, theme, pagingDotBuilder, pagingDotsBuilder, pageTransition = "slide" } = useDesktopDnd();
 
@@ -134,6 +136,17 @@ const DesktopDndInner = ({
     },
     [pages, onItemClick],
   );
+
+  const launchpadApps = useMemo(() => {
+    const getApps = (items: DndSortItem[]): DndSortItem[] =>
+      items.flatMap((item) => {
+        if (item.type === "app") return [item];
+        if (item.type === "group" && item.children) return getApps(item.children);
+        return [];
+      });
+
+    return pages.flatMap((page) => getApps(page.children));
+  }, [pages]);
 
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const mouseStartRef = useRef<{ x: number; time: number } | null>(null);
@@ -358,7 +371,7 @@ const DesktopDndInner = ({
   }, [dragState.isDragging, hideContextMenu]);
 
   const dots = useMemo(() => {
-    if (totalPages <= 1) return null;
+    if (!showPagination || totalPages <= 1) return null;
 
     const dotNodes = pages.map((page, index) => {
       if (pagingDotBuilder) {
@@ -379,13 +392,13 @@ const DesktopDndInner = ({
     }
 
     return <div className="zs-flex zs-justify-center zs-items-center zs-gap-1.5 zs-py-2">{dotNodes}</div>;
-  }, [totalPages, pages, currentPage, pagingDotBuilder, pagingDotsBuilder, goToPage]);
+  }, [showPagination, totalPages, pages, currentPage, pagingDotBuilder, pagingDotsBuilder, goToPage]);
 
   return (
     <>
       <div
         ref={containerRef}
-        className={cx("zs-relative zs-w-full zs-h-full zs-overflow-hidden zs-select-none", className)}
+        className={cx("zs-relative zs-w-full zs-h-full zs-min-h-0 zs-overflow-hidden zs-select-none", className)}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -394,25 +407,26 @@ const DesktopDndInner = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        <div className="zs-flex zs-flex-col zs-h-full">
-          <div className="zs-flex-1 zs-overflow-hidden">
+        <div className="zs-flex zs-flex-col zs-h-full zs-min-h-0">
+          <div className="zs-flex-1 zs-min-h-0 zs-overflow-hidden">
             {renderPages()}
           </div>
-        </div>
 
-        {(dockProps || dots) && (
-          <div className="zs-absolute zs-bottom-0 zs-left-0 zs-right-0 zs-flex zs-flex-col zs-items-center zs-pb-4 zs-px-4" style={{ zIndex: 100 }}>
-            {dots}
-            {dockProps && (
-              <Dock
-                {...dockProps}
-                items={recentDockItems}
-                onItemClick={handleDockItemClick}
-                theme={dockProps.theme ?? theme}
-              />
-            )}
-          </div>
-        )}
+          {(dockProps || dots) && (
+            <div className="zs-flex zs-flex-col zs-items-center zs-shrink-0 zs-pb-4 zs-px-4" style={{ zIndex: 100 }}>
+              {dots}
+              {dockProps && (
+                <Dock
+                  {...dockProps}
+                  items={recentDockItems}
+                  launchpadApps={launchpadApps}
+                  onItemClick={handleDockItemClick}
+                  theme={dockProps.theme ?? theme}
+                />
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <FolderModal iconBuilder={iconBuilder} />
@@ -444,23 +458,52 @@ const DesktopHandleAccessor = ({ handleRef }: { handleRef: React.ForwardedRef<De
 };
 
 export interface DesktopDndExtendedProps<D = unknown> extends DesktopDndProps<D> {
+  /** Dock 配置。 */
   dockProps?: DockProps;
+  /** 是否显示 dock。优先使用 `dockProps` 提供具体配置。 */
+  showDock?: boolean;
   theme?: Theme | "light" | "dark";
+  /** @deprecated 请使用 `showLabels={false}` 代替。 */
   noLetters?: boolean;
+  /** 是否显示项目名称。 */
+  showLabels?: boolean;
   storageKey?: string;
   pageTransition?: import("./types").PageTransition;
   itemBuilder?: (item: DndSortItem, index: number) => React.ReactNode | null;
+  /** @deprecated 请让 `itemBuilder` 返回 `null` 回退默认渲染；设置为 `false` 会保留旧版“null 也作为渲染结果”的行为。 */
   itemBuilderAllowNull?: boolean;
+  /** @deprecated 请让 `itemIconBuilder` 返回 `null` 回退默认图标；设置为 `false` 会保留旧版“null 也作为渲染结果”的行为。 */
   itemIconBuilderAllowNull?: boolean;
   pagingDotBuilder?: (index: number, isActive: boolean) => React.ReactNode;
   pagingDotsBuilder?: (dots: React.ReactNode[]) => React.ReactNode;
   extraItems?: DndSortItem[];
   componentRegistry?: ComponentRegistry;
+  /** 分页配置。`false` 表示隐藏分页指示器；不再支持旧版 react-slick 的位置配置。 */
+  pagination?: false | { visible?: boolean };
+  /** @deprecated 请使用 `maxPages` 代替。 */
+  maxSlides?: number;
+  /** @deprecated 请使用 `dockProps` 和 `showDock` 代替。 */
+  dock?: ({ enabled?: boolean } & DockProps) | false;
+  /** @deprecated desktop-next 不再基于 react-slick，使用 `pageTransition` 控制分页动画。 */
+  sliderProps?: unknown;
+  /** @deprecated desktop-next 不再暴露 react-slick ref，请使用组件 ref 读取 `currentPage` 和 `setCurrentPage`。 */
+  sliderRef?: React.RefObject<unknown>;
+}
+
+interface DesktopDndLegacyCompatProps {
+  noLetters?: boolean;
+  itemBuilderAllowNull?: boolean;
+  itemIconBuilderAllowNull?: boolean;
+  maxSlides?: number;
+  dock?: ({ enabled?: boolean } & DockProps) | false;
 }
 
 const DesktopDnd = forwardRef(
   <D = unknown,>(
-    {
+    props: DesktopDndExtendedProps<D>,
+    ref: React.ForwardedRef<DesktopHandle>,
+  ) => {
+    const {
       pages,
       onChange,
       iconSize = 64,
@@ -475,28 +518,39 @@ const DesktopDnd = forwardRef(
       onContextMenuItemClick,
       contextMenuProps,
       dockProps,
+      showDock,
       theme,
-      noLetters,
+      showLabels,
       storageKey,
       pageTransition,
       itemBuilder,
-      itemBuilderAllowNull,
-      itemIconBuilderAllowNull,
       pagingDotBuilder,
       pagingDotsBuilder,
       extraItems,
       componentRegistry,
-    }: DesktopDndExtendedProps<D>,
-    ref: React.ForwardedRef<DesktopHandle>,
-  ) => {
+      pagination,
+    } = props;
+    const {
+      noLetters,
+      itemBuilderAllowNull,
+      itemIconBuilderAllowNull,
+      maxSlides,
+      dock,
+    } = props as DesktopDndLegacyCompatProps;
     const containerRef = useRef<HTMLDivElement>(null);
+    const resolvedMaxPages = maxPages || maxSlides || 0;
+    const resolvedNoLetters = showLabels === undefined ? noLetters : !showLabels;
+    const { enabled: legacyDockEnabled = true, ...legacyDockProps } = dock && typeof dock === "object" ? dock : {};
+    const resolvedDockProps = dockProps ?? (dock && legacyDockEnabled ? legacyDockProps : undefined);
+    const shouldShowDock = showDock ?? Boolean(resolvedDockProps);
+    const showPagination = pagination !== false && pagination?.visible !== false;
 
     return (
       <DesktopDndProvider
         pages={pages as DndPageItem[]}
         onChange={onChange as (pages: DndPageItem[]) => void}
         iconSize={iconSize}
-        maxPages={maxPages}
+        maxPages={resolvedMaxPages}
         mergeDwellTime={mergeDwellTime}
         containerRef={containerRef}
         typeConfigMap={typeConfigMap}
@@ -505,7 +559,7 @@ const DesktopDnd = forwardRef(
         onContextMenuItemClick={onContextMenuItemClick as ((item: DndSortItem, payload: ContextMenuActionPayload) => void) | undefined}
         contextMenuProps={contextMenuProps}
         theme={theme}
-        noLetters={noLetters}
+        noLetters={resolvedNoLetters}
         storageKey={storageKey}
         pageTransition={pageTransition}
         itemBuilder={itemBuilder as ((item: DndSortItem, index: number) => React.ReactNode | null) | undefined}
@@ -523,7 +577,8 @@ const DesktopDnd = forwardRef(
           onItemClick={onItemClick as ((item: DndSortItem) => void) | undefined}
           iconBuilder={itemIconBuilder as ((item: DndSortItem) => React.ReactNode) | undefined}
           className={className}
-          dockProps={dockProps}
+          dockProps={shouldShowDock ? resolvedDockProps : undefined}
+          showPagination={showPagination}
         />
       </DesktopDndProvider>
     );

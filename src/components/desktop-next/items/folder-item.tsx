@@ -3,6 +3,7 @@ import React, { useCallback } from "react";
 import { useDesktopDnd } from "../context";
 import { DndSortItem } from "../types";
 import GridItem from "./grid-item";
+import IconImage from "./icon-image";
 
 interface FolderItemProps {
   item: DndSortItem;
@@ -16,6 +17,7 @@ interface FolderItemProps {
   onItemClick?: (item: DndSortItem) => void;
   iconBuilder?: (item: DndSortItem) => React.ReactNode;
   size?: { col: number; row: number };
+  noLabel?: boolean;
 }
 
 const FolderItem = ({
@@ -23,6 +25,7 @@ const FolderItem = ({
   onDragStart,
   iconBuilder,
   size,
+  noLabel,
 }: FolderItemProps) => {
   const { iconSize, setFolderModal, dragState, theme } = useDesktopDnd();
 
@@ -59,6 +62,39 @@ const FolderItem = ({
       itemsTheme?.iconBackgroundColor ?? "rgba(255, 255, 255, 0.15)";
     const fallbackBg = itemsTheme?.iconBackgroundColor ?? "rgba(64, 148, 229, 0.9)";
 
+    const renderChildIcon = (child: DndSortItem) => {
+      const builtIcon = iconBuilder?.(child);
+      if (builtIcon) return builtIcon;
+
+      const iconData = child.data?.icon;
+      if (
+        iconData &&
+        typeof iconData === "string" &&
+        (iconData.startsWith("http") || iconData.startsWith("https"))
+      ) {
+        return (
+          <IconImage
+            src={iconData}
+            fallbackText={child.data?.name ?? "?"}
+            fallbackBackground={child.data?.iconColor ?? fallbackBg}
+            fallbackClassName="zs-text-[13px] zs-font-bold"
+            fallbackRadiusClassName=""
+          />
+        );
+      }
+
+      if (iconData) return <>{iconData}</>;
+
+      return (
+        <div
+          className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-[13px] zs-font-bold"
+          style={{ background: fallbackBg }}
+        >
+          {(child.data?.name ?? "?").charAt(0)}
+        </div>
+      );
+    };
+
     return (
       <div
         className={cx(
@@ -88,25 +124,7 @@ const FolderItem = ({
               `,
             )}
           >
-            {iconBuilder ? (
-              iconBuilder(child)
-            ) : child.data?.icon &&
-              typeof child.data.icon === "string" &&
-              (child.data.icon.startsWith("http") ||
-                child.data.icon.startsWith("https")) ? (
-              <img
-                src={child.data.icon}
-                alt=""
-                className="zs-w-full zs-h-full zs-object-cover"
-              />
-            ) : (
-              <div
-                className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-xs"
-                style={{ background: fallbackBg }}
-              >
-                {(child.data?.name ?? "?").charAt(0)}
-              </div>
-            )}
+            {renderChildIcon(child)}
           </div>
         ))}
       </div>
@@ -120,6 +138,7 @@ const FolderItem = ({
       onItemClick={handleFolderClick}
       iconBuilder={iconBuilder}
       size={size}
+      noLabel={noLabel}
     >
       {renderFolderPreview()}
     </GridItem>

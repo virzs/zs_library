@@ -115,7 +115,8 @@ export type {
   ThemeType as DesktopNextThemeType,
 } from "./desktop-next/themes";
 export type {
-  DesktopDndProps as DesktopNextProps,
+  DesktopDndExtendedProps as DesktopNextProps,
+  DesktopHandle as DesktopNextHandle,
   DndSortItem,
   DndPageItem,
   DndItemBaseData,
@@ -129,7 +130,7 @@ export type {
   DesktopDndContextMenuProps as DesktopNextContextMenuProps,
   ContextMenuActionPayload,
   ContextMenuActionType,
-} from "./desktop-next/types";
+} from "./desktop-next";
 
 // @deprecated Use DesktopNext instead
 export { default as DesktopDnd } from "./desktop-next";
@@ -163,4 +164,3 @@ export type {
   TemplateConfig,
   ExifParamsForm
 } from "./photo-watermark";
-

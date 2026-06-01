@@ -16,7 +16,16 @@ interface PageGridProps {
 }
 
 const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
-  const { pages, iconSize, dragState, typeConfigMap } = useDesktopDnd();
+  const {
+    pages,
+    iconSize,
+    dragState,
+    typeConfigMap,
+    noLetters,
+    itemBuilder,
+    itemBuilderAllowNull,
+    extraItems,
+  } = useDesktopDnd();
   const measureRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const { cols, cellSize, containerWidth } = useGridLayout(
@@ -36,7 +45,9 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
   const renderItems = useMemo(() => {
     if (!pageData) return [];
 
-    const items = pageData.children;
+    const items = pageIndex === pages.length - 1 && extraItems?.length
+      ? [...pageData.children, ...extraItems]
+      : pageData.children;
     const isDraggingOnThisPage =
       dragState.isDragging && dragState.sourcePageIndex === pageIndex;
 
@@ -62,6 +73,8 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
     dragState.gapIndex,
     dragState.activeId,
     pageIndex,
+    pages.length,
+    extraItems,
   ]);
 
   if (!pageData) return null;
@@ -81,12 +94,31 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
         )}
       >
         <AnimatePresence mode="popLayout">
-          {renderItems.map((item) => {
+          {renderItems.map((item, index) => {
             const { col, row } = getItemSize(
               item.type,
               item.config?.sizeId,
               typeConfigMap,
             );
+
+            const builtItem = itemBuilder?.(item, index);
+            if (builtItem || (builtItem === null && itemBuilderAllowNull === false)) {
+              return (
+                <motion.div
+                  key={item.id}
+                  className="zs-flex zs-justify-center zs-items-start zs-pt-2"
+                  style={{
+                    gridColumn: `span ${col}`,
+                    gridRow: `span ${row}`,
+                  }}
+                  layout="position"
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ type: "spring", stiffness: 380, damping: 38 }}
+                >
+                  {builtItem}
+                </motion.div>
+              );
+            }
 
             if (item.type === "group" && (item.children?.length ?? 0) > 0) {
               return (
@@ -107,6 +139,7 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
                     onItemClick={onItemClick}
                     iconBuilder={iconBuilder}
                     size={{ col, row }}
+                    noLabel={noLetters}
                   />
                 </motion.div>
               );
@@ -130,6 +163,7 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
                   onItemClick={onItemClick}
                   iconBuilder={iconBuilder}
                   size={{ col, row }}
+                  noLabel={noLetters}
                 />
               </motion.div>
             );

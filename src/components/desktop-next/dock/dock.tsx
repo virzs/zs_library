@@ -11,6 +11,7 @@ import { Theme } from "../themes";
 export interface DockProps {
   items?: DndSortItem[];
   fixedItems?: DndSortItem[];
+  launchpadApps?: DndSortItem[];
   position?: "top" | "bottom" | "left" | "right";
   className?: string;
   onItemClick?: (item: DndSortItem) => void;
@@ -27,6 +28,7 @@ export interface DockProps {
 const Dock: React.FC<DockProps> = ({
   items = [],
   fixedItems = [],
+  launchpadApps = [],
   position = "bottom",
   className,
   onItemClick,
@@ -210,7 +212,7 @@ const Dock: React.FC<DockProps> = ({
             onClick={openLaunchpad}
             position={position}
             theme={theme}
-            apps={[...fixedItems, ...limitedItems].slice(0, 4)}
+            apps={launchpadApps.slice(0, 4)}
           />
         )}
       </motion.div>

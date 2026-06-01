@@ -53,7 +53,10 @@ export interface DesktopDndProps<D = any> {
   onItemClick?: (item: DndSortItem<D>) => void;
   itemIconBuilder?: (item: DndSortItem<D>) => React.ReactNode;
   className?: string;
+  /** 最大页数。 */
   maxPages?: number;
+  /** @deprecated 请使用 `maxPages` 代替。 */
+  maxSlides?: number;
   mergeDwellTime?: number;
   typeConfigMap?: TypeConfigMap;
   dataTypeMenuConfigMap?: DataTypeMenuConfigMap;

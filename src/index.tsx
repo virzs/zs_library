@@ -82,6 +82,7 @@ export type {
   DesktopSortItemBaseData,
   DesktopTheme,
   DesktopNextProps,
+  DesktopNextHandle,
   DesktopNextContextMenuProps,
   DesktopNextTheme,
   DesktopNextThemeType,

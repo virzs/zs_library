@@ -14,6 +14,7 @@ import {
   loadRemoteComponent,
   RemoteComponentErrorBoundary,
 } from "../component-registry/remote-loader";
+import IconImage from "./icon-image";
 
 const mergeTargetHighlightStyle = css`
   box-shadow:
@@ -73,6 +74,7 @@ const GridItem = ({
     pointerPositionRef,
     componentRegistry,
     theme,
+    itemIconBuilderAllowNull,
   } = useDesktopDnd();
   const iconSize = iconSizeProp ?? contextIconSize;
   const [isPressed, setIsPressed] = useState(false);
@@ -203,7 +205,10 @@ const GridItem = ({
 
   const renderIcon = () => {
     if (children) return children;
-    if (iconBuilder) return iconBuilder(item);
+    if (iconBuilder) {
+      const builtIcon = iconBuilder(item);
+      if (builtIcon || itemIconBuilderAllowNull === false) return builtIcon;
+    }
 
     const registryEntry = componentRegistry?.[item.type];
     if (registryEntry) {
@@ -214,11 +219,10 @@ const GridItem = ({
       if (registryEntry.remoteUrl) {
         const RemoteComponent = loadRemoteComponent(registryEntry.remoteUrl);
         const fallback = registryEntry.iconUrl ? (
-          <img
+          <IconImage
             src={registryEntry.iconUrl}
-            alt=""
-            crossOrigin="anonymous"
-            className="zs-w-full zs-h-full zs-object-cover"
+            fallbackText={item.data?.name ?? "?"}
+            fallbackBackground={item.data?.iconColor ?? itemsTheme?.iconBackgroundColor}
           />
         ) : (
           <div
@@ -241,11 +245,10 @@ const GridItem = ({
       }
       if (registryEntry.iconUrl) {
         return (
-          <img
+          <IconImage
             src={registryEntry.iconUrl}
-            alt=""
-            crossOrigin="anonymous"
-            className="zs-w-full zs-h-full zs-object-cover"
+            fallbackText={item.data?.name ?? "?"}
+            fallbackBackground={item.data?.iconColor ?? itemsTheme?.iconBackgroundColor}
           />
         );
       }
@@ -258,11 +261,10 @@ const GridItem = ({
       (iconData.startsWith("http") || iconData.startsWith("https"))
     ) {
       return (
-        <img
+        <IconImage
           src={iconData}
-          alt=""
-          crossOrigin="anonymous"
-          className="zs-w-full zs-h-full zs-object-cover"
+          fallbackText={item.data?.name ?? "?"}
+          fallbackBackground={item.data?.iconColor ?? itemsTheme?.iconBackgroundColor}
         />
       );
     }
