@@ -4,6 +4,7 @@ import { useState } from "react";
 import { RiCheckLine } from "@remixicon/react";
 import { SizeConfig } from "../types";
 import CapsuleBackground from "./capsule-background";
+import { useDesktopDnd } from "../context";
 
 export interface SizeMenuItemProps {
   sizes: SizeConfig[];
@@ -16,6 +17,9 @@ export const SizeSubMenuContent = ({
   currentSizeId,
   onSizeChange,
 }: SizeMenuItemProps) => {
+  const { theme } = useDesktopDnd();
+  const textColor =
+    theme.token.contextMenu?.textColor ?? "rgba(255, 255, 255, 0.9)";
   const [hoveredSizeId, setHoveredSizeId] = useState<string | undefined>(
     undefined,
   );
@@ -43,7 +47,7 @@ export const SizeSubMenuContent = ({
                 css`
                   font-weight: 400;
                   line-height: 18px;
-                  color: rgba(255, 255, 255, 0.9);
+                  color: ${textColor};
                   letter-spacing: -0.28px;
                 `,
               )}
@@ -52,7 +56,12 @@ export const SizeSubMenuContent = ({
             </motion.div>
             {isSelected && (
               <motion.div
-                className="zs-flex zs-items-center zs-justify-center zs-shrink-0 zs-w-[18px] zs-h-[18px] zs-text-white/90"
+                className={cx(
+                  "zs-flex zs-items-center zs-justify-center zs-shrink-0 zs-w-[18px] zs-h-[18px]",
+                  css`
+                    color: ${textColor};
+                  `,
+                )}
               >
                 <RiCheckLine size={14} />
               </motion.div>
