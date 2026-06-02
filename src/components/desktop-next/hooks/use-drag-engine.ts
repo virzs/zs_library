@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useDesktopDnd } from "../context";
-import { DndSortItem } from "../types";
+import { DndSortItem, PageSwitchZone } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
 interface DragEngineOptions {
@@ -43,7 +43,7 @@ export const useDragEngine = ({
   const leftMergeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pageSwitchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pageSwitchCooldownRef = useRef(false);
-  const pageSwitchZoneRef = useRef<"left" | "right" | null>(null);
+  const pageSwitchZoneRef = useRef<PageSwitchZone>(null);
 
   const clearMergeTimer = useCallback(() => {
     if (mergeTimerRef.current) {
@@ -65,6 +65,9 @@ export const useDragEngine = ({
       pageSwitchTimerRef.current = null;
     }
     pageSwitchZoneRef.current = null;
+    ctxRef.current.setDragState((prev) =>
+      prev.pageSwitchZone === null ? prev : { ...prev, pageSwitchZone: null },
+    );
   }, []);
 
   const pointerToSlot = useCallback(
@@ -120,7 +123,7 @@ export const useDragEngine = ({
   );
 
   const handlePageSwitch = useCallback(
-    (zone: "left" | "right") => {
+    (zone: Exclude<PageSwitchZone, null>) => {
       const { pages, currentPage, maxPages, dragState } = ctxRef.current;
       const draggedItem = dragState.draggedItem;
       if (!draggedItem) return;
@@ -166,6 +169,7 @@ export const useDragEngine = ({
         sourcePageIndex: targetPage,
         gapIndex: (ctxRef.current.pages[targetPage]?.children?.length ?? 1) - 1,
         mergeTargetId: null,
+        pageSwitchZone: null,
       }));
 
       pageSwitchCooldownRef.current = true;
@@ -189,16 +193,24 @@ export const useDragEngine = ({
       const rect = container.getBoundingClientRect();
       const relX = clientX - rect.left;
 
-      let zone: "left" | "right" | null = null;
+      let zone: PageSwitchZone = null;
       if (relX < PAGE_SWITCH_TRIGGER_ZONE && ctxRef.current.currentPage > 0) {
         zone = "left";
       } else if (relX > rect.width - PAGE_SWITCH_TRIGGER_ZONE) {
-        zone = "right";
+        const { pages, currentPage, maxPages } = ctxRef.current;
+        const canSwitchNext = currentPage < pages.length - 1;
+        const canCreatePage = maxPages <= 0 || pages.length < maxPages;
+        if (canSwitchNext || canCreatePage) {
+          zone = "right";
+        }
       }
 
       if (zone !== pageSwitchZoneRef.current) {
         clearPageSwitchTimer();
         pageSwitchZoneRef.current = zone;
+        ctxRef.current.setDragState((prev) =>
+          prev.pageSwitchZone === zone ? prev : { ...prev, pageSwitchZone: zone },
+        );
 
         if (zone) {
           pageSwitchTimerRef.current = setTimeout(() => {
@@ -350,6 +362,7 @@ export const useDragEngine = ({
           pointerPosition: null,
           pointerOffset: null,
           mergeTargetId: null,
+          pageSwitchZone: null,
           dragSource: null,
           draggedItem: null,
           gapIndex: -1,
@@ -376,6 +389,7 @@ export const useDragEngine = ({
         pointerPosition: null,
         pointerOffset: null,
         mergeTargetId: null,
+        pageSwitchZone: null,
         dragSource: null,
         draggedItem: null,
         gapIndex: -1,
@@ -446,6 +460,7 @@ export const useDragEngine = ({
         pointerPosition: { x: clientX, y: clientY },
         pointerOffset: { x: offsetX, y: offsetY },
         mergeTargetId: null,
+        pageSwitchZone: null,
         dragSource: "main",
         draggedItem: item,
         gapIndex: Math.min(

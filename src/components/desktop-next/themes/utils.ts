@@ -51,6 +51,13 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
         backgroundColor: base.backgroundColor,
       },
     },
+    desktop: {
+      pageSwitchEdge: {
+        leftGradient: `linear-gradient(90deg, ${withAlpha(base.hoverColor, 0.48) ?? base.hoverColor} 0%, ${withAlpha(base.hoverColor, 0.18) ?? base.hoverColor} 42%, ${withAlpha(base.hoverColor, 0) ?? base.hoverColor} 100%)`,
+        rightGradient: `linear-gradient(270deg, ${withAlpha(base.hoverColor, 0.48) ?? base.hoverColor} 0%, ${withAlpha(base.hoverColor, 0.18) ?? base.hoverColor} 42%, ${withAlpha(base.hoverColor, 0) ?? base.hoverColor} 100%)`,
+        glowColor: withAlpha(base.hoverColor, 0.5) ?? base.hoverColor,
+      },
+    },
     dock: {
       backgroundColor: base.backgroundColor,
       borderColor: base.borderColor,
@@ -121,6 +128,7 @@ export function mergeTheme(theme: Theme | "light" | "dark"): Theme {
   const mergedToken = deepMerge(generatedToken, {
     contextMenu: theme.token.contextMenu,
     items: theme.token.items,
+    desktop: theme.token.desktop,
     dock: theme.token.dock,
     modal: theme.token.modal,
   });

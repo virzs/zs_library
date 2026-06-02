@@ -34,6 +34,7 @@ const initialDragState: DragState = {
   pointerPosition: null,
   pointerOffset: null,
   mergeTargetId: null,
+  pageSwitchZone: null,
   dragSource: null,
   draggedItem: null,
   gapIndex: -1,

@@ -22,6 +22,36 @@ const paginationDotStyle = css`
     transform: scale(1.2);
   }
 `;
+
+const pageSwitchEdgeOverlayStyle = css`
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: min(28%, 220px);
+  z-index: 60;
+  opacity: 0;
+  transform: scaleX(0.86);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+  will-change: opacity, transform;
+
+  &[data-active="true"] {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  &[data-side="left"] {
+    left: 0;
+    transform-origin: left center;
+  }
+
+  &[data-side="right"] {
+    right: 0;
+    transform-origin: right center;
+  }
+`;
 import PageGrid from "./grid";
 import FolderModal from "./modal/folder-modal";
 import GlobalContextMenu from "./context-menu/portal";
@@ -245,6 +275,45 @@ const DesktopDndInner = ({
 
   const swipeRatio = swipeOffset / (containerRef.current?.clientWidth ?? 1);
 
+  const pageSwitchEdgeTheme = theme.token.desktop?.pageSwitchEdge;
+  const pageSwitchEdgeZone = dragState.isDragging ? dragState.pageSwitchZone : null;
+  const pageSwitchEdgeGlow = pageSwitchEdgeTheme?.glowColor ?? theme.token.base?.hoverColor;
+  const pageSwitchLeftGradient = pageSwitchEdgeTheme?.leftGradient ?? pageSwitchEdgeTheme?.rightGradient;
+  const pageSwitchRightGradient = pageSwitchEdgeTheme?.rightGradient ?? pageSwitchEdgeTheme?.leftGradient;
+
+  const renderPageSwitchEdgeOverlay = () => (
+    <>
+      {pageSwitchLeftGradient && (
+        <div
+          aria-hidden="true"
+          className={pageSwitchEdgeOverlayStyle}
+          data-active={pageSwitchEdgeZone === "left"}
+          data-side="left"
+          style={{
+            background: pageSwitchLeftGradient,
+            boxShadow: pageSwitchEdgeGlow
+              ? `inset 28px 0 34px -26px ${pageSwitchEdgeGlow}`
+              : undefined,
+          }}
+        />
+      )}
+      {pageSwitchRightGradient && (
+        <div
+          aria-hidden="true"
+          className={pageSwitchEdgeOverlayStyle}
+          data-active={pageSwitchEdgeZone === "right"}
+          data-side="right"
+          style={{
+            background: pageSwitchRightGradient,
+            boxShadow: pageSwitchEdgeGlow
+              ? `inset -28px 0 34px -26px ${pageSwitchEdgeGlow}`
+              : undefined,
+          }}
+        />
+      )}
+    </>
+  );
+
   const renderPages = () => {
     if (pageTransition === "fade") {
       return (
@@ -411,6 +480,7 @@ const DesktopDndInner = ({
           <div className="zs-flex-1 zs-min-h-0 zs-overflow-hidden">
             {renderPages()}
           </div>
+          {renderPageSwitchEdgeOverlay()}
 
           {(dockProps || dots) && (
             <div className="zs-flex zs-flex-col zs-items-center zs-shrink-0 zs-pb-4 zs-px-4" style={{ zIndex: 100 }}>

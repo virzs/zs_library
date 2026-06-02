@@ -24,6 +24,8 @@ export interface DndPageItem<D = any> {
   children: DndSortItem<D>[];
 }
 
+export type PageSwitchZone = "left" | "right" | null;
+
 /** 拖拽状态 */
 export interface DragState {
   activeId: string | number | null;
@@ -31,6 +33,7 @@ export interface DragState {
   pointerPosition: { x: number; y: number } | null;
   pointerOffset: { x: number; y: number } | null;
   mergeTargetId: string | number | null;
+  pageSwitchZone: PageSwitchZone;
   dragSource: "main" | "folder" | null;
   draggedItem: DndSortItem | null;
   gapIndex: number;

@@ -182,6 +182,7 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
         pointerPosition: { x: clientX, y: clientY },
         pointerOffset: { x: halfIcon, y: halfIcon },
         mergeTargetId: null,
+        pageSwitchZone: null,
         dragSource: "folder",
         draggedItem: item,
         gapIndex: pages[currentPage]?.children.length ?? 0,

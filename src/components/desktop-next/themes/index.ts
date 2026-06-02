@@ -103,6 +103,16 @@ export interface ItemsTheme {
   };
 }
 
+export interface PageSwitchEdgeTheme {
+  leftGradient?: string;
+  rightGradient?: string;
+  glowColor?: string;
+}
+
+export interface DesktopTheme {
+  pageSwitchEdge?: PageSwitchEdgeTheme;
+}
+
 export interface BaseTheme {
   hoverColor?: string;
   dangerColor?: string;
@@ -121,6 +131,7 @@ export interface Theme {
     modal?: BaseModalTheme;
     contextMenu?: ContextMenuTheme;
     items?: ItemsTheme;
+    desktop?: DesktopTheme;
   };
 }
 

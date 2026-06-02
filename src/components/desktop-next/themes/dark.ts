@@ -42,6 +42,13 @@ export const themeDark: Theme = {
       borderColor: "rgba(255, 255, 255, 0.1)",
       backdropFilter: "blur(40px)",
     },
+    desktop: {
+      pageSwitchEdge: {
+        leftGradient: "linear-gradient(90deg, rgba(10, 132, 255, 0.42) 0%, rgba(10, 132, 255, 0.18) 42%, rgba(10, 132, 255, 0) 100%)",
+        rightGradient: "linear-gradient(270deg, rgba(10, 132, 255, 0.42) 0%, rgba(10, 132, 255, 0.18) 42%, rgba(10, 132, 255, 0) 100%)",
+        glowColor: "rgba(10, 132, 255, 0.42)",
+      },
+    },
     dock: {
       backgroundColor: "rgba(30, 30, 30, 0.7)",
       borderColor: "rgba(255, 255, 255, 0.1)",
