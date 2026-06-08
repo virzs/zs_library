@@ -28,6 +28,7 @@ export interface SubMenuItemProps {
   children: React.ReactNode;
   color?: string;
   textColor?: string;
+  isRootMenuOpen?: boolean;
 }
 
 export const SubMenuItem = ({
@@ -36,6 +37,7 @@ export const SubMenuItem = ({
   children,
   color,
   textColor,
+  isRootMenuOpen = true,
   ...props
 }: SubMenuItemProps) => {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
@@ -48,17 +50,19 @@ export const SubMenuItem = ({
 
   const finalTextColor = textColor || cmTheme?.textColor || "rgba(255, 255, 255, 0.9)";
   const finalIconColor = color || cmTheme?.textColor || "rgba(255, 255, 255, 0.9)";
+  const shouldShowSubMenu = isRootMenuOpen && isSubMenuOpen;
 
   const { refs, floatingStyles } = useFloating({
     strategy: "fixed",
     placement: "right-start",
-    open: isSubMenuOpen,
+    open: shouldShowSubMenu,
     transform: false,
     middleware: [offset(-4), flip(), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   });
 
   const handleMouseEnter = () => {
+    if (!isRootMenuOpen) return;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setHoveredIndex(index);
     setIsSubMenuOpen(true);
@@ -94,6 +98,15 @@ export const SubMenuItem = ({
     },
     [],
   );
+
+  useEffect(() => {
+    if (isRootMenuOpen) return;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setIsSubMenuOpen(false);
+  }, [isRootMenuOpen]);
 
   return (
     <motion.div
@@ -137,14 +150,21 @@ export const SubMenuItem = ({
         <RiArrowRightSLine size={16} />
       </motion.div>
 
-      <AnimatePresence>
-        {isSubMenuOpen && (
-          <FloatingPortal>
-            <div
+      <FloatingPortal>
+        <AnimatePresence>
+          {shouldShowSubMenu && (
+            <motion.div
+              key="desktop-next-context-submenu"
               ref={refs.setFloating}
-              style={{ ...floatingStyles, zIndex: 10000 }}
+              style={{
+                ...floatingStyles,
+                zIndex: 10000,
+                pointerEvents: isRootMenuOpen ? "auto" : "none",
+              }}
               onMouseEnter={handleSubMenuMouseEnter}
               onMouseLeave={handleSubMenuMouseLeave}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.12, ease: "easeOut" }}
             >
               <ContextMenuContent
                 className="zs-overflow-hidden"
@@ -156,10 +176,10 @@ export const SubMenuItem = ({
               >
                 {children}
               </ContextMenuContent>
-            </div>
-          </FloatingPortal>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </FloatingPortal>
     </motion.div>
   );
 };

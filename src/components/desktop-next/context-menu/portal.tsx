@@ -105,7 +105,6 @@ const GlobalContextMenu = () => {
     },
     [
       applyBoundaryConstraints,
-      calculateIconRect,
       contextMenu?.pageX,
       contextMenu?.pageY,
     ],
@@ -150,26 +149,14 @@ const GlobalContextMenu = () => {
       menuTop: number,
       iconRect: { left: number; right: number; top: number; bottom: number },
     ) => {
-      const isLeft = menuLeft < iconRect.left;
-      const isRight = menuLeft > iconRect.right;
-      const isTop = menuTop < iconRect.top;
-      const isBottom = menuTop > iconRect.bottom;
+      const triggerX =
+        contextMenu?.pageX ?? (iconRect.left + iconRect.right) / 2;
+      const triggerY =
+        contextMenu?.pageY ?? (iconRect.top + iconRect.bottom) / 2;
 
-      if (isRight) {
-        if (isTop) return "bottom left";
-        if (isBottom) return "top left";
-        return "center left";
-      }
-      if (isLeft) {
-        if (isTop) return "bottom right";
-        if (isBottom) return "top right";
-        return "center right";
-      }
-      if (isBottom) return "top center";
-      if (isTop) return "bottom center";
-      return "center";
+      return `${triggerX - menuLeft}px ${triggerY - menuTop}px`;
     },
-    [],
+    [contextMenu?.pageX, contextMenu?.pageY],
   );
 
   const getCurrentReferenceRect = useCallback(() => {
@@ -221,9 +208,11 @@ const GlobalContextMenu = () => {
     }
 
     setIsOpen(false);
-    setIsPositionReady(false);
     const timer = setTimeout(
-      () => setShouldRender(false),
+      () => {
+        setShouldRender(false);
+        setIsPositionReady(false);
+      },
       CONSTANTS.ANIMATION_DELAY,
     );
     return () => clearTimeout(timer);
@@ -348,7 +337,7 @@ const GlobalContextMenu = () => {
           zIndex: 9999,
           transformOrigin: animationOrigin,
           visibility: isPositionReady ? "visible" : "hidden",
-          pointerEvents: isPositionReady ? "auto" : "none",
+          pointerEvents: isPositionReady && contextMenu ? "auto" : "none",
         }}
         onMouseDown={(e) => {
           e.stopPropagation();
