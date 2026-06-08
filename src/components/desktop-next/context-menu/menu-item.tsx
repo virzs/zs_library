@@ -35,7 +35,13 @@ export const MenuItem = ({
 
   return (
     <motion.div
-      className="zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none zs-z-[1]"
+      className={cx(
+        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none",
+        css`
+          isolation: isolate;
+          z-index: 1;
+        `,
+      )}
       onMouseEnter={() => setHoveredIndex(index)}
       onMouseLeave={() => setHoveredIndex(null)}
       onClick={onClick}

@@ -1,6 +1,7 @@
 import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "motion/react";
 import { FC } from "react";
+import { useDesktopDnd } from "../context";
 
 export interface CapsuleBackgroundProps {
   show: boolean;
@@ -13,6 +14,10 @@ const CapsuleBackground: FC<CapsuleBackgroundProps> = ({
   layoutId,
   className,
 }) => {
+  const { theme } = useDesktopDnd();
+  const activeColor =
+    theme.token.contextMenu?.activeColor ?? "rgba(255, 255, 255, 0.08)";
+
   return (
     <AnimatePresence>
       {show && (
@@ -21,7 +26,8 @@ const CapsuleBackground: FC<CapsuleBackgroundProps> = ({
           className={cx(
             "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-rounded-xl",
             css`
-              background: rgba(255, 255, 255, 0.08);
+              background-color: ${activeColor};
+              pointer-events: none;
             `,
             className,
           )}

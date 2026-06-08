@@ -111,7 +111,7 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
                     gridColumn: `span ${col}`,
                     gridRow: `span ${row}`,
                   }}
-                  layout="position"
+                  layout
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ type: "spring", stiffness: 380, damping: 38 }}
                 >
@@ -129,7 +129,7 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
                     gridColumn: `span ${col}`,
                     gridRow: `span ${row}`,
                   }}
-                  layout="position"
+                  layout
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ type: "spring", stiffness: 380, damping: 38 }}
                 >
@@ -153,7 +153,7 @@ const PageGrid = ({ pageIndex, onItemClick, iconBuilder }: PageGridProps) => {
                   gridColumn: `span ${col}`,
                   gridRow: `span ${row}`,
                 }}
-                layout="position"
+                layout
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ type: "spring", stiffness: 380, damping: 38 }}
               >

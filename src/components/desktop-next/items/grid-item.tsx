@@ -55,6 +55,11 @@ interface GridItemProps {
 
 const LONG_PRESS_THRESHOLD = 300;
 const DRAG_DISTANCE_THRESHOLD = 8;
+const sizeLayoutTransition = {
+  type: "spring",
+  stiffness: 380,
+  damping: 38,
+} as const;
 
 const GridItem = ({
   item,
@@ -284,7 +289,8 @@ const GridItem = ({
   };
 
   const iconContent = (
-    <div
+    <motion.div
+      layout="size"
       className={cx(
         "zs-overflow-hidden zs-rounded-2xl",
         isMergeTarget && mergeTargetHighlightStyle,
@@ -293,9 +299,10 @@ const GridItem = ({
           height: ${itemHeight}px;
         `,
       )}
+      transition={sizeLayoutTransition}
     >
       {renderIcon()}
-    </div>
+    </motion.div>
   );
 
   const floatingRef = useRef<HTMLDivElement>(null);
@@ -355,6 +362,7 @@ const GridItem = ({
       <motion.div
         ref={elRef}
         data-grid-item-id={String(item.id)}
+        layout="size"
         className={cx(
           "zs-relative zs-cursor-pointer zs-flex zs-flex-col zs-items-center zs-touch-none",
           css`
