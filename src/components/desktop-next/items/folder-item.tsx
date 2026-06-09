@@ -1,5 +1,4 @@
 import { css, cx } from "@emotion/css";
-import { motion } from "motion/react";
 import React, { useCallback } from "react";
 import { useDesktopDnd } from "../context";
 import { DndSortItem } from "../types";
@@ -97,8 +96,7 @@ const FolderItem = ({
     };
 
     return (
-      <motion.div
-        layout="size"
+      <div
         className={cx(
           "zs-grid zs-rounded-2xl zs-overflow-hidden",
           css`
@@ -114,7 +112,6 @@ const FolderItem = ({
             box-shadow: 0 0 0.5rem ${groupShadow};
           `,
         )}
-        transition={{ type: "spring", stiffness: 380, damping: 38 }}
       >
         {preview.map((child) => (
           <div
@@ -130,7 +127,7 @@ const FolderItem = ({
             {renderChildIcon(child)}
           </div>
         ))}
-      </motion.div>
+      </div>
     );
   };
 
