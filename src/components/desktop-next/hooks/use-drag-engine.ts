@@ -10,11 +10,17 @@ interface DragEngineOptions {
   pageIndex: number;
 }
 
-const GAP_COMMIT_DELAY = 180;
-const MERGE_HITBOX_RATIO = 0.7;
+const GAP_COMMIT_DELAY = 80;
+const EDGE_GAP_COMMIT_DELAY = 40;
+const MERGE_HITBOX_RATIO = 0.62;
 const PAGE_SWITCH_TRIGGER_ZONE = 60;
 const PAGE_SWITCH_DELAY = 800;
 const PAGE_SWITCH_COOLDOWN = 500;
+
+type HoverPlacement =
+  | { type: "merge"; id: string | number }
+  | { type: "gap"; index: number; slot: number }
+  | null;
 
 export const useDragEngine = ({
   gridContainerRef,
@@ -39,8 +45,6 @@ export const useDragEngine = ({
   const dragActiveRef = useRef(false);
   const pointerIdRef = useRef<number | null>(null);
   const lastPointerSlotRef = useRef<number>(-1);
-  const justLeftMergeRef = useRef(false);
-  const leftMergeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pageSwitchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pageSwitchCooldownRef = useRef(false);
   const pageSwitchZoneRef = useRef<PageSwitchZone>(null);
@@ -86,40 +90,98 @@ export const useDragEngine = ({
     [gridContainerRef],
   );
 
-  const getMergeTarget = useCallback(
+  const getHoverPlacement = useCallback(
     (
       clientX: number,
       clientY: number,
       activeId: string | number,
-    ): string | number | null => {
-      // 文件夹不能与任何元素合并
-      const draggedItem = ctxRef.current.dragState.draggedItem;
-      if (draggedItem?.type === "group") return null;
-
+      nonDragItems: DndSortItem[],
+    ): HoverPlacement => {
       const el = document
         .elementFromPoint(clientX, clientY)
         ?.closest?.("[data-grid-item-id]") as HTMLElement | null;
       if (!el) return null;
 
-      const id = el.dataset.gridItemId;
-      if (!id || id === String(activeId)) return null;
+      const domId = el.dataset.gridItemId;
+      if (!domId || domId === String(activeId)) return null;
+
+      const targetIndex = nonDragItems.findIndex(
+        (item) => String(item.id) === domId,
+      );
+      if (targetIndex < 0) return null;
+
+      const targetItem = nonDragItems[targetIndex];
 
       const elRect = el.getBoundingClientRect();
       const insetX = (elRect.width * (1 - MERGE_HITBOX_RATIO)) / 2;
       const insetY = (elRect.height * (1 - MERGE_HITBOX_RATIO)) / 2;
+      const isInMergeCenter =
+        clientX >= elRect.left + insetX &&
+        clientX <= elRect.right - insetX &&
+        clientY >= elRect.top + insetY &&
+        clientY <= elRect.bottom - insetY;
 
-      if (
-        clientX < elRect.left + insetX ||
-        clientX > elRect.right - insetX ||
-        clientY < elRect.top + insetY ||
-        clientY > elRect.bottom - insetY
-      ) {
-        return null;
+      // 文件夹不能与任何元素合并，但仍然可以在目标边缘触发排序。
+      const draggedItem = ctxRef.current.dragState.draggedItem;
+      if (isInMergeCenter && draggedItem?.type !== "group") {
+        return { type: "merge", id: targetItem.id };
       }
 
-      return id;
+      const relX = (clientX - elRect.left) / Math.max(1, elRect.width);
+      const relY = (clientY - elRect.top) / Math.max(1, elRect.height);
+      const xDistance = Math.abs(relX - 0.5);
+      const yDistance = Math.abs(relY - 0.5);
+      const isBefore =
+        yDistance > xDistance ? relY < 0.5 : relX < 0.5;
+
+      return {
+        type: "gap",
+        index: targetIndex + (isBefore ? 0 : 1),
+        slot: targetIndex,
+      };
     },
     [],
+  );
+
+  const setMergeTarget = useCallback((id: string | number | null) => {
+    ctxRef.current.setDragState((prev) =>
+      prev.mergeTargetId === id ? prev : { ...prev, mergeTargetId: id },
+    );
+  }, []);
+
+  const scheduleGapCommit = useCallback(
+    (nextGap: number, rawSlot: number, delay = GAP_COMMIT_DELAY) => {
+      const currentGap = ctxRef.current.dragState.gapIndex;
+      if (nextGap === currentGap) {
+        clearGapTimer();
+        lastPointerSlotRef.current = rawSlot;
+        return;
+      }
+
+      const prevSlot = lastPointerSlotRef.current;
+      const pointerDirection = rawSlot - prevSlot;
+      const gapDirection = nextGap - currentGap;
+
+      if (
+        prevSlot < 0 ||
+        pointerDirection === 0 ||
+        (pointerDirection > 0 && gapDirection > 0) ||
+        (pointerDirection < 0 && gapDirection < 0)
+      ) {
+        clearGapTimer();
+        gapTimerRef.current = setTimeout(() => {
+          if (dragActiveRef.current) {
+            ctxRef.current.setDragState((prev) => ({
+              ...prev,
+              gapIndex: nextGap,
+            }));
+          }
+        }, delay);
+      }
+
+      lastPointerSlotRef.current = rawSlot;
+    },
+    [clearGapTimer],
   );
 
   const handlePageSwitch = useCallback(
@@ -241,24 +303,31 @@ export const useDragEngine = ({
 
       checkPageSwitchZone(e.clientX);
 
-      const mergeHoverId = getMergeTarget(e.clientX, e.clientY, activeId);
+      const pi = pageIndexRef.current;
+      const pageChildren = ctxRef.current.pages[pi]?.children ?? [];
+      const nonDragItems = pageChildren.filter((c) => c.id !== activeId);
+      const itemCount = nonDragItems.length;
+      const hoverPlacement = getHoverPlacement(
+        e.clientX,
+        e.clientY,
+        activeId,
+        nonDragItems,
+      );
 
-      if (mergeHoverId != null) {
-        if (hoverItemIdRef.current !== mergeHoverId) {
+      if (hoverPlacement?.type === "merge") {
+        if (hoverItemIdRef.current !== hoverPlacement.id) {
           clearMergeTimer();
           clearGapTimer();
-          hoverItemIdRef.current = mergeHoverId;
+          hoverItemIdRef.current = hoverPlacement.id;
+          setMergeTarget(null);
 
           const dwellTime = ctxRef.current.mergeDwellTime;
           mergeTimerRef.current = setTimeout(() => {
             if (
-              hoverItemIdRef.current === mergeHoverId &&
+              hoverItemIdRef.current === hoverPlacement.id &&
               dragActiveRef.current
             ) {
-              ctxRef.current.setDragState((prev) => ({
-                ...prev,
-                mergeTargetId: mergeHoverId,
-              }));
+              setMergeTarget(hoverPlacement.id);
             }
           }, dwellTime);
         }
@@ -268,25 +337,19 @@ export const useDragEngine = ({
       if (hoverItemIdRef.current !== null) {
         hoverItemIdRef.current = null;
         clearMergeTimer();
-        ctxRef.current.setDragState((prev) => ({
-          ...prev,
-          mergeTargetId: null,
-        }));
+        setMergeTarget(null);
+      }
 
-        justLeftMergeRef.current = true;
-        if (leftMergeTimerRef.current) clearTimeout(leftMergeTimerRef.current);
-        leftMergeTimerRef.current = setTimeout(() => {
-          justLeftMergeRef.current = false;
-        }, 250);
+      if (hoverPlacement?.type === "gap") {
+        const nextGap = Math.min(Math.max(0, hoverPlacement.index), itemCount);
+        scheduleGapCommit(
+          nextGap,
+          hoverPlacement.slot,
+          EDGE_GAP_COMMIT_DELAY,
+        );
         return;
       }
 
-      if (justLeftMergeRef.current) return;
-
-      const pi = pageIndexRef.current;
-      const pageChildren = ctxRef.current.pages[pi]?.children ?? [];
-      const nonDragItems = pageChildren.filter((c) => c.id !== activeId);
-      const itemCount = nonDragItems.length;
       const rawSlot = pointerToSlot(e.clientX, e.clientY);
 
       if (rawSlot < 0) {
@@ -296,39 +359,16 @@ export const useDragEngine = ({
       }
 
       const nextGap = Math.min(rawSlot, itemCount);
-
-      const currentGap = ctxRef.current.dragState.gapIndex;
-      if (nextGap !== currentGap) {
-        const prevSlot = lastPointerSlotRef.current;
-        const pointerDirection = rawSlot - prevSlot;
-        const gapDirection = nextGap - currentGap;
-
-        if (
-          prevSlot < 0 ||
-          pointerDirection === 0 ||
-          (pointerDirection > 0 && gapDirection > 0) ||
-          (pointerDirection < 0 && gapDirection < 0)
-        ) {
-          clearGapTimer();
-          gapTimerRef.current = setTimeout(() => {
-            if (dragActiveRef.current) {
-              ctxRef.current.setDragState((prev) => ({
-                ...prev,
-                gapIndex: nextGap,
-              }));
-            }
-          }, GAP_COMMIT_DELAY);
-        }
-      }
-
-      lastPointerSlotRef.current = rawSlot;
+      scheduleGapCommit(nextGap, rawSlot);
     },
     [
-      getMergeTarget,
+      getHoverPlacement,
       clearMergeTimer,
       clearGapTimer,
       pointerToSlot,
       checkPageSwitchZone,
+      scheduleGapCommit,
+      setMergeTarget,
     ],
   );
 
@@ -345,12 +385,7 @@ export const useDragEngine = ({
       clearPageSwitchTimer();
       hoverItemIdRef.current = null;
       lastPointerSlotRef.current = -1;
-      justLeftMergeRef.current = false;
       pageSwitchCooldownRef.current = false;
-      if (leftMergeTimerRef.current) {
-        clearTimeout(leftMergeTimerRef.current);
-        leftMergeTimerRef.current = null;
-      }
 
       const { dragState } = ctxRef.current;
       const draggedItem = dragState.draggedItem;
@@ -435,12 +470,7 @@ export const useDragEngine = ({
       pointerIdRef.current = pointerId;
       hoverItemIdRef.current = null;
       lastPointerSlotRef.current = -1;
-      justLeftMergeRef.current = false;
       pageSwitchCooldownRef.current = false;
-      if (leftMergeTimerRef.current) {
-        clearTimeout(leftMergeTimerRef.current);
-        leftMergeTimerRef.current = null;
-      }
 
       const rect = el.getBoundingClientRect();
       const offsetX = clientX - rect.left;
@@ -452,6 +482,7 @@ export const useDragEngine = ({
       const pageChildren = ctxRef.current.pages[pi]?.children ?? [];
       const nonDragItems = pageChildren.filter((c) => c.id !== item.id);
       const sourceIndex = nonDragItems.length;
+      const itemIndex = pageChildren.findIndex((c) => c.id === item.id);
 
       ctxRef.current.pointerPositionRef.current = { x: clientX, y: clientY };
       ctxRef.current.setDragState({
@@ -463,10 +494,7 @@ export const useDragEngine = ({
         pageSwitchZone: null,
         dragSource: "main",
         draggedItem: item,
-        gapIndex: Math.min(
-          sourceIndex,
-          pageChildren.findIndex((c) => c.id === item.id),
-        ),
+        gapIndex: itemIndex >= 0 ? Math.min(sourceIndex, itemIndex) : sourceIndex,
         sourcePageIndex: pi,
       });
 
@@ -488,7 +516,6 @@ export const useDragEngine = ({
       pointerIdRef.current = null;
       hoverItemIdRef.current = null;
       lastPointerSlotRef.current = -1;
-      justLeftMergeRef.current = false;
       document.body.style.cursor = "grabbing";
 
       window.addEventListener("pointermove", handleWindowPointerMove);
@@ -508,7 +535,6 @@ export const useDragEngine = ({
       clearMergeTimer();
       clearGapTimer();
       clearPageSwitchTimer();
-      if (leftMergeTimerRef.current) clearTimeout(leftMergeTimerRef.current);
       if (dragActiveRef.current) {
         window.removeEventListener("pointermove", handleWindowPointerMove);
         window.removeEventListener("pointerup", handleWindowPointerUp);

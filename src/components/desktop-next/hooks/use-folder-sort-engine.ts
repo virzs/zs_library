@@ -11,7 +11,7 @@ interface FolderSortEngineOptions {
   onDragOut: (item: DndSortItem, clientX: number, clientY: number) => void;
 }
 
-const GAP_COMMIT_DELAY = 120;
+const GAP_COMMIT_DELAY = 80;
 
 export const useFolderSortEngine = ({
   gridRef,
