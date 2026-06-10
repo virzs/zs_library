@@ -66,6 +66,8 @@ const BaseModal = (props: BaseModalProps) => {
     modalTheme?.content?.backgroundColor ?? "rgba(128, 128, 128, 0.3)";
   const bdFilter = modalTheme?.content?.backdropFilter ?? "blur(40px)";
   const shadowColor = modalTheme?.content?.boxShadowColor ?? "rgba(0,0,0,0.3)";
+  const shadowBorderColor =
+    modalTheme?.content?.boxShadowBorderColor ?? "rgba(255,255,255,0.08)";
   const borderColor =
     modalTheme?.content?.borderColor ?? "rgba(255,255,255,0.15)";
   const borderRadius = modalTheme?.content?.borderRadius ?? "20px";
@@ -147,7 +149,10 @@ const BaseModal = (props: BaseModalProps) => {
                    blur is computed after the element is first painted, not fixable via CSS alone */
                 backdrop-filter: ${bdFilter};
                 -webkit-backdrop-filter: ${bdFilter};
-                box-shadow: 0 20px 40px ${shadowColor};
+                box-shadow:
+                  0 24px 60px ${shadowColor},
+                  0 0 0 0.75px ${shadowBorderColor},
+                  inset 0 1px 0 rgba(255, 255, 255, 0.12);
                 border: 0.75px solid ${borderColor};
                 padding: 0;
                 border-radius: ${borderRadius};
@@ -192,7 +197,7 @@ const BaseModal = (props: BaseModalProps) => {
                 background: transparent;
                 margin-bottom: 0;
                 border-bottom: none;
-                padding: 20px 24px 0;
+                padding: 18px 24px 0;
                 position: relative;
                 color: ${headerColor};
               }
@@ -201,7 +206,7 @@ const BaseModal = (props: BaseModalProps) => {
                 background: transparent;
                 border: none;
                 position: relative;
-                padding: 20px;
+                padding: 18px 20px 22px;
               }
 
               * {

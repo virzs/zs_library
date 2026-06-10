@@ -30,6 +30,7 @@ const FolderItem = ({
   const { iconSize, setFolderModal, dragState, theme } = useDesktopDnd();
 
   const preview = (item.children ?? []).slice(0, 9);
+  const previewSlots = Array.from({ length: 9 }, (_, index) => preview[index]);
 
   const handleFolderClick = useCallback(
     (clickedItem: DndSortItem) => {
@@ -49,9 +50,10 @@ const FolderItem = ({
     const scale = Math.min(col, row);
     const padding = Math.round(8 * scale);
     const innerGap = Math.round(3 * scale);
-    const borderRadius = Math.round(4 * scale);
+    const slotRadius = Math.max(5, Math.round(4 * scale));
     const totalWidth = iconSize * col + gap * (col - 1);
     const totalHeight = iconSize * row + gap * (row - 1);
+    const folderRadius = Math.max(16, Math.round(Math.min(totalWidth, totalHeight) * 0.12));
 
     const itemsTheme = theme.token.items;
     const groupBg =
@@ -60,6 +62,7 @@ const FolderItem = ({
       itemsTheme?.groupIconShadowColor ?? "rgba(0, 0, 0, 0.15)";
     const slotBg =
       itemsTheme?.iconBackgroundColor ?? "rgba(255, 255, 255, 0.15)";
+    const emptySlotBg = "rgba(255, 255, 255, 0.025)";
     const fallbackBg = itemsTheme?.iconBackgroundColor ?? "rgba(64, 148, 229, 0.9)";
 
     const renderChildIcon = (child: DndSortItem) => {
@@ -78,7 +81,6 @@ const FolderItem = ({
             fallbackText={child.data?.name ?? "?"}
             fallbackBackground={child.data?.iconColor ?? fallbackBg}
             fallbackClassName="zs-text-[13px] zs-font-bold"
-            fallbackRadiusClassName=""
           />
         );
       }
@@ -88,7 +90,7 @@ const FolderItem = ({
       return (
         <div
           className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-[13px] zs-font-bold"
-          style={{ background: fallbackBg }}
+          style={{ background: child.data?.iconColor ?? fallbackBg }}
         >
           {(child.data?.name ?? "?").charAt(0)}
         </div>
@@ -98,7 +100,7 @@ const FolderItem = ({
     return (
       <div
         className={cx(
-          "zs-grid zs-rounded-2xl zs-overflow-hidden",
+          "zs-grid zs-overflow-hidden",
           css`
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
@@ -106,25 +108,31 @@ const FolderItem = ({
             padding: ${padding}px;
             width: ${totalWidth}px;
             height: ${totalHeight}px;
+            border-radius: ${folderRadius}px;
             background: ${groupBg};
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 0 0.5rem ${groupShadow};
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow:
+              0 ${Math.round(iconSize * 0.1)}px ${Math.round(iconSize * 0.26)}px ${groupShadow},
+              inset 0 0 0 0.5px rgba(255, 255, 255, 0.12);
           `,
         )}
       >
-        {preview.map((child) => (
+        {previewSlots.map((child, index) => (
           <div
-            key={child.id}
+            key={child?.id ?? `empty-${index}`}
             className={cx(
               "zs-overflow-hidden",
               css`
-                border-radius: ${borderRadius}px;
-                background: ${slotBg};
+                border-radius: ${slotRadius}px;
+                background: ${child ? slotBg : emptySlotBg};
+                box-shadow: ${child
+                  ? "none"
+                  : "inset 0 0 0 0.5px rgba(255, 255, 255, 0.035)"};
               `,
             )}
           >
-            {renderChildIcon(child)}
+            {child ? renderChildIcon(child) : null}
           </div>
         ))}
       </div>

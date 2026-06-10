@@ -11,16 +11,39 @@ import {
 } from "./types";
 
 const pagesContainerStyle = css`
-  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.38s cubic-bezier(0.2, 0.82, 0.2, 1);
 `;
 
 const paginationDotStyle = css`
-  background: rgba(255, 255, 255, 0.3);
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.34);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
 
   &[data-active="true"] {
     background: rgba(255, 255, 255, 0.9);
-    transform: scale(1.2);
+    width: 18px;
+    transform: scale(1);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.2),
+      0 0 0 0.5px rgba(255, 255, 255, 0.24);
   }
+`;
+
+const paginationContainerStyle = css`
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+`;
+
+const pageShellStyle = css`
+  padding: clamp(18px, 4vw, 30px) clamp(16px, 5vw, 34px);
 `;
 
 const pageSwitchEdgeOverlayStyle = css`
@@ -325,7 +348,8 @@ const DesktopDndInner = ({
               <div
                 key={page.id}
                 className={cx(
-                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-p-7 zs-box-border zs-overflow-x-hidden zs-overflow-y-auto",
+                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-box-border zs-overflow-x-hidden zs-overflow-y-auto",
+                  pageShellStyle,
                   css`
                     opacity: ${isActive ? 1 : 0};
                     transition: ${noTransition ? "none" : "opacity 0.4s ease"};
@@ -354,7 +378,8 @@ const DesktopDndInner = ({
               <div
                 key={page.id}
                 className={cx(
-                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-p-7 zs-box-border zs-overflow-x-hidden zs-overflow-y-auto",
+                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-box-border zs-overflow-x-hidden zs-overflow-y-auto",
+                  pageShellStyle,
                   css`
                     opacity: ${isActive ? 1 : 0};
                     transform: ${isActive
@@ -391,7 +416,8 @@ const DesktopDndInner = ({
               <div
                 key={page.id}
                 className={cx(
-                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-p-7 zs-box-border zs-overflow-x-hidden zs-overflow-y-auto zs-backface-hidden",
+                  "zs-absolute zs-inset-0 zs-flex zs-justify-center zs-box-border zs-overflow-x-hidden zs-overflow-y-auto zs-backface-hidden",
+                  pageShellStyle,
                   css`
                     transform-origin: 50% 50%;
                     transform: translateX(${translateXCube}%) rotateY(${rotateY}deg);
@@ -422,7 +448,7 @@ const DesktopDndInner = ({
         {pages.map((page, index) => {
           const isNearby = Math.abs(index - currentPage) <= 1;
           return (
-            <div key={page.id} className="zs-flex-none zs-basis-full zs-w-full zs-min-h-full zs-flex zs-justify-center zs-p-7 zs-box-border zs-overflow-x-hidden zs-overflow-y-auto">
+            <div key={page.id} className={cx("zs-flex-none zs-basis-full zs-w-full zs-min-h-full zs-flex zs-justify-center zs-box-border zs-overflow-x-hidden zs-overflow-y-auto", pageShellStyle)}>
               {isNearby && (
                 <PageGrid pageIndex={index} onItemClick={handleItemClick} iconBuilder={iconBuilder} />
               )}
@@ -449,7 +475,7 @@ const DesktopDndInner = ({
       return (
         <div
           key={page.id}
-          className={cx("zs-w-[7px] zs-h-[7px] zs-rounded-full zs-transition-all zs-duration-300 zs-ease-in-out zs-cursor-pointer", paginationDotStyle)}
+          className={cx("zs-transition-all zs-duration-300 zs-ease-in-out zs-cursor-pointer", paginationDotStyle)}
           data-active={index === currentPage}
           onClick={() => goToPage(index)}
         />
@@ -460,7 +486,7 @@ const DesktopDndInner = ({
       return <div className="zs-flex zs-justify-center zs-items-center zs-gap-1.5 zs-py-2">{pagingDotsBuilder(dotNodes)}</div>;
     }
 
-    return <div className="zs-flex zs-justify-center zs-items-center zs-gap-1.5 zs-py-2">{dotNodes}</div>;
+    return <div className={cx("zs-flex zs-justify-center zs-items-center zs-gap-1.5", paginationContainerStyle)}>{dotNodes}</div>;
   }, [showPagination, totalPages, pages, currentPage, pagingDotBuilder, pagingDotsBuilder, goToPage]);
 
   return (

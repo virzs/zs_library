@@ -17,21 +17,19 @@ import {
 import IconImage from "./icon-image";
 
 const mergeTargetHighlightStyle = css`
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.5),
-    0 0 12px 2px rgba(255, 255, 255, 0.25);
+  outline: 3px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 3px;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
   animation: mergeTargetPulse 1s ease-in-out infinite alternate;
 
   @keyframes mergeTargetPulse {
     from {
-      box-shadow:
-        0 0 0 3px rgba(255, 255, 255, 0.4),
-        0 0 8px 2px rgba(255, 255, 255, 0.15);
+      outline-color: rgba(255, 255, 255, 0.4);
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.15));
     }
     to {
-      box-shadow:
-        0 0 0 3px rgba(255, 255, 255, 0.6),
-        0 0 16px 4px rgba(255, 255, 255, 0.3);
+      outline-color: rgba(255, 255, 255, 0.62);
+      filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.3));
     }
   }
 `;
@@ -81,7 +79,13 @@ const GridItem = ({
   const itemsTheme = theme.token.items;
   const itemNameStyle = css`
     color: ${itemsTheme?.textColor ?? "rgba(255, 255, 255, 0.9)"};
-    text-shadow: 0 1px 2px ${itemsTheme?.iconShadowColor ?? "rgba(0, 0, 0, 0.5)"};
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.18;
+    letter-spacing: 0;
+    text-shadow:
+      0 1px 2px ${itemsTheme?.iconShadowColor ?? "rgba(0, 0, 0, 0.5)"},
+      0 0 8px ${itemsTheme?.iconShadowColor ?? "rgba(0, 0, 0, 0.35)"};
   `;
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDraggingRef = useRef(false);
@@ -103,6 +107,20 @@ const GridItem = ({
   const row = size?.row ?? 1;
   const itemWidth = iconSize * col + gap * (col - 1);
   const itemHeight = iconSize * row + gap * (row - 1);
+  const itemVisualWidth = noLabel
+    ? itemWidth
+    : Math.max(itemWidth, iconSize + Math.round(gap * 0.58));
+  const iconRadius = Math.max(16, Math.round(Math.min(itemWidth, itemHeight) * 0.12));
+  const iconShellShadow = itemsTheme?.iconShadowColor ?? "rgba(0, 0, 0, 0.35)";
+  const iconShellStyle = css`
+    border-radius: ${iconRadius}px;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow:
+      0 ${Math.round(iconSize * 0.14)}px ${Math.round(iconSize * 0.34)}px ${iconShellShadow},
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      inset 0 0 0 0.5px rgba(255, 255, 255, 0.16);
+    transform: translateZ(0);
+  `;
 
   const clearPressTimer = useCallback(() => {
     if (pressTimerRef.current) {
@@ -225,10 +243,12 @@ const GridItem = ({
           />
         ) : (
           <div
-            className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-rounded-xl zs-text-white zs-text-lg zs-font-bold"
+            className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-lg zs-font-bold"
             style={{
               background:
-                itemsTheme?.iconBackgroundColor ?? "rgba(64, 148, 229, 0.9)",
+                item.data?.iconColor ??
+                itemsTheme?.iconBackgroundColor ??
+                "rgba(64, 148, 229, 0.9)",
             }}
           >
             {(item.data?.name ?? "?").charAt(0)}
@@ -271,10 +291,12 @@ const GridItem = ({
 
     return (
       <div
-        className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-rounded-xl zs-text-white zs-text-lg zs-font-bold"
+        className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-lg zs-font-bold"
         style={{
           background:
-            itemsTheme?.iconBackgroundColor ?? "rgba(64, 148, 229, 0.9)",
+            item.data?.iconColor ??
+            itemsTheme?.iconBackgroundColor ??
+            "rgba(64, 148, 229, 0.9)",
         }}
       >
         {(item.data?.name ?? "?").charAt(0)}
@@ -285,7 +307,8 @@ const GridItem = ({
   const iconContent = (
     <div
       className={cx(
-        "zs-overflow-hidden zs-rounded-2xl",
+        "zs-overflow-hidden",
+        iconShellStyle,
         isMergeTarget && mergeTargetHighlightStyle,
         css`
           width: ${itemWidth}px;
@@ -298,6 +321,18 @@ const GridItem = ({
   );
 
   const floatingRef = useRef<HTMLDivElement>(null);
+
+  const renderLabel = () => !noLabel && (
+    <div
+      className={cx(
+        "zs-text-center zs-overflow-hidden zs-text-ellipsis zs-whitespace-nowrap zs-px-1 zs-mt-1.5",
+        itemNameStyle,
+      )}
+      style={{ width: itemVisualWidth }}
+    >
+      {item.data?.name ?? ""}
+    </div>
+  );
 
   useEffect(() => {
     if (!isBeingDragged || !dragState.pointerOffset) return;
@@ -324,7 +359,7 @@ const GridItem = ({
               position: "fixed",
               left: 0,
               top: 0,
-              width: itemWidth,
+              width: itemVisualWidth,
               zIndex: 9999,
               pointerEvents: "none",
               filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.3))",
@@ -334,16 +369,7 @@ const GridItem = ({
             className="zs-flex zs-flex-col zs-items-center"
           >
             {iconContent}
-            {!noLabel && (
-              <div
-                className={cx(
-                  "zs-text-center zs-text-[11px] zs-leading-[1.2] zs-overflow-hidden zs-text-ellipsis zs-whitespace-nowrap zs-max-w-full zs-px-0.5 zs-mt-1",
-                  itemNameStyle,
-                )}
-              >
-                {item.data?.name ?? ""}
-              </div>
-            )}
+            {renderLabel()}
           </div>,
           document.body,
         )
@@ -357,12 +383,12 @@ const GridItem = ({
         className={cx(
           "zs-relative zs-cursor-pointer zs-flex zs-flex-col zs-items-center zs-touch-none",
           css`
-            width: ${itemWidth}px;
+            width: ${itemVisualWidth}px;
             min-height: ${itemHeight}px;
           `,
         )}
         animate={{
-          scale: isPressed ? 0.9 : isMergeTarget ? 0.92 : 1,
+          scale: isPressed ? 0.94 : isMergeTarget ? 0.96 : 1,
           opacity: isBeingDragged ? 0.3 : 1,
         }}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -373,16 +399,7 @@ const GridItem = ({
         onContextMenu={handleContextMenu}
       >
         {iconContent}
-        {!noLabel && (
-          <div
-            className={cx(
-              "zs-text-center zs-text-[11px] zs-leading-[1.2] zs-overflow-hidden zs-text-ellipsis zs-whitespace-nowrap zs-max-w-full zs-px-0.5 zs-mt-1",
-              itemNameStyle,
-            )}
-          >
-            {item.data?.name ?? ""}
-          </div>
-        )}
+        {renderLabel()}
       </motion.div>
       {floatingOverlay}
     </>

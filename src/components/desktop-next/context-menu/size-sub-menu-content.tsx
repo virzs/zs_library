@@ -35,7 +35,7 @@ export const SizeSubMenuContent = ({
           <motion.div
             key={optionId}
             className={cx(
-              "zs-h-10 zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-outline-none",
+              "zs-h-[38px] zs-py-0 zs-px-4 zs-flex zs-items-center zs-gap-3.5 zs-cursor-pointer zs-relative zs-outline-none",
               css`
                 isolation: isolate;
                 z-index: 1;
@@ -54,7 +54,7 @@ export const SizeSubMenuContent = ({
                   font-weight: 400;
                   line-height: 18px;
                   color: ${textColor};
-                  letter-spacing: -0.28px;
+                  letter-spacing: 0;
                 `,
               )}
             >

@@ -115,7 +115,7 @@ export const SubMenuItem = ({
         refs.setReference(node);
       }}
       className={cx(
-        "zs-py-0 zs-px-5 zs-flex zs-items-center zs-gap-4 zs-cursor-pointer zs-relative zs-h-10 zs-outline-none",
+        "zs-py-0 zs-px-4 zs-flex zs-items-center zs-gap-3.5 zs-cursor-pointer zs-relative zs-h-[38px] zs-outline-none",
         css`
           isolation: isolate;
           z-index: 1;
@@ -133,7 +133,7 @@ export const SubMenuItem = ({
             font-weight: 400;
             line-height: 18px;
             color: ${finalTextColor};
-            letter-spacing: -0.28px;
+            letter-spacing: 0;
           `,
         )}
       >

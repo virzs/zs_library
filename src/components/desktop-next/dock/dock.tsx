@@ -130,12 +130,19 @@ const Dock: React.FC<DockProps> = ({
           position === "top" && "zs-mb-4",
           position === "bottom" && "zs-mt-4",
           css`
-            background-color: ${dockTheme?.backgroundColor ??
+            padding: ${isHorizontal ? "12px 14px" : "14px 12px"};
+            border-width: 0.75px;
+            border-radius: 24px;
+            background: ${dockTheme?.backgroundColor ??
             "rgba(30, 30, 30, 0.7)"};
+            backdrop-filter: ${baseTheme?.backdropFilter ?? "blur(40px)"};
+            -webkit-backdrop-filter: ${baseTheme?.backdropFilter ?? "blur(40px)"};
             border-color: ${dockTheme?.borderColor ??
             "rgba(255, 255, 255, 0.1)"};
-            box-shadow: 0 8px 32px
-              ${dockTheme?.boxShadowColor ?? "rgba(0, 0, 0, 0.4)"};
+            box-shadow:
+              0 14px 38px ${dockTheme?.boxShadowColor ?? "rgba(0, 0, 0, 0.4)"},
+              inset 0 1px 0 rgba(255, 255, 255, 0.16),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.12);
           `,
           className,
         )}

@@ -34,6 +34,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     sb?.clearButton?.hoverBackgroundColor ?? "rgba(255, 255, 255, 0.32)";
   const clearTextColor =
     sb?.clearButton?.textColor ?? "rgba(255, 255, 255, 0.9)";
+  const shadowColor = sb?.shadowColor ?? "rgba(0, 0, 0, 0.18)";
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
@@ -85,14 +86,25 @@ const SearchBox: React.FC<SearchBoxProps> = ({
           css`
             height: 36px;
             border-radius: 18px;
+            border: 0.75px solid rgba(255, 255, 255, 0.14);
             font-size: 15px;
+            letter-spacing: 0;
             padding: 0 ${value ? "32px" : "12px"} 0 ${value ? "28px" : "12px"};
             text-align: ${value ? "left" : "center"};
             background-color: ${isFocused ? focusBgColor : bgColor};
             color: ${textColor};
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.16),
+              0 8px 20px ${isFocused ? shadowColor : "transparent"};
             transition:
               background-color 0.2s ease,
+              border-color 0.2s ease,
               box-shadow 0.2s ease;
+            &:focus {
+              border-color: rgba(255, 255, 255, 0.24);
+            }
             &::placeholder {
               color: transparent;
             }
@@ -108,6 +120,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
 
       {value && (
         <button
+          type="button"
           className={cx(
             "zs-absolute zs-right-2.5 zs-top-1/2 zs--translate-y-1/2 zs-w-5 zs-h-5 zs-rounded-full zs-border-none zs-cursor-pointer zs-flex zs-items-center zs-justify-center",
             css`

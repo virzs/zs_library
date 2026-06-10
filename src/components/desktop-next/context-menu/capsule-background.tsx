@@ -24,9 +24,10 @@ const CapsuleBackground: FC<CapsuleBackgroundProps> = ({
         <motion.div
           {...(layoutId ? { layoutId } : {})}
           className={cx(
-            "zs-absolute zs-top-0.5 zs-left-2 zs-right-2 zs-bottom-0.5 zs-rounded-xl",
+            "zs-absolute zs-top-[3px] zs-left-1.5 zs-right-1.5 zs-bottom-[3px] zs-rounded-[10px]",
             css`
               background-color: ${activeColor};
+              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
               pointer-events: none;
             `,
             className,

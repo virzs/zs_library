@@ -56,6 +56,7 @@ const StackedIcon: React.FC<StackedIconProps> = ({
   const backgroundColor = iconTheme?.backgroundColor ?? "rgba(40, 40, 40, 0.9)";
   const borderColor = iconTheme?.borderColor ?? "rgba(255, 255, 255, 0.12)";
   const shadowColor = iconTheme?.shadowColor ?? "rgba(0, 0, 0, 0.4)";
+  const hoverGlowColor = iconTheme?.hoverGlowColor ?? "rgba(255, 255, 255, 0.08)";
 
   const slots = Array.from({ length: 4 }, (_, i) => apps[i]);
 
@@ -68,7 +69,7 @@ const StackedIcon: React.FC<StackedIconProps> = ({
       className={cx("zs-cursor-pointer zs-flex-shrink-0 zs-relative", className)}
       style={{ width: outerSize, height: containerSize }}
       whileTap={{ scale: 0.9 }}
-      whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+      whileHover={{ scale: 1.04, transition: { duration: 0.2 } }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       onClick={onClick}
@@ -91,10 +92,15 @@ const StackedIcon: React.FC<StackedIconProps> = ({
               css`
                 width: ${containerSize}px;
                 height: ${containerSize}px;
-                border-radius: 14px;
-                background: ${backgroundColor};
+                border-radius: 16px;
+                background:
+                  linear-gradient(145deg, rgba(255, 255, 255, ${isTop ? 0.12 : 0.08}), rgba(255, 255, 255, 0.02)),
+                  ${backgroundColor};
                 border: 0.5px solid ${borderColor};
-                box-shadow: 0 4px 12px ${shadowColor};
+                box-shadow:
+                  0 7px 18px ${shadowColor},
+                  inset 0 1px 0 rgba(255, 255, 255, 0.16),
+                  0 0 ${isHovered && isTop ? "22px" : "0"} ${hoverGlowColor};
                 padding: 8px;
                 box-sizing: border-box;
                 z-index: ${layerIndex};

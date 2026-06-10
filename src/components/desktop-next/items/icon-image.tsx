@@ -33,7 +33,7 @@ const IconImage = ({
   fallbackBackground = "rgba(64, 148, 229, 0.9)",
   fallbackColor,
   fallbackClassName = "zs-text-xl zs-font-bold",
-  fallbackRadiusClassName = "zs-rounded-xl",
+  fallbackRadiusClassName = "",
   imageClassName = "zs-w-full zs-h-full zs-object-cover",
 }: IconImageProps) => {
   const [failed, setFailed] = useState(false);

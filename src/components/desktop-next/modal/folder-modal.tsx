@@ -23,7 +23,7 @@ const makeEditableTitleStyle = (theme: Theme) => {
     color: ${t?.textColor ?? "rgba(255, 255, 255, 0.95)"};
     font-weight: 600;
     font-size: 18px;
-    letter-spacing: -0.5px;
+    letter-spacing: 0;
     transition: all 0.2s ease-out;
     background: ${t?.backgroundColor ?? "transparent"};
     padding: 4px 12px;
