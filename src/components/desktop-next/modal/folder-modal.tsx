@@ -14,6 +14,7 @@ import GridItem from "../items/grid-item";
 import { useFolderSortEngine } from "../hooks/use-folder-sort-engine";
 import BaseModal from "./base-modal";
 
+const GRID_COLS = 5;
 const GRID_GAP = 16;
 
 const makeEditableTitleStyle = (theme: Theme) => {
@@ -116,12 +117,14 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
   const [visible, setVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [folderName, setFolderName] = useState("");
-  const [cols, setCols] = useState(4);
   const gridRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  const cellSize = iconSize + GRID_GAP;
-  const containerWidth = cols * cellSize;
+  const columnMinWidth = iconSize + 16;
+  const cellSize = columnMinWidth + GRID_GAP;
+  const containerWidth =
+    GRID_COLS * columnMinWidth + (GRID_COLS - 1) * GRID_GAP;
+  const modalWidth = containerWidth + 60;
 
   const liveFolder = useMemo(() => {
     if (!openFolder) return null;
@@ -210,28 +213,10 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
     gridRef,
     dialogRef,
     folderId: liveFolder?.id ?? null,
-    cols,
+    cols: GRID_COLS,
     cellSize,
     onDragOut: handleDragOutItem,
   });
-
-  /* ── Compute cols from grid container width ────────────────── */
-
-  useEffect(() => {
-    const el = gridRef.current;
-    if (!el) return;
-
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-      const w = entry.contentRect.width;
-      const newCols = Math.max(1, Math.floor(w / cellSize));
-      setCols(newCols);
-    });
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [cellSize]);
 
   /* ── Compute display order (gap-based, same as PageGrid) ──── */
 
@@ -284,20 +269,40 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
           }
           footer={null}
           closable={false}
-          width={400}
+          width={modalWidth}
           destroyOnClose
           theme={theme}
+          classNames={{
+            header: css`
+              padding: 22px 28px 0;
+            `,
+            body: css`
+              padding: 18px 28px 28px;
+            `,
+            inner: css`
+              overflow: visible;
+            `,
+          }}
         >
-          <div ref={dialogRef}>
+          <div
+            ref={dialogRef}
+            className={css`
+              width: ${containerWidth}px;
+            `}
+          >
             <div
               ref={gridRef}
               className={cx(
                 "zs-grid zs-content-start",
                 css`
                   width: ${containerWidth}px;
-                  grid-template-columns: repeat(${cols}, ${cellSize}px);
-                  grid-auto-rows: ${cellSize}px;
-                  margin: 0 auto;
+                  grid-template-columns: repeat(
+                    ${GRID_COLS},
+                    ${columnMinWidth}px
+                  );
+                  gap: ${GRID_GAP}px;
+                  padding: 4px 2px 16px;
+                  justify-items: center;
                 `,
               )}
             >
@@ -305,7 +310,7 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
                 {renderItems.map((item) => (
                   <motion.div
                     key={item.id}
-                    className="zs-flex zs-justify-center zs-items-start zs-pt-2"
+                    className="zs-flex zs-justify-center zs-items-start"
                     layout="position"
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ type: "spring", stiffness: 380, damping: 38 }}

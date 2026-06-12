@@ -64,7 +64,7 @@ export const useFolderSortEngine = ({
 
   const isOutsideDialog = useCallback(
     (clientX: number, clientY: number) => {
-      const el = dialogRef.current?.closest(".rc-dialog-section");
+      const el = dialogRef.current?.closest("[data-base-modal-panel]");
       if (!el) return false;
       const rect = el.getBoundingClientRect();
       return (

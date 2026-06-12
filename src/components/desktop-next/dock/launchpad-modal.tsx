@@ -82,17 +82,28 @@ const LaunchpadModal = ({
 
   const scrollToLetter = (letter: string) => {
     const el = document.getElementById(`launchpad-group-${letter}`);
-    if (el)
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const modalTheme = theme?.token?.modal;
-  const sbThumb =
-    modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
+  const sbThumb = modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
   const sbTrack = modalTheme?.scrollbar?.trackColor ?? "transparent";
   const sbRadius = modalTheme?.scrollbar?.borderRadius ?? "2px";
+  const showLetterIndex = groups.length > 1;
 
-  const letterIndex = groups.length > 1 && (
+  const letterIndexSpacer = showLetterIndex && (
+    <div
+      aria-hidden
+      className={cx(
+        "zs-shrink-0",
+        css`
+          width: 20px;
+        `,
+      )}
+    />
+  );
+
+  const letterIndex = showLetterIndex && (
     <div
       className={cx(
         "zs-flex zs-flex-col zs-items-center zs-justify-start zs-shrink-0 zs-py-2",
@@ -113,7 +124,11 @@ const LaunchpadModal = ({
             key={letter}
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.15, delay: index * 0.02, ease: "easeOut" }}
+            transition={{
+              duration: 0.15,
+              delay: index * 0.02,
+              ease: "easeOut",
+            }}
             whileHover={{ scale: 1.15, color: "#007aff" }}
             whileTap={{ scale: 0.9 }}
             className={cx(
@@ -173,7 +188,10 @@ const LaunchpadModal = ({
         <div
           className={css`
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(${iconSize + 16}px, 1fr));
+            grid-template-columns: repeat(
+              auto-fill,
+              minmax(${iconSize + 16}px, 1fr)
+            );
             gap: 16px;
             padding: 4px 2px 16px;
             justify-items: center;
@@ -255,6 +273,7 @@ const LaunchpadModal = ({
 
   const bodyContent = (
     <div className="zs-flex zs-gap-2 zs-h-full zs-overflow-hidden">
+      {letterIndexSpacer}
       {appGrid}
       {letterIndex}
     </div>
@@ -295,13 +314,15 @@ const LaunchpadModal = ({
       title={searchBar}
       width={780}
       theme={theme}
-      contentClassName={css`
-        height: 60vh;
-        max-height: 600px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      `}
+      classNames={{
+        inner: css`
+          height: 60vh;
+          max-height: 600px;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        `,
+      }}
     >
       {bodyContent}
     </BaseModal>
