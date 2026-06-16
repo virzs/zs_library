@@ -3,7 +3,7 @@ import { RiSearchLine, RiCloseLine } from "@remixicon/react";
 import { css, cx } from "@emotion/css";
 import { Theme } from "../themes";
 
-interface SearchBoxProps {
+export interface SearchBoxProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;

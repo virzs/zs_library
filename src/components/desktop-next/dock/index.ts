@@ -8,3 +8,4 @@ export type { DockProps } from "./dock";
 export type { LaunchpadModalProps } from "./launchpad-modal";
 export type { LaunchpadButtonProps } from "./launchpad-button";
 export type { StackedIconProps } from "./stacked-icon";
+export type { SearchBoxProps } from "./search-box";

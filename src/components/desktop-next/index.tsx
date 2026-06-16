@@ -732,8 +732,41 @@ export {
 
 export { mergeTheme } from "./themes/utils";
 
+export { DesktopDndProvider, useDesktopDnd } from "./context";
+export type { DesktopDndProviderProps } from "./context";
+
+export {
+  DesktopDndActionsProvider,
+  DesktopDndConfigProvider,
+  DesktopDndStateProvider,
+  useDesktopDndActions,
+  useDesktopDndConfig,
+  useDesktopDndState,
+} from "./contexts";
+export type {
+  DesktopDndActionsContextValue,
+  DesktopDndConfigContextValue,
+  DesktopDndContextValue,
+  DesktopDndStateContextValue,
+} from "./contexts";
+
+export {
+  default as ContextMenu,
+  MenuItem as ContextMenuItem,
+  SubMenuItem as ContextMenuSubMenuItem,
+  SizeSubMenuContent as ContextMenuSizeSubMenuContent,
+  HoverContext as ContextMenuHoverContext,
+} from "./context-menu";
+export type {
+  ContextMenuProps,
+  MenuItemProps as ContextMenuItemProps,
+  SubMenuItemProps as ContextMenuSubMenuItemProps,
+  SizeMenuItemProps as ContextMenuSizeMenuItemProps,
+  HoverContextType as ContextMenuHoverContextType,
+} from "./context-menu";
+
 export { Dock, LaunchpadModal, LaunchpadButton, StackedIcon, SearchBox } from "./dock";
-export type { DockProps, LaunchpadModalProps, LaunchpadButtonProps, StackedIconProps } from "./dock";
+export type { DockProps, LaunchpadModalProps, LaunchpadButtonProps, StackedIconProps, SearchBoxProps } from "./dock";
 
 export { BaseModal } from "./modal";
 export type { BaseModalProps } from "./modal";
