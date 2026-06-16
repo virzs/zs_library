@@ -10,10 +10,11 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
+    "allowArbitraryExtensions": true,
     "useDefineForClassFields": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["docs", "theme", "rspress.config.ts"],
+  "include": ["docs", "theme", "rspress.config.ts", "src/types.d.ts", "src/vite-env.d.ts"],
   "mdx": {
     "checkMdx": true
   }
