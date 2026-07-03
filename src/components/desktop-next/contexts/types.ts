@@ -14,6 +14,10 @@ import type {
   DataTypeMenuConfigMap,
 } from "../types";
 import type { Theme } from "../themes";
+import type {
+  DesktopNextI18nT,
+  DesktopNextLanguage,
+} from "../i18n";
 
 /** 桌面运行时状态，描述当前页面、拖拽、弹窗和右键菜单的即时状态。 */
 export interface DesktopDndStateContextValue {
@@ -66,6 +70,10 @@ export interface DesktopDndConfigContextValue {
   ) => void;
   /** 控制内置右键菜单按钮显隐等行为的配置。 */
   contextMenuProps?: DesktopDndContextMenuProps;
+  /** DesktopNext 内置文案当前使用语言。 */
+  language: DesktopNextLanguage;
+  /** DesktopNext 内置文案翻译函数。 */
+  t: DesktopNextI18nT;
   /** 合并后的桌面主题对象。 */
   theme: Theme;
   /** 是否隐藏 item 名称。 */

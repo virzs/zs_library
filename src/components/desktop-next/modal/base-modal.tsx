@@ -1,12 +1,17 @@
 import { css, cx } from "@emotion/css";
 import * as Dialog from "@radix-ui/react-dialog";
-import { RiCloseLine } from "@remixicon/react";
+import {
+  RiCloseLine,
+  RiFullscreenExitLine,
+  RiFullscreenLine,
+} from "@remixicon/react";
 import { AnimatePresence } from "motion/react";
 import {
-  CSSProperties,
-  ReactNode,
+  type CSSProperties,
+  type ReactNode,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -20,10 +25,20 @@ type BaseModalSlot =
   | "body"
   | "inner"
   | "footer"
-  | "close";
+  | "close"
+  | "floatingControls"
+  | "floatingClose"
+  | "floatingFullscreen";
 
 type BaseModalClassNames = Partial<Record<BaseModalSlot, string>>;
 type BaseModalStyles = Partial<Record<BaseModalSlot, CSSProperties>>;
+
+export interface BaseModalFloatingControlsConfig {
+  /** 是否显示浮动关闭按钮 */
+  close?: boolean;
+  /** 是否显示浮动全屏按钮 */
+  fullscreen?: boolean;
+}
 
 export interface BaseModalProps {
   /** 是否显示弹窗 */
@@ -42,6 +57,8 @@ export interface BaseModalProps {
   destroyOnClose?: boolean;
   /** 是否显示关闭按钮 */
   closable?: boolean;
+  /** 是否显示 iPadOS 风格的浮动关闭/全屏控制，默认关闭 */
+  floatingControls?: boolean | BaseModalFloatingControlsConfig;
   /** 弹窗底部内容 */
   footer?: ReactNode;
   /** 各区域 className 配置 */
@@ -64,6 +81,7 @@ const BaseModal = (props: BaseModalProps) => {
     mousePosition,
     destroyOnClose = true,
     closable = false,
+    floatingControls = false,
     footer = null,
     classNames,
     styles,
@@ -74,9 +92,23 @@ const BaseModal = (props: BaseModalProps) => {
   const modalTheme = theme?.token?.modal;
 
   const titleId = useId();
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resizeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resizeFromRectRef = useRef<DOMRect | null>(null);
   const [visible, setVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [controlsAwake, setControlsAwake] = useState(false);
+
+  const floatingControlsConfig =
+    typeof floatingControls === "object" ? floatingControls : undefined;
+  const floatingControlsEnabled = Boolean(floatingControls);
+  const showFloatingClose =
+    floatingControlsEnabled && (floatingControlsConfig?.close ?? true);
+  const showFloatingFullscreen =
+    floatingControlsEnabled && (floatingControlsConfig?.fullscreen ?? true);
+  const showFloatingControls = showFloatingClose || showFloatingFullscreen;
 
   useEffect(() => {
     if (externalVisible) {
@@ -88,6 +120,8 @@ const BaseModal = (props: BaseModalProps) => {
       setVisible(true);
     } else {
       setVisible(false);
+      setIsFullscreen(false);
+      setControlsAwake(false);
     }
   }, [externalVisible]);
 
@@ -96,8 +130,49 @@ const BaseModal = (props: BaseModalProps) => {
       if (closeTimerRef.current) {
         clearTimeout(closeTimerRef.current);
       }
+      if (resizeTimerRef.current) {
+        clearTimeout(resizeTimerRef.current);
+      }
     };
   }, []);
+
+  useLayoutEffect(() => {
+    const previousRect = resizeFromRectRef.current;
+    const content = contentRef.current;
+
+    if (!previousRect || !content) return;
+
+    resizeFromRectRef.current = null;
+    const nextRect = content.getBoundingClientRect();
+    if (!nextRect.width || !nextRect.height) return;
+
+    const scaleX = previousRect.width / nextRect.width;
+    const scaleY = previousRect.height / nextRect.height;
+    const previousTransformOrigin = content.style.transformOrigin;
+
+    content.style.transformOrigin = "center";
+    content.style.setProperty("--base-modal-resize-duration", "0ms");
+    content.style.setProperty("--base-modal-resize-scale-x", `${scaleX}`);
+    content.style.setProperty("--base-modal-resize-scale-y", `${scaleY}`);
+
+    requestAnimationFrame(() => {
+      content.style.setProperty("--base-modal-resize-duration", "360ms");
+      content.style.setProperty("--base-modal-resize-scale-x", "1");
+      content.style.setProperty("--base-modal-resize-scale-y", "1");
+    });
+
+    if (resizeTimerRef.current) {
+      clearTimeout(resizeTimerRef.current);
+    }
+
+    resizeTimerRef.current = setTimeout(() => {
+      content.style.removeProperty("--base-modal-resize-duration");
+      content.style.removeProperty("--base-modal-resize-scale-x");
+      content.style.removeProperty("--base-modal-resize-scale-y");
+      content.style.transformOrigin = previousTransformOrigin;
+      resizeTimerRef.current = null;
+    }, 420);
+  }, [isFullscreen]);
 
   const handleClose = () => {
     if (isClosing) return;
@@ -108,6 +183,13 @@ const BaseModal = (props: BaseModalProps) => {
       closeTimerRef.current = null;
       onClose();
     }, 300);
+  };
+
+  const handleFullscreenToggle = () => {
+    resizeFromRectRef.current =
+      contentRef.current?.getBoundingClientRect() ?? null;
+    setIsFullscreen((current) => !current);
+    setControlsAwake(true);
   };
 
   const bgColor =
@@ -122,6 +204,36 @@ const BaseModal = (props: BaseModalProps) => {
   const maskBg = modalTheme?.mask?.backgroundColor ?? "rgba(0,0,0,0.4)";
   const maskBdFilter = modalTheme?.mask?.backdropFilter ?? "blur(20px)";
   const headerColor = modalTheme?.header?.textColor ?? "rgba(255,255,255,0.9)";
+  const floatingControlsTheme = modalTheme?.floatingControls;
+  const fcGap = floatingControlsTheme?.gap ?? "7px";
+  const fcPadding = floatingControlsTheme?.padding ?? "7px 8px";
+  const fcBg =
+    floatingControlsTheme?.backgroundColor ?? "rgba(20, 24, 31, 0.14)";
+  const fcBorder =
+    floatingControlsTheme?.borderColor ?? "rgba(255, 255, 255, 0.18)";
+  const fcBackdropFilter =
+    floatingControlsTheme?.backdropFilter ?? "blur(18px)";
+  const fcOpacity = floatingControlsTheme?.opacity ?? 1;
+  const fcInactiveOpacity = floatingControlsTheme?.inactiveOpacity ?? 0.42;
+  const fcInactiveScale = floatingControlsTheme?.inactiveScale ?? 0.82;
+  const fcButtonSize = floatingControlsTheme?.buttonSize ?? "20px";
+  const fcInactiveButtonSize =
+    floatingControlsTheme?.inactiveButtonSize ?? "14px";
+  const fcCloseBg =
+    floatingControlsTheme?.closeButton?.backgroundColor ??
+    "rgba(255, 95, 86, 0.96)";
+  const fcCloseColor =
+    floatingControlsTheme?.closeButton?.textColor ??
+    "rgba(85, 20, 14, 0.85)";
+  const fcCloseIconSize = floatingControlsTheme?.closeButton?.iconSize ?? 13;
+  const fcFullscreenBg =
+    floatingControlsTheme?.fullscreenButton?.backgroundColor ??
+    "rgba(48, 209, 88, 0.96)";
+  const fcFullscreenColor =
+    floatingControlsTheme?.fullscreenButton?.textColor ??
+    "rgba(4, 58, 26, 0.9)";
+  const fcFullscreenIconSize =
+    floatingControlsTheme?.fullscreenButton?.iconSize ?? 12;
   const sbWidth = modalTheme?.scrollbar?.width ?? "4px";
   const sbTrack = modalTheme?.scrollbar?.trackColor ?? "transparent";
   const sbThumb = modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
@@ -134,6 +246,15 @@ const BaseModal = (props: BaseModalProps) => {
   const transformOrigin = mousePosition
     ? `${mousePosition.x}px ${mousePosition.y}px`
     : "center";
+  const parsedBorderRadius = Number.parseFloat(borderRadius);
+  const floatingControlsInset =
+    isFullscreen
+      ? (floatingControlsTheme?.fullscreenInset ?? "12px")
+      : (floatingControlsTheme?.inset ??
+        (borderRadius.trim().endsWith("px") &&
+        Number.isFinite(parsedBorderRadius)
+          ? `${Math.max(12, Math.round(parsedBorderRadius * 0.8))}px`
+          : "12px"));
 
   return (
     <AnimatePresence>
@@ -189,6 +310,7 @@ const BaseModal = (props: BaseModalProps) => {
               style={styles?.overlay}
             />
             <Dialog.Content
+              ref={contentRef}
               aria-labelledby={title ? titleId : undefined}
               onOpenAutoFocus={(event) => event.preventDefault()}
               className={cx(
@@ -197,11 +319,37 @@ const BaseModal = (props: BaseModalProps) => {
                   left: 50%;
                   top: 50%;
                   z-index: 1001;
-                  width: ${typeof width === "number" ? `${width}px` : width};
-                  max-width: calc(100vw - 80px);
+                  width: ${isFullscreen
+                    ? "100vw"
+                    : typeof width === "number"
+                      ? `${width}px`
+                      : width};
+                  max-width: ${isFullscreen
+                    ? "100vw"
+                    : "calc(100vw - 80px)"};
+                  ${isFullscreen
+                    ? `
+                  height: 100vh;
+                  height: 100dvh;
+                  max-height: 100vh;
+                  max-height: 100dvh;
+                  `
+                    : ""}
                   outline: none;
                   transform-origin: ${transformOrigin};
-                  transform: translate(-50%, -50%);
+                  transform: translate(-50%, -50%)
+                    scale(
+                      var(--base-modal-resize-scale-x, 1),
+                      var(--base-modal-resize-scale-y, 1)
+                    );
+                  transition:
+                    transform var(--base-modal-resize-duration, 0ms)
+                      cubic-bezier(0.2, 0.8, 0.2, 1),
+                    width 0.36s cubic-bezier(0.2, 0.8, 0.2, 1),
+                    max-width 0.36s cubic-bezier(0.2, 0.8, 0.2, 1),
+                    height 0.36s cubic-bezier(0.2, 0.8, 0.2, 1),
+                    max-height 0.36s cubic-bezier(0.2, 0.8, 0.2, 1);
+                  will-change: transform, width, height;
                   animation: modalSlideIn 0.3s
                     cubic-bezier(0.175, 0.885, 0.32, 1);
 
@@ -240,6 +388,7 @@ const BaseModal = (props: BaseModalProps) => {
             >
               <div
                 data-base-modal-panel
+                data-fullscreen={isFullscreen || undefined}
                 className={cx(
                   "base-modal-panel",
                   css`
@@ -252,9 +401,19 @@ const BaseModal = (props: BaseModalProps) => {
                       inset 0 1px 0 rgba(255, 255, 255, 0.12);
                     border: 0.75px solid ${borderColor};
                     padding: 0;
-                    border-radius: ${borderRadius};
+                    border-radius: ${isFullscreen ? "0" : borderRadius};
                     overflow: hidden;
                     position: relative;
+                    transition:
+                      border-radius 0.36s cubic-bezier(0.2, 0.8, 0.2, 1),
+                      box-shadow 0.36s cubic-bezier(0.2, 0.8, 0.2, 1);
+                    ${isFullscreen
+                      ? `
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    `
+                      : ""}
 
                     * {
                       &::-webkit-scrollbar {
@@ -279,7 +438,208 @@ const BaseModal = (props: BaseModalProps) => {
                 )}
                 style={styles?.panel}
               >
-                {closable && (
+                {showFloatingControls && (
+                  <div
+                    className={cx(
+                      "base-modal-floating-controls",
+                      css`
+                        position: absolute;
+                        top: ${floatingControlsInset};
+                        left: ${floatingControlsInset};
+                        z-index: 4;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: ${fcGap};
+                        padding: ${fcPadding};
+                        border-radius: 999px;
+                        background: ${fcBg};
+                        border: 1px solid ${fcBorder};
+                        box-shadow: none;
+                        backdrop-filter: ${fcBackdropFilter};
+                        -webkit-backdrop-filter: ${fcBackdropFilter};
+                        opacity: ${controlsAwake
+                          ? fcOpacity
+                          : fcInactiveOpacity};
+                        transform: translateY(${controlsAwake ? "0" : "-4px"})
+                          scale(${controlsAwake ? 1 : fcInactiveScale});
+                        transform-origin: top left;
+                        transition:
+                          opacity 0.2s ease,
+                          transform 0.2s ease,
+                          background-color 0.2s ease,
+                          border-color 0.2s ease,
+                          box-shadow 0.2s ease;
+
+                        &:hover,
+                        &:focus-within {
+                          opacity: 1;
+                          transform: translateY(0) scale(1);
+                        }
+                      `,
+                      classNames?.floatingControls,
+                    )}
+                    style={styles?.floatingControls}
+                    onMouseEnter={() => setControlsAwake(true)}
+                    onMouseLeave={() => setControlsAwake(false)}
+                    onFocusCapture={() => setControlsAwake(true)}
+                    onBlurCapture={() => setControlsAwake(false)}
+                  >
+                    {showFloatingClose && (
+                      <Dialog.Close
+                        aria-label="关闭"
+                        className={cx(
+                          css`
+                            width: ${controlsAwake
+                              ? fcButtonSize
+                              : fcInactiveButtonSize};
+                            min-width: ${controlsAwake
+                              ? fcButtonSize
+                              : fcInactiveButtonSize};
+                            height: ${controlsAwake
+                              ? fcButtonSize
+                              : fcInactiveButtonSize};
+                            border: none;
+                            border-radius: 999px;
+                            background: ${fcCloseBg};
+                            color: ${controlsAwake ? fcCloseColor : "transparent"};
+                            cursor: pointer;
+                            padding: 0;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            overflow: hidden;
+                            box-shadow: none;
+                            transition:
+                              width 0.2s ease,
+                              min-width 0.2s ease,
+                              height 0.2s ease,
+                              color 0.14s ease,
+                              transform 0.16s ease,
+                              filter 0.16s ease,
+                              box-shadow 0.16s ease;
+
+                            &:hover {
+                              filter: brightness(1.08);
+                              transform: scale(1.05);
+                            }
+
+                            &:active {
+                              transform: scale(0.94);
+                            }
+
+                            &:focus-visible {
+                              outline: 2px solid rgba(255, 255, 255, 0.75);
+                              outline-offset: 2px;
+                            }
+
+                            svg {
+                              opacity: ${controlsAwake ? 1 : 0};
+                              transform: scale(${controlsAwake ? 1 : 0.6});
+                              transition:
+                                opacity 0.14s ease,
+                                transform 0.14s ease;
+                            }
+                          `,
+                          classNames?.floatingClose,
+                        )}
+                        style={styles?.floatingClose}
+                      >
+                        <RiCloseLine size={fcCloseIconSize} />
+                      </Dialog.Close>
+                    )}
+                    {showFloatingFullscreen && (
+                      <button
+                        type="button"
+                        aria-label={isFullscreen ? "退出全屏" : "全屏"}
+                        onClick={handleFullscreenToggle}
+                        className={cx(
+                          css`
+                            width: ${controlsAwake
+                              ? fcButtonSize
+                              : fcInactiveButtonSize};
+                            min-width: ${controlsAwake
+                              ? fcButtonSize
+                              : fcInactiveButtonSize};
+                            height: ${controlsAwake
+                              ? fcButtonSize
+                              : fcInactiveButtonSize};
+                            border: none;
+                            border-radius: 999px;
+                            background: ${fcFullscreenBg};
+                            color: ${controlsAwake ? fcFullscreenColor : "transparent"};
+                            cursor: pointer;
+                            padding: 0;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            overflow: hidden;
+                            box-shadow: none;
+                            transition:
+                              width 0.2s ease,
+                              min-width 0.2s ease,
+                              height 0.2s ease,
+                              color 0.14s ease,
+                              transform 0.16s ease,
+                              filter 0.16s ease,
+                              box-shadow 0.16s ease;
+
+                            &:hover {
+                              filter: brightness(1.08);
+                              transform: scale(1.05);
+                            }
+
+                            &:active {
+                              transform: scale(0.94);
+                            }
+
+                            &:focus-visible {
+                              outline: 2px solid rgba(255, 255, 255, 0.75);
+                              outline-offset: 2px;
+                            }
+
+                            svg {
+                              opacity: ${controlsAwake ? 1 : 0};
+                              transform: scale(${controlsAwake ? 1 : 0.6});
+                              transition:
+                                opacity 0.14s ease,
+                                transform 0.14s ease;
+                            }
+                          `,
+                          classNames?.floatingFullscreen,
+                        )}
+                        style={styles?.floatingFullscreen}
+                      >
+                        <span
+                          key={isFullscreen ? "fullscreen-exit" : "fullscreen"}
+                          className={css`
+                            display: inline-flex;
+                            animation: modalControlIconPop 0.18s ease;
+
+                            @keyframes modalControlIconPop {
+                              from {
+                                opacity: 0;
+                                transform: scale(0.72) rotate(-8deg);
+                              }
+                              to {
+                                opacity: 1;
+                                transform: scale(1) rotate(0deg);
+                              }
+                            }
+                          `}
+                        >
+                          {isFullscreen ? (
+                            <RiFullscreenExitLine
+                              size={fcFullscreenIconSize}
+                            />
+                          ) : (
+                            <RiFullscreenLine size={fcFullscreenIconSize} />
+                          )}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                )}
+                {closable && !showFloatingClose && (
                   <Dialog.Close
                     className={cx(
                       css`
@@ -331,6 +691,15 @@ const BaseModal = (props: BaseModalProps) => {
                       border: none;
                       position: relative;
                       padding: 18px 20px 22px;
+                      ${isFullscreen
+                        ? `
+                      flex: 1 1 auto;
+                      min-height: 0;
+                      display: flex;
+                      flex-direction: column;
+                      overflow: hidden;
+                      `
+                        : ""}
                     `,
                     classNames?.body,
                   )}
@@ -340,7 +709,15 @@ const BaseModal = (props: BaseModalProps) => {
                     className={cx(
                       "zs-relative",
                       css`
-                        ${disableMaxHeight
+                        ${isFullscreen
+                          ? `
+                        flex: 1 1 auto;
+                        min-height: 0;
+                        height: 100%;
+                        overflow: auto;
+                        max-height: none;
+                        `
+                          : disableMaxHeight
                           ? ""
                           : `
                         max-height: calc(100vh - 160px);

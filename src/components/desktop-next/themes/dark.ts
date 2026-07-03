@@ -14,6 +14,7 @@ export const themeDark: Theme = {
     },
     items: {
       textColor: "rgba(255, 255, 255, 0.9)",
+      textShadowColor: "rgba(0, 0, 0, 0.5)",
       iconBackgroundColor: "rgba(40, 40, 40, 0.9)",
       iconShadowColor: "rgba(0, 0, 0, 0.4)",
       groupIconBackgroundColor: "rgba(40, 40, 40, 0.5)",
@@ -97,6 +98,30 @@ export const themeDark: Theme = {
       },
       header: {
         textColor: "rgba(255, 255, 255, 0.9)",
+      },
+      floatingControls: {
+        inset: "16px",
+        fullscreenInset: "12px",
+        gap: "7px",
+        padding: "7px 8px",
+        backgroundColor: "rgba(20, 24, 31, 0.14)",
+        borderColor: "rgba(255, 255, 255, 0.18)",
+        backdropFilter: "blur(18px)",
+        opacity: 1,
+        inactiveOpacity: 0.42,
+        inactiveScale: 0.82,
+        buttonSize: "20px",
+        inactiveButtonSize: "14px",
+        closeButton: {
+          backgroundColor: "rgba(255, 95, 86, 0.96)",
+          textColor: "rgba(85, 20, 14, 0.85)",
+          iconSize: 13,
+        },
+        fullscreenButton: {
+          backgroundColor: "rgba(48, 209, 88, 0.96)",
+          textColor: "rgba(4, 58, 26, 0.9)",
+          iconSize: 12,
+        },
       },
       scrollbar: {
         width: "4px",

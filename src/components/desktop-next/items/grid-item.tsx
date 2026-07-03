@@ -77,6 +77,10 @@ const GridItem = ({
   const [isPressed, setIsPressed] = useState(false);
 
   const itemsTheme = theme.token.items;
+  const textShadowColor =
+    itemsTheme?.textShadowColor ??
+    itemsTheme?.iconShadowColor ??
+    "rgba(0, 0, 0, 0.5)";
   const itemNameStyle = css`
     color: ${itemsTheme?.textColor ?? "rgba(255, 255, 255, 0.9)"};
     font-size: 11.5px;
@@ -84,8 +88,8 @@ const GridItem = ({
     line-height: 1.18;
     letter-spacing: 0;
     text-shadow:
-      0 1px 2px ${itemsTheme?.iconShadowColor ?? "rgba(0, 0, 0, 0.5)"},
-      0 0 8px ${itemsTheme?.iconShadowColor ?? "rgba(0, 0, 0, 0.35)"};
+      0 1px 2px ${textShadowColor},
+      0 0 8px ${textShadowColor};
   `;
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDraggingRef = useRef(false);

@@ -17,6 +17,30 @@ export interface BaseModalTheme {
   header?: {
     textColor?: string;
   };
+  floatingControls?: {
+    inset?: string;
+    fullscreenInset?: string;
+    gap?: string;
+    padding?: string;
+    backgroundColor?: string;
+    borderColor?: string;
+    backdropFilter?: string;
+    opacity?: number;
+    inactiveOpacity?: number;
+    inactiveScale?: number;
+    buttonSize?: string;
+    inactiveButtonSize?: string;
+    closeButton?: {
+      backgroundColor?: string;
+      textColor?: string;
+      iconSize?: number;
+    };
+    fullscreenButton?: {
+      backgroundColor?: string;
+      textColor?: string;
+      iconSize?: number;
+    };
+  };
   scrollbar?: {
     width?: string;
     trackColor?: string;
@@ -35,6 +59,7 @@ export interface DockTheme {
   };
   launchpad?: {
     modal?: {
+      letterIndexColor?: string;
       searchBox?: {
         iconColor?: string;
         iconFocusColor?: string;
@@ -84,6 +109,7 @@ export interface ContextMenuTheme {
 
 export interface ItemsTheme {
   textColor?: string;
+  textShadowColor?: string;
   iconBackgroundColor?: string;
   iconShadowColor?: string;
   groupIconBackgroundColor?: string;

@@ -59,6 +59,7 @@ interface EditableFolderTitleProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
+  placeholder: string;
   theme: Theme;
 }
 
@@ -66,6 +67,7 @@ const EditableFolderTitle: React.FC<EditableFolderTitleProps> = ({
   value,
   onChange,
   onBlur,
+  placeholder,
   theme,
 }) => {
   const [localValue, setLocalValue] = useState(value);
@@ -87,7 +89,7 @@ const EditableFolderTitle: React.FC<EditableFolderTitleProps> = ({
       value={localValue}
       onChange={handleChange}
       onBlur={onBlur}
-      placeholder="文件夹"
+      placeholder={placeholder}
     />
   );
 };
@@ -111,6 +113,7 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
     dragState,
     pointerPositionRef,
     theme,
+    t,
   } = useDesktopDnd();
 
   const { openFolder, openPosition } = folderModal;
@@ -148,9 +151,9 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
     if (openFolder) {
       setVisible(true);
       setIsClosing(false);
-      setFolderName(openFolder.data?.name ?? "文件夹");
+      setFolderName(openFolder.data?.name ?? t("folder.defaultName"));
     }
-  }, [openFolder]);
+  }, [openFolder, t]);
 
   const handleClose = useCallback(() => {
     if (isClosing) return;
@@ -264,6 +267,7 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
               value={folderName}
               onChange={setFolderName}
               onBlur={handleTitleBlur}
+              placeholder={t("folder.placeholder")}
               theme={theme}
             />
           }

@@ -732,6 +732,13 @@ export {
 
 export { mergeTheme } from "./themes/utils";
 
+export type {
+  DesktopNextI18n,
+  DesktopNextI18nResource,
+  DesktopNextI18nT,
+  DesktopNextLanguage,
+} from "./i18n";
+
 export { DesktopDndProvider, useDesktopDnd } from "./context";
 export type { DesktopDndProviderProps } from "./context";
 
@@ -769,7 +776,10 @@ export { Dock, LaunchpadModal, LaunchpadButton, StackedIcon, SearchBox } from ".
 export type { DockProps, LaunchpadModalProps, LaunchpadButtonProps, StackedIconProps, SearchBoxProps } from "./dock";
 
 export { BaseModal } from "./modal";
-export type { BaseModalProps } from "./modal";
+export type {
+  BaseModalFloatingControlsConfig,
+  BaseModalProps,
+} from "./modal";
 
 export { BaseDrawer } from "./drawer";
 export type { BaseDrawerProps } from "./drawer";

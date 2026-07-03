@@ -159,6 +159,7 @@ export type {
   LaunchpadButtonProps as DesktopNextLaunchpadButtonProps,
   StackedIconProps as DesktopNextStackedIconProps,
   SearchBoxProps as DesktopNextSearchBoxProps,
+  BaseModalFloatingControlsConfig as DesktopNextBaseModalFloatingControlsConfig,
   BaseModalProps as DesktopNextBaseModalProps,
   BaseDrawerProps as DesktopNextBaseDrawerProps,
   DndSortItem,
@@ -180,6 +181,10 @@ export type {
   ComponentRegistryEntry as DesktopNextComponentRegistryEntry,
   ComponentRegistry as DesktopNextComponentRegistry,
   PageTransition as DesktopNextPageTransition,
+  DesktopNextLanguage,
+  DesktopNextI18n,
+  DesktopNextI18nResource,
+  DesktopNextI18nT,
 } from "./desktop-next";
 
 // @deprecated Use DesktopNext instead

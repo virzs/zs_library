@@ -88,6 +88,11 @@ export {
   formatXiaomiLeicaExifData,
 } from "./components";
 
+export {
+  I18nProvider,
+  ZsI18nProvider,
+} from "./i18n/provider";
+
 export type {
   DesktopHandle,
   DesktopProps,
@@ -124,6 +129,7 @@ export type {
   DesktopNextLaunchpadButtonProps,
   DesktopNextStackedIconProps,
   DesktopNextSearchBoxProps,
+  DesktopNextBaseModalFloatingControlsConfig,
   DesktopNextBaseModalProps,
   DesktopNextBaseDrawerProps,
   DesktopNextTheme,
@@ -148,6 +154,10 @@ export type {
   DesktopNextComponentRegistryEntry,
   DesktopNextComponentRegistry,
   DesktopNextPageTransition,
+  DesktopNextLanguage,
+  DesktopNextI18n,
+  DesktopNextI18nResource,
+  DesktopNextI18nT,
 
   // Dock相关类型
   DockDesktopItemProps,
@@ -163,6 +173,12 @@ export type {
   ExifData,
   ExifExtractResult,
 } from "./components";
+export type { ZsI18nProviderProps } from "./i18n/provider";
+export type {
+  ZsI18nContextValue,
+  ZsI18nLanguage,
+  ZsI18nResources,
+} from "./i18n/context";
 
 // 导出所有组件作为默认导出
 import * as Components from "./components";

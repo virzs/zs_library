@@ -14,6 +14,7 @@ import {
 } from "./types";
 import { Theme, defaultTheme } from "./themes";
 import { mergeTheme } from "./themes/utils";
+import { useDesktopNextI18n } from "./i18n";
 import {
   DesktopDndActionsProvider,
   DesktopDndConfigProvider,
@@ -152,6 +153,7 @@ export const DesktopDndProvider = ({
     () => mergeTheme(themeProp ?? defaultTheme),
     [themeProp],
   );
+  const desktopNextI18n = useDesktopNextI18n();
 
   const mergedTypeConfigMap = useMemo<TypeConfigMap | undefined>(() => {
     if (!componentRegistry || Object.keys(componentRegistry).length === 0) {
@@ -190,7 +192,11 @@ export const DesktopDndProvider = ({
     setContextMenu(null);
   }, []);
 
-  const actionsValue = useDesktopActions({ pagesRef, setPages });
+  const actionsValue = useDesktopActions({
+    pagesRef,
+    setPages,
+    t: desktopNextI18n.t,
+  });
 
   const stateValue = useMemo<DesktopDndStateContextValue>(
     () => ({
@@ -232,6 +238,8 @@ export const DesktopDndProvider = ({
       onRemoveClick,
       onContextMenuItemClick,
       contextMenuProps,
+      language: desktopNextI18n.language,
+      t: desktopNextI18n.t,
       theme: resolvedTheme,
       noLetters,
       itemBuilder,
@@ -253,6 +261,8 @@ export const DesktopDndProvider = ({
       onRemoveClick,
       onContextMenuItemClick,
       contextMenuProps,
+      desktopNextI18n.language,
+      desktopNextI18n.t,
       resolvedTheme,
       noLetters,
       itemBuilder,

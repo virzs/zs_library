@@ -30,6 +30,7 @@ const ContextMenu = ({
     onRemoveClick,
     onContextMenuItemClick,
     contextMenuProps,
+    t,
   } = useDesktopDnd();
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -99,7 +100,7 @@ const ContextMenu = ({
           >
             {showRemove && (
               <MenuItem
-                text="移除"
+                text={t("contextMenu.remove")}
                 icon={<RiIndeterminateCircleLine />}
                 color="#ff453a"
                 textColor="#ff453a"
@@ -128,7 +129,7 @@ const ContextMenu = ({
 
             {showSize && sizeConfigs.length > 1 && (
               <SubMenuItem
-                text="尺寸"
+                text={t("contextMenu.size")}
                 icon={<RiApps2Line size={18} />}
                 index={currentMenuIndex++}
                 isRootMenuOpen={isOpen}

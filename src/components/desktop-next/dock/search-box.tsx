@@ -2,6 +2,10 @@ import React, { useState, useRef } from "react";
 import { RiSearchLine, RiCloseLine } from "@remixicon/react";
 import { css, cx } from "@emotion/css";
 import { Theme } from "../themes";
+import {
+  desktopNextDefaultLanguage,
+  desktopNextI18nResources,
+} from "../i18n";
 
 export interface SearchBoxProps {
   value: string;
@@ -14,7 +18,8 @@ export interface SearchBoxProps {
 const SearchBox: React.FC<SearchBoxProps> = ({
   value,
   onChange,
-  placeholder = "搜索应用",
+  placeholder = desktopNextI18nResources[desktopNextDefaultLanguage].desktopNext
+    .launchpad.searchPlaceholder,
   className = "",
   theme,
 }) => {

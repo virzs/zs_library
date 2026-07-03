@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import type { DesktopDndActionsContextValue } from "./types";
 import type { DndPageItem, DndSortItem, SortItemUserConfig } from "../types";
+import type { DesktopNextI18nT } from "../i18n";
 
 /** useDesktopActions 的入参。 */
 interface UseDesktopActionsOptions {
@@ -9,6 +10,8 @@ interface UseDesktopActionsOptions {
   pagesRef: React.RefObject<DndPageItem[]>;
   /** 写入新的分页数据并通知外部。 */
   setPages: (pages: DndPageItem[]) => void;
+  /** DesktopNext 内置文案翻译函数。 */
+  t: DesktopNextI18nT;
 }
 
 /**
@@ -19,6 +22,7 @@ interface UseDesktopActionsOptions {
 export const useDesktopActions = ({
   pagesRef,
   setPages,
+  t,
 }: UseDesktopActionsOptions): DesktopDndActionsContextValue => {
   /** 按 id 查找桌面或文件夹内的 item。 */
   const findItemById = useCallback(
@@ -199,7 +203,11 @@ export const useDesktopActions = ({
         targetPage.children[targetItemIdx] = {
           id: uuidv4(),
           type: "group",
-          data: { name: "文件夹", icon: undefined, iconColor: undefined },
+          data: {
+            name: t("folder.defaultName"),
+            icon: undefined,
+            iconColor: undefined,
+          },
           children: [target, draggedItem],
         };
         pages[targetPageIdx] = targetPage;
@@ -211,7 +219,7 @@ export const useDesktopActions = ({
       pages[targetPageIdx] = targetPage;
       setPages(pages);
     },
-    [pagesRef, setPages],
+    [pagesRef, setPages, t],
   );
 
   /** 从文件夹中移除子项并追加到指定桌面页。 */

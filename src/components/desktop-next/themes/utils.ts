@@ -79,6 +79,11 @@ function generateThemeFromBase(base: BaseTheme): Theme["token"] {
       header: {
         textColor: base.textColor,
       },
+      floatingControls: {
+        backgroundColor:
+          withAlpha(base.backgroundColor, 0.16) ?? base.backgroundColor,
+        borderColor: base.borderColor,
+      },
       scrollbar: {},
     },
   });

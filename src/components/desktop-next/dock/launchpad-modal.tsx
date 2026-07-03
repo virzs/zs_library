@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { css, cx } from "@emotion/css";
 import { motion, AnimatePresence } from "motion/react";
 import { RiCloseLine } from "@remixicon/react";
@@ -21,6 +21,53 @@ export interface LaunchpadModalProps {
 }
 
 const noop = () => {};
+const GRID_GAP = 16;
+const GRID_PADDING_X = 26;
+const DESKTOP_TARGET_COLS = 7;
+const MOBILE_TARGET_COLS = 4;
+const MIN_DYNAMIC_ICON_SIZE = 40;
+
+const getGridItemVisualWidth = (iconSize: number) => {
+  const gap = Math.round((iconSize / 64) * 48);
+  return Math.max(iconSize, iconSize + Math.round(gap * 0.58));
+};
+
+const getColumnsForWidth = (availableWidth: number, columnWidth: number) =>
+  Math.max(1, Math.floor((availableWidth + GRID_GAP) / (columnWidth + GRID_GAP)));
+
+const getIconSizeForColumn = (
+  columnWidth: number,
+  preferredIconSize: number,
+) => {
+  for (let size = preferredIconSize; size >= MIN_DYNAMIC_ICON_SIZE; size -= 1) {
+    if (getGridItemVisualWidth(size) <= columnWidth) return size;
+  }
+  return Math.min(preferredIconSize, MIN_DYNAMIC_ICON_SIZE);
+};
+
+const getLaunchpadGridLayout = (
+  availableWidth: number,
+  preferredIconSize: number,
+  isMobile: boolean,
+) => {
+  const preferredItemWidth = getGridItemVisualWidth(preferredIconSize);
+  const minIconSize = Math.max(
+    MIN_DYNAMIC_ICON_SIZE,
+    Math.round(preferredIconSize * 0.72),
+  );
+  const minItemWidth = getGridItemVisualWidth(minIconSize);
+  const preferredCols = getColumnsForWidth(availableWidth, preferredItemWidth);
+  const compactCols = getColumnsForWidth(availableWidth, minItemWidth);
+  const targetCols = isMobile ? MOBILE_TARGET_COLS : DESKTOP_TARGET_COLS;
+  const cols = Math.max(preferredCols, Math.min(targetCols, compactCols));
+  const columnWidth = Math.max(
+    1,
+    Math.floor((availableWidth - GRID_GAP * (cols - 1)) / cols),
+  );
+  const itemIconSize = getIconSizeForColumn(columnWidth, preferredIconSize);
+
+  return { cols, columnWidth, iconSize: itemIconSize };
+};
 
 const LaunchpadModal = ({
   visible,
@@ -28,10 +75,15 @@ const LaunchpadModal = ({
   onItemClick,
   theme,
 }: LaunchpadModalProps) => {
-  const { pages, iconSize } = useDesktopDnd();
+  const { pages, iconSize, t } = useDesktopDnd();
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
   const contentScrollRef = useRef<HTMLDivElement>(null);
+  const [gridLayout, setGridLayout] = useState(() => ({
+    cols: isMobile ? MOBILE_TARGET_COLS : DESKTOP_TARGET_COLS,
+    columnWidth: getGridItemVisualWidth(iconSize),
+    iconSize,
+  }));
 
   const { groupMap, groups } = useMemo(() => {
     const getApps = (items: DndSortItem[]): DndSortItem[] =>
@@ -86,10 +138,37 @@ const LaunchpadModal = ({
   };
 
   const modalTheme = theme?.token?.modal;
+  const launchpadModalTheme = theme?.token?.dock?.launchpad?.modal;
   const sbThumb = modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
   const sbTrack = modalTheme?.scrollbar?.trackColor ?? "transparent";
   const sbRadius = modalTheme?.scrollbar?.borderRadius ?? "2px";
+  const letterIndexColor =
+    launchpadModalTheme?.letterIndexColor ??
+    theme?.token?.items?.textColor ??
+    "rgba(255, 255, 255, 0.45)";
   const showLetterIndex = groups.length > 1;
+
+  useEffect(() => {
+    const el = contentScrollRef.current;
+    if (!el) return;
+
+    const computeGridLayout = () => {
+      const availableWidth = Math.max(0, el.clientWidth - GRID_PADDING_X);
+      if (availableWidth <= 0) return;
+      setGridLayout(getLaunchpadGridLayout(availableWidth, iconSize, isMobile));
+    };
+
+    computeGridLayout();
+
+    if ("ResizeObserver" in globalThis) {
+      const ro = new ResizeObserver(computeGridLayout);
+      ro.observe(el);
+      return () => ro.disconnect();
+    }
+
+    globalThis.addEventListener("resize", computeGridLayout);
+    return () => globalThis.removeEventListener("resize", computeGridLayout);
+  }, [iconSize, isMobile, showLetterIndex]);
 
   const letterIndexSpacer = showLetterIndex && (
     <div
@@ -134,7 +213,7 @@ const LaunchpadModal = ({
             className={cx(
               "zs-text-xs zs-cursor-pointer zs-rounded-md zs-w-5 zs-h-5 zs-flex zs-items-center zs-justify-center zs-bg-transparent zs-border-none zs-font-semibold zs-leading-none",
               css`
-                color: rgba(255, 255, 255, 0.45);
+                color: ${letterIndexColor};
                 font-size: 10px;
                 transition: color 0.15s ease;
               `,
@@ -152,11 +231,13 @@ const LaunchpadModal = ({
     <div
       ref={contentScrollRef}
       className={cx(
-        "zs-flex-1 zs-overflow-y-auto zs-min-w-0",
+        "zs-flex-1 zs-overflow-y-auto zs-overflow-x-hidden zs-min-w-0",
         css`
-          padding-left: 16px;
+          box-sizing: border-box;
+          padding: 0 10px 0 16px;
           scrollbar-width: thin;
           scrollbar-color: ${sbThumb} ${sbTrack};
+          scrollbar-gutter: stable;
           &::-webkit-scrollbar {
             width: 4px;
           }
@@ -176,24 +257,29 @@ const LaunchpadModal = ({
             {searchQuery.trim() ? "🔍" : "📱"}
           </div>
           <div className="zs-mb-2">
-            {searchQuery.trim() ? "未找到相关应用" : "暂无应用"}
+            {searchQuery.trim()
+              ? t("launchpad.noSearchResults")
+              : t("launchpad.noApps")}
           </div>
           <div className="zs-text-base zs-text-[#c7c7cc] zs-font-normal">
             {searchQuery.trim()
-              ? "尝试使用其他关键词搜索"
-              : "请添加应用到启动台"}
+              ? t("launchpad.searchHint")
+              : t("launchpad.emptyHint")}
           </div>
         </div>
       ) : (
         <div
           className={css`
+            box-sizing: border-box;
             display: grid;
-            grid-template-columns: repeat(
-              auto-fill,
-              minmax(${iconSize + 16}px, 1fr)
-            );
-            gap: 16px;
+            grid-template-columns: repeat(${gridLayout.cols}, minmax(0, ${gridLayout.columnWidth}px));
+            gap: ${GRID_GAP}px;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            overflow-x: hidden;
             padding: 4px 2px 16px;
+            justify-content: center;
             justify-items: center;
           `}
         >
@@ -227,7 +313,7 @@ const LaunchpadModal = ({
                     item={item}
                     onDragStart={noop}
                     onItemClick={onItemClick}
-                    iconSize={iconSize}
+                    iconSize={gridLayout.iconSize}
                   />
                 </motion.div>
               ));
@@ -253,13 +339,13 @@ const LaunchpadModal = ({
         className="zs-grow"
         value={searchQuery}
         onChange={setSearchQuery}
-        placeholder="搜索应用"
+        placeholder={t("launchpad.searchPlaceholder")}
         theme={theme}
       />
       {isMobile && (
         <RiCloseLine
           onClick={onClose}
-          aria-label="关闭"
+          aria-label={t("launchpad.close")}
           className={cx(
             "zs-shrink-0 zs-cursor-pointer",
             css`

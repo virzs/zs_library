@@ -456,6 +456,79 @@ export default () => {
 };
 ```
 
+## 浮动弹窗控制按钮
+
+`DesktopNextBaseModal` 支持开启 iPadOS 风格的浮动关闭和全屏按钮。该能力默认关闭，内置的启动台、文件夹弹窗也不会自动开启；需要业务侧显式传入 `floatingControls`。
+
+```jsx
+import { DesktopNextBaseModal } from "zs_library";
+import { useState } from "react";
+
+export default () => {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div style={{ display: "flex", justifyContent: "center", padding: 32 }}>
+      <button
+        type="button"
+        onClick={() => setVisible(true)}
+        style={{
+          height: 36,
+          padding: "0 16px",
+          borderRadius: 8,
+          border: "1px solid rgba(15, 23, 42, 0.18)",
+          background: "#ffffff",
+          cursor: "pointer",
+        }}
+      >
+        打开弹窗
+      </button>
+
+      <DesktopNextBaseModal
+        visible={visible}
+        onClose={() => setVisible(false)}
+        width={720}
+        title="浮动控制示例"
+        floatingControls
+      >
+        <div
+          style={{
+            minHeight: 260,
+            display: "grid",
+            placeItems: "center",
+            borderRadius: 12,
+            background:
+              "linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(34, 197, 94, 0.16))",
+            color: "rgba(255, 255, 255, 0.92)",
+            textAlign: "center",
+            padding: 24,
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 600 }}>鼠标移到弹窗顶部</div>
+            <div style={{ marginTop: 8, fontSize: 14, opacity: 0.72 }}>
+              控制按钮会从半透明缩小状态恢复为完整显示，点击绿色按钮切换全屏。
+            </div>
+          </div>
+        </div>
+      </DesktopNextBaseModal>
+    </div>
+  );
+};
+```
+
+也可以按需只显示其中一个按钮：
+
+```jsx
+<DesktopNextBaseModal
+  visible={visible}
+  onClose={() => setVisible(false)}
+  floatingControls={{ close: true, fullscreen: false }}
+>
+  内容
+</DesktopNextBaseModal>
+```
+
 ## API
 
 ### DesktopNextExtendedProps
@@ -486,6 +559,53 @@ export default () => {
 | extraItems | `DndSortItem<D>[]` | - | 额外附加的 item 数据（通过 context 透传） |
 | dockProps | `DockProps` | - | Dock 栏配置，传入后渲染底部 Dock |
 | componentRegistry | `ComponentRegistry` | - | 组件注册表，按 `item.type` 匹配自动渲染；自动合并 size/permission 配置到 typeConfigMap |
+
+### 国际化
+
+通过全局 `ZsI18nProvider` 设置语言和文案覆盖。`DesktopNext` 默认内置 `zh-CN` 和 `en-US` 文案，默认文案维护在 `src/i18n/locales/desktop-next/`，只有使用 `DesktopNext` 时才会读取该组件的 namespace。
+
+```tsx
+import { DesktopNext, ZsI18nProvider, type DesktopNextI18n } from "zs_library";
+
+const desktopI18n: DesktopNextI18n = {
+  "en-US": {
+    desktopNext: {
+      contextMenu: {
+        remove: "Delete",
+      },
+      launchpad: {
+        searchPlaceholder: "Find apps",
+      },
+    },
+  },
+  "ja-JP": {
+    desktopNext: {
+      contextMenu: {
+        remove: "削除",
+        size: "サイズ",
+      },
+      launchpad: {
+        searchPlaceholder: "アプリを検索",
+        noSearchResults: "一致するアプリがありません",
+        noApps: "アプリがありません",
+        searchHint: "別のキーワードを試してください",
+        emptyHint: "Launchpad にアプリを追加してください",
+        close: "閉じる",
+      },
+      folder: {
+        defaultName: "フォルダ",
+        placeholder: "フォルダ",
+      },
+    },
+  },
+};
+
+<ZsI18nProvider language="en-US" i18n={desktopI18n}>
+  <DesktopNext pages={pages} onChange={setPages} />
+</ZsI18nProvider>;
+```
+
+`ZsI18nProvider` 的 `i18n` 只作为各组件按需读取的资源覆盖池；未使用组件的 namespace 不会被注册到全局 i18next 实例。
 
 ### DockProps
 
@@ -595,8 +715,29 @@ interface Theme {
         backgroundColor?: string;
         textColor?: string;
       };
-      body?: {
+      floatingControls?: {
+        inset?: string;
+        fullscreenInset?: string;
+        gap?: string;
+        padding?: string;
         backgroundColor?: string;
+        borderColor?: string;
+        backdropFilter?: string;
+        opacity?: number;
+        inactiveOpacity?: number;
+        inactiveScale?: number;
+        buttonSize?: string;
+        inactiveButtonSize?: string;
+        closeButton?: {
+          backgroundColor?: string;
+          textColor?: string;
+          iconSize?: number;
+        };
+        fullscreenButton?: {
+          backgroundColor?: string;
+          textColor?: string;
+          iconSize?: number;
+        };
       };
       scrollbar?: {
         width?: string;
