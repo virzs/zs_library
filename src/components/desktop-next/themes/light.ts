@@ -111,17 +111,17 @@ export const themeLight: Theme = {
         opacity: 1,
         inactiveOpacity: 0.5,
         inactiveScale: 0.82,
-        buttonSize: "20px",
-        inactiveButtonSize: "14px",
+        buttonSize: "16px",
+        inactiveButtonSize: "12px",
         closeButton: {
           backgroundColor: "rgba(255, 95, 86, 0.96)",
           textColor: "rgba(85, 20, 14, 0.85)",
-          iconSize: 13,
+          iconSize: 9,
         },
         fullscreenButton: {
           backgroundColor: "rgba(48, 209, 88, 0.96)",
           textColor: "rgba(4, 58, 26, 0.9)",
-          iconSize: 12,
+          iconSize: 9,
         },
       },
       scrollbar: {

@@ -216,16 +216,16 @@ const BaseModal = (props: BaseModalProps) => {
   const fcOpacity = floatingControlsTheme?.opacity ?? 1;
   const fcInactiveOpacity = floatingControlsTheme?.inactiveOpacity ?? 0.42;
   const fcInactiveScale = floatingControlsTheme?.inactiveScale ?? 0.82;
-  const fcButtonSize = floatingControlsTheme?.buttonSize ?? "20px";
+  const fcButtonSize = floatingControlsTheme?.buttonSize ?? "16px";
   const fcInactiveButtonSize =
-    floatingControlsTheme?.inactiveButtonSize ?? "14px";
+    floatingControlsTheme?.inactiveButtonSize ?? "12px";
   const fcCloseBg =
     floatingControlsTheme?.closeButton?.backgroundColor ??
     "rgba(255, 95, 86, 0.96)";
   const fcCloseColor =
     floatingControlsTheme?.closeButton?.textColor ??
     "rgba(85, 20, 14, 0.85)";
-  const fcCloseIconSize = floatingControlsTheme?.closeButton?.iconSize ?? 13;
+  const fcCloseIconSize = floatingControlsTheme?.closeButton?.iconSize ?? 9;
   const fcFullscreenBg =
     floatingControlsTheme?.fullscreenButton?.backgroundColor ??
     "rgba(48, 209, 88, 0.96)";
@@ -233,7 +233,7 @@ const BaseModal = (props: BaseModalProps) => {
     floatingControlsTheme?.fullscreenButton?.textColor ??
     "rgba(4, 58, 26, 0.9)";
   const fcFullscreenIconSize =
-    floatingControlsTheme?.fullscreenButton?.iconSize ?? 12;
+    floatingControlsTheme?.fullscreenButton?.iconSize ?? 9;
   const sbWidth = modalTheme?.scrollbar?.width ?? "4px";
   const sbTrack = modalTheme?.scrollbar?.trackColor ?? "transparent";
   const sbThumb = modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
@@ -460,8 +460,9 @@ const BaseModal = (props: BaseModalProps) => {
                         opacity: ${controlsAwake
                           ? fcOpacity
                           : fcInactiveOpacity};
-                        transform: translateY(${controlsAwake ? "0" : "-4px"})
-                          scale(${controlsAwake ? 1 : fcInactiveScale});
+                        transform: scale(${controlsAwake
+                          ? 1
+                          : fcInactiveScale});
                         transform-origin: top left;
                         transition:
                           opacity 0.2s ease,
@@ -473,7 +474,7 @@ const BaseModal = (props: BaseModalProps) => {
                         &:hover,
                         &:focus-within {
                           opacity: 1;
-                          transform: translateY(0) scale(1);
+                          transform: scale(1);
                         }
                       `,
                       classNames?.floatingControls,
