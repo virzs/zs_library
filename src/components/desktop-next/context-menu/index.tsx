@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RiApps2Line, RiIndeterminateCircleLine } from "@remixicon/react";
 import { getDefaultConfig, getSizeConfig } from "../config";
 import { useDesktopDnd } from "../context";
@@ -27,6 +27,7 @@ const ContextMenu = ({
     updateItemConfig,
     typeConfigMap,
     dataTypeMenuConfigMap,
+    onBeforeRemove,
     onRemoveClick,
     onContextMenuItemClick,
     contextMenuProps,
@@ -35,6 +36,7 @@ const ContextMenu = ({
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [renderContextMenu, setRenderContextMenu] = useState(contextMenu);
+  const pendingRemoveIdsRef = useRef(new Set<string | number>());
 
   useEffect(() => {
     if (!contextMenu) return;
@@ -108,6 +110,9 @@ const ContextMenu = ({
                 onClick={() => {
                   hideContextMenu();
 
+                  if (pendingRemoveIdsRef.current.has(data.id)) return;
+                  pendingRemoveIdsRef.current.add(data.id);
+
                   const targetElement = activeContextMenu.element;
                   const doRemove = () => {
                     if (onRemoveClick) {
@@ -118,11 +123,26 @@ const ContextMenu = ({
                     onContextMenuItemClick?.(data, { actionType: "remove" });
                   };
 
-                  if (targetElement) {
-                    playShatterEffect(targetElement).then(doRemove);
-                  } else {
-                    doRemove();
-                  }
+                  void (async () => {
+                    try {
+                      if (onBeforeRemove) {
+                        let decision: boolean | void;
+                        try {
+                          decision = await onBeforeRemove(data);
+                        } catch {
+                          return;
+                        }
+                        if (decision === false) return;
+                      }
+
+                      if (targetElement?.isConnected) {
+                        await playShatterEffect(targetElement);
+                      }
+                      doRemove();
+                    } finally {
+                      pendingRemoveIdsRef.current.delete(data.id);
+                    }
+                  })();
                 }}
               />
             )}

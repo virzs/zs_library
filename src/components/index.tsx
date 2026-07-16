@@ -165,6 +165,8 @@ export type {
   DndSortItem,
   DndPageItem,
   DndItemBaseData,
+  BeforeRemoveHandler,
+  BeforeRemoveResult,
   SizeConfig,
   SortItemUserConfig,
   MenuItemConfig,

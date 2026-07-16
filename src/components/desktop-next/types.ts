@@ -48,6 +48,12 @@ export interface FolderModalState {
 
 export type PageTransition = "slide" | "cube" | "fade" | "zoom";
 
+export type BeforeRemoveResult = boolean | void;
+
+export type BeforeRemoveHandler<D = unknown> = (
+  item: DndSortItem<D>,
+) => BeforeRemoveResult | Promise<BeforeRemoveResult>;
+
 /** 组件 Props */
 export interface DesktopDndProps<D = any> {
   pages: DndPageItem<D>[];
@@ -63,6 +69,8 @@ export interface DesktopDndProps<D = any> {
   mergeDwellTime?: number;
   typeConfigMap?: TypeConfigMap;
   dataTypeMenuConfigMap?: DataTypeMenuConfigMap;
+  /** 在移除动画和数据提交前拦截；返回 false 或拒绝 Promise 时取消。 */
+  onBeforeRemove?: BeforeRemoveHandler<D>;
   onRemoveClick?: (item: DndSortItem<D>) => void;
   onContextMenuItemClick?: (
     item: DndSortItem<D>,

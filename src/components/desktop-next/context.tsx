@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
+  BeforeRemoveHandler,
   ComponentRegistry,
   ContextMenuActionPayload,
   ContextMenuData,
@@ -81,6 +82,8 @@ export interface DesktopDndProviderProps {
   typeConfigMap?: TypeConfigMap;
   /** 按 item dataType 配置自定义右键菜单项。 */
   dataTypeMenuConfigMap?: DataTypeMenuConfigMap;
+  /** 默认移除动作提交前的同步或异步拦截器。 */
+  onBeforeRemove?: BeforeRemoveHandler;
   /** 点击默认移除菜单项时的自定义回调。 */
   onRemoveClick?: (item: DndSortItem) => void;
   /** 右键菜单项被触发后的统一回调。 */
@@ -132,6 +135,7 @@ export const DesktopDndProvider = ({
   containerRef,
   typeConfigMap,
   dataTypeMenuConfigMap,
+  onBeforeRemove,
   onRemoveClick,
   onContextMenuItemClick,
   contextMenuProps,
@@ -235,6 +239,7 @@ export const DesktopDndProvider = ({
       mergeDwellTime,
       typeConfigMap: mergedTypeConfigMap,
       dataTypeMenuConfigMap,
+      onBeforeRemove,
       onRemoveClick,
       onContextMenuItemClick,
       contextMenuProps,
@@ -258,6 +263,7 @@ export const DesktopDndProvider = ({
       mergeDwellTime,
       mergedTypeConfigMap,
       dataTypeMenuConfigMap,
+      onBeforeRemove,
       onRemoveClick,
       onContextMenuItemClick,
       contextMenuProps,

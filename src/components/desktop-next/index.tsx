@@ -3,6 +3,7 @@ import React, { forwardRef, JSX, useCallback, useEffect, useMemo, useRef, useSta
 import { v4 as uuidv4 } from "uuid";
 import { DesktopDndProvider, useDesktopDnd } from "./context";
 import {
+  BeforeRemoveHandler,
   ContextMenuActionPayload,
   DesktopDndProps,
   DndSortItem,
@@ -610,6 +611,7 @@ const DesktopDnd = forwardRef(
       mergeDwellTime = 500,
       typeConfigMap,
       dataTypeMenuConfigMap,
+      onBeforeRemove,
       onRemoveClick,
       onContextMenuItemClick,
       contextMenuProps,
@@ -651,6 +653,7 @@ const DesktopDnd = forwardRef(
         containerRef={containerRef}
         typeConfigMap={typeConfigMap}
         dataTypeMenuConfigMap={dataTypeMenuConfigMap}
+        onBeforeRemove={onBeforeRemove as BeforeRemoveHandler | undefined}
         onRemoveClick={onRemoveClick as ((item: DndSortItem) => void) | undefined}
         onContextMenuItemClick={onContextMenuItemClick as ((item: DndSortItem, payload: ContextMenuActionPayload) => void) | undefined}
         contextMenuProps={contextMenuProps}
@@ -686,6 +689,8 @@ const DesktopDnd = forwardRef(
 export default DesktopDnd;
 
 export type {
+  BeforeRemoveHandler,
+  BeforeRemoveResult,
   DesktopDndProps,
   DndSortItem,
   DndPageItem,

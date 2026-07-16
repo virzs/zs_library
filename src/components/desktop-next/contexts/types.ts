@@ -1,5 +1,6 @@
 import type React from "react";
 import type {
+  BeforeRemoveHandler,
   ComponentRegistry,
   ContextMenuActionPayload,
   ContextMenuData,
@@ -61,6 +62,8 @@ export interface DesktopDndConfigContextValue {
   typeConfigMap?: TypeConfigMap;
   /** 按 item dataType 配置自定义右键菜单项。 */
   dataTypeMenuConfigMap?: DataTypeMenuConfigMap;
+  /** 默认移除动作提交前的同步或异步拦截器。 */
+  onBeforeRemove?: BeforeRemoveHandler;
   /** 点击默认移除菜单项时的自定义回调；未提供时直接移除 item。 */
   onRemoveClick?: (item: DndSortItem) => void;
   /** 右键菜单项被触发后的统一回调，包括移除、改尺寸和自定义菜单项。 */

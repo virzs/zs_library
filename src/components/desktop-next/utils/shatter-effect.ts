@@ -175,6 +175,13 @@ function createParticles(rect: DOMRect, colors: string[][]): Particle[] {
 }
 
 export async function playShatterEffect(element: Element): Promise<void> {
+  if (
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  ) {
+    return;
+  }
+
   const rect = element.getBoundingClientRect();
   if (rect.width === 0 || rect.height === 0) return;
 

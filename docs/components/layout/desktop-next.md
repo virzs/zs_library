@@ -545,6 +545,7 @@ export default () => {
 | mergeDwellTime | `number` | `500` | 合并检测延迟（ms） |
 | typeConfigMap | `TypeConfigMap` | - | 按类型控制尺寸、是否允许菜单/删除 |
 | dataTypeMenuConfigMap | `DataTypeMenuConfigMap` | - | 按 `dataType` 配置自定义菜单 |
+| onBeforeRemove | `(item: DndSortItem<D>) => boolean \| void \| Promise<boolean \| void>` | - | 移除动画和提交前确认；返回 `false` 或拒绝 Promise 时取消 |
 | onRemoveClick | `(item: DndSortItem<D>) => void` | - | 点击"移除"回调，默认行为是删除 |
 | onContextMenuItemClick | `(item: DndSortItem<D>, payload: ContextMenuActionPayload) => void` | - | 菜单点击总回调 |
 | contextMenuProps | `DesktopNextContextMenuProps` | - | 控制内置菜单项显隐 |
@@ -559,6 +560,29 @@ export default () => {
 | extraItems | `DndSortItem<D>[]` | - | 额外附加的 item 数据（通过 context 透传） |
 | dockProps | `DockProps` | - | Dock 栏配置，传入后渲染底部 Dock |
 | componentRegistry | `ComponentRegistry` | - | 组件注册表，按 `item.type` 匹配自动渲染；自动合并 size/permission 配置到 typeConfigMap |
+
+### 移除前确认
+
+`onBeforeRemove` 会在碎散动画和数据变更之前执行。同步返回 `false`、异步返回 `false`，或 Promise 被拒绝时，DesktopNext 会保留原项目并停止后续移除事件；返回 `true` 或 `void` 才会继续。
+
+```tsx
+const confirmRemove = (item: DndSortItem) =>
+  new Promise<boolean>((resolve) => {
+    openConfirmDialog({
+      title: `移除“${item.data?.name ?? "应用"}”？`,
+      onCancel: () => resolve(false),
+      onConfirm: () => resolve(true),
+    });
+  });
+
+<DesktopNext
+  pages={pages}
+  onChange={setPages}
+  onBeforeRemove={confirmRemove}
+/>;
+```
+
+`onRemoveClick` 仍保持原有的提交后自定义回调语义。只有实际提交移除时，`onContextMenuItemClick` 才会收到 `actionType: "remove"`。
 
 ### 国际化
 

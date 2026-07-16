@@ -74,10 +74,37 @@ export const useDesktopActions = ({
   /** 从所有桌面页中移除指定 item。 */
   const removeItem = useCallback(
     (itemId: string | number) => {
-      const pages = pagesRef.current.map((page) => ({
-        ...page,
-        children: page.children.filter((c) => c.id !== itemId),
-      }));
+      const removeFromItems = (
+        items: DndSortItem[],
+      ): { items: DndSortItem[]; changed: boolean } => {
+        let changed = false;
+        const nextItems: DndSortItem[] = [];
+
+        for (const item of items) {
+          if (item.id === itemId) {
+            changed = true;
+            continue;
+          }
+
+          if (item.children?.length) {
+            const nested = removeFromItems(item.children);
+            if (nested.changed) {
+              changed = true;
+              nextItems.push({ ...item, children: nested.items });
+              continue;
+            }
+          }
+
+          nextItems.push(item);
+        }
+
+        return { items: nextItems, changed };
+      };
+
+      const pages = pagesRef.current.map((page) => {
+        const result = removeFromItems(page.children);
+        return result.changed ? { ...page, children: result.items } : page;
+      });
       setPages(pages);
     },
     [pagesRef, setPages],
