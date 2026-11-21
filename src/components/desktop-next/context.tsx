@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   BeforeRemoveHandler,
   ComponentRegistry,
@@ -7,6 +7,8 @@ import {
   DesktopDndContextMenuProps,
   DndSortItem,
   DndPageItem,
+  DesktopGridConfig,
+  PositionedItem,
   DragState,
   FolderModalState,
   TypeConfigMap,
@@ -28,6 +30,8 @@ import {
   type DesktopDndStateContextValue,
 } from "./contexts";
 import { useDesktopActions } from "./contexts/use-desktop-actions";
+import { arrangeDesktopPages, findFreePosition, layoutDesktopPages, type LayoutOptions } from "./layout";
+import { useGridLayout } from "./hooks/use-grid-layout";
 import { usePagesState } from "./contexts/use-pages-state";
 
 const initialDragState: DragState = {
@@ -64,6 +68,41 @@ export const useDesktopDnd = () => {
   );
 };
 
+// 额外项目只用于展示。独立记录其位置，使其参与分页并保持业务数据可单独保存。
+function placeExtraItems(pages: DndPageItem[], items: DndSortItem[] | undefined, options: LayoutOptions) {
+  const extraLayout = new Map<DndPageItem["id"], PositionedItem[]>();
+  const extraPageIds = new Set<DndPageItem["id"]>();
+  if (!items?.length) return { editablePages: pages, extraLayout, extraPageIds };
+
+  const editablePages = [...pages];
+  const ids = new Set(pages.map(page => String(page.id)));
+  let sequence = 0;
+  const addPage = () => {
+    let id: string;
+    do { id = `desktop-extra-${++sequence}`; } while (ids.has(id));
+    ids.add(id);
+    extraPageIds.add(id);
+    const page: DndPageItem = { id, children: [] };
+    editablePages.push(page);
+    return page;
+  };
+  let page = editablePages[editablePages.length - 1] ?? addPage();
+  for (const item of items) {
+    const extras = extraLayout.get(page.id) ?? [];
+    const atLimit = !!options.maxPages && editablePages.length >= options.maxPages;
+    const position = findFreePosition([...page.children, ...extras], item,
+      atLimit ? { ...options, autoPaginate: false } : options);
+    if (position) {
+      extras.push({ ...item, position });
+      extraLayout.set(page.id, extras);
+    } else {
+      page = addPage();
+      extraLayout.set(page.id, [{ ...item, position: { row: 0, col: 0 } }]);
+    }
+  }
+  return { editablePages, extraLayout, extraPageIds };
+}
+
 /** DesktopDndProvider 的入参。 */
 export interface DesktopDndProviderProps {
   /** 外部传入的桌面分页数据。 */
@@ -72,6 +111,9 @@ export interface DesktopDndProviderProps {
   onChange: (pages: DndPageItem[]) => void;
   /** 图标基准尺寸。 */
   iconSize: number;
+  grid?: DesktopGridConfig;
+  autoPaginate?: boolean;
+  preserveGaps?: boolean;
   /** 最大页数；0 表示不限制。 */
   maxPages: number;
   /** 拖拽悬停多久后触发合并，单位毫秒。 */
@@ -106,7 +148,7 @@ export interface DesktopDndProviderProps {
   /** @deprecated 请让 itemIconBuilder 返回 null 回退默认图标。 */
   itemIconBuilderAllowNull?: boolean;
   /** 自定义单个分页点渲染。 */
-  pagingDotBuilder?: (index: number, isActive: boolean) => React.ReactNode;
+  pagingDotBuilder?: (index: number, isActive: boolean, selectPage?: () => void) => React.ReactNode;
   /** 自定义分页点容器渲染。 */
   pagingDotsBuilder?: (dots: React.ReactNode[]) => React.ReactNode;
   /** 页面切换动画类型。 */
@@ -126,10 +168,17 @@ export interface DesktopDndProviderProps {
  *
  * 负责组装状态、配置和数据操作三个细粒度 context，并保持 useDesktopDnd 的兼容返回值。
  */
-export const DesktopDndProvider = ({
+export const DesktopDndProvider = (props: DesktopDndProviderProps) => (
+  <DesktopDndSession key={props.storageKey} {...props} />
+);
+
+const DesktopDndSession = ({
   pages: externalPages,
   onChange,
   iconSize,
+  grid,
+  autoPaginate = true,
+  preserveGaps = true,
   maxPages,
   mergeDwellTime,
   containerRef,
@@ -179,18 +228,90 @@ export const DesktopDndProvider = ({
     return { ...fromRegistry, ...(typeConfigMap ?? {}) };
   }, [componentRegistry, typeConfigMap]);
 
-  const [currentPage, setCurrentPage] = useState(0);
+  const [selection, setSelection] = useState<{
+    index: number; id?: DndPageItem["id"]; ownerId?: DndPageItem["id"];
+  }>({ index: 0 });
   const [dragState, setDragState] = useState<DragState>(initialDragState);
   const pointerPositionRef = useRef<{ x: number; y: number } | null>(null);
   const [folderModal, setFolderModal] =
     useState<FolderModalState>(initialFolderModal);
   const [contextMenu, setContextMenu] = useState<ContextMenuData | null>(null);
 
-  const { pages, pagesRef, setPages } = usePagesState({
+  const { pages: inputPages, setPages: savePages } = usePagesState({
     externalPages,
     onChange,
     storageKey,
   });
+  const { ready, measureRef, current: measured, singlePage } = useGridLayout(iconSize, grid, containerRef);
+  // 多页切回单页时分页点会消失。将归还的高度计入可用空间，以便恢复最后一行。
+  const useSinglePage = useMemo(() => {
+    if (!ready || singlePage.rows === measured.rows || dragState.previewPageId != null) return false;
+    const options = { columns: singlePage.columns, rows: singlePage.rows, autoPaginate, maxPages, typeConfigMap: mergedTypeConfigMap };
+    const candidate = preserveGaps ? layoutDesktopPages(inputPages, options) : arrangeDesktopPages(inputPages, options);
+    return candidate.length <= 1 && placeExtraItems(candidate, extraItems, options).editablePages.length <= 1;
+  }, [ready, singlePage.rows, singlePage.columns, measured.rows, dragState.previewPageId, autoPaginate,
+    maxPages, mergedTypeConfigMap, preserveGaps, inputPages, extraItems]);
+  const { columns, rows, cellSize, iconSize: fittedIconSize } = useSinglePage ? singlePage : measured;
+  const layoutOptions = useMemo<LayoutOptions>(
+    () => ({ columns, rows, autoPaginate, maxPages, typeConfigMap: mergedTypeConfigMap }),
+    [columns, rows, autoPaginate, maxPages, mergedTypeConfigMap],
+  );
+  const fitPages = useCallback((next: DndPageItem[]) => {
+    return preserveGaps ? layoutDesktopPages(next, layoutOptions) : arrangeDesktopPages(next, layoutOptions);
+  }, [layoutOptions, preserveGaps]);
+  const fittedPages = useMemo(
+    () => ready ? fitPages(inputPages) : inputPages,
+    [inputPages, fitPages, ready],
+  );
+  // 相同的重排结果只提交一次，包括受控调用方延迟保存的情况。
+  const lastSubmitted = useRef<DndPageItem[] | null>(null);
+  useEffect(() => {
+    if (fittedPages !== inputPages && lastSubmitted.current !== fittedPages) {
+      lastSubmitted.current = fittedPages;
+      savePages(fittedPages);
+    }
+  }, [inputPages, fittedPages, savePages]);
+
+  const { editablePages, extraLayout, extraPageIds } = useMemo(
+    () => placeExtraItems(fittedPages, ready ? extraItems : undefined, layoutOptions),
+    [fittedPages, extraItems, layoutOptions, ready],
+  );
+  const pagesRef = useRef(editablePages);
+  pagesRef.current = editablePages;
+  const setPages = useCallback((next: DndPageItem[]) => {
+    const businessPages = extraPageIds.size
+      ? next.filter(page => page.children.length || !extraPageIds.has(page.id))
+      : next;
+    const result = ready ? fitPages(businessPages) : businessPages;
+    pagesRef.current = result;
+    savePages(result);
+  }, [ready, extraPageIds, fitPages, savePages]);
+  const pages = useMemo(() => {
+    const id = dragState.previewPageId;
+    return id != null && !editablePages.some(page => page.id === id)
+      ? [...editablePages, { id, children: [] }]
+      : editablePages;
+  }, [editablePages, dragState.previewPageId]);
+  // 源页前的自动页数量可以随尺寸变化。按 id 保持当前页，已合并的自动页回到源页。
+  const currentPage = useMemo(() => {
+    const current = pages.findIndex(page => page.id === selection.id);
+    if (current >= 0) return current;
+    const owner = pages.findIndex(page => page.id === selection.ownerId);
+    return owner >= 0 ? owner : Math.max(0, Math.min(selection.index, pages.length - 1));
+  }, [selection, pages]);
+  const setCurrentPage = useCallback((index: number) => {
+    const page = pages[index];
+    setSelection({ index, id: page?.id, ownerId: page?.overflowOf });
+  }, [pages]);
+  useEffect(() => {
+    const page = pages[currentPage];
+    if (selection.index !== currentPage || selection.id !== page?.id || selection.ownerId !== page?.overflowOf) {
+      setSelection({ index: currentPage, id: page?.id, ownerId: page?.overflowOf });
+    }
+  }, [selection, currentPage, pages]);
+  const arrange = useCallback(() => {
+    if (ready) setPages(arrangeDesktopPages(fittedPages, layoutOptions));
+  }, [ready, fittedPages, layoutOptions, setPages]);
 
   const hideContextMenu = useCallback(() => {
     setContextMenu(null);
@@ -199,12 +320,52 @@ export const DesktopDndProvider = ({
   const actionsValue = useDesktopActions({
     pagesRef,
     setPages,
+    layoutOptions,
+    normalizePages: fitPages,
     t: desktopNextI18n.t,
   });
+
+  // 受控数据可能在拖动期间被替换，页面卸载时原有的指针监听也会移除。
+  const { activeId, isDragging, sourcePageIndex, targetPageId } = dragState;
+  const { findItemById } = actionsValue;
+  useLayoutEffect(() => {
+    if (!isDragging || activeId == null) return;
+    const target = pages[sourcePageIndex];
+    const lostPage = sourcePageIndex >= 0 && (
+      !target || currentPage !== sourcePageIndex ||
+      (targetPageId != null && target.id !== targetPageId)
+    );
+    if (lostPage || !findItemById(activeId)) {
+      pointerPositionRef.current = null;
+      setDragState(initialDragState);
+    }
+  }, [activeId, isDragging, sourcePageIndex, targetPageId, currentPage, pages, findItemById]);
+
+  const { previewItemMove } = actionsValue;
+  const { previewPosition, previewPageId, previewOrder } = dragState;
+  const preview = useMemo(() => {
+    if (!isDragging || activeId == null || sourcePageIndex < 0 || !previewPosition) return null;
+    const moved = previewItemMove(activeId, sourcePageIndex, previewPosition, previewPageId, previewOrder);
+    if (!moved) return null;
+    const businessPages = moved.filter(page => page.children.length || !extraPageIds.has(page.id));
+    const display = placeExtraItems(businessPages, extraItems, layoutOptions);
+    return {
+      pages: new Map(display.editablePages.map(page => [page.id, page])),
+      extraLayout: display.extraLayout,
+    };
+  }, [
+    isDragging, activeId, sourcePageIndex, previewPosition, previewPageId, previewOrder,
+    previewItemMove, extraPageIds, extraItems, layoutOptions,
+  ]);
 
   const stateValue = useMemo<DesktopDndStateContextValue>(
     () => ({
       pages,
+      ready,
+      measureRef,
+      arrange,
+      previewPages: preview?.pages ?? null,
+      extraLayout: preview?.extraLayout ?? extraLayout,
       setPages,
       currentPage,
       setCurrentPage,
@@ -220,6 +381,11 @@ export const DesktopDndProvider = ({
     }),
     [
       pages,
+      ready,
+      measureRef,
+      arrange,
+      preview,
+      extraLayout,
       setPages,
       currentPage,
       dragState,
@@ -234,7 +400,9 @@ export const DesktopDndProvider = ({
 
   const configValue = useMemo<DesktopDndConfigContextValue>(
     () => ({
-      iconSize,
+      iconSize: fittedIconSize,
+      cellSize,
+      layoutOptions,
       maxPages,
       mergeDwellTime,
       typeConfigMap: mergedTypeConfigMap,
@@ -258,7 +426,9 @@ export const DesktopDndProvider = ({
       componentRegistry,
     }),
     [
-      iconSize,
+      fittedIconSize,
+      cellSize,
+      layoutOptions,
       maxPages,
       mergeDwellTime,
       mergedTypeConfigMap,

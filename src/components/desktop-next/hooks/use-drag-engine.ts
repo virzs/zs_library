@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef } from "react";
 import { useDesktopDnd } from "../context";
-import { DndSortItem, PageSwitchZone } from "../types";
+import type { DndSortItem, DragState, PageSwitchZone, PositionedItem } from "../types";
+import { canPlaceItem, findFreePosition, getLayoutSpan } from "../layout";
 import { v4 as uuidv4 } from "uuid";
 
 interface DragEngineOptions {
+  finishPlacement: (id: DndSortItem["id"]) => void;
   gridContainerRef: React.RefObject<HTMLDivElement | null>;
   cols: number;
   cellSize: number;
@@ -17,12 +19,19 @@ const PAGE_SWITCH_TRIGGER_ZONE = 60;
 const PAGE_SWITCH_DELAY = 800;
 const PAGE_SWITCH_COOLDOWN = 500;
 
+function readingOrder(items: PositionedItem[]) {
+  return [...items].sort((a, b) => a.position.row - b.position.row || a.position.col - b.position.col);
+}
+
+type GridPreview = Pick<DragState, "previewPosition" | "previewOrder">;
+
 type HoverPlacement =
   | { type: "merge"; id: string | number }
   | { type: "gap"; index: number; slot: number }
   | null;
 
 export const useDragEngine = ({
+  finishPlacement,
   gridContainerRef,
   cols,
   cellSize,
@@ -46,7 +55,6 @@ export const useDragEngine = ({
   const pointerIdRef = useRef<number | null>(null);
   const lastPointerSlotRef = useRef<number>(-1);
   const pageSwitchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pageSwitchCooldownRef = useRef(false);
   const pageSwitchZoneRef = useRef<PageSwitchZone>(null);
 
   const clearMergeTimer = useCallback(() => {
@@ -79,12 +87,21 @@ export const useDragEngine = ({
       const container = gridContainerRef.current;
       if (!container) return -1;
       const rect = container.getBoundingClientRect();
-      const relX = Math.max(0, Math.min(clientX - rect.left, rect.width - 1));
-      const relY = Math.max(0, clientY - rect.top);
+      const relX = clientX - rect.left;
+      const relY = clientY - rect.top;
+      if (relX < 0 || relY < 0 || relX >= rect.width || relY >= rect.height) return -1;
       const c = colsRef.current;
       const cs = cellSizeRef.current;
-      const col = Math.min(Math.floor(relX / cs), c - 1);
-      const row = Math.max(0, Math.floor(relY / cs));
+      const { dragState, layoutOptions } = ctxRef.current;
+      if (!dragState.draggedItem) return -1;
+      const span = getLayoutSpan(dragState.draggedItem, layoutOptions);
+      // 多格组件以抓取的格子跟随指针。屏幕尺寸计入当前翻页动画的缩放。
+      const rows = Math.max(layoutOptions.rows, Math.round(container.clientHeight / cs));
+      const x = relX * c / rect.width;
+      const y = relY * rows / rect.height;
+      const grab = dragState.grabOffsetInCells;
+      const col = Math.max(0, Math.min(c - span.col, grab ? Math.round(x - grab.x) : Math.floor(x)));
+      const row = Math.max(0, Math.min(rows - span.row, grab ? Math.round(y - grab.y) : Math.floor(y)));
       return row * c + col;
     },
     [gridContainerRef],
@@ -100,10 +117,10 @@ export const useDragEngine = ({
       const el = document
         .elementFromPoint(clientX, clientY)
         ?.closest?.("[data-grid-item-id]") as HTMLElement | null;
-      if (!el) return null;
+      if (!el || !gridContainerRef.current?.contains(el)) return null;
 
       const domId = el.dataset.gridItemId;
-      if (!domId || domId === String(activeId)) return null;
+      if (domId == null || domId === String(activeId)) return null;
 
       const targetIndex = nonDragItems.findIndex(
         (item) => String(item.id) === domId,
@@ -123,7 +140,8 @@ export const useDragEngine = ({
 
       // 文件夹不能与任何元素合并，但仍然可以在目标边缘触发排序。
       const draggedItem = ctxRef.current.dragState.draggedItem;
-      if (isInMergeCenter && draggedItem?.type !== "group") {
+      if (isInMergeCenter && draggedItem?.type !== "group" &&
+          !targetItem.children?.some(child => child.id === activeId)) {
         return { type: "merge", id: targetItem.id };
       }
 
@@ -140,7 +158,7 @@ export const useDragEngine = ({
         slot: targetIndex,
       };
     },
-    [],
+    [gridContainerRef],
   );
 
   const setMergeTarget = useCallback((id: string | number | null) => {
@@ -150,7 +168,7 @@ export const useDragEngine = ({
   }, []);
 
   const scheduleGapCommit = useCallback(
-    (nextGap: number, rawSlot: number, delay = GAP_COMMIT_DELAY) => {
+    (nextGap: number, rawSlot: number, preview: GridPreview, delay = GAP_COMMIT_DELAY) => {
       const currentGap = ctxRef.current.dragState.gapIndex;
       if (nextGap === currentGap) {
         clearGapTimer();
@@ -163,7 +181,7 @@ export const useDragEngine = ({
       const gapDirection = nextGap - currentGap;
 
       if (
-        prevSlot < 0 ||
+        prevSlot < 0 || currentGap < 0 ||
         pointerDirection === 0 ||
         (pointerDirection > 0 && gapDirection > 0) ||
         (pointerDirection < 0 && gapDirection < 0)
@@ -174,6 +192,7 @@ export const useDragEngine = ({
             ctxRef.current.setDragState((prev) => ({
               ...prev,
               gapIndex: nextGap,
+              ...preview,
             }));
           }
         }, delay);
@@ -192,6 +211,7 @@ export const useDragEngine = ({
 
       const totalPages = pages.length;
       let targetPage: number;
+      let previewPageId = dragState.previewPageId;
 
       if (zone === "left") {
         if (currentPage <= 0) return;
@@ -199,9 +219,8 @@ export const useDragEngine = ({
       } else {
         if (currentPage >= totalPages - 1) {
           if (maxPages > 0 && totalPages >= maxPages) return;
-          const newPage = { id: uuidv4(), children: [] as DndSortItem[] };
-          const newPages = [...pages, newPage];
-          ctxRef.current.setPages(newPages);
+          if (previewPageId != null) return;
+          previewPageId = uuidv4();
           targetPage = totalPages;
         } else {
           targetPage = currentPage + 1;
@@ -219,32 +238,25 @@ export const useDragEngine = ({
       window.removeEventListener("pointerup", handleWindowPointerUp);
       window.removeEventListener("pointercancel", handleWindowPointerUp);
 
-      ctxRef.current.removeItem(draggedItem.id);
-      ctxRef.current.insertItemAt(
-        targetPage,
-        ctxRef.current.pages[targetPage]?.children?.length ?? 0,
-        draggedItem,
-      );
+      const target = pages[targetPage];
+      const previewPosition = findFreePosition(target?.children ?? [], draggedItem, ctxRef.current.layoutOptions);
       ctxRef.current.setCurrentPage(targetPage);
       ctxRef.current.setDragState((prev) => ({
         ...prev,
         sourcePageIndex: targetPage,
-        gapIndex: (ctxRef.current.pages[targetPage]?.children?.length ?? 1) - 1,
+        targetPageId: target?.id ?? previewPageId,
+        previewPageId, previewPosition, previewOrder: undefined,
+        pageSwitchedAt: Date.now(), gapIndex: -1,
         mergeTargetId: null,
         pageSwitchZone: null,
       }));
-
-      pageSwitchCooldownRef.current = true;
-      setTimeout(() => {
-        pageSwitchCooldownRef.current = false;
-      }, PAGE_SWITCH_COOLDOWN);
     },
     [clearMergeTimer, clearGapTimer, clearPageSwitchTimer],
   );
 
   const checkPageSwitchZone = useCallback(
     (clientX: number) => {
-      if (pageSwitchCooldownRef.current) {
+      if (Date.now() - (ctxRef.current.dragState.pageSwitchedAt ?? 0) < PAGE_SWITCH_COOLDOWN) {
         clearPageSwitchTimer();
         return;
       }
@@ -261,7 +273,8 @@ export const useDragEngine = ({
       } else if (relX > rect.width - PAGE_SWITCH_TRIGGER_ZONE) {
         const { pages, currentPage, maxPages } = ctxRef.current;
         const canSwitchNext = currentPage < pages.length - 1;
-        const canCreatePage = maxPages <= 0 || pages.length < maxPages;
+        const canCreatePage = ctxRef.current.dragState.previewPageId == null &&
+          (maxPages <= 0 || pages.length < maxPages);
         if (canSwitchNext || canCreatePage) {
           zone = "right";
         }
@@ -304,15 +317,17 @@ export const useDragEngine = ({
       checkPageSwitchZone(e.clientX);
 
       const pi = pageIndexRef.current;
-      const pageChildren = ctxRef.current.pages[pi]?.children ?? [];
+      const pageChildren = readingOrder(ctxRef.current.pages[pi]?.children ?? []);
       const nonDragItems = pageChildren.filter((c) => c.id !== activeId);
       const itemCount = nonDragItems.length;
-      const hoverPlacement = getHoverPlacement(
-        e.clientX,
-        e.clientY,
-        activeId,
-        nonDragItems,
-      );
+      const draggedItem = dragState.draggedItem;
+      if (!draggedItem) return;
+      const layout = ctxRef.current.layoutOptions;
+      const span = getLayoutSpan(draggedItem, layout);
+      const isBlock = span.col > 1 || span.row > 1;
+      const hoverPlacement = !isBlock || draggedItem.type === "app"
+        ? getHoverPlacement(e.clientX, e.clientY, activeId, nonDragItems)
+        : null;
 
       if (hoverPlacement?.type === "merge") {
         if (hoverItemIdRef.current !== hoverPlacement.id) {
@@ -340,16 +355,6 @@ export const useDragEngine = ({
         setMergeTarget(null);
       }
 
-      if (hoverPlacement?.type === "gap") {
-        const nextGap = Math.min(Math.max(0, hoverPlacement.index), itemCount);
-        scheduleGapCommit(
-          nextGap,
-          hoverPlacement.slot,
-          EDGE_GAP_COMMIT_DELAY,
-        );
-        return;
-      }
-
       const rawSlot = pointerToSlot(e.clientX, e.clientY);
 
       if (rawSlot < 0) {
@@ -358,8 +363,53 @@ export const useDragEngine = ({
         return;
       }
 
-      const nextGap = Math.min(rawSlot, itemCount);
-      scheduleGapCommit(nextGap, rawSlot);
+      const position = { col: rawSlot % colsRef.current, row: Math.floor(rawSlot / colsRef.current) };
+      if (isBlock) {
+        // 大图标按整块的目标坐标预览，经过单个图标的边缘时保持同一个落点。
+        clearGapTimer();
+        if (dragState.previewPosition?.row === position.row && dragState.previewPosition.col === position.col) return;
+        if (ctxRef.current.previewItemMove(activeId, pi, position, dragState.previewPageId)) {
+          ctxRef.current.setDragState(prev => ({ ...prev, previewPosition: position, previewOrder: undefined, gapIndex: -1 }));
+        }
+        return;
+      }
+      if (hoverPlacement?.type === "gap") {
+        const nextGap = Math.min(Math.max(0, hoverPlacement.index), itemCount);
+        scheduleGapCommit(
+          nextGap,
+          hoverPlacement.slot,
+          { previewPosition: position, previewOrder: {
+            targetId: nonDragItems[hoverPlacement.slot].id, after: hoverPlacement.index > hoverPlacement.slot,
+          } },
+          EDGE_GAP_COMMIT_DELAY,
+        );
+        return;
+      }
+
+      const { previewOrder, previewPosition } = dragState;
+      if (previewOrder && previewPosition?.row === position.row && previewPosition.col === position.col) {
+        clearGapTimer();
+        return;
+      }
+      // 真正的空格可直接指定坐标，已占用格子的间隙继续按原来的方向和延时排序。
+      if (canPlaceItem(pageChildren, draggedItem, position, { ...layout, autoPaginate: false })) {
+        clearGapTimer();
+        lastPointerSlotRef.current = -1;
+        if (previewOrder || previewPosition?.row !== position.row || previewPosition.col !== position.col) {
+          ctxRef.current.setDragState(prev => ({ ...prev, previewPosition: position, previewOrder: undefined, gapIndex: -1 }));
+        }
+        return;
+      }
+      const rank = pageChildren.filter(item => item.position.row * colsRef.current + item.position.col < rawSlot).length;
+      const nextGap = Math.min(rank, itemCount);
+      const neighbor = nonDragItems[Math.min(nextGap, itemCount - 1)];
+      if (!neighbor) return;
+      const isFullDestination = layout.autoPaginate && ctxRef.current.findItemById(activeId)?.pageIndex !== pi &&
+        !findFreePosition(pageChildren, draggedItem, layout);
+      scheduleGapCommit(nextGap, rank, {
+        previewPosition: position,
+        previewOrder: isFullDestination ? undefined : { targetId: neighbor.id, after: nextGap === itemCount },
+      });
     },
     [
       getHoverPlacement,
@@ -373,9 +423,9 @@ export const useDragEngine = ({
   );
 
   const handleWindowPointerUp = useCallback(
-    (e: PointerEvent) => {
+    (e?: PointerEvent) => {
       if (!dragActiveRef.current) return;
-      if (pointerIdRef.current !== null && e.pointerId !== pointerIdRef.current)
+      if (e && pointerIdRef.current !== null && e.pointerId !== pointerIdRef.current)
         return;
 
       dragActiveRef.current = false;
@@ -385,36 +435,21 @@ export const useDragEngine = ({
       clearPageSwitchTimer();
       hoverItemIdRef.current = null;
       lastPointerSlotRef.current = -1;
-      pageSwitchCooldownRef.current = false;
 
       const { dragState } = ctxRef.current;
       const draggedItem = dragState.draggedItem;
-      if (!draggedItem) {
-        ctxRef.current.pointerPositionRef.current = null;
-        ctxRef.current.setDragState({
-          activeId: null,
-          isDragging: false,
-          pointerPosition: null,
-          pointerOffset: null,
-          mergeTargetId: null,
-          pageSwitchZone: null,
-          dragSource: null,
-          draggedItem: null,
-          gapIndex: -1,
-          sourcePageIndex: -1,
-        });
-        document.body.style.cursor = "";
-        return;
-      }
-
       const pi = pageIndexRef.current;
-
-      if (dragState.mergeTargetId != null) {
-        ctxRef.current.removeItem(draggedItem.id);
-        ctxRef.current.mergeItems(dragState.mergeTargetId, draggedItem);
-      } else {
-        ctxRef.current.removeItem(draggedItem.id);
-        ctxRef.current.insertItemAt(pi, dragState.gapIndex, draggedItem);
+      if (e?.type === "pointerup" && draggedItem && ctxRef.current.findItemById(draggedItem.id)) {
+        const { previewPosition, previewPageId, previewOrder } = dragState;
+        if (dragState.mergeTargetId != null) {
+          const preview = previewPosition && ctxRef.current.previewItemMove(
+            draggedItem.id, pi, previewPosition, previewPageId, previewOrder,
+          );
+          ctxRef.current.mergeItems(dragState.mergeTargetId, draggedItem, preview ?? undefined);
+        } else if (previewPosition) {
+          finishPlacement(draggedItem.id);
+          ctxRef.current.moveItemToCell(draggedItem.id, pi, previewPosition, previewPageId, previewOrder);
+        }
       }
 
       ctxRef.current.pointerPositionRef.current = null;
@@ -433,18 +468,6 @@ export const useDragEngine = ({
 
       document.body.style.cursor = "";
 
-      setTimeout(() => {
-        const currentPages = ctxRef.current.pages;
-        if (currentPages.length > 1) {
-          const filtered = currentPages.filter(
-            (page) => page.children.length > 0,
-          );
-          if (filtered.length > 0 && filtered.length < currentPages.length) {
-            ctxRef.current.setPages(filtered);
-          }
-        }
-      }, 0);
-
       window.removeEventListener("pointermove", handleWindowPointerMove);
       window.removeEventListener("pointerup", handleWindowPointerUp);
       window.removeEventListener("pointercancel", handleWindowPointerUp);
@@ -454,6 +477,7 @@ export const useDragEngine = ({
       clearGapTimer,
       clearPageSwitchTimer,
       handleWindowPointerMove,
+      finishPlacement,
     ],
   );
 
@@ -466,23 +490,26 @@ export const useDragEngine = ({
       el: HTMLElement,
     ) => {
       if (dragActiveRef.current) return;
+      const pi = pageIndexRef.current;
+      const page = ctxRef.current.pages[pi];
+      const pageChildren = readingOrder(page?.children ?? []);
+      const itemIndex = pageChildren.findIndex((child) => child.id === item.id);
+      if (itemIndex < 0) return;
       dragActiveRef.current = true;
       pointerIdRef.current = pointerId;
       hoverItemIdRef.current = null;
       lastPointerSlotRef.current = -1;
-      pageSwitchCooldownRef.current = false;
 
       const rect = el.getBoundingClientRect();
       const offsetX = clientX - rect.left;
       const offsetY = clientY - rect.top;
+      const span = getLayoutSpan(item, ctxRef.current.layoutOptions);
+      const bounds = el.closest("[data-desktop-item]")?.getBoundingClientRect();
+      const grabOffsetInCells = (span.col > 1 || span.row > 1) && bounds?.width && bounds.height
+        ? { x: (clientX - bounds.left) * span.col / bounds.width, y: (clientY - bounds.top) * span.row / bounds.height }
+        : undefined;
 
       document.body.style.cursor = "grabbing";
-
-      const pi = pageIndexRef.current;
-      const pageChildren = ctxRef.current.pages[pi]?.children ?? [];
-      const nonDragItems = pageChildren.filter((c) => c.id !== item.id);
-      const sourceIndex = nonDragItems.length;
-      const itemIndex = pageChildren.findIndex((c) => c.id === item.id);
 
       ctxRef.current.pointerPositionRef.current = { x: clientX, y: clientY };
       ctxRef.current.setDragState({
@@ -494,7 +521,8 @@ export const useDragEngine = ({
         pageSwitchZone: null,
         dragSource: "main",
         draggedItem: item,
-        gapIndex: itemIndex >= 0 ? Math.min(sourceIndex, itemIndex) : sourceIndex,
+        pointerId, grabOffsetInCells, previewPosition: pageChildren[itemIndex].position,
+        targetPageId: page.id, gapIndex: itemIndex,
         sourcePageIndex: pi,
       });
 
@@ -505,15 +533,13 @@ export const useDragEngine = ({
     [handleWindowPointerMove, handleWindowPointerUp],
   );
 
-  useEffect(() => {
-    const { dragState } = ctxRef.current;
-    if (
-      dragState.isDragging &&
-      dragState.sourcePageIndex === pageIndexRef.current &&
-      !dragActiveRef.current
-    ) {
+  const active = ctx.dragState.isDragging && ctx.dragState.sourcePageIndex === pageIndex;
+  useLayoutEffect(() => {
+    if (!active) return;
+    if (!dragActiveRef.current) {
+      // 从相邻页或文件夹接手同一次拖动。
       dragActiveRef.current = true;
-      pointerIdRef.current = null;
+      pointerIdRef.current = ctxRef.current.dragState.pointerId ?? null;
       hoverItemIdRef.current = null;
       lastPointerSlotRef.current = -1;
       document.body.style.cursor = "grabbing";
@@ -522,32 +548,25 @@ export const useDragEngine = ({
       window.addEventListener("pointerup", handleWindowPointerUp);
       window.addEventListener("pointercancel", handleWindowPointerUp);
     }
-  }, [
-    ctx.dragState.dragSource,
-    ctx.dragState.isDragging,
-    ctx.dragState.sourcePageIndex,
-    handleWindowPointerMove,
-    handleWindowPointerUp,
-  ]);
-
-  useEffect(() => {
+    const cancel = () => handleWindowPointerUp();
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") cancel(); };
+    window.addEventListener("blur", cancel);
+    window.addEventListener("keydown", onKey);
     return () => {
+      window.removeEventListener("blur", cancel);
+      window.removeEventListener("keydown", onKey);
       clearMergeTimer();
       clearGapTimer();
       clearPageSwitchTimer();
       if (dragActiveRef.current) {
+        dragActiveRef.current = false;
+        document.body.style.cursor = "";
         window.removeEventListener("pointermove", handleWindowPointerMove);
         window.removeEventListener("pointerup", handleWindowPointerUp);
         window.removeEventListener("pointercancel", handleWindowPointerUp);
       }
     };
-  }, [
-    clearMergeTimer,
-    clearGapTimer,
-    clearPageSwitchTimer,
-    handleWindowPointerMove,
-    handleWindowPointerUp,
-  ]);
+  }, [active, clearMergeTimer, clearGapTimer, clearPageSwitchTimer, handleWindowPointerMove, handleWindowPointerUp]);
 
   return { handleDragStart };
 };

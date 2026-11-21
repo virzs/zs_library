@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
+import { isDesktopPages } from "../layout";
 import type { DndPageItem } from "../types";
 
 /** usePagesState 的入参。 */
@@ -24,29 +25,25 @@ export const usePagesState = ({
 }: UsePagesStateOptions) => {
   const [internalPages, setInternalPages] = useState<DndPageItem[]>(() => {
     if (storageKey) {
+      let storedPages: unknown;
       try {
         const stored = localStorage.getItem(storageKey);
-        if (stored) return JSON.parse(stored) as DndPageItem[];
+        if (!stored) return externalPages;
+        storedPages = JSON.parse(stored);
       } catch (error) {
         console.warn("Failed to restore desktop-next pages from localStorage", error);
+        return externalPages;
       }
+      if (isDesktopPages(storedPages)) return storedPages;
+      throw new TypeError(`DesktopNext 缓存 ${storageKey} 的格式无效。旧版布局请先使用 convertLegacyDesktopPages 转换后再载入。`);
     }
     return externalPages;
   });
 
   const pages = storageKey ? internalPages : externalPages;
-  const pagesRef = useRef(pages);
-  pagesRef.current = pages;
-
-  useEffect(() => {
-    if (!storageKey) {
-      pagesRef.current = externalPages;
-    }
-  }, [externalPages, storageKey]);
 
   const setPages = useCallback(
     (newPages: DndPageItem[]) => {
-      pagesRef.current = newPages;
       if (storageKey) {
         try {
           localStorage.setItem(storageKey, JSON.stringify(newPages));
@@ -60,5 +57,5 @@ export const usePagesState = ({
     [onChange, storageKey],
   );
 
-  return { pages, pagesRef, setPages };
+  return { pages, setPages };
 };

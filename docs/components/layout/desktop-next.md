@@ -16,7 +16,9 @@
 
 ## 功能
 
-- 拖拽排序（网格布局，自动计算列数）
+- 拖到指定格子，支持空位和多格组件
+- 自动计算行列数，也可分别指定固定行数或列数
+- 页面空间不足时自动分页
 - 拖拽合并为文件夹（长按 app 拖拽到另一个 app 上）
 - 拖拽添加到文件夹
 - 文件夹弹窗查看内容
@@ -103,19 +105,21 @@ const themeConfigs = {
 export default () => {
   const [currentTheme, setCurrentTheme] = useState("dark");
   const [transition, setTransition] = useState("slide");
+  const [indicator, setIndicator] = useState("pill");
 
   const [pages, setPages] = useState([
     {
       id: "page-1",
       children: [
-        { id: "app1", type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=Chrome" } },
-        { id: "app2", type: "app", data: { name: "VS Code", icon: "https://placehold.co/100x100/007ACC/FFFFFF?text=VSCode" } },
-        { id: "app3", type: "app", data: { name: "Figma", icon: "https://placehold.co/100x100/F24E1E/FFFFFF?text=Figma" } },
-        { id: "app4", type: "app", data: { name: "Slack", icon: "https://placehold.co/100x100/4A154B/FFFFFF?text=Slack" } },
-        { id: "app5", type: "app", data: { name: "Notion", icon: "https://placehold.co/100x100/000000/FFFFFF?text=Notion" } },
-        { id: "app6", type: "app", data: { name: "Spotify", icon: "https://placehold.co/100x100/1DB954/FFFFFF?text=Spotify" } },
+        { id: "app1", position: { row: 0, col: 0 }, type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=Chrome" } },
+        { id: "app2", position: { row: 0, col: 2 }, type: "app", data: { name: "VS Code", icon: "https://placehold.co/100x100/007ACC/FFFFFF?text=VSCode" } },
+        { id: "app3", position: { row: 0, col: 3 }, type: "app", data: { name: "Figma", icon: "https://placehold.co/100x100/F24E1E/FFFFFF?text=Figma" } },
+        { id: "app4", position: { row: 1, col: 0 }, type: "app", data: { name: "Slack", icon: "https://placehold.co/100x100/4A154B/FFFFFF?text=Slack" } },
+        { id: "app5", position: { row: 1, col: 1 }, type: "app", data: { name: "Notion", icon: "https://placehold.co/100x100/000000/FFFFFF?text=Notion" } },
+        { id: "app6", position: { row: 1, col: 2 }, type: "app", data: { name: "Spotify", icon: "https://placehold.co/100x100/1DB954/FFFFFF?text=Spotify" } },
         {
           id: "folder1",
+          position: { row: 1, col: 3 },
           type: "group",
           data: { name: "工具" },
           children: [
@@ -123,15 +127,17 @@ export default () => {
             { id: "app8", type: "app", data: { name: "计算器", icon: "https://placehold.co/100x100/FF9500/FFFFFF?text=Calc" } },
           ],
         },
-        { id: "app9", type: "app", data: { name: "Safari", icon: "https://placehold.co/100x100/006CFF/FFFFFF?text=Safari" } },
+        { id: "app9", position: { row: 2, col: 0 }, type: "app", data: { name: "Safari", icon: "https://placehold.co/100x100/006CFF/FFFFFF?text=Safari" } },
+        { id: "app10", position: { row: 2, col: 1 }, type: "app", data: { name: "邮件", icon: "https://placehold.co/100x100/007AFF/FFFFFF?text=Mail" } },
+        { id: "app11", position: { row: 2, col: 2 }, type: "app", data: { name: "日历", icon: "https://placehold.co/100x100/FF3B30/FFFFFF?text=Cal" } },
+        { id: "app12", position: { row: 2, col: 3 }, type: "app", data: { name: "相册", icon: "https://placehold.co/100x100/FF2D55/FFFFFF?text=Photos" } },
       ],
     },
     {
       id: "page-2",
       children: [
-        { id: "app10", type: "app", data: { name: "邮件", icon: "https://placehold.co/100x100/007AFF/FFFFFF?text=Mail" } },
-        { id: "app11", type: "app", data: { name: "日历", icon: "https://placehold.co/100x100/FF3B30/FFFFFF?text=Cal" } },
-        { id: "app12", type: "app", data: { name: "相册", icon: "https://placehold.co/100x100/FF2D55/FFFFFF?text=Photos" } },
+        { id: "app13", position: { row: 0, col: 0 }, type: "app", data: { name: "备忘录", icon: "📝" } },
+        { id: "app14", position: { row: 0, col: 1 }, type: "app", data: { name: "时钟", icon: "🕒" } },
       ],
     },
   ]);
@@ -175,14 +181,25 @@ export default () => {
             </button>
           ))}
         </div>
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          <span style={{ fontSize: 12, opacity: 0.5, marginRight: 4 }}>分页指示器</span>
+          {Object.entries({ pill: "胶囊", dots: "圆点", bars: "短条" }).map(([value, label]) => (
+            <button key={value} type="button" aria-pressed={indicator === value}
+              style={indicator === value ? btnActive : btnInactive} onClick={() => setIndicator(value)}>
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
-      <div style={{ width: "100%", height: 500, background: themeConfigs[currentTheme].background, borderRadius: 16, transition: "background 0.4s ease" }}>
+      <div style={{ width: "100%", height: "clamp(280px, 60vh, 560px)", background: themeConfigs[currentTheme].background, borderRadius: 16, transition: "background 0.4s ease" }}>
         <DesktopNext
           pages={pages}
           onChange={setPages}
+          grid={{ mobile: { columns: 4, rows: 5 } }}
           iconSize={64}
           theme={themeMap[currentTheme]}
           pageTransition={transition}
+          pagination={{ variant: indicator }}
           onItemClick={(item) => console.log("clicked:", item.data?.name)}
           dockProps={{
             showLaunchpad: true,
@@ -197,6 +214,100 @@ export default () => {
 };
 ```
 
+## 行列、空位与自动分页
+
+每个桌面项目通过 `position: { row, col }` 指定左上角，行列从 0 开始。例如同一行的两个图标分别设置 `col: 0` 和 `col: 2`，中间就会留出一个空格。文件夹内部沿用数组顺序。
+
+```tsx pure
+<DesktopNext
+  pages={pages}
+  onChange={setPages}
+  grid={{ mobile: { columns: 4, rows: 5 } }}
+  autoPaginate
+  preserveGaps
+/>
+```
+
+桌面端根据组件可用宽高和 `iconSize` 自动计算行列数。缩窄桌面窗口或侧栏时，图标会随可用空间重新分页。可用 `grid.columns` 和 `grid.rows` 分别固定一项或两项。主要使用触摸、没有悬停功能的设备默认显示 4 列 5 行，横屏和竖屏均使用配置的行列数。`grid.mobile` 优先于顶层行列配置。固定行列时，组件会按需要缩小图标和格子。
+
+每个手动页独立分页。窗口缩小时，组件保留放得下的项目，为越界项目寻找连续空位，空间不足时在源页后增加自动页。窗口放大后，组件优先恢复项目原来的位置，收回已空的自动页。手动分页和用户保留的空位可以在源位置恢复。达到 `maxPages` 后，每组的最后一页可纵向滚动。项目的显示跨度最多占满一页。
+
+将图标拖到另一个图标的边缘，周围图标会在按住期间移动，预览插入后的顺序。松手即放到预览位置。拖到空格可直接放置并在原位留空，按 Esc 可撤销本次拖动。进入图标中央会暂停排序，桌面保持此时的位置。看到合并提示后松手，可在目标图标所在的格子创建文件夹或加入已有文件夹。提示出现前松手，保留上一次已确认的落点。
+
+拖动 2×2 文件夹或多格小组件时，网格按整个图标的覆盖范围吸附。同页拖动优先向原位置腾出的方向逐格推移，遇到相邻图标时一起让位，保留行内或列内的先后顺序。边界挡住时会尝试其他方向，再尝试成组或分别移入空位。
+
+尺寸变化引起的重排会通过 `onChange` 提交。持久化时请保留回调返回的完整分页数据。调用 `ref.current?.arrange()` 可填补空位并合并多余页面。需要始终紧凑排列时可设置 `preserveGaps={false}`。
+
+## 分页指示器
+
+默认使用胶囊样式。点击分页点时，高亮标记滑到目标页；拖动页面时，高亮随滑动进度移动。系统开启减少动态效果时，点击后直接切换高亮。下方示例可切换预设并点击分页点体验。
+
+```jsx
+import { useState } from "react";
+import { DesktopNext } from "zs_library";
+
+export default () => {
+  const [variant, setVariant] = useState("pill");
+  const [pages, setPages] = useState(() => ["工作", "工具", "生活"].map((name, index) => ({
+    id: index,
+    children: [{ id: name, type: "app", data: { name }, position: { row: 0, col: 0 } }],
+  })));
+
+  return (
+    <div>
+      <label>
+        指示器样式{" "}
+        <select value={variant} onChange={event => setVariant(event.target.value)}>
+          <option value="pill">胶囊</option>
+          <option value="dots">圆点</option>
+          <option value="bars">短条</option>
+        </select>
+      </label>
+      <div style={{ height: 180, marginTop: 8, borderRadius: 12, background: "#303b4c" }}>
+        <DesktopNext pages={pages} onChange={setPages} iconSize={40}
+          pagination={{ variant, activeColor: "#fff", inactiveColor: "#8993a3" }} />
+      </div>
+    </div>
+  );
+};
+```
+
+设置 `pagination={false}` 或 `pagination={{ visible: false }}` 可隐藏指示器。要显示页码或使用自己的容器，可以通过 `pagingDotBuilder` 绘制单项，通过 `pagingDotsBuilder` 排列这些单项。自定义单项可调用第三个参数 `selectPage` 跳转到对应页面。
+
+```tsx pure
+<DesktopNext
+  pages={pages}
+  onChange={setPages}
+  pagingDotBuilder={(index, active, selectPage) => (
+    <button type="button" onClick={selectPage} aria-current={active ? "page" : undefined}
+      style={{ fontWeight: active ? 700 : 400 }}>
+      {index + 1}
+    </button>
+  )}
+  pagingDotsBuilder={dots => <div style={{ display: "flex", gap: 8 }}>{dots}</div>}
+/>
+```
+
+## 转换旧版数据
+
+在加载旧数据时调用 `convertLegacyDesktopPages`，将返回值交给组件。传入旧桌面的实际列数，可同时传入原来的 `typeConfigMap` 或 `componentRegistry`，以还原多格组件的位置。
+
+```ts
+import { convertLegacyDesktopPages } from "zs_library";
+
+const pages = convertLegacyDesktopPages(oldPages, { columns: 4 });
+```
+
+只传 `columns` 时沿用原分页。再传 `rows` 可在转换时按容量分页。使用 `storageKey` 的应用可将旧键的数据读出、转换并存入新键，再用新键挂载桌面。
+
+```ts
+const saved = localStorage.getItem("my-desktop-layout");
+if (saved && localStorage.getItem("my-desktop-layout-v2") === null) {
+  const migrated = convertLegacyDesktopPages(JSON.parse(saved), { columns: 4 });
+  localStorage.setItem("my-desktop-layout-v2", JSON.stringify(migrated));
+}
+```
+
 ## 自定义图标渲染
 
 ```jsx
@@ -208,9 +319,9 @@ export default () => {
     {
       id: "page-1",
       children: [
-        { id: "1", type: "app", data: { name: "App A", icon: "https://placehold.co/100x100/FF6B6B/FFFFFF?text=A" } },
-        { id: "2", type: "app", data: { name: "App B", icon: "https://placehold.co/100x100/4ECDC4/FFFFFF?text=B" } },
-        { id: "3", type: "app", data: { name: "App C", icon: "https://placehold.co/100x100/45B7D1/FFFFFF?text=C" } },
+        { id: "1", position: { row: 0, col: 0 }, type: "app", data: { name: "App A", icon: "https://placehold.co/100x100/FF6B6B/FFFFFF?text=A" } },
+        { id: "2", position: { row: 0, col: 1 }, type: "app", data: { name: "App B", icon: "https://placehold.co/100x100/4ECDC4/FFFFFF?text=B" } },
+        { id: "3", position: { row: 0, col: 2 }, type: "app", data: { name: "App C", icon: "https://placehold.co/100x100/45B7D1/FFFFFF?text=C" } },
       ],
     },
   ]);
@@ -286,9 +397,9 @@ export default () => {
   const [pages, setPages] = useState([{
     id: "page-1",
     children: [
-      { id: "w1", type: "chart", data: { name: "收入统计" } },
-      { id: "w2", type: "weather", data: { name: "上海天气" } },
-      { id: "w3", type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=C" } },
+      { id: "w1", position: { row: 0, col: 0 }, type: "chart", data: { name: "收入统计" } },
+      { id: "w2", position: { row: 0, col: 2 }, type: "weather", data: { name: "上海天气" } },
+      { id: "w3", position: { row: 1, col: 2 }, type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=C" } },
     ],
   }]);
 
@@ -331,9 +442,9 @@ export default () => {
   const [pages, setPages] = useState([{
     id: "page-1",
     children: [
-      { id: "m1", type: "music", data: { name: "音乐" } },
-      { id: "m2", type: "mail", data: { name: "邮件" } },
-      { id: "m3", type: "music", data: { name: "播客" } },
+      { id: "m1", position: { row: 0, col: 0 }, type: "music", data: { name: "音乐" } },
+      { id: "m2", position: { row: 0, col: 1 }, type: "mail", data: { name: "邮件" } },
+      { id: "m3", position: { row: 0, col: 2 }, type: "music", data: { name: "播客" } },
     ],
   }]);
 
@@ -402,9 +513,9 @@ export default () => {
   const [pages, setPages] = useState([{
     id: "page-1",
     children: [
-      { id: "r1", type: "remote-chart", data: { name: "收入统计" } },
-      { id: "r2", type: "remote-chart", data: { name: "销售数据" } },
-      { id: "a1", type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=C" } },
+      { id: "r1", position: { row: 0, col: 0 }, type: "remote-chart", data: { name: "收入统计" } },
+      { id: "r2", position: { row: 0, col: 1 }, type: "remote-chart", data: { name: "销售数据" } },
+      { id: "a1", position: { row: 0, col: 2 }, type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=C" } },
     ],
   }]);
 
@@ -438,9 +549,9 @@ export default () => {
   const [pages, setPages] = useState([{
     id: "page-1",
     children: [
-      { id: "app1", type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=C" } },
-      { id: "app2", type: "app", data: { name: "VS Code", icon: "https://placehold.co/100x100/007ACC/FFFFFF?text=VS" } },
-      { id: "app3", type: "app", data: { name: "Figma", icon: "https://placehold.co/100x100/F24E1E/FFFFFF?text=F" } },
+      { id: "app1", position: { row: 0, col: 0 }, type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=C" } },
+      { id: "app2", position: { row: 0, col: 1 }, type: "app", data: { name: "VS Code", icon: "https://placehold.co/100x100/007ACC/FFFFFF?text=VS" } },
+      { id: "app3", position: { row: 0, col: 2 }, type: "app", data: { name: "Figma", icon: "https://placehold.co/100x100/F24E1E/FFFFFF?text=F" } },
     ],
   }]);
 
@@ -449,7 +560,7 @@ export default () => {
       <DesktopNext
         pages={pages}
         onChange={setPages}
-        storageKey="my-desktop-layout"
+        storageKey="my-desktop-layout-v2"
       />
     </div>
   );
@@ -537,6 +648,9 @@ export default () => {
 | --- | --- | --- | --- |
 | pages | `DndPageItem<D>[]` | - | 分页数据（受控） |
 | onChange | `(pages: DndPageItem<D>[]) => void` | - | 数据变化回调 |
+| grid | `DesktopGridConfig` | 桌面自动，移动端 4 列 5 行 | 顶层 rows、columns 可为正整数或 `"auto"`。mobile 可单独指定固定行列 |
+| autoPaginate | `boolean` | `true` | 页面空间不足时换页。关闭时页面可纵向滚动 |
+| preserveGaps | `boolean` | `true` | 保留空位。关闭时自动紧凑排列 |
 | iconSize | `number` | `64` | 图标尺寸（px） |
 | onItemClick | `(item: DndSortItem<D>) => void` | - | 点击 item 回调 |
 | itemIconBuilder | `(item: DndSortItem<D>) => ReactNode` | - | 自定义图标渲染 |
@@ -555,7 +669,8 @@ export default () => {
 | itemBuilder | `(item: DndSortItem<D>, index: number) => ReactNode \| null` | - | 自定义完整 item 渲染 |
 | itemBuilderAllowNull | `boolean` | - | itemBuilder 返回 null 时是否跳过渲染 |
 | itemIconBuilderAllowNull | `boolean` | - | itemIconBuilder 返回 null 时是否跳过渲染 |
-| pagingDotBuilder | `(index: number, isActive: boolean) => ReactNode` | - | 自定义分页点渲染 |
+| pagination | `false \| DesktopNextPagination` | `{ variant: "pill" }` | 支持 visible、variant（pill / dots / bars）、activeColor 和 inactiveColor |
+| pagingDotBuilder | `(index: number, isActive: boolean, selectPage?: () => void) => ReactNode` | - | 自定义分页点渲染 |
 | pagingDotsBuilder | `(dots: ReactNode[]) => ReactNode` | - | 自定义分页点容器渲染 |
 | extraItems | `DndSortItem<D>[]` | - | 额外附加的 item 数据（通过 context 透传） |
 | dockProps | `DockProps` | - | Dock 栏配置，传入后渲染底部 Dock |
@@ -660,7 +775,8 @@ interface DockProps {
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | id | `string \| number` | 页面唯一 ID |
-| children | `DndSortItem<D>[]` | 页面内的 item 列表 |
+| children | `PositionedItem<D>[]` | 桌面项目及其当前格子坐标 `position: { row, col }`。自动重排的项目还可能包含原坐标 `preferredPosition` |
+| overflowOf | `string \| number` | 自动页所属的手动页 id。手动页省略此字段 |
 
 > 注意：`DndPageItem` 没有 `type: "dock"` 字段。Dock 项目通过 `dockProps.items` 单独传入，不混入分页数据。
 
@@ -873,6 +989,7 @@ interface ComponentRegistryEntry {
 interface DesktopHandle {
   pages: DndPageItem[];
   currentPage: number;
+  arrange: () => void;
   setCurrentPage: (page: number) => void;
 }
 ```
@@ -886,8 +1003,8 @@ export default () => {
   const [pages, setPages] = useState([{
     id: "page-1",
     children: [
-      { id: "app1", type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=C" } },
-      { id: "app2", type: "app", data: { name: "VS Code", icon: "https://placehold.co/100x100/007ACC/FFFFFF?text=VS" } },
+      { id: "app1", position: { row: 0, col: 0 }, type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=C" } },
+      { id: "app2", position: { row: 0, col: 1 }, type: "app", data: { name: "VS Code", icon: "https://placehold.co/100x100/007ACC/FFFFFF?text=VS" } },
     ],
   }]);
 
@@ -904,8 +1021,8 @@ export default () => {
 
 ## 交互说明
 
-- **拖拽排序**: 长按 item 后拖拽可重新排序
-- **创建文件夹**: 将一个 app 拖拽到另一个 app 上悬停，自动合并为文件夹
+- **拖动项目**：拖到空格可指定位置，原位留空
+- **创建文件夹**: 将一个 app 拖到另一个 app 中央，待合并提示出现后松手，在目标位置创建文件夹
 - **添加到文件夹**: 将 app 拖拽到已有文件夹上
 - **查看文件夹**: 点击文件夹打开弹窗查看内容
 - **拖出文件夹**: 在文件夹弹窗中长按 item 拖拽到弹窗外，item 回到主屏幕

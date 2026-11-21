@@ -8,7 +8,7 @@ interface FolderSortEngineOptions {
   folderId: string | number | null;
   cols: number;
   cellSize: number;
-  onDragOut: (item: DndSortItem, clientX: number, clientY: number) => void;
+  onDragOut: (item: DndSortItem, clientX: number, clientY: number, pointerId: number) => void;
 }
 
 const GAP_COMMIT_DELAY = 80;
@@ -104,7 +104,7 @@ export const useFolderSortEngine = ({
 
         const item = dragState.draggedItem;
         if (item) {
-          onDragOutRef.current(item, e.clientX, e.clientY);
+          onDragOutRef.current(item, e.clientX, e.clientY, e.pointerId);
         }
         return;
       }

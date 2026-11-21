@@ -106,7 +106,6 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
     setFolderModal,
     pages,
     currentPage,
-    removeItemFromFolder,
     updateItemData,
     iconSize,
     setDragState,
@@ -173,12 +172,13 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
   /* ── Drag-out-to-desktop ───────────────────────────────────── */
 
   const handleDragOutItem = useCallback(
-    (item: DndSortItem, clientX: number, clientY: number) => {
+    (item: DndSortItem, clientX: number, clientY: number, pointerId: number) => {
       const folder = liveFolderRef.current;
       if (!folder) return;
 
-      updateItemData(folder.id, { name: folderNameRef.current });
-      removeItemFromFolder(folder.id, item.id, currentPage);
+      if (folder.data?.name !== folderNameRef.current) {
+        updateItemData(folder.id, { name: folderNameRef.current });
+      }
 
       const halfIcon = iconSize / 2;
       pointerPositionRef.current = { x: clientX, y: clientY };
@@ -193,6 +193,8 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
         draggedItem: item,
         gapIndex: pages[currentPage]?.children.length ?? 0,
         sourcePageIndex: currentPage,
+        targetPageId: pages[currentPage]?.id,
+        pointerId,
       });
 
       setVisible(false);
@@ -201,7 +203,6 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
     },
     [
       currentPage,
-      removeItemFromFolder,
       setDragState,
       iconSize,
       pages,

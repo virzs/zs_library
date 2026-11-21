@@ -18,10 +18,37 @@ export interface DndSortItem<D = any> {
   children?: DndSortItem<D>[];
 }
 
-/** 分页数据 */
-export interface DndPageItem<D = any> {
+/** 项目左上角的格子坐标，行列均从 0 开始。 */
+export interface GridPosition {
+  row: number;
+  col: number;
+}
+
+export interface PositionedItem<D = any> extends DndSortItem<D> {
+  position: GridPosition;
+  /** 响应式重排前的格子坐标，空间恢复后优先还原。 */
+  preferredPosition?: GridPosition;
+}
+
+/** 旧版桌面使用数组顺序指定项目位置。 */
+export interface LegacyDesktopPage<D = any> {
   id: string | number;
   children: DndSortItem<D>[];
+}
+
+/** 每页保存桌面项目的位置，文件夹内的项目仍按数组顺序排列。 */
+export interface DndPageItem<D = any> {
+  id: string | number;
+  children: PositionedItem<D>[];
+  /** 自动分页所属的手动页。手动页省略此字段。 */
+  overflowOf?: string | number;
+}
+
+export interface DesktopGridConfig {
+  rows?: number | "auto";
+  columns?: number | "auto";
+  /** 触屏移动设备使用的固定网格，默认 4 列 5 行。 */
+  mobile?: { rows: number; columns: number };
 }
 
 export type PageSwitchZone = "left" | "right" | null;
@@ -38,6 +65,16 @@ export interface DragState {
   draggedItem: DndSortItem | null;
   gapIndex: number;
   sourcePageIndex: number;
+  /** 多格项目抓取点相对左上角的位置，以格为单位。 */
+  grabOffsetInCells?: { x: number; y: number };
+  previewPosition?: GridPosition | null;
+  /** 在目标图标的前面或后面插入当前项目。 */
+  previewOrder?: { targetId: DndSortItem["id"]; after: boolean };
+  previewPageId?: string | number;
+  pageSwitchedAt?: number;
+  /** 当前接收拖动的桌面页，用于识别外部页面变更。 */
+  targetPageId?: string | number;
+  pointerId?: number;
 }
 
 /** 文件夹弹窗状态 */
@@ -59,6 +96,11 @@ export interface DesktopDndProps<D = any> {
   pages: DndPageItem<D>[];
   onChange: (pages: DndPageItem<D>[]) => void;
   iconSize?: number;
+  grid?: DesktopGridConfig;
+  /** 默认保留空位。设为 false 时，自动整理项目并合并页面。 */
+  preserveGaps?: boolean;
+  /** 默认开启。页面空间不足时将项目排到后页。 */
+  autoPaginate?: boolean;
   onItemClick?: (item: DndSortItem<D>) => void;
   itemIconBuilder?: (item: DndSortItem<D>) => React.ReactNode;
   className?: string;

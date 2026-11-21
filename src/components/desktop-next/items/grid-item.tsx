@@ -49,6 +49,7 @@ interface GridItemProps {
   children?: React.ReactNode;
   noLabel?: boolean;
   iconSize?: number;
+  floating?: boolean;
 }
 
 const LONG_PRESS_THRESHOLD = 300;
@@ -62,6 +63,7 @@ const GridItem = ({
   children,
   noLabel,
   iconSize: iconSizeProp,
+  floating = true,
 }: GridItemProps) => {
   const {
     dragState,
@@ -339,7 +341,7 @@ const GridItem = ({
   );
 
   useEffect(() => {
-    if (!isBeingDragged || !dragState.pointerOffset) return;
+    if (!floating || !isBeingDragged || !dragState.pointerOffset) return;
     let rafId: number;
     const loop = () => {
       const pos = pointerPositionRef.current;
@@ -352,10 +354,10 @@ const GridItem = ({
     };
     rafId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafId);
-  }, [isBeingDragged, dragState.pointerOffset, pointerPositionRef]);
+  }, [floating, isBeingDragged, dragState.pointerOffset, pointerPositionRef]);
 
   const floatingOverlay =
-    isBeingDragged && dragState.pointerOffset
+    floating && isBeingDragged && dragState.pointerOffset
       ? createPortal(
           <div
             ref={floatingRef}

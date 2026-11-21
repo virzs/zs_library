@@ -18,6 +18,7 @@ interface FolderItemProps {
   iconBuilder?: (item: DndSortItem) => React.ReactNode;
   size?: { col: number; row: number };
   noLabel?: boolean;
+  floating?: boolean;
 }
 
 const FolderItem = ({
@@ -26,6 +27,7 @@ const FolderItem = ({
   iconBuilder,
   size,
   noLabel,
+  floating,
 }: FolderItemProps) => {
   const { iconSize, setFolderModal, dragState, theme } = useDesktopDnd();
 
@@ -147,6 +149,7 @@ const FolderItem = ({
       iconBuilder={iconBuilder}
       size={size}
       noLabel={noLabel}
+      floating={floating}
     >
       {renderFolderPreview()}
     </GridItem>

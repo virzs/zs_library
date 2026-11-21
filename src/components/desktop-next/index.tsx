@@ -15,34 +15,6 @@ const pagesContainerStyle = css`
   transition: transform 0.38s cubic-bezier(0.2, 0.82, 0.2, 1);
 `;
 
-const paginationDotStyle = css`
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.34);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-
-  &[data-active="true"] {
-    background: rgba(255, 255, 255, 0.9);
-    width: 18px;
-    transform: scale(1);
-    box-shadow:
-      0 1px 3px rgba(0, 0, 0, 0.2),
-      0 0 0 0.5px rgba(255, 255, 255, 0.24);
-  }
-`;
-
-const paginationContainerStyle = css`
-  padding: 6px 9px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
-`;
-
 const pageShellStyle = css`
   padding: clamp(18px, 4vw, 30px) clamp(16px, 5vw, 34px);
 `;
@@ -77,6 +49,8 @@ const pageSwitchEdgeOverlayStyle = css`
   }
 `;
 import PageGrid from "./grid";
+import Pagination, { type DesktopNextPagination } from "./pagination";
+export type { DesktopNextPagination } from "./pagination";
 import FolderModal from "./modal/folder-modal";
 import GlobalContextMenu from "./context-menu/portal";
 import { Dock } from "./dock";
@@ -90,7 +64,7 @@ interface DesktopDndInnerProps {
   className?: string;
   dockProps?: DockProps;
   onDockItemsChange?: (items: DndSortItem[]) => void;
-  showPagination?: boolean;
+  pagination?: false | DesktopNextPagination;
 }
 
 const DesktopDndInner = ({
@@ -100,9 +74,9 @@ const DesktopDndInner = ({
   className,
   dockProps,
   onDockItemsChange,
-  showPagination = true,
+  pagination,
 }: DesktopDndInnerProps) => {
-  const { pages, currentPage, setCurrentPage, dragState, hideContextMenu, theme, pagingDotBuilder, pagingDotsBuilder, pageTransition = "slide" } = useDesktopDnd();
+  const { pages, measureRef, currentPage, setCurrentPage, dragState, hideContextMenu, theme, pagingDotBuilder, pagingDotsBuilder, pageTransition = "slide" } = useDesktopDnd();
 
   const [noTransition, setNoTransition] = useState(false);
   const prevPageTransitionRef = useRef(pageTransition);
@@ -466,29 +440,12 @@ const DesktopDndInner = ({
     }
   }, [dragState.isDragging, hideContextMenu]);
 
-  const dots = useMemo(() => {
-    if (!showPagination || totalPages <= 1) return null;
-
-    const dotNodes = pages.map((page, index) => {
-      if (pagingDotBuilder) {
-        return <React.Fragment key={page.id}>{pagingDotBuilder(index, index === currentPage)}</React.Fragment>;
-      }
-      return (
-        <div
-          key={page.id}
-          className={cx("zs-transition-all zs-duration-300 zs-ease-in-out zs-cursor-pointer", paginationDotStyle)}
-          data-active={index === currentPage}
-          onClick={() => goToPage(index)}
-        />
-      );
-    });
-
-    if (pagingDotsBuilder) {
-      return <div className="zs-flex zs-justify-center zs-items-center zs-gap-1.5 zs-py-2">{pagingDotsBuilder(dotNodes)}</div>;
-    }
-
-    return <div className={cx("zs-flex zs-justify-center zs-items-center zs-gap-1.5", paginationContainerStyle)}>{dotNodes}</div>;
-  }, [showPagination, totalPages, pages, currentPage, pagingDotBuilder, pagingDotsBuilder, goToPage]);
+  const dots = pagination !== false && pagination?.visible !== false && totalPages > 1 ? (
+    <Pagination
+      pages={pages} currentPage={currentPage} swipeRatio={swipeRatio} goToPage={goToPage}
+      options={pagination} pagingDotBuilder={pagingDotBuilder} pagingDotsBuilder={pagingDotsBuilder}
+    />
+  ) : null;
 
   return (
     <>
@@ -504,14 +461,21 @@ const DesktopDndInner = ({
         onMouseLeave={handleMouseUp}
       >
         <div className="zs-flex zs-flex-col zs-h-full zs-min-h-0">
-          <div className="zs-flex-1 zs-min-h-0 zs-overflow-hidden">
+          <div className="zs-relative zs-flex-1 zs-min-h-0 zs-overflow-hidden">
+            <div aria-hidden="true" className={cx("zs-absolute zs-inset-0 zs-pointer-events-none zs-invisible", pageShellStyle)}>
+              <div ref={measureRef} className="zs-w-full zs-h-full" />
+            </div>
             {renderPages()}
           </div>
           {renderPageSwitchEdgeOverlay()}
 
           {(dockProps || dots) && (
-            <div className="zs-flex zs-flex-col zs-items-center zs-shrink-0 zs-pb-4 zs-px-4" style={{ zIndex: 100 }}>
-              {dots}
+            <div
+              className="zs-flex zs-flex-col zs-items-center zs-shrink-0 zs-pb-4 zs-px-4"
+              data-desktop-has-dock={dockProps ? "" : undefined}
+              style={{ zIndex: 100 }}
+            >
+              {dots && <div data-desktop-dots="">{dots}</div>}
               {dockProps && (
                 <Dock
                   {...dockProps}
@@ -534,22 +498,23 @@ const DesktopDndInner = ({
 
 export interface DesktopHandle {
   pages: DndPageItem[];
+  arrange: () => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
 }
 
 const DesktopHandleAccessor = ({ handleRef }: { handleRef: React.ForwardedRef<DesktopHandle> }) => {
-  const { pages, currentPage, setCurrentPage } = useDesktopDnd();
+  const { pages, currentPage, setCurrentPage, arrange } = useDesktopDnd();
 
   useEffect(() => {
     if (!handleRef) return;
-    const handle: DesktopHandle = { pages, currentPage, setCurrentPage };
+    const handle: DesktopHandle = { pages, currentPage, setCurrentPage, arrange };
     if (typeof handleRef === "function") {
       handleRef(handle);
     } else {
       handleRef.current = handle;
     }
-  }, [handleRef, pages, currentPage, setCurrentPage]);
+  }, [handleRef, pages, currentPage, setCurrentPage, arrange]);
 
   return null;
 };
@@ -571,12 +536,12 @@ export interface DesktopDndExtendedProps<D = unknown> extends DesktopDndProps<D>
   itemBuilderAllowNull?: boolean;
   /** @deprecated 请让 `itemIconBuilder` 返回 `null` 回退默认图标；设置为 `false` 会保留旧版“null 也作为渲染结果”的行为。 */
   itemIconBuilderAllowNull?: boolean;
-  pagingDotBuilder?: (index: number, isActive: boolean) => React.ReactNode;
+  pagingDotBuilder?: (index: number, isActive: boolean, selectPage?: () => void) => React.ReactNode;
   pagingDotsBuilder?: (dots: React.ReactNode[]) => React.ReactNode;
   extraItems?: DndSortItem[];
   componentRegistry?: ComponentRegistry;
   /** 分页配置。`false` 表示隐藏分页指示器；不再支持旧版 react-slick 的位置配置。 */
-  pagination?: false | { visible?: boolean };
+  pagination?: false | DesktopNextPagination;
   /** @deprecated 请使用 `maxPages` 代替。 */
   maxSlides?: number;
   /** @deprecated 请使用 `dockProps` 和 `showDock` 代替。 */
@@ -604,6 +569,9 @@ const DesktopDnd = forwardRef(
       pages,
       onChange,
       iconSize = 64,
+      grid,
+      autoPaginate,
+      preserveGaps,
       onItemClick,
       itemIconBuilder,
       className,
@@ -641,13 +609,15 @@ const DesktopDnd = forwardRef(
     const { enabled: legacyDockEnabled = true, ...legacyDockProps } = dock && typeof dock === "object" ? dock : {};
     const resolvedDockProps = dockProps ?? (dock && legacyDockEnabled ? legacyDockProps : undefined);
     const shouldShowDock = showDock ?? Boolean(resolvedDockProps);
-    const showPagination = pagination !== false && pagination?.visible !== false;
 
     return (
       <DesktopDndProvider
         pages={pages as DndPageItem[]}
         onChange={onChange as (pages: DndPageItem[]) => void}
         iconSize={iconSize}
+        grid={grid}
+        autoPaginate={autoPaginate}
+        preserveGaps={preserveGaps}
         maxPages={resolvedMaxPages}
         mergeDwellTime={mergeDwellTime}
         containerRef={containerRef}
@@ -677,7 +647,7 @@ const DesktopDnd = forwardRef(
           iconBuilder={itemIconBuilder as ((item: DndSortItem) => React.ReactNode) | undefined}
           className={className}
           dockProps={shouldShowDock ? resolvedDockProps : undefined}
-          showPagination={showPagination}
+          pagination={pagination}
         />
       </DesktopDndProvider>
     );
@@ -694,6 +664,10 @@ export type {
   DesktopDndProps,
   DndSortItem,
   DndPageItem,
+  GridPosition,
+  PositionedItem,
+  LegacyDesktopPage,
+  DesktopGridConfig,
   DndItemBaseData,
   SizeConfig,
   SortItemUserConfig,
@@ -788,3 +762,6 @@ export type {
 
 export { BaseDrawer } from "./drawer";
 export type { BaseDrawerProps } from "./drawer";
+
+export { convertLegacyDesktopPages } from "./layout";
+export type { DesktopMigrationOptions } from "./layout";

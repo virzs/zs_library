@@ -8,12 +8,15 @@ import type {
   DndPageItem,
   DndSortItem,
   DragState,
+  GridPosition,
+  PositionedItem,
   FolderModalState,
   PageTransition,
   SortItemUserConfig,
   TypeConfigMap,
   DataTypeMenuConfigMap,
 } from "../types";
+import type { LayoutOptions } from "../layout";
 import type { Theme } from "../themes";
 import type {
   DesktopNextI18nT,
@@ -26,6 +29,11 @@ export interface DesktopDndStateContextValue {
   pages: DndPageItem[];
   /** 更新桌面分页数据，并同步触发外部 onChange。 */
   setPages: (pages: DndPageItem[]) => void;
+  ready: boolean;
+  previewPages: ReadonlyMap<DndPageItem["id"], DndPageItem> | null;
+  extraLayout: Map<string | number, PositionedItem[]>;
+  arrange: () => void;
+  measureRef: React.RefObject<HTMLDivElement | null>;
   /** 当前激活页索引。 */
   currentPage: number;
   /** 设置当前激活页索引。 */
@@ -54,6 +62,8 @@ export interface DesktopDndStateContextValue {
 export interface DesktopDndConfigContextValue {
   /** 图标基准尺寸，网格单元会基于该尺寸计算。 */
   iconSize: number;
+  layoutOptions: LayoutOptions;
+  cellSize: number;
   /** 最大页数；0 表示不限制。 */
   maxPages: number;
   /** 拖拽悬停多久后触发合并，单位毫秒。 */
@@ -90,7 +100,7 @@ export interface DesktopDndConfigContextValue {
   /** @deprecated 请让 itemIconBuilder 返回 null 回退默认图标；false 保留旧版 null 也作为渲染结果的行为。 */
   itemIconBuilderAllowNull?: boolean;
   /** 自定义单个分页点渲染。 */
-  pagingDotBuilder?: (index: number, isActive: boolean) => React.ReactNode;
+  pagingDotBuilder?: (index: number, isActive: boolean, selectPage?: () => void) => React.ReactNode;
   /** 自定义分页点容器渲染。 */
   pagingDotsBuilder?: (dots: React.ReactNode[]) => React.ReactNode;
   /** 页面切换动画类型。 */
@@ -103,6 +113,14 @@ export interface DesktopDndConfigContextValue {
 
 /** 桌面数据操作上下文，集中提供页面、item 和文件夹的变更方法。 */
 export interface DesktopDndActionsContextValue {
+  previewItemMove: (
+    itemId: DndSortItem["id"], pageIndex: number, position: GridPosition,
+    newPageId?: DndPageItem["id"], order?: DragState["previewOrder"],
+  ) => DndPageItem[] | null;
+  moveItemToCell: (
+    itemId: DndSortItem["id"], pageIndex: number, position: GridPosition,
+    newPageId?: DndPageItem["id"], order?: DragState["previewOrder"],
+  ) => boolean;
   /** 从所有桌面页中移除指定 item。 */
   removeItem: (itemId: string | number) => void;
   /** 更新指定 item 的用户配置，支持更新文件夹内子项。 */
@@ -118,7 +136,7 @@ export interface DesktopDndActionsContextValue {
   /** 将 item 插入到指定页面的指定位置。 */
   insertItemAt: (pageIndex: number, index: number, item: DndSortItem) => void;
   /** 将拖拽 item 合并到目标 item；目标不是文件夹时会创建新文件夹。 */
-  mergeItems: (targetId: string | number, draggedItem: DndSortItem) => void;
+  mergeItems: (targetId: string | number, draggedItem: DndSortItem, fromPages?: DndPageItem[]) => void;
   /** 从文件夹中移除子项，并放回指定桌面页。 */
   removeItemFromFolder: (
     folderId: string | number,

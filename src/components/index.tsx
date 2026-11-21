@@ -94,7 +94,8 @@ export type {
   JSONContent,
 } from "./tiptap-editor/simple";
 
-export { default as DesktopNext } from "./desktop-next";
+export { default as DesktopNext, convertLegacyDesktopPages } from "./desktop-next";
+export type { DesktopMigrationOptions } from "./desktop-next";
 export {
   DesktopDndProvider as DesktopNextProvider,
   useDesktopDnd as useDesktopNext,
@@ -164,6 +165,11 @@ export type {
   BaseDrawerProps as DesktopNextBaseDrawerProps,
   DndSortItem,
   DndPageItem,
+  GridPosition,
+  PositionedItem,
+  LegacyDesktopPage,
+  DesktopGridConfig,
+  DesktopNextPagination,
   DndItemBaseData,
   BeforeRemoveHandler,
   BeforeRemoveResult,
