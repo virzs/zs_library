@@ -1,30 +1,30 @@
 import { css, cx } from "@emotion/css";
 import { motion } from "motion/react";
 import { FC } from "react";
-import { useDesktopDnd } from "../context";
+import { fade, glassSurface } from "../themes/material";
+import { useMenuTheme } from "./styles";
 
 export type ContentMenuContextProps = React.ComponentProps<typeof motion.div>;
 
 const ContextMenuContent: FC<ContentMenuContextProps> = (props) => {
   const { className, children, ...rest } = props;
-  const { theme } = useDesktopDnd();
-  const cm = theme.token.contextMenu;
+  const cm = useMenuTheme();
 
   return (
     <motion.div
       className={cx(
         "zs-w-max zs-z-50 zs-min-w-[208px] zs-overflow-hidden",
         css`
-          padding: 6px 0;
-          border-radius: 14px;
-          background: ${cm?.backgroundColor ?? "rgba(30, 30, 30, 0.85)"};
-          backdrop-filter: ${cm?.backdropFilter ?? "blur(50px)"};
-          -webkit-backdrop-filter: ${cm?.backdropFilter ?? "blur(50px)"};
-          border: 0.75px solid ${cm?.borderColor ?? "rgba(255, 255, 255, 0.18)"};
-          box-shadow:
-            0 18px 42px ${cm?.shadowColor ?? "rgba(0, 0, 0, 0.5)"},
-            0 0 0 0.75px ${cm?.boxShadowBorderColor ?? "rgba(255, 255, 255, 0.05)"},
-            inset 0 1px 0 rgba(255, 255, 255, 0.12);
+          padding: 5px;
+          font-family: ${cm.fontFamily};
+          color: ${cm.textColor};
+          border-radius: ${cm.borderRadius};
+          --zs-menu-divider: ${cm.borderColor};
+          --zs-menu-row-radius: max(0px, calc(${cm.borderRadius} - 6px));
+          ${glassSurface(cm.backgroundColor, cm.backdropFilter, cm.highlightColor)}
+          border: 1px solid ${cm.borderColor};
+          box-shadow: 0 12px 30px -9px ${cm.shadowColor}, 0 2px 6px -2px ${cm.shadowColor},
+            0 0 0 .5px ${cm.boxShadowBorderColor}, inset 0 1px 0 ${fade(cm.highlightColor, 50)};
         `,
         className,
       )}

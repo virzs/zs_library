@@ -1,3 +1,4 @@
+import { useSurfaceTheme } from "../contexts/config-context";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { css, cx } from "@emotion/css";
 import { motion, AnimatePresence } from "motion/react";
@@ -10,6 +11,8 @@ import BaseModal from "../modal/base-modal";
 import BaseDrawer from "../drawer/base-drawer";
 import GridItem from "../items/grid-item";
 import { useIsMobile } from "../../../hooks/useIsMobile";
+import { baseTokens } from "../themes/base";
+import { fade } from "../themes/material";
 import { Theme } from "../themes";
 import { getGroupLetter } from "../utils/pinyin";
 
@@ -73,8 +76,9 @@ const LaunchpadModal = ({
   visible,
   onClose,
   onItemClick,
-  theme,
+  theme: explicitTheme,
 }: LaunchpadModalProps) => {
+  const theme = useSurfaceTheme(explicitTheme);
   const { pages, iconSize, t } = useDesktopDnd();
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
@@ -137,15 +141,16 @@ const LaunchpadModal = ({
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const base = baseTokens(theme);
   const modalTheme = theme?.token?.modal;
   const launchpadModalTheme = theme?.token?.dock?.launchpad?.modal;
-  const sbThumb = modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
+  const sbThumb = modalTheme?.scrollbar?.thumbColor ?? fade(base.textColor, 30);
   const sbTrack = modalTheme?.scrollbar?.trackColor ?? "transparent";
   const sbRadius = modalTheme?.scrollbar?.borderRadius ?? "2px";
   const letterIndexColor =
     launchpadModalTheme?.letterIndexColor ??
     theme?.token?.items?.textColor ??
-    "rgba(255, 255, 255, 0.45)";
+    base.textColor;
   const showLetterIndex = groups.length > 1;
 
   useEffect(() => {
@@ -208,7 +213,7 @@ const LaunchpadModal = ({
               delay: index * 0.02,
               ease: "easeOut",
             }}
-            whileHover={{ scale: 1.15, color: "#007aff" }}
+            whileHover={{ scale: 1.15, color: base.primaryColor }}
             whileTap={{ scale: 0.9 }}
             className={cx(
               "zs-text-xs zs-cursor-pointer zs-rounded-md zs-w-5 zs-h-5 zs-flex zs-items-center zs-justify-center zs-bg-transparent zs-border-none zs-font-semibold zs-leading-none",
@@ -252,7 +257,7 @@ const LaunchpadModal = ({
       )}
     >
       {totalApps === 0 ? (
-        <div className="zs-flex zs-items-center zs-justify-center zs-flex-col zs-text-[#8e8e93] zs-text-xl zs-font-medium zs-text-center zs-h-full zs-py-20">
+        <div className="zs-flex zs-items-center zs-justify-center zs-flex-col zs-text-xl zs-font-medium zs-text-center zs-h-full zs-py-20" style={{ color: base.textColor }}>
           <div className="zs-text-6xl zs-mb-4 zs-opacity-60">
             {searchQuery.trim() ? "🔍" : "📱"}
           </div>
@@ -261,7 +266,7 @@ const LaunchpadModal = ({
               ? t("launchpad.noSearchResults")
               : t("launchpad.noApps")}
           </div>
-          <div className="zs-text-base zs-text-[#c7c7cc] zs-font-normal">
+          <div className="zs-text-base zs-font-normal" style={{ color: fade(base.textColor, 74) }}>
             {searchQuery.trim()
               ? t("launchpad.searchHint")
               : t("launchpad.emptyHint")}
@@ -310,6 +315,7 @@ const LaunchpadModal = ({
                     />
                   )}
                   <GridItem
+                    theme={theme}
                     item={item}
                     onDragStart={noop}
                     onItemClick={onItemClick}
@@ -349,7 +355,7 @@ const LaunchpadModal = ({
           className={cx(
             "zs-shrink-0 zs-cursor-pointer",
             css`
-              color: rgba(255, 255, 255, 0.7);
+              color: ${base.textColor};
             `,
           )}
         />

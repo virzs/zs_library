@@ -1,3 +1,4 @@
+import { useSurfaceTheme } from "../contexts/config-context";
 import React, { useState } from "react";
 import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "motion/react";
@@ -6,6 +7,8 @@ import LaunchpadButton from "./launchpad-button";
 import LaunchpadModal from "./launchpad-modal";
 import GridItem from "../items/grid-item";
 import { useIsMobile } from "../../../hooks/useIsMobile";
+import { baseTokens } from "../themes/base";
+import { desktopSurface } from "../themes/material";
 import { Theme } from "../themes";
 
 export interface DockProps {
@@ -39,10 +42,11 @@ const Dock: React.FC<DockProps> = ({
   onLaunchpadItemClick,
   maxItems = 3,
   itemSize = 56,
-  theme,
+  theme: explicitTheme,
 }) => {
+  const theme = useSurfaceTheme(explicitTheme);
   const dockTheme = theme?.token?.dock;
-  const baseTheme = theme?.token?.base;
+  const baseTheme = baseTokens(theme);
   const isMobile = useIsMobile();
 
   const [launchpadVisible, setLaunchpadVisible] = useState(false);
@@ -69,6 +73,7 @@ const Dock: React.FC<DockProps> = ({
     }
     return (
       <GridItem
+        theme={theme}
         item={item}
         onDragStart={noop}
         onItemClick={onItemClick}
@@ -86,6 +91,7 @@ const Dock: React.FC<DockProps> = ({
     }
     return (
       <GridItem
+        theme={theme}
         item={item}
         onDragStart={noop}
         onItemClick={onItemClick}
@@ -113,8 +119,7 @@ const Dock: React.FC<DockProps> = ({
           ? "zs-w-[1px] zs-h-8 zs-mx-1"
           : "zs-w-8 zs-h-[1px] zs-my-1",
         css`
-          background-color: ${dockTheme?.divider?.color ??
-          "rgba(255, 255, 255, 0.12)"};
+          background-color: ${dockTheme?.divider?.color ?? baseTheme.borderColor};
         `,
       )}
     />
@@ -128,21 +133,13 @@ const Dock: React.FC<DockProps> = ({
           hasMainContent ? "zs-justify-between" : "zs-justify-center",
           isHorizontal ? "zs-flex-row" : "zs-flex-col",
           position === "top" && "zs-mb-4",
-          position === "bottom" && "zs-mt-4",
+          position === "bottom" && "zs-mt-2",
           css`
             padding: ${isHorizontal ? "12px 14px" : "14px 12px"};
             border-width: 0.75px;
-            border-radius: 24px;
-            background: ${dockTheme?.backgroundColor ??
-            "rgba(30, 30, 30, 0.7)"};
-            backdrop-filter: ${baseTheme?.backdropFilter ?? "blur(40px)"};
-            -webkit-backdrop-filter: ${baseTheme?.backdropFilter ?? "blur(40px)"};
-            border-color: ${dockTheme?.borderColor ??
-            "rgba(255, 255, 255, 0.1)"};
-            box-shadow:
-              0 14px 38px ${dockTheme?.boxShadowColor ?? "rgba(0, 0, 0, 0.4)"},
-              inset 0 1px 0 rgba(255, 255, 255, 0.16),
-              inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+            border-radius: ${dockTheme?.borderRadius ?? `${Math.round(itemSize * 0.24) + 12}px`};
+            border-color: transparent;
+            ${desktopSurface(theme)}
           `,
           className,
         )}
@@ -227,11 +224,11 @@ const Dock: React.FC<DockProps> = ({
       {showLaunchpad && isMobile && (
         <motion.div
           className={cx(
-            "zs-absolute zs-left-1/2 -zs-bottom-3 zs--translate-x-1/2 zs-rounded-full zs-cursor-pointer zs-w-[50vw] zs-h-2 zs-z-50 zs-touch-none zs-overscroll-y-contain",
+            "zs-absolute zs-left-1/2 zs-bottom-1 zs--translate-x-1/2 zs-rounded-full zs-cursor-pointer zs-w-[50vw] zs-h-2 zs-z-50 zs-touch-none zs-overscroll-y-contain",
             css`
-              background-color: ${baseTheme?.backgroundColor ?? "#ffffff"};
-              box-shadow: 0 6px 18px
-                ${baseTheme?.shadowColor ?? "rgba(0, 0, 0, 0.18)"};
+              background-color: ${theme.token.desktop?.pagination?.activeColor ?? baseTheme.primaryColor};
+              box-shadow: 0 0 0 1px ${theme.token.desktop?.pagination?.edgeColor ?? baseTheme.borderColor},
+                0 2px 6px ${baseTheme.shadowColor};
             `,
           )}
           style={{
@@ -254,7 +251,6 @@ const Dock: React.FC<DockProps> = ({
                 return;
               }
             }
-            e.preventDefault();
             e.stopPropagation();
             setTouchDeltaY(dy);
           }}

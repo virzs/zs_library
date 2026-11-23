@@ -51,6 +51,7 @@ export interface BaseModalTheme {
 }
 
 export interface DockTheme {
+  borderRadius?: string;
   backgroundColor?: string;
   borderColor?: string;
   boxShadowColor?: string;
@@ -97,6 +98,9 @@ export interface LaunchpadTheme {
 }
 
 export interface ContextMenuTheme {
+  iconColor?: string;
+  selectedColor?: string;
+  borderRadius?: string;
   textColor?: string;
   activeColor?: string;
   dangerColor?: string;
@@ -108,16 +112,20 @@ export interface ContextMenuTheme {
 }
 
 export interface ItemsTheme {
+  iconBorderRadius?: string;
+  labelFontSize?: string;
   textColor?: string;
   textShadowColor?: string;
   iconBackgroundColor?: string;
   iconShadowColor?: string;
   groupIconBackgroundColor?: string;
+  groupIconBorderColor?: string;
   groupIconShadowColor?: string;
   infoModalBackgroundColor?: string;
   groupModal?: {
     backgroundColor?: string;
     title?: {
+      fontSize?: string;
       textColor?: string;
       backgroundColor?: string;
       hoverBackgroundColor?: string;
@@ -136,10 +144,14 @@ export interface PageSwitchEdgeTheme {
 }
 
 export interface DesktopTheme {
+  pagination?: { activeColor?: string; inactiveColor?: string; edgeColor?: string };
   pageSwitchEdge?: PageSwitchEdgeTheme;
 }
 
 export interface BaseTheme {
+  primaryColor?: string;
+  highlightColor?: string;
+  fontFamily?: string;
   hoverColor?: string;
   dangerColor?: string;
   backgroundColor?: string;

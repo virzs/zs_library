@@ -1,6 +1,9 @@
+import { useSurfaceTheme } from "../contexts/config-context";
 import React, { useState, useRef } from "react";
 import { RiSearchLine, RiCloseLine } from "@remixicon/react";
 import { css, cx } from "@emotion/css";
+import { baseTokens } from "../themes/base";
+import { fade, glassSurface } from "../themes/material";
 import { Theme } from "../themes";
 import {
   desktopNextDefaultLanguage,
@@ -21,25 +24,24 @@ const SearchBox: React.FC<SearchBoxProps> = ({
   placeholder = desktopNextI18nResources[desktopNextDefaultLanguage].desktopNext
     .launchpad.searchPlaceholder,
   className = "",
-  theme,
+  theme: explicitTheme,
 }) => {
+  const theme = useSurfaceTheme(explicitTheme);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
 
+  const base = baseTokens(theme);
   const sb = theme?.token?.dock?.launchpad?.modal?.searchBox;
-  const iconColor = sb?.iconColor ?? "rgba(255, 255, 255, 0.7)";
-  const iconFocusColor = sb?.iconFocusColor ?? "rgba(255, 255, 255, 0.9)";
-  const bgColor = sb?.backgroundColor ?? "rgba(255, 255, 255, 0.10)";
-  const focusBgColor = sb?.focusBackgroundColor ?? "rgba(255, 255, 255, 0.16)";
-  const textColor = sb?.textColor ?? "rgba(255, 255, 255, 0.9)";
-  const placeholderColor = sb?.placeholderColor ?? "rgba(255, 255, 255, 0.45)";
-  const clearBg =
-    sb?.clearButton?.backgroundColor ?? "rgba(255, 255, 255, 0.20)";
-  const clearHoverBg =
-    sb?.clearButton?.hoverBackgroundColor ?? "rgba(255, 255, 255, 0.32)";
-  const clearTextColor =
-    sb?.clearButton?.textColor ?? "rgba(255, 255, 255, 0.9)";
-  const shadowColor = sb?.shadowColor ?? "rgba(0, 0, 0, 0.18)";
+  const iconColor = sb?.iconColor ?? base.textColor;
+  const iconFocusColor = sb?.iconFocusColor ?? base.primaryColor;
+  const bgColor = sb?.backgroundColor ?? base.backgroundColor;
+  const focusBgColor = sb?.focusBackgroundColor ?? base.hoverColor;
+  const textColor = sb?.textColor ?? base.textColor;
+  const placeholderColor = sb?.placeholderColor ?? fade(textColor, 72);
+  const clearBg = sb?.clearButton?.backgroundColor ?? base.hoverColor;
+  const clearHoverBg = sb?.clearButton?.hoverBackgroundColor ?? fade(base.primaryColor, 24);
+  const clearTextColor = sb?.clearButton?.textColor ?? textColor;
+  const shadowColor = sb?.shadowColor ?? base.shadowColor;
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
@@ -53,7 +55,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     <div className={`zs-relative zs-w-full ${className}`}>
       <div
         className={cx(
-          "zs-absolute zs-inset-0 zs-flex zs-items-center zs-justify-center zs-gap-1.5 zs-pointer-events-none",
+          "zs-absolute zs-z-[1] zs-inset-0 zs-flex zs-items-center zs-justify-center zs-gap-1.5 zs-pointer-events-none",
           css`
             color: ${isFocused || value ? "transparent" : placeholderColor};
             transition: color 0.2s ease;
@@ -73,7 +75,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
 
       <div
         className={cx(
-          "zs-absolute zs-left-3 zs-top-1/2 zs--translate-y-1/2 zs-pointer-events-none",
+          "zs-absolute zs-z-[1] zs-left-3 zs-top-1/2 zs--translate-y-1/2 zs-pointer-events-none",
           css`
             color: ${isFocused ? iconFocusColor : iconColor};
             transition: color 0.2s ease;
@@ -91,24 +93,22 @@ const SearchBox: React.FC<SearchBoxProps> = ({
           css`
             height: 36px;
             border-radius: 18px;
-            border: 0.75px solid rgba(255, 255, 255, 0.14);
+            border: 0.75px solid ${base.borderColor};
             font-size: 15px;
             letter-spacing: 0;
             padding: 0 ${value ? "32px" : "12px"} 0 ${value ? "28px" : "12px"};
             text-align: ${value ? "left" : "center"};
-            background-color: ${isFocused ? focusBgColor : bgColor};
+            ${glassSurface(isFocused ? focusBgColor : bgColor, base.backdropFilter, base.highlightColor)}
             color: ${textColor};
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
             box-shadow:
-              inset 0 1px 0 rgba(255, 255, 255, 0.16),
+              inset 0 1px 0 ${fade(base.highlightColor, 26)},
               0 8px 20px ${isFocused ? shadowColor : "transparent"};
             transition:
               background-color 0.2s ease,
               border-color 0.2s ease,
               box-shadow 0.2s ease;
             &:focus {
-              border-color: rgba(255, 255, 255, 0.24);
+              border-color: ${iconFocusColor};
             }
             &::placeholder {
               color: transparent;

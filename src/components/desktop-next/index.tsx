@@ -451,6 +451,7 @@ const DesktopDndInner = ({
     <>
       <div
         ref={containerRef}
+        style={{ color: theme.token.base?.textColor, fontFamily: theme.token.base?.fontFamily }}
         className={cx("zs-relative zs-w-full zs-h-full zs-min-h-0 zs-overflow-hidden zs-select-none", className)}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

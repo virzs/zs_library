@@ -41,8 +41,8 @@ function scenario(name, mode, verify, viewport = { width: 900, height: 620 }, de
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     const knownErrors = new Set();
-    if (mode === 'folder' || mode === 'folder-sort') knownErrors.add(radixDialogTitle);
-    if (mode === 'size' || mode === 'delete' || mode === 'photo') knownErrors.add(floatingReference);
+    if (mode === 'folder' || mode === 'folder-sort' || mode === 'surfaces' || mode === 'floating-controls') knownErrors.add(radixDialogTitle);
+    if (mode === 'size' || mode === 'delete' || mode === 'photo' || mode === 'menu-theme') knownErrors.add(floatingReference);
     page.on('console', message => {
       if (message.type() === 'error' && !knownErrors.delete(message.text())) errors.push(message.text());
     });
@@ -905,4 +905,230 @@ scenario('指示器支持预设、颜色、键盘导航、自定义渲染与隐�
   assert.equal(await dots.locator('[aria-hidden="true"]').count(), 0);
   await page.evaluate(() => window.setIndicator(false));
   await dots.waitFor({ state: 'detached' });
+});
+
+
+scenario('自定义基础主题和菜单覆盖实时作用于主菜单、尺寸子菜单和桌面材质', 'menu-theme', async page => {
+  const base = {
+    backgroundColor: '#203040', textColor: '#eddfcb',
+    dangerColor: '#ffb088', primaryColor: '#8fe4c0', highlightColor: '#d4aefe',
+    shadowColor: '#16202a', borderColor: '#607488', hoverColor: '#334455',
+    backdropFilter: 'blur(7px)', fontFamily: 'Georgia, serif',
+  };
+  await page.evaluate(base => window.setMenuTheme({ token: { base } }), base);
+  const folder = item(page, 'F');
+  const label = folder.getByText('F', { exact: true }).last();
+  assert.match(await label.evaluate(el => getComputedStyle(el).textShadow), /rgb\(22, 32, 42\)/);
+  assert.match(await label.evaluate(el => getComputedStyle(el).fontFamily), /Georgia/);
+  await folder.click({ button: 'right' });
+  const remove = page.getByText('移除', { exact: true });
+  const size = page.getByText('尺寸', { exact: true });
+  const surface = remove.locator('../..');
+  const cssValue = (node, prop) => node.evaluate((el, key) => getComputedStyle(el)[key], prop);
+  assert.equal(await cssValue(remove, 'color'), 'rgb(255, 176, 136)');
+  assert.equal(await cssValue(surface, 'backdropFilter'), 'blur(7px)');
+  assert.equal(await cssValue(surface, 'backgroundColor'), 'rgb(32, 48, 64)');
+  assert.equal(await cssValue(size, 'color'), 'rgb(237, 223, 203)');
+  await size.hover();
+  const selected = page.locator('[data-selected="true"]');
+  await selected.waitFor();
+  assert.equal(await cssValue(selected.locator(':scope > svg'), 'fill'), 'rgb(143, 228, 192)');
+  const originalShine = await cssValue(surface, 'backgroundImage');
+  const hovered = size.locator('..').locator(':scope > div').first();
+  assert.equal(await cssValue(hovered, 'backgroundColor'), 'rgb(51, 68, 85)');
+  const menu = { activeColor: '#554077', dangerColor: '#ef91ae', iconColor: '#c6a8ff', selectedColor: '#f9cc7c',
+    backgroundColor: '#3e2752', backdropFilter: 'blur(13px)', borderRadius: '22px' };
+  await page.evaluate(({ base, menu }) => window.setMenuTheme({ token: { base: { ...base, highlightColor: '#ffdd44' }, contextMenu: menu } }), { base, menu });
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-selected="true"]').parentElement).borderRadius === '22px');
+  assert.notEqual(await cssValue(surface, 'backgroundImage'), originalShine);
+  assert.equal(await cssValue(hovered, 'backgroundColor'), 'rgb(85, 64, 119)');
+  for (const panel of [surface, selected.locator('..')]) {
+    assert.equal(await cssValue(panel, 'backdropFilter'), 'blur(13px)');
+    assert.equal(await cssValue(panel, 'backgroundColor'), 'rgb(62, 39, 82)');
+  }
+  assert.equal(await cssValue(remove, 'color'), 'rgb(239, 145, 174)');
+  assert.equal(await cssValue(size.locator('..').locator('svg').first(), 'color'), 'rgb(198, 168, 255)');
+  assert.equal(await cssValue(selected.locator(':scope > svg'), 'fill'), 'rgb(249, 204, 124)');
+  await page.getByText('2x2', { exact: true }).click();
+  assert.equal((await snapshot(page)).pages[0].children[0].config.sizeId, '2x2');
+});
+
+
+scenario('浅深主题切换时三种指示器与桌面玻璃使用各自配色，调用方颜色优先', 'surfaces', async page => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const dots = page.locator('[data-desktop-dots]');
+  const marker = dots.locator('[aria-hidden="true"]');
+  const color = node => node.evaluate(el => getComputedStyle(el).backgroundColor);
+  const folder = item(page, 'F').locator(':scope > div').first();
+  const dock = page.locator('[data-grid-item-id="fixed"]').locator('xpath=ancestor::*[contains(@class,"zs-justify-between")][1]');
+  const launcher = dock.locator('.zs-flex-shrink-0.zs-cursor-pointer').locator(':scope > div').last();
+  for (const [theme, selected] of [['light', 'rgb(255, 255, 255)'], ['dark', 'rgb(248, 249, 255)']]) {
+    await page.evaluate(t => window.setMenuTheme(t), theme);
+    await page.waitForTimeout(250); // Dock 的背景色也有切换过渡。
+    for (const variant of ['pill', 'dots', 'bars']) {
+      await page.evaluate(v => window.setIndicator({ variant: v }), variant);
+      await dots.locator('[data-variant="' + variant + '"]').waitFor();
+      assert.equal(await color(marker), selected);
+      if (variant === 'pill') {
+        const surfaces = await Promise.all([dock, folder, launcher, dots.locator('[data-variant="pill"]')].map(color));
+        assert.ok(surfaces.every(value => value === surfaces[0]), JSON.stringify(surfaces));
+      }
+      assert.notEqual(await color(dots.locator('button').last()), selected);
+    }
+  }
+  const palette = { activeColor: '#ffd780', inactiveColor: '#876543', edgeColor: '#123456' };
+  await page.evaluate(pagination => window.setMenuTheme({ token: { desktop: { pagination } } }), palette);
+  assert.equal(await color(marker), 'rgb(255, 215, 128)');
+  await page.evaluate(() => window.setIndicator({ activeColor: '#f05076' }));
+  assert.equal(await color(marker), 'rgb(240, 80, 118)');
+  assert.equal(await color(dots.locator('button').last()), 'rgb(135, 101, 67)');
+});
+
+scenario('打开的启动台中搜索框、空状态、索引和弹层随主题实时更新', 'surfaces', async page => {
+  const base = { textColor: '#f2e8d7', backgroundColor: '#193034', primaryColor: '#67d5bd' };
+  await page.evaluate(base => window.setMenuTheme({ token: { base } }), base);
+  await page.locator('[data-grid-item-id="fixed"]').locator('xpath=ancestor::*[contains(@class,"zs-justify-between")][1]')
+    .locator('.zs-flex-shrink-0.zs-cursor-pointer').click();
+  const panel = page.locator('[data-base-modal-panel]:visible');
+  const input = panel.getByRole('textbox');
+  const style = (el, key) => el.evaluate((n, k) => getComputedStyle(n)[k], key);
+  assert.equal(await style(panel, 'backgroundColor'), 'rgb(25, 48, 52)');
+  assert.equal(await style(input, 'color'), 'rgb(242, 232, 215)');
+  await input.fill('no-such-application');
+  assert.equal(await style(panel.getByText('未找到相关应用'), 'color'), 'rgb(242, 232, 215)');
+  await page.evaluate(() => window.setMenuTheme('light'));
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-base-modal-panel] input')).color === 'rgba(28, 28, 30, 0.88)');
+  assert.equal(await style(panel.getByText('未找到相关应用'), 'color'), 'rgba(28, 28, 30, 0.88)');
+  await input.fill('');
+  const index = panel.getByRole('button', { name: 'A', exact: true });
+  await index.hover();
+  await page.waitForTimeout(400);
+  assert.equal(await style(index, 'color'), 'rgb(19, 92, 200)');
+});
+
+scenario('文件夹底色覆盖只作用于文件夹，打开后也响应主题变化', 'surfaces', async page => {
+  await item(page, 'F').click();
+  const panel = page.locator('[data-base-modal-panel]:visible');
+  await page.evaluate(() => window.setMenuTheme({ token: {
+    base: { textColor: '#fff0db', backgroundColor: '#402e21' },
+    modal: { content: { backgroundColor: '#443366' } },
+    items: { groupModal: { backgroundColor: '#57324a', title: { textColor: '#fae388' } } },
+  } }));
+  assert.equal(await panel.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(87, 50, 74)');
+  assert.equal(await panel.getByRole('textbox').evaluate(el => getComputedStyle(el).color), 'rgb(250, 227, 136)');
+});
+
+
+scenario('单独传给 Dock 的主题在图标、启动台应用与搜索框中一致', 'surfaces', async page => {
+  await page.evaluate(() => { window.setMenuTheme('light'); window.setDockTheme({ token: {
+    base: { textColor: '#d8efac', backgroundColor: '#304117' }
+  } }); });
+  const color = el => el.evaluate(n => getComputedStyle(n).color);
+  assert.equal(await color(item(page, 'A').getByText('A', { exact: true }).last()), 'rgb(21, 36, 66)');
+  const fixed = page.locator('[data-grid-item-id="fixed"]');
+  assert.equal(await color(fixed.getByText('f', { exact: true })), 'rgb(216, 239, 172)');
+  await fixed.locator('xpath=ancestor::*[contains(@class,"zs-justify-between")][1]')
+    .locator('.zs-flex-shrink-0.zs-cursor-pointer').click();
+  const panel = page.locator('[data-base-modal-panel]:visible');
+  assert.equal(await color(panel.getByRole('textbox')), 'rgb(216, 239, 172)');
+  assert.equal(await color(panel.locator('[data-grid-item-id="A"]').getByText('A', { exact: true }).last()), 'rgb(216, 239, 172)');
+});
+
+scenario('手机启动台抽屉的遮罩、面板和关闭按钮随已打开的主题切换', 'surfaces', async page => {
+  await page.evaluate(() => window.setMenuTheme('light'));
+  const handle = page.locator('[class*="zs-overscroll-y-contain"]').last();
+  await handle.waitFor();
+  const cdp = await page.context().newCDPSession(page);
+  const box = await handle.boundingBox();
+  const x = box.x + box.width / 2, y = Math.min(page.viewportSize().height - 1, box.y + box.height / 2);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  for (let dy = 15; dy <= 105; dy += 15) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y - dy }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  const drawer = page.locator('.rc-drawer-content-wrapper:visible');
+  const bg = el => el.evaluate(n => getComputedStyle(n).backgroundColor);
+  assert.equal(await bg(drawer), 'rgba(240, 245, 253, 0.87)');
+  await page.evaluate(() => window.setMenuTheme({ token: {
+    base: { backgroundColor: '#392348', textColor: '#f2dee7' },
+    modal: { mask: { backgroundColor: '#31222e' } },
+  } }));
+  assert.equal(await bg(drawer), 'rgb(57, 35, 72)');
+  assert.equal(await bg(page.locator('.rc-drawer-mask')), 'rgb(49, 34, 46)');
+  assert.equal(await drawer.locator('svg[aria-label]').evaluate(n => getComputedStyle(n).color), 'rgb(242, 222, 231)');
+  await drawer.locator('svg[aria-label]').tap();
+  await drawer.waitFor({ state: 'hidden' });
+}, { width: 390, height: 844 }, { isMobile: true, hasTouch: true,
+  userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1' });
+
+
+scenario('浮动按钮、弹窗正文和减少透明度设置读取当前主题', 'floating-controls', async page => {
+  await page.evaluate(() => window.setMenuTheme({ token: {
+    base: { textColor: '#cceeff', primaryColor: '#66bbcc', backgroundColor: 'rgba(32, 42, 68, .72)' },
+    modal: { floatingControls: {
+      closeButton: { backgroundColor: '#ec648e' }, fullscreenButton: { backgroundColor: '#65b0ce' },
+    } },
+  } }));
+  const panel = page.locator('[data-base-modal-panel]:visible');
+  const style = (el, key) => el.evaluate((n, k) => getComputedStyle(n)[k], key);
+  assert.equal(await style(panel.getByText('Content'), 'color'), 'rgb(204, 238, 255)');
+  assert.equal(await style(panel.getByRole('button', { name: '关闭' }), 'backgroundColor'), 'rgb(236, 100, 142)');
+  assert.equal(await style(panel.getByRole('button', { name: '全屏' }), 'backgroundColor'), 'rgb(101, 176, 206)');
+  const cdp = await page.context().newCDPSession(page);
+  for (const feature of [{ name: 'prefers-reduced-transparency', value: 'reduce' }, { name: 'prefers-contrast', value: 'more' }]) {
+    await cdp.send('Emulation.setEmulatedMedia', { features: [feature] });
+    assert.equal(await style(panel, 'backdropFilter'), 'none');
+    assert.equal(await style(panel.locator('.base-modal-floating-controls'), 'backdropFilter'), 'none');
+  }
+});
+
+scenario('合并高亮与跨页边缘提示使用当前主题强调色', 'surfaces', async page => {
+  await page.evaluate(() => window.setMenuTheme({ token: { base: { primaryColor: '#44bb66' } } }));
+  await start(page, item(page, 'A'));
+  await move(page, await center(item(page, 'F')), 700);
+  const target = item(page, 'F').locator(':scope > div').first();
+  assert.match(await target.evaluate(n => getComputedStyle(n).animationName), /mergeTargetPulse/);
+  assert.equal(await target.evaluate(n => getComputedStyle(n).getPropertyValue('--zs-merge-ring').trim()), '#44bb66');
+  await move(page, { x: 895, y: 180 }, 30);
+  const edge = page.locator('[data-side="right"][data-active="true"]');
+  assert.match(await edge.evaluate(el => el.style.background), /68, 187, 102/);
+  await page.keyboard.press('Escape');
+  await page.mouse.up();
+});
+
+scenario('分页高亮与圆点在实际绘制时共用同一水平中心线', 'indicators', async page => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const track = page.locator('[data-desktop-dots] [data-variant]');
+  // 从截图测量像素中心，捕捉布局坐标相同但绘制时产生的半像素偏差。
+  await page.addStyleTag({ content: `
+    [data-desktop-dots] [data-variant] { background: black !important; box-shadow: none !important; }
+    [data-desktop-dots] button, [data-desktop-dots] span[aria-hidden] { background: white !important; box-shadow: none !important; }
+    [data-desktop-dots] button[data-active=true] { background: transparent !important; }
+  ` });
+  for (const variant of ['pill', 'dots', 'bars']) {
+    await page.evaluate(v => window.setIndicator({ variant: v }), variant);
+    await track.getByRole('button', { name: '3 / 3' }).click();
+    const png = (await track.screenshot({ scale: 'css' })).toString('base64');
+    const centres = await track.evaluate(async (el, data) => {
+      const img = new Image();
+      img.src = 'data:image/png;base64,' + data;
+      await img.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const bounds = el.getBoundingClientRect();
+      return [...el.querySelectorAll('button[data-active=false],span[aria-hidden]')].map(node => {
+        const rect = node.getBoundingClientRect();
+        const x = Math.floor(rect.left + rect.width / 2 - bounds.left);
+        const pixels = ctx.getImageData(x, 3, 1, img.height - 6).data;
+        let total = 0, moment = 0;
+        for (let i = 0; i < pixels.length; i += 4) {
+          total += pixels[i];
+          moment += pixels[i] * (i / 4);
+        }
+        return moment / total;
+      });
+    }, png);
+    assert.ok(Math.max(...centres) - Math.min(...centres) < 0.15, `${variant} 的像素中心为 ${centres}`);
+  }
 });

@@ -1,3 +1,5 @@
+import { fade, reducedTransparency } from "../themes/material";
+import { baseTokens } from "../themes/base";
 import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "motion/react";
 import React, {
@@ -19,12 +21,14 @@ const GRID_GAP = 16;
 
 const makeEditableTitleStyle = (theme: Theme) => {
   const t = theme.token.items?.groupModal?.title;
+  const base = baseTokens(theme);
   return css`
     border-style: none;
-    color: ${t?.textColor ?? "rgba(255, 255, 255, 0.95)"};
+    color: ${t?.textColor ?? base.textColor};
     font-weight: 600;
-    font-size: 18px;
-    letter-spacing: 0;
+    font-family: ${base.fontFamily};
+    font-size: ${t?.fontSize ?? "21px"};
+    letter-spacing: -0.02em;
     transition: all 0.2s ease-out;
     background: ${t?.backgroundColor ?? "transparent"};
     padding: 4px 12px;
@@ -32,23 +36,24 @@ const makeEditableTitleStyle = (theme: Theme) => {
 
     &:focus {
       outline: none;
-      background: ${t?.focusBackgroundColor ?? "rgba(255, 255, 255, 0.1)"};
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      box-shadow: 0 0 0 2px ${t?.shadowColor ?? "rgba(255, 255, 255, 0.2)"};
+      background: ${t?.focusBackgroundColor ?? base.hoverColor};
+      backdrop-filter: ${base.backdropFilter};
+      -webkit-backdrop-filter: ${base.backdropFilter};
+      ${reducedTransparency} { backdrop-filter: none; -webkit-backdrop-filter: none; }
+      box-shadow: 0 0 0 2px ${t?.shadowColor ?? base.primaryColor};
       transform: scale(1.02);
     }
 
     &:hover {
-      background: ${t?.hoverBackgroundColor ?? "rgba(255, 255, 255, 0.06)"};
+      background: ${t?.hoverBackgroundColor ?? base.hoverColor};
     }
 
     &::placeholder {
-      color: ${t?.placeholderColor ?? "rgba(255, 255, 255, 0.4)"};
+      color: ${t?.placeholderColor ?? fade(base.textColor, 58)};
     }
 
     &::selection {
-      background: ${t?.selectionBackgroundColor ?? "rgba(255, 255, 255, 0.2)"};
+      background: ${t?.selectionBackgroundColor ?? fade(base.primaryColor, 30)};
     }
   `;
 };
@@ -278,6 +283,9 @@ const FolderModal = ({ iconBuilder }: FolderModalProps) => {
           destroyOnClose
           theme={theme}
           classNames={{
+            panel: theme.token.items?.groupModal?.backgroundColor && css`
+              --zs-modal-surface: ${theme.token.items.groupModal.backgroundColor};
+            `,
             header: css`
               padding: 22px 28px 0;
             `,

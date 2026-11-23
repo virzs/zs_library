@@ -1,27 +1,25 @@
-import { Theme } from ".";
+import type { Theme } from ".";
+import { darkBase } from "./base";
+
+const desktopGlass = {
+  backgroundColor: "rgba(30, 35, 48, 0.84)",
+  borderColor: "rgba(228, 237, 255, 0.16)",
+  shadowColor: "rgba(7, 12, 24, 0.32)",
+};
 
 export const themeDark: Theme = {
   token: {
-    base: {
-      hoverColor: "rgba(255, 255, 255, 0.08)",
-      dangerColor: "#ff3b30",
-      backgroundColor: "rgba(30, 30, 30, 0.85)",
-      textColor: "rgba(255, 255, 255, 0.9)",
-      shadowColor: "rgba(0, 0, 0, 0.4)",
-      boxShadowBorderColor: "rgba(255, 255, 255, 0.08)",
-      borderColor: "rgba(255, 255, 255, 0.1)",
-      backdropFilter: "blur(40px)",
-    },
+    base: darkBase,
     items: {
-      textColor: "rgba(255, 255, 255, 0.9)",
-      textShadowColor: "rgba(0, 0, 0, 0.5)",
+      textColor: "#f8f9ff",
+      textShadowColor: "rgba(8,14,38,.65)",
       iconBackgroundColor: "rgba(40, 40, 40, 0.9)",
-      iconShadowColor: "rgba(0, 0, 0, 0.4)",
-      groupIconBackgroundColor: "rgba(40, 40, 40, 0.5)",
-      groupIconShadowColor: "rgba(0, 0, 0, 0.4)",
+      iconShadowColor: "rgba(5,10,29,.30)",
+      groupIconBackgroundColor: desktopGlass.backgroundColor,
+      groupIconBorderColor: desktopGlass.borderColor,
+      groupIconShadowColor: desktopGlass.shadowColor,
       infoModalBackgroundColor: "rgba(30, 30, 30, 0.85)",
       groupModal: {
-        backgroundColor: "rgba(30, 30, 30, 0.85)",
         title: {
           textColor: "rgba(255, 255, 255, 0.9)",
           backgroundColor: "transparent",
@@ -35,15 +33,16 @@ export const themeDark: Theme = {
     },
     contextMenu: {
       textColor: "rgba(255, 255, 255, 0.9)",
-      activeColor: "rgba(255, 255, 255, 0.08)",
-      dangerColor: "#ff3b30",
-      backgroundColor: "rgba(30, 30, 30, 0.85)",
-      shadowColor: "rgba(0, 0, 0, 0.4)",
+      activeColor: "rgba(255,255,255,.13)",
+      dangerColor: darkBase.dangerColor,
+      backgroundColor: "rgba(33,36,45,.86)",
+      shadowColor: "rgba(5,9,23,.3)",
       boxShadowBorderColor: "rgba(255, 255, 255, 0.08)",
-      borderColor: "rgba(255, 255, 255, 0.1)",
-      backdropFilter: "blur(40px)",
+      borderColor: "rgba(235,243,255,.22)",
+      backdropFilter: "saturate(145%) blur(24px)",
     },
     desktop: {
+      pagination: { activeColor: "#f8f9ff", inactiveColor: "rgba(229,236,251,.44)", edgeColor: "rgba(6,14,32,.35)" },
       pageSwitchEdge: {
         leftGradient: "linear-gradient(90deg, rgba(10, 132, 255, 0.42) 0%, rgba(10, 132, 255, 0.18) 42%, rgba(10, 132, 255, 0) 100%)",
         rightGradient: "linear-gradient(270deg, rgba(10, 132, 255, 0.42) 0%, rgba(10, 132, 255, 0.18) 42%, rgba(10, 132, 255, 0) 100%)",
@@ -51,9 +50,9 @@ export const themeDark: Theme = {
       },
     },
     dock: {
-      backgroundColor: "rgba(30, 30, 30, 0.7)",
-      borderColor: "rgba(255, 255, 255, 0.1)",
-      boxShadowColor: "rgba(0, 0, 0, 0.4)",
+      backgroundColor: desktopGlass.backgroundColor,
+      borderColor: desktopGlass.borderColor,
+      boxShadowColor: desktopGlass.shadowColor,
       divider: {
         color: "rgba(255, 255, 255, 0.12)",
       },
@@ -76,25 +75,23 @@ export const themeDark: Theme = {
         },
         icon: {
           textColor: "rgba(255, 255, 255, 0.85)",
-          backgroundColor: "rgba(40, 40, 40, 0.9)",
-          borderColor: "rgba(255, 255, 255, 0.12)",
-          shadowColor: "rgba(0, 0, 0, 0.4)",
+          ...desktopGlass,
           hoverGlowColor: "rgba(255, 255, 255, 0.08)",
         },
       },
     },
     modal: {
       mask: {
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        backgroundColor: "rgba(7,11,22,.38)",
         backdropFilter: "blur(8px)",
       },
       content: {
-        backgroundColor: "rgba(30, 30, 30, 0.85)",
-        backdropFilter: "blur(40px)",
+        backgroundColor: "rgba(39,43,55,.82)",
+        backdropFilter: "saturate(145%) blur(28px)",
         boxShadowColor: "rgba(0, 0, 0, 0.5)",
         boxShadowBorderColor: "rgba(255, 255, 255, 0.08)",
         borderColor: "rgba(255, 255, 255, 0.1)",
-        borderRadius: "20px",
+        borderRadius: "28px",
       },
       header: {
         textColor: "rgba(255, 255, 255, 0.9)",

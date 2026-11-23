@@ -2,6 +2,8 @@ import { css, cx } from "@emotion/css";
 import React, { useCallback } from "react";
 import { useDesktopDnd } from "../context";
 import { DndSortItem } from "../types";
+import { baseTokens } from "../themes/base";
+import { fade } from "../themes/material";
 import GridItem from "./grid-item";
 import IconImage from "./icon-image";
 
@@ -29,7 +31,7 @@ const FolderItem = ({
   noLabel,
   floating,
 }: FolderItemProps) => {
-  const { iconSize, setFolderModal, dragState, theme } = useDesktopDnd();
+  const { setFolderModal, dragState, theme } = useDesktopDnd();
 
   const preview = (item.children ?? []).slice(0, 9);
   const previewSlots = Array.from({ length: 9 }, (_, index) => preview[index]);
@@ -48,24 +50,17 @@ const FolderItem = ({
   const renderFolderPreview = () => {
     const col = size?.col ?? 1;
     const row = size?.row ?? 1;
-    const gap = Math.round((iconSize / 64) * 48);
     const scale = Math.min(col, row);
     const padding = Math.round(8 * scale);
     const innerGap = Math.round(3 * scale);
     const slotRadius = Math.max(5, Math.round(4 * scale));
-    const totalWidth = iconSize * col + gap * (col - 1);
-    const totalHeight = iconSize * row + gap * (row - 1);
-    const folderRadius = Math.max(16, Math.round(Math.min(totalWidth, totalHeight) * 0.12));
-
     const itemsTheme = theme.token.items;
-    const groupBg =
-      itemsTheme?.groupIconBackgroundColor ?? "rgba(128, 128, 128, 0.3)";
+    const base = baseTokens(theme);
     const groupShadow =
-      itemsTheme?.groupIconShadowColor ?? "rgba(0, 0, 0, 0.15)";
+      itemsTheme?.groupIconShadowColor ?? base.shadowColor;
     const slotBg =
-      itemsTheme?.iconBackgroundColor ?? "rgba(255, 255, 255, 0.15)";
-    const emptySlotBg = "rgba(255, 255, 255, 0.025)";
-    const fallbackBg = itemsTheme?.iconBackgroundColor ?? "rgba(64, 148, 229, 0.9)";
+      itemsTheme?.iconBackgroundColor ?? base.backgroundColor;
+    const fallbackBg = itemsTheme?.iconBackgroundColor ?? base.primaryColor;
 
     const renderChildIcon = (child: DndSortItem) => {
       const builtIcon = iconBuilder?.(child);
@@ -80,6 +75,7 @@ const FolderItem = ({
         return (
           <IconImage
             src={iconData}
+            fallbackColor={itemsTheme?.textColor ?? base.textColor}
             fallbackText={child.data?.name ?? "?"}
             fallbackBackground={child.data?.iconColor ?? fallbackBg}
             fallbackClassName="zs-text-[13px] zs-font-bold"
@@ -91,8 +87,8 @@ const FolderItem = ({
 
       return (
         <div
-          className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-[13px] zs-font-bold"
-          style={{ background: child.data?.iconColor ?? fallbackBg }}
+          className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-[13px] zs-font-bold"
+          style={{ background: child.data?.iconColor ?? fallbackBg, color: itemsTheme?.textColor ?? base.textColor }}
         >
           {(child.data?.name ?? "?").charAt(0)}
         </div>
@@ -108,15 +104,8 @@ const FolderItem = ({
             grid-template-rows: repeat(3, 1fr);
             gap: ${innerGap}px;
             padding: ${padding}px;
-            width: ${totalWidth}px;
-            height: ${totalHeight}px;
-            border-radius: ${folderRadius}px;
-            background: ${groupBg};
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow:
-              0 ${Math.round(iconSize * 0.1)}px ${Math.round(iconSize * 0.26)}px ${groupShadow},
-              inset 0 0 0 0.5px rgba(255, 255, 255, 0.12);
+            width: 100%;
+            height: 100%;
           `,
         )}
       >
@@ -127,10 +116,8 @@ const FolderItem = ({
               "zs-overflow-hidden",
               css`
                 border-radius: ${slotRadius}px;
-                background: ${child ? slotBg : emptySlotBg};
-                box-shadow: ${child
-                  ? "none"
-                  : "inset 0 0 0 0.5px rgba(255, 255, 255, 0.035)"};
+                background: ${child ? slotBg : "transparent"};
+                box-shadow: ${child ? `0 1px 2px ${fade(groupShadow, 55)}` : "none"};
               `,
             )}
           >
@@ -150,6 +137,7 @@ const FolderItem = ({
       size={size}
       noLabel={noLabel}
       floating={floating}
+      folderPreview
     >
       {renderFolderPreview()}
     </GridItem>

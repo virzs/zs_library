@@ -40,6 +40,7 @@ function loadCorsImage(src: string, timeout = 3000): Promise<HTMLImageElement | 
 
 function extractColorsFromImage(
   img: HTMLImageElement,
+  fallbackColor: string,
   gridCols: number,
   gridRows: number,
 ): string[][] | null {
@@ -64,7 +65,7 @@ function extractColorsFromImage(
         const b = data[idx + 2];
         const a = data[idx + 3] / 255;
         if (a < 0.1) {
-          colors[row][col] = "rgba(150, 150, 150, 0.6)";
+          colors[row][col] = fallbackColor;
         } else {
           colors[row][col] = `rgba(${r}, ${g}, ${b}, ${Math.max(a, 0.6)})`;
         }
@@ -98,7 +99,7 @@ function sampleColorsFromDOM(
 
   const fallback = collectedColors.length > 0
     ? collectedColors
-    : ["rgba(150, 150, 150, 0.8)"];
+    : [window.getComputedStyle(element).color];
 
   for (let row = 0; row < gridRows; row++) {
     colors[row] = [];
@@ -115,18 +116,19 @@ async function sampleElementColors(
   gridCols: number,
   gridRows: number,
 ): Promise<string[][]> {
+  const fallbackColor = window.getComputedStyle(element).color;
   const img = element.querySelector("img");
   if (img) {
     const src = img.src || img.getAttribute("src");
     if (src) {
       if (img.crossOrigin === "anonymous" && img.complete && img.naturalWidth > 0) {
-        const fromDirect = extractColorsFromImage(img, gridCols, gridRows);
+        const fromDirect = extractColorsFromImage(img, fallbackColor, gridCols, gridRows);
         if (fromDirect) return fromDirect;
       }
 
       const corsImg = await loadCorsImage(src);
       if (corsImg) {
-        const fromCors = extractColorsFromImage(corsImg, gridCols, gridRows);
+        const fromCors = extractColorsFromImage(corsImg, fallbackColor, gridCols, gridRows);
         if (fromCors) return fromCors;
       }
     }

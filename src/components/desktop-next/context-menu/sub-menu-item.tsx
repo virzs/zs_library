@@ -1,4 +1,3 @@
-import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "motion/react";
 import {
   useState,
@@ -19,7 +18,7 @@ import {
 import { HoverContext } from "./hover-context";
 import CapsuleBackground from "./capsule-background";
 import ContextMenuContent from "./content";
-import { useDesktopDnd } from "../context";
+import { menuIcon, menuRow, useMenuTheme } from "./styles";
 
 export interface SubMenuItemProps {
   text: string;
@@ -33,6 +32,7 @@ export interface SubMenuItemProps {
 
 export const SubMenuItem = ({
   text,
+  icon,
   index,
   children,
   color,
@@ -45,11 +45,10 @@ export const SubMenuItem = ({
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
   const isHovered = hoveredIndex === index;
-  const { theme } = useDesktopDnd();
-  const cmTheme = theme.token.contextMenu;
+  const cmTheme = useMenuTheme();
 
-  const finalTextColor = textColor || cmTheme?.textColor || "rgba(255, 255, 255, 0.9)";
-  const finalIconColor = color || cmTheme?.textColor || "rgba(255, 255, 255, 0.9)";
+  const finalTextColor = textColor ?? cmTheme.textColor;
+  const finalIconColor = color ?? cmTheme.iconColor;
   const shouldShowSubMenu = isRootMenuOpen && isSubMenuOpen;
 
   const { refs, floatingStyles } = useFloating({
@@ -57,7 +56,7 @@ export const SubMenuItem = ({
     placement: "right-start",
     open: shouldShowSubMenu,
     transform: false,
-    middleware: [offset(-4), flip(), shift({ padding: 8 })],
+    middleware: [offset(10), flip(), shift({ padding: 8 })],
     whileElementsMounted: autoUpdate,
   });
 
@@ -114,41 +113,15 @@ export const SubMenuItem = ({
         menuItemRef.current = node;
         refs.setReference(node);
       }}
-      className={cx(
-        "zs-py-0 zs-px-4 zs-flex zs-items-center zs-gap-3.5 zs-cursor-pointer zs-relative zs-h-[38px] zs-outline-none",
-        css`
-          isolation: isolate;
-          z-index: 1;
-        `,
-      )}
+      className={menuRow}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       {...props}
     >
-      <CapsuleBackground show={isHovered} layoutId="menuHover" />
-      <motion.div
-        className={cx(
-          "zs-flex-1 zs-text-sm",
-          css`
-            font-weight: 400;
-            line-height: 18px;
-            color: ${finalTextColor};
-            letter-spacing: 0;
-          `,
-        )}
-      >
-        {text}
-      </motion.div>
-      <motion.div
-        className={cx(
-          "zs-flex zs-items-center zs-justify-center zs-shrink-0 zs-w-[18px] zs-h-[18px]",
-          css`
-            color: ${finalIconColor};
-          `,
-        )}
-      >
-        <RiArrowRightSLine size={16} />
-      </motion.div>
+      <CapsuleBackground show={isHovered || shouldShowSubMenu} layoutId="menuHover" />
+      {icon && <span aria-hidden="true" className={menuIcon} style={{ color: finalIconColor }}>{icon}</span>}
+      <span style={{ flex: 1, color: finalTextColor }}>{text}</span>
+      <RiArrowRightSLine aria-hidden="true" size={16} style={{ color: finalIconColor, opacity: .72 }} />
 
       <FloatingPortal>
         <AnimatePresence>
@@ -168,7 +141,7 @@ export const SubMenuItem = ({
             >
               <ContextMenuContent
                 className="zs-overflow-hidden"
-                style={{ transformOrigin: "left" }}
+                style={{ transformOrigin: "left", minWidth: 144 }}
                 initial={{ opacity: 0, scale: 1 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 1 }}

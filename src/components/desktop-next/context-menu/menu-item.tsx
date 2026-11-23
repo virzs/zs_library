@@ -1,9 +1,8 @@
-import { css, cx } from "@emotion/css";
 import { motion } from "motion/react";
 import { useContext } from "react";
 import { HoverContext } from "./hover-context";
 import CapsuleBackground from "./capsule-background";
-import { useDesktopDnd } from "../context";
+import { menuIcon, menuRow, useMenuTheme } from "./styles";
 
 export interface MenuItemProps {
   icon?: React.ReactNode;
@@ -27,52 +26,22 @@ export const MenuItem = ({
 }: MenuItemProps) => {
   const { hoveredIndex, setHoveredIndex } = useContext(HoverContext);
   const isHovered = hoveredIndex === index;
-  const { theme } = useDesktopDnd();
-  const cmTheme = theme.token.contextMenu;
+  const cmTheme = useMenuTheme();
 
-  const finalTextColor = textColor || cmTheme?.textColor || "rgba(255, 255, 255, 0.9)";
-  const finalIconColor = color || cmTheme?.textColor || "rgba(255, 255, 255, 0.9)";
+  const finalTextColor = textColor ?? cmTheme.textColor;
+  const finalIconColor = color ?? cmTheme.iconColor;
 
   return (
     <motion.div
-      className={cx(
-        "zs-py-0 zs-px-4 zs-flex zs-items-center zs-gap-3.5 zs-cursor-pointer zs-relative zs-h-[38px] zs-outline-none",
-        css`
-          isolation: isolate;
-          z-index: 1;
-        `,
-      )}
+      className={menuRow}
       onMouseEnter={() => setHoveredIndex(index)}
       onMouseLeave={() => setHoveredIndex(null)}
       onClick={onClick}
       {...props}
     >
       <CapsuleBackground show={isHovered} layoutId="menuHover" />
-      <motion.div
-        className={cx(
-          "zs-flex-1 zs-text-sm",
-          css`
-            font-weight: 400;
-            line-height: 18px;
-            color: ${finalTextColor};
-            letter-spacing: 0;
-          `,
-        )}
-      >
-        {text}
-      </motion.div>
-      {icon && (
-        <motion.div
-          className={cx(
-            "zs-flex zs-items-center zs-justify-center zs-shrink-0 zs-w-[18px] zs-h-[18px]",
-            css`
-              color: ${finalIconColor};
-            `,
-          )}
-        >
-          {icon}
-        </motion.div>
-      )}
+      {icon && <span aria-hidden="true" className={menuIcon} style={{ color: finalIconColor }}>{icon}</span>}
+      <span style={{ flex: 1, color: finalTextColor }}>{text}</span>
       {children}
     </motion.div>
   );

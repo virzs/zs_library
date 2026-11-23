@@ -1,3 +1,6 @@
+import { useSurfaceTheme } from "../contexts/config-context";
+import { baseTokens } from "../themes/base";
+import { fade, glassSurface, reducedTransparency } from "../themes/material";
 import { css, cx } from "@emotion/css";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
@@ -86,10 +89,12 @@ const BaseModal = (props: BaseModalProps) => {
     classNames,
     styles,
     disableMaxHeight = false,
-    theme,
+    theme: explicitTheme,
   } = props;
 
+  const theme = useSurfaceTheme(explicitTheme);
   const modalTheme = theme?.token?.modal;
+  const base = baseTokens(theme);
 
   const titleId = useId();
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -193,26 +198,26 @@ const BaseModal = (props: BaseModalProps) => {
   };
 
   const bgColor =
-    modalTheme?.content?.backgroundColor ?? "rgba(128, 128, 128, 0.3)";
-  const bdFilter = modalTheme?.content?.backdropFilter ?? "blur(40px)";
-  const shadowColor = modalTheme?.content?.boxShadowColor ?? "rgba(0,0,0,0.3)";
+    modalTheme?.content?.backgroundColor ?? base.backgroundColor;
+  const bdFilter = modalTheme?.content?.backdropFilter ?? base.backdropFilter;
+  const shadowColor = modalTheme?.content?.boxShadowColor ?? base.shadowColor;
   const shadowBorderColor =
-    modalTheme?.content?.boxShadowBorderColor ?? "rgba(255,255,255,0.08)";
+    modalTheme?.content?.boxShadowBorderColor ?? base.boxShadowBorderColor;
   const borderColor =
-    modalTheme?.content?.borderColor ?? "rgba(255,255,255,0.15)";
+    modalTheme?.content?.borderColor ?? base.borderColor;
   const borderRadius = modalTheme?.content?.borderRadius ?? "20px";
-  const maskBg = modalTheme?.mask?.backgroundColor ?? "rgba(0,0,0,0.4)";
+  const maskBg = modalTheme?.mask?.backgroundColor ?? base.shadowColor;
   const maskBdFilter = modalTheme?.mask?.backdropFilter ?? "blur(20px)";
-  const headerColor = modalTheme?.header?.textColor ?? "rgba(255,255,255,0.9)";
+  const headerColor = modalTheme?.header?.textColor ?? base.textColor;
   const floatingControlsTheme = modalTheme?.floatingControls;
   const fcGap = floatingControlsTheme?.gap ?? "7px";
   const fcPadding = floatingControlsTheme?.padding ?? "7px 8px";
   const fcBg =
-    floatingControlsTheme?.backgroundColor ?? "rgba(20, 24, 31, 0.14)";
+    floatingControlsTheme?.backgroundColor ?? base.backgroundColor;
   const fcBorder =
-    floatingControlsTheme?.borderColor ?? "rgba(255, 255, 255, 0.18)";
+    floatingControlsTheme?.borderColor ?? base.borderColor;
   const fcBackdropFilter =
-    floatingControlsTheme?.backdropFilter ?? "blur(18px)";
+    floatingControlsTheme?.backdropFilter ?? base.backdropFilter;
   const fcOpacity = floatingControlsTheme?.opacity ?? 1;
   const fcInactiveOpacity = floatingControlsTheme?.inactiveOpacity ?? 0.42;
   const fcInactiveScale = floatingControlsTheme?.inactiveScale ?? 0.82;
@@ -236,9 +241,9 @@ const BaseModal = (props: BaseModalProps) => {
     floatingControlsTheme?.fullscreenButton?.iconSize ?? 9;
   const sbWidth = modalTheme?.scrollbar?.width ?? "4px";
   const sbTrack = modalTheme?.scrollbar?.trackColor ?? "transparent";
-  const sbThumb = modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
+  const sbThumb = modalTheme?.scrollbar?.thumbColor ?? fade(base.textColor, 30);
   const sbThumbHover =
-    modalTheme?.scrollbar?.thumbHoverColor ?? "rgba(255,255,255,0.25)";
+    modalTheme?.scrollbar?.thumbHoverColor ?? fade(base.textColor, 48);
   const sbRadius = modalTheme?.scrollbar?.borderRadius ?? "2px";
   const shouldRender = destroyOnClose
     ? externalVisible || isClosing
@@ -275,6 +280,7 @@ const BaseModal = (props: BaseModalProps) => {
                   inset: 0;
                   z-index: 1000;
                   background: ${maskBg};
+                  ${reducedTransparency} { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
                   backdrop-filter: ${maskBdFilter};
                   -webkit-backdrop-filter: ${maskBdFilter};
                   animation: maskFadeIn 0.2s ease-out;
@@ -392,13 +398,13 @@ const BaseModal = (props: BaseModalProps) => {
                 className={cx(
                   "base-modal-panel",
                   css`
-                    background: ${bgColor};
-                    backdrop-filter: ${bdFilter};
-                    -webkit-backdrop-filter: ${bdFilter};
+                    ${glassSurface(`var(--zs-modal-surface, ${bgColor})`, bdFilter, base.highlightColor)}
+                    color: ${base.textColor};
+                    font-family: ${base.fontFamily};
                     box-shadow:
-                      0 24px 60px ${shadowColor},
+                      0 18px 52px -12px ${shadowColor},
                       0 0 0 0.75px ${shadowBorderColor},
-                      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+                      inset 0 1px 0 ${fade(base.highlightColor, 25)};
                     border: 0.75px solid ${borderColor};
                     padding: 0;
                     border-radius: ${isFullscreen ? "0" : borderRadius};
@@ -452,11 +458,9 @@ const BaseModal = (props: BaseModalProps) => {
                         gap: ${fcGap};
                         padding: ${fcPadding};
                         border-radius: 999px;
-                        background: ${fcBg};
+                        ${glassSurface(fcBg, fcBackdropFilter, base.highlightColor)}
                         border: 1px solid ${fcBorder};
                         box-shadow: none;
-                        backdrop-filter: ${fcBackdropFilter};
-                        -webkit-backdrop-filter: ${fcBackdropFilter};
                         opacity: ${controlsAwake
                           ? fcOpacity
                           : fcInactiveOpacity};
@@ -529,7 +533,7 @@ const BaseModal = (props: BaseModalProps) => {
                             }
 
                             &:focus-visible {
-                              outline: 2px solid rgba(255, 255, 255, 0.75);
+                              outline: 2px solid ${base.primaryColor};
                               outline-offset: 2px;
                             }
 
@@ -594,7 +598,7 @@ const BaseModal = (props: BaseModalProps) => {
                             }
 
                             &:focus-visible {
-                              outline: 2px solid rgba(255, 255, 255, 0.75);
+                              outline: 2px solid ${base.primaryColor};
                               outline-offset: 2px;
                             }
 

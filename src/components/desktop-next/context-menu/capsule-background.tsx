@@ -1,7 +1,8 @@
 import { css, cx } from "@emotion/css";
 import { AnimatePresence, motion } from "motion/react";
 import { FC } from "react";
-import { useDesktopDnd } from "../context";
+import { useMenuTheme } from "./styles";
+import { fade } from "../themes/material";
 
 export interface CapsuleBackgroundProps {
   show: boolean;
@@ -14,9 +15,7 @@ const CapsuleBackground: FC<CapsuleBackgroundProps> = ({
   layoutId,
   className,
 }) => {
-  const { theme } = useDesktopDnd();
-  const activeColor =
-    theme.token.contextMenu?.activeColor ?? "rgba(255, 255, 255, 0.08)";
+  const menu = useMenuTheme();
 
   return (
     <AnimatePresence>
@@ -24,10 +23,11 @@ const CapsuleBackground: FC<CapsuleBackgroundProps> = ({
         <motion.div
           {...(layoutId ? { layoutId } : {})}
           className={cx(
-            "zs-absolute zs-top-[3px] zs-left-1.5 zs-right-1.5 zs-bottom-[3px] zs-rounded-[10px]",
+            "zs-absolute zs-inset-x-0 zs-inset-y-[1px]",
             css`
-              background-color: ${activeColor};
-              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+              border-radius: var(--zs-menu-row-radius, 12px);
+              background-color: ${menu.activeColor};
+              box-shadow: inset 0 1px 0 ${fade(menu.highlightColor, 22)};
               pointer-events: none;
             `,
             className,

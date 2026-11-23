@@ -5,6 +5,7 @@ import { useDesktopDnd } from "../context";
 import { MenuItemConfig, SortItemDefaultConfig } from "../types";
 import { playShatterEffect } from "../utils/shatter-effect";
 import ContextMenuContent from "./content";
+import { useMenuTheme } from "./styles";
 import { HoverContext } from "./hover-context";
 import { MenuItem } from "./menu-item";
 import { SubMenuItem } from "./sub-menu-item";
@@ -34,6 +35,7 @@ const ContextMenu = ({
     t,
   } = useDesktopDnd();
 
+  const menuTheme = useMenuTheme();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [renderContextMenu, setRenderContextMenu] = useState(contextMenu);
   const pendingRemoveIdsRef = useRef(new Set<string | number>());
@@ -104,8 +106,9 @@ const ContextMenu = ({
               <MenuItem
                 text={t("contextMenu.remove")}
                 icon={<RiIndeterminateCircleLine />}
-                color="#ff453a"
-                textColor="#ff453a"
+                data-destructive=""
+                color={menuTheme.dangerColor}
+                textColor={menuTheme.dangerColor}
                 index={currentMenuIndex++}
                 onClick={() => {
                   hideContextMenu();

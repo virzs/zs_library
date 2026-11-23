@@ -39,9 +39,11 @@ const mintTheme = {
   token: {
     base: {
       primaryColor: "#4ecdc4",
-      backgroundColor: "rgba(78, 205, 196, 0.12)",
+      backgroundColor: "rgba(16, 65, 68, 0.82)",
+      dangerColor: "#ffb7a3",
+      highlightColor: "#a2ede3",
       textColor: "#ffffff",
-      shadowColor: "rgba(78, 205, 196, 0.3)",
+      shadowColor: "rgba(6, 43, 47, 0.42)",
       borderColor: "rgba(78, 205, 196, 0.35)",
     },
   },
@@ -52,9 +54,11 @@ const sunsetTheme = {
   token: {
     base: {
       primaryColor: "#ff6b35",
-      backgroundColor: "rgba(255, 107, 53, 0.12)",
+      backgroundColor: "rgba(84, 37, 48, 0.82)",
+      dangerColor: "#ffb59c",
+      highlightColor: "#ffdbba",
       textColor: "#ffffff",
-      shadowColor: "rgba(255, 107, 53, 0.3)",
+      shadowColor: "rgba(55, 20, 37, 0.42)",
       borderColor: "rgba(255, 107, 53, 0.35)",
     },
   },
@@ -65,13 +69,16 @@ const auroraTheme = {
   token: {
     base: {
       primaryColor: "#a855f7",
-      backgroundColor: "rgba(168, 85, 247, 0.12)",
+      backgroundColor: "rgba(43, 25, 69, 0.82)",
       textColor: "#ffffff",
       shadowColor: "rgba(168, 85, 247, 0.3)",
       borderColor: "rgba(168, 85, 247, 0.35)",
     },
     contextMenu: {
       textColor: "#f3e8ff",
+      iconColor: "#d6bbff",
+      selectedColor: "#e4c4ff",
+      borderRadius: "20px",
       activeColor: "rgba(168, 85, 247, 0.25)",
       dangerColor: "#f87171",
       backgroundColor: "rgba(30, 10, 50, 0.85)",
@@ -94,13 +101,21 @@ const themeMap = {
   aurora: auroraTheme,
 };
 
+// 壁纸和演示图标由示例提供，业务可以使用自己的资源。
+const wallpaper = ([field, upper, glint, lower, mist]) => [
+  `radial-gradient(ellipse 108% 128% at -12% -30%, ${upper} 28%, ${field} 68%, ${glint} 80%, transparent 80.6%)`,
+  `radial-gradient(ellipse 102% 150% at 115% 132%, ${field} 42%, ${lower} 66%, ${mist} 75%, transparent 75.5%)`,
+  `linear-gradient(145deg, ${field} 12%, ${lower} 49%, ${glint} 85%)`,
+].join(", ");
+
 const themeConfigs = {
-  dark:    { label: "🌙 深色",   background: "linear-gradient(135deg, #2d3748 0%, #1a202c 100%)" },
-  light:   { label: "☀️ 浅色",   background: "linear-gradient(135deg, #4a90d9 0%, #357abd 100%)" },
-  mint:    { label: "🌿 薄荷",   background: "linear-gradient(135deg, #0f766e 0%, #134e4a 100%)" },
-  sunset:  { label: "🌅 暖橙",   background: "linear-gradient(135deg, #c2410c 0%, #7c2d12 100%)" },
-  aurora:  { label: "✨ 极光",   background: "linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%)" },
+  dark:   { label: "🌙 深色", colors: ["#171c49", "#405589", "#9f9eee", "#4757a0", "#b2d9f4"] },
+  light:  { label: "☀️ 浅色", colors: ["#b5c9e6", "#eef5ff", "#e8f4ff", "#a9a4de", "#f7dae4"] },
+  mint:   { label: "🌿 薄荷", colors: ["#124e56", "#13726c", "#80c6a8", "#31858a", "#c4ecd6"] },
+  sunset: { label: "🌇 暖橙", colors: ["#672d4f", "#a74251", "#ffc18a", "#a45164", "#ffdcaf"] },
+  aurora: { label: "✨ 极光", colors: ["#382761", "#654f94", "#c49ee3", "#57599e", "#9ddde9"] },
 };
+const icon = name => new URL(`/desktop-next/icons/${name}.png`, window.location.origin).href;
 
 export default () => {
   const [currentTheme, setCurrentTheme] = useState("dark");
@@ -111,33 +126,33 @@ export default () => {
     {
       id: "page-1",
       children: [
-        { id: "app1", position: { row: 0, col: 0 }, type: "app", data: { name: "Chrome", icon: "https://placehold.co/100x100/4285F4/FFFFFF?text=Chrome" } },
-        { id: "app2", position: { row: 0, col: 2 }, type: "app", data: { name: "VS Code", icon: "https://placehold.co/100x100/007ACC/FFFFFF?text=VSCode" } },
-        { id: "app3", position: { row: 0, col: 3 }, type: "app", data: { name: "Figma", icon: "https://placehold.co/100x100/F24E1E/FFFFFF?text=Figma" } },
-        { id: "app4", position: { row: 1, col: 0 }, type: "app", data: { name: "Slack", icon: "https://placehold.co/100x100/4A154B/FFFFFF?text=Slack" } },
-        { id: "app5", position: { row: 1, col: 1 }, type: "app", data: { name: "Notion", icon: "https://placehold.co/100x100/000000/FFFFFF?text=Notion" } },
-        { id: "app6", position: { row: 1, col: 2 }, type: "app", data: { name: "Spotify", icon: "https://placehold.co/100x100/1DB954/FFFFFF?text=Spotify" } },
+        { id: "app1", position: { row: 0, col: 0 }, type: "app", data: { name: "Chrome", icon: icon("chrome") } },
+        { id: "app2", position: { row: 0, col: 2 }, type: "app", data: { name: "VS Code", icon: icon("code") } },
+        { id: "app3", position: { row: 0, col: 3 }, type: "app", data: { name: "Figma", icon: icon("figma") } },
+        { id: "app4", position: { row: 1, col: 0 }, type: "app", data: { name: "Slack", icon: icon("slack") } },
+        { id: "app5", position: { row: 1, col: 1 }, type: "app", data: { name: "Notion", icon: icon("notion") } },
+        { id: "app6", position: { row: 1, col: 2 }, type: "app", data: { name: "Spotify", icon: icon("spotify") } },
         {
           id: "folder1",
           position: { row: 1, col: 3 },
           type: "group",
           data: { name: "工具" },
           children: [
-            { id: "app7", type: "app", data: { name: "终端", icon: "https://placehold.co/100x100/333333/FFFFFF?text=Term" } },
-            { id: "app8", type: "app", data: { name: "计算器", icon: "https://placehold.co/100x100/FF9500/FFFFFF?text=Calc" } },
+            { id: "app7", type: "app", data: { name: "终端", icon: icon("terminal") } },
+            { id: "app8", type: "app", data: { name: "计算器", icon: icon("calculator") } },
           ],
         },
-        { id: "app9", position: { row: 2, col: 0 }, type: "app", data: { name: "Safari", icon: "https://placehold.co/100x100/006CFF/FFFFFF?text=Safari" } },
-        { id: "app10", position: { row: 2, col: 1 }, type: "app", data: { name: "邮件", icon: "https://placehold.co/100x100/007AFF/FFFFFF?text=Mail" } },
-        { id: "app11", position: { row: 2, col: 2 }, type: "app", data: { name: "日历", icon: "https://placehold.co/100x100/FF3B30/FFFFFF?text=Cal" } },
-        { id: "app12", position: { row: 2, col: 3 }, type: "app", data: { name: "相册", icon: "https://placehold.co/100x100/FF2D55/FFFFFF?text=Photos" } },
+        { id: "app9", position: { row: 2, col: 0 }, type: "app", data: { name: "Safari", icon: icon("safari") } },
+        { id: "app10", position: { row: 2, col: 1 }, type: "app", data: { name: "邮件", icon: icon("mail") } },
+        { id: "app11", position: { row: 2, col: 2 }, type: "app", data: { name: "日历", icon: icon("calendar") } },
+        { id: "app12", position: { row: 2, col: 3 }, type: "app", data: { name: "相册", icon: icon("photos") } },
       ],
     },
     {
       id: "page-2",
       children: [
-        { id: "app13", position: { row: 0, col: 0 }, type: "app", data: { name: "备忘录", icon: "📝" } },
-        { id: "app14", position: { row: 0, col: 1 }, type: "app", data: { name: "时钟", icon: "🕒" } },
+        { id: "app13", position: { row: 0, col: 0 }, type: "app", data: { name: "备忘录", icon: icon("notes") } },
+        { id: "app14", position: { row: 0, col: 1 }, type: "app", data: { name: "时钟", icon: icon("clock") } },
       ],
     },
   ]);
@@ -145,24 +160,30 @@ export default () => {
   const transitions = ["slide", "fade", "zoom", "cube"];
 
   const btnBase = {
-    padding: "4px 12px",
-    borderRadius: 6,
-    border: "1px solid currentColor",
+    padding: "4px 11px",
+    borderRadius: 999,
+    border: "1px solid transparent",
+    background: "color-mix(in srgb, currentColor 5%, transparent)",
+    color: "inherit",
     cursor: "pointer",
     fontSize: 12,
-    opacity: 0.55,
-    transition: "all 0.2s",
-    background: "transparent",
+    opacity: 0.78,
+    transition: "background-color 160ms ease, border-color 160ms ease",
   };
-
-  const btnActive = { ...btnBase, opacity: 1, fontWeight: 600 };
-  const btnInactive = { ...btnBase };
+  const btnActive = {
+    ...btnBase, opacity: 1, fontWeight: 600,
+    background: "color-mix(in srgb, currentColor 13%, transparent)",
+    borderColor: "color-mix(in srgb, currentColor 18%, transparent)",
+  };
+  const btnInactive = btnBase;
+  const controlRow = { display: "flex", flexWrap: "wrap", gap: 4, alignItems: "center" };
+  const controlLabel = { width: 62, fontSize: 12, opacity: 0.72 };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 6, padding: "0 8px" }}>
-        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-          <span style={{ fontSize: 12, opacity: 0.5, marginRight: 4 }}>主题</span>
+        <div style={controlRow}>
+          <span style={controlLabel}>主题</span>
           {Object.keys(themeConfigs).map((key) => (
             <button
               key={key}
@@ -173,16 +194,16 @@ export default () => {
             </button>
           ))}
         </div>
-        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-          <span style={{ fontSize: 12, opacity: 0.5, marginRight: 4 }}>翻页</span>
+        <div style={controlRow}>
+          <span style={controlLabel}>翻页</span>
           {transitions.map((tr) => (
             <button key={tr} style={transition === tr ? btnActive : btnInactive} onClick={() => setTransition(tr)}>
               {tr}
             </button>
           ))}
         </div>
-        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-          <span style={{ fontSize: 12, opacity: 0.5, marginRight: 4 }}>分页指示器</span>
+        <div style={controlRow}>
+          <span style={controlLabel}>分页指示器</span>
           {Object.entries({ pill: "胶囊", dots: "圆点", bars: "短条" }).map(([value, label]) => (
             <button key={value} type="button" aria-pressed={indicator === value}
               style={indicator === value ? btnActive : btnInactive} onClick={() => setIndicator(value)}>
@@ -191,7 +212,7 @@ export default () => {
           ))}
         </div>
       </div>
-      <div style={{ width: "100%", height: "clamp(280px, 60vh, 560px)", background: themeConfigs[currentTheme].background, borderRadius: 16, transition: "background 0.4s ease" }}>
+      <div style={{ width: "100%", height: "clamp(280px, 60vh, 560px)", background: wallpaper(themeConfigs[currentTheme].colors), borderRadius: 22 }}>
         <DesktopNext
           pages={pages}
           onChange={setPages}
@@ -204,7 +225,7 @@ export default () => {
           dockProps={{
             showLaunchpad: true,
             fixedItems: [
-              { id: "settings", type: "app", data: { name: "设置", icon: "https://placehold.co/100x100/8E8E93/FFFFFF?text=S" } },
+              { id: "settings", type: "app", data: { name: "设置", icon: icon("settings") } },
             ],
           }}
         />
@@ -271,6 +292,8 @@ export default () => {
   );
 };
 ```
+
+指示器的默认配色来自 `theme.token.desktop.pagination`。浅色主题使用白色选中标记和蓝灰色未选中点，标记的细边可在亮壁纸上帮助辨认。自定义主题的选中标记默认使用 `base.primaryColor`。传给组件的 `pagination.activeColor` 和 `pagination.inactiveColor` 优先。
 
 设置 `pagination={false}` 或 `pagination={{ visible: false }}` 可隐藏指示器。要显示页码或使用自己的容器，可以通过 `pagingDotBuilder` 绘制单项，通过 `pagingDotsBuilder` 排列这些单项。自定义单项可调用第三个参数 `selectPage` 跳转到对应页面。
 
@@ -801,19 +824,34 @@ interface DockProps {
 
 ### Theme 主题配置
 
-默认主题为深色（iPadOS 风格），可通过 `theme` 属性切换为浅色或传入自定义主题对象。
+默认主题为深色。可通过 `theme` 切换为浅色或传入自定义主题对象。深色和浅色主题分别为 Dock、分页胶囊、桌面文件夹和启动台按钮提供统一的玻璃材质。自定义主题可以通过 `base` 统一配色，也可以通过 `dock`、`items.groupIconBackgroundColor` 和 `dock.launchpad.icon` 分别调色。
+
+`token.base` 为各组件提供默认值。玻璃反光使用 `highlightColor`，投影使用 `shadowColor`，尺寸选中标记使用 `primaryColor`。主菜单和尺寸子菜单共享 `token.contextMenu`：可以分别覆盖文字、图标、移除项、选中标记、悬停底色、圆角和模糊效果。业务菜单项传入的 `color`、`textColor` 优先于菜单主题。
 
 ```typescript
 interface Theme {
   token: {
     base?: {
       primaryColor?: string;
+      highlightColor?: string;
+      fontFamily?: string;
+      hoverColor?: string;
+      dangerColor?: string;
+      backdropFilter?: string;
       backgroundColor?: string;
       textColor?: string;
       shadowColor?: string;
       borderColor?: string;
     };
+    desktop?: {
+      pagination?: { activeColor?: string; inactiveColor?: string; edgeColor?: string };
+      pageSwitchEdge?: { leftGradient?: string; rightGradient?: string; glowColor?: string };
+    };
     contextMenu?: {
+      iconColor?: string;
+      selectedColor?: string;
+      borderRadius?: string;
+      backdropFilter?: string;
       textColor?: string;
       activeColor?: string;
       dangerColor?: string;
@@ -822,15 +860,20 @@ interface Theme {
       borderColor?: string;
     };
     items?: {
+      labelFontSize?: string;
+      iconBorderRadius?: string;
+      textShadowColor?: string;
       textColor?: string;
       iconBackgroundColor?: string;
       iconShadowColor?: string;
       groupIconBackgroundColor?: string;
+      groupIconBorderColor?: string;
       groupIconShadowColor?: string;
-      groupModalBackgroundColor?: string;
+      groupModal?: { backgroundColor?: string; title?: { fontSize?: string; textColor?: string } };
       infoModalBackgroundColor?: string;
     };
     dock?: {
+      borderRadius?: string;
       backgroundColor?: string;
       borderColor?: string;
       boxShadowColor?: string;

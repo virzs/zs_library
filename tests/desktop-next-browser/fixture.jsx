@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../../src/index.css';
-import Desktop, { convertLegacyDesktopPages } from '../../src/components/desktop-next';
+import Desktop, { BaseModal, convertLegacyDesktopPages } from '../../src/components/desktop-next';
 
 const scenario = location.search.slice(1);
 const registry = {
@@ -43,6 +43,9 @@ function initialPages() {
     case 'scroll':
     case 'limit': return singlePage(...icons(21));
     case 'extras': return singlePage(...icons(6));
+    case 'surfaces': return [...singlePage(app('A', 0, 0), { ...app('F', 0, 1, 'group'),
+      children: [app('B', 0, 0), app('C', 0, 1)] }), { id: 'P2', children: [] }];
+    case 'menu-theme':
     case 'folder-sort': return singlePage({ ...app('F', 0, 0, 'group'), children: ['A', 'B', 'C'].map(id => ({ id, type: 'app', data: { name: id } })) });
     case 'photo': return singlePage(
       app('Chrome', 0, 0), app('VSCode', 0, 2), app('Figma', 0, 3),
@@ -80,6 +83,10 @@ function initialPages() {
 function Fixture() {
   const [pages, setPages] = useState(initialPages);
   const [storageKey, setStorageKey] = useState(['storage', 'extras', 'cache'].includes(scenario) ? 'desktop-next-test' : undefined);
+  const [theme, setTheme] = useState();
+  if (['menu-theme', 'surfaces', 'floating-controls'].includes(scenario)) window.setMenuTheme = setTheme;
+  const [dockTheme, setDockTheme] = useState();
+  if (scenario === 'surfaces') window.setDockTheme = setDockTheme;
   const [indicator, setIndicator] = useState();
   const [customDots, setCustomDots] = useState(false);
   window.setIndicator = setIndicator;
@@ -89,18 +96,23 @@ function Fixture() {
   window.removePage = id => setPages(current => current.filter(page => page.id !== id));
   window.switchStorageKey = setStorageKey;
   window.snapshot = () => ({ ...handle.current, changes: changes.current });
-  return <Desktop
+  return <><Desktop
     ref={handle} pages={pages} iconSize={56} componentRegistry={registry} mergeDwellTime={scenario === 'full' ? 1200 : 220}
     grid={Object.hasOwn(grids, scenario) ? grids[scenario] : fixedGrid}
     preserveGaps={!['compact', 'short'].includes(scenario)}
     autoPaginate={scenario !== 'scroll'} maxPages={scenario === 'limit' ? 1 : 0}
     extraItems={scenario === 'extras' ? extras : undefined}
-    pagination={indicator}
+    dockProps={scenario === 'surfaces' ? { theme: dockTheme, showLaunchpad: true, fixedItems: [app('fixed', 0, 0)] } : undefined}
+    theme={theme} pagination={indicator}
     pagingDotBuilder={customDots ? (i, active, selectPage) =>
       <button type="button" onClick={selectPage} aria-pressed={active}>Page {i + 1}</button> : undefined}
     pagingDotsBuilder={customDots ? dots => <nav aria-label="Pages">{dots}</nav> : undefined}
     storageKey={storageKey}
     onChange={next => { changes.current.push(next); setPages(next); }}
-  />;
+  />
+    {scenario === 'floating-controls' && <BaseModal theme={theme} title="Panel" visible floatingControls onClose={() => {}}>
+      <span>Content</span>
+    </BaseModal>}
+  </>;
 }
 createRoot(document.querySelector('#root')).render(<Fixture />);

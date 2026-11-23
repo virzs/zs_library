@@ -14,27 +14,31 @@ import {
   loadRemoteComponent,
   RemoteComponentErrorBoundary,
 } from "../component-registry/remote-loader";
+import type { Theme } from "../themes";
+import { baseTokens } from "../themes/base";
+import { desktopSurface, fade } from "../themes/material";
 import IconImage from "./icon-image";
 
 const mergeTargetHighlightStyle = css`
-  outline: 3px solid rgba(255, 255, 255, 0.5);
+  outline: 3px solid var(--zs-merge-ring);
   outline-offset: 3px;
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.25));
+  filter: drop-shadow(0 0 12px ${fade("var(--zs-merge-ring)", 50)});
   animation: mergeTargetPulse 1s ease-in-out infinite alternate;
 
   @keyframes mergeTargetPulse {
     from {
-      outline-color: rgba(255, 255, 255, 0.4);
-      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.15));
+      outline-color: ${fade("var(--zs-merge-ring)", 75)};
+      filter: drop-shadow(0 0 8px ${fade("var(--zs-merge-ring)", 30)});
     }
     to {
-      outline-color: rgba(255, 255, 255, 0.62);
-      filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.3));
+      outline-color: ${fade("var(--zs-merge-ring)", 100)};
+      filter: drop-shadow(0 0 16px ${fade("var(--zs-merge-ring)", 60)});
     }
   }
 `;
 
 interface GridItemProps {
+  theme?: Theme;
   item: DndSortItem;
   onDragStart: (
     item: DndSortItem,
@@ -50,6 +54,7 @@ interface GridItemProps {
   noLabel?: boolean;
   iconSize?: number;
   floating?: boolean;
+  folderPreview?: boolean;
 }
 
 const LONG_PRESS_THRESHOLD = 300;
@@ -63,7 +68,9 @@ const GridItem = ({
   children,
   noLabel,
   iconSize: iconSizeProp,
+  theme: explicitTheme,
   floating = true,
+  folderPreview = false,
 }: GridItemProps) => {
   const {
     dragState,
@@ -72,26 +79,30 @@ const GridItem = ({
     hideContextMenu,
     pointerPositionRef,
     componentRegistry,
-    theme,
+    theme: desktopTheme,
     itemIconBuilderAllowNull,
   } = useDesktopDnd();
   const iconSize = iconSizeProp ?? contextIconSize;
   const [isPressed, setIsPressed] = useState(false);
 
+  const theme = explicitTheme ?? desktopTheme;
   const itemsTheme = theme.token.items;
+  const base = baseTokens(theme);
+  const foreground = itemsTheme?.textColor ?? base.textColor;
   const textShadowColor =
     itemsTheme?.textShadowColor ??
     itemsTheme?.iconShadowColor ??
-    "rgba(0, 0, 0, 0.5)";
+    base.shadowColor;
   const itemNameStyle = css`
-    color: ${itemsTheme?.textColor ?? "rgba(255, 255, 255, 0.9)"};
-    font-size: 11.5px;
+    color: ${foreground};
+    font-family: ${base.fontFamily};
+    font-size: ${itemsTheme?.labelFontSize ?? "12px"};
     font-weight: 500;
     line-height: 1.18;
-    letter-spacing: 0;
+    letter-spacing: 0.005em;
     text-shadow:
       0 1px 2px ${textShadowColor},
-      0 0 8px ${textShadowColor};
+      0 1px 4px ${textShadowColor};
   `;
   const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDraggingRef = useRef(false);
@@ -116,15 +127,30 @@ const GridItem = ({
   const itemVisualWidth = noLabel
     ? itemWidth
     : Math.max(itemWidth, iconSize + Math.round(gap * 0.58));
-  const iconRadius = Math.max(16, Math.round(Math.min(itemWidth, itemHeight) * 0.12));
-  const iconShellShadow = itemsTheme?.iconShadowColor ?? "rgba(0, 0, 0, 0.35)";
+  const iconRadius = Math.min(28, Math.round(Math.min(itemWidth, itemHeight) * 0.235));
+  const iconShellShadow = itemsTheme?.iconShadowColor ?? base.shadowColor;
+  const surface = folderPreview ? desktopSurface(theme, {
+    backgroundColor: itemsTheme?.groupIconBackgroundColor,
+    borderColor: itemsTheme?.groupIconBorderColor,
+    shadowColor: itemsTheme?.groupIconShadowColor,
+  }) : `
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      box-shadow: inset 0 1px 0 ${fade(base.highlightColor, 45)}, inset 0 0 0 1px ${base.borderColor};
+    }
+    background: ${fade(base.highlightColor, 8)};
+    box-shadow: 0 2px 4px -1px ${iconShellShadow},
+      0 ${Math.round(iconSize * 0.08)}px ${Math.round(iconSize * 0.20)}px -3px ${iconShellShadow};
+  `;
   const iconShellStyle = css`
-    border-radius: ${iconRadius}px;
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow:
-      0 ${Math.round(iconSize * 0.14)}px ${Math.round(iconSize * 0.34)}px ${iconShellShadow},
-      inset 0 1px 0 rgba(255, 255, 255, 0.18),
-      inset 0 0 0 0.5px rgba(255, 255, 255, 0.16);
+    --zs-merge-ring: ${base.primaryColor};
+    position: relative;
+    border-radius: ${itemsTheme?.iconBorderRadius ?? `${iconRadius}px`};
+    ${surface}
     transform: translateZ(0);
   `;
 
@@ -244,17 +270,19 @@ const GridItem = ({
         const fallback = registryEntry.iconUrl ? (
           <IconImage
             src={registryEntry.iconUrl}
+            fallbackColor={foreground}
             fallbackText={item.data?.name ?? "?"}
             fallbackBackground={item.data?.iconColor ?? itemsTheme?.iconBackgroundColor}
           />
         ) : (
           <div
-            className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-lg zs-font-bold"
+            className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-lg zs-font-bold"
             style={{
               background:
                 item.data?.iconColor ??
                 itemsTheme?.iconBackgroundColor ??
-                "rgba(64, 148, 229, 0.9)",
+                base.primaryColor,
+              color: foreground,
             }}
           >
             {(item.data?.name ?? "?").charAt(0)}
@@ -272,6 +300,7 @@ const GridItem = ({
         return (
           <IconImage
             src={registryEntry.iconUrl}
+            fallbackColor={foreground}
             fallbackText={item.data?.name ?? "?"}
             fallbackBackground={item.data?.iconColor ?? itemsTheme?.iconBackgroundColor}
           />
@@ -289,23 +318,27 @@ const GridItem = ({
         <IconImage
           src={iconData}
           fallbackText={item.data?.name ?? "?"}
+          fallbackColor={foreground}
           fallbackBackground={item.data?.iconColor ?? itemsTheme?.iconBackgroundColor}
         />
       );
     }
-    if (iconData) return <>{iconData}</>;
+    if (iconData && typeof iconData !== "string") return <>{iconData}</>;
 
+    const tint = item.data?.iconColor ?? itemsTheme?.iconBackgroundColor ?? base.primaryColor;
     return (
       <div
-        className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-text-white zs-text-lg zs-font-bold"
+        className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center"
         style={{
-          background:
-            item.data?.iconColor ??
-            itemsTheme?.iconBackgroundColor ??
-            "rgba(64, 148, 229, 0.9)",
+          background: `linear-gradient(155deg, ${fade(base.highlightColor, 26)}, transparent 55%, ${fade(iconShellShadow, 25)}), ${tint}`,
+          fontFamily: base.fontFamily,
+          color: foreground,
+          fontSize: Math.round(iconSize * 0.44),
+          fontWeight: 600,
+          lineHeight: 1,
         }}
       >
-        {(item.data?.name ?? "?").charAt(0)}
+        {iconData || (item.data?.name ?? "?").charAt(0)}
       </div>
     );
   };
@@ -368,7 +401,7 @@ const GridItem = ({
               width: itemVisualWidth,
               zIndex: 9999,
               pointerEvents: "none",
-              filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.3))",
+              filter: `drop-shadow(0 8px 24px ${iconShellShadow})`,
               transform: "scale(1.05)",
               cursor: "grabbing",
             }}

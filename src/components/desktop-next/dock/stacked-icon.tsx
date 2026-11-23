@@ -1,6 +1,9 @@
+import { useSurfaceTheme } from "../contexts/config-context";
 import React, { useState } from "react";
 import { css, cx } from "@emotion/css";
 import { motion } from "motion/react";
+import { baseTokens } from "../themes/base";
+import { desktopSurface } from "../themes/material";
 import { Theme } from "../themes";
 import { DndSortItem } from "../types";
 
@@ -11,7 +14,7 @@ export interface StackedIconProps {
   apps?: DndSortItem[];
 }
 
-const MiniAppIcon: React.FC<{ app?: DndSortItem }> = ({ app }) => {
+const MiniAppIcon: React.FC<{ app?: DndSortItem; background: string; color: string }> = ({ app, background, color }) => {
   const iconData = app?.data?.icon;
   const name = app?.data?.name ?? "";
 
@@ -35,7 +38,8 @@ const MiniAppIcon: React.FC<{ app?: DndSortItem }> = ({ app }) => {
   }
 
   return (
-    <div className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-bg-blue-500 zs-text-white zs-font-bold zs-text-xs">
+    <div className="zs-w-full zs-h-full zs-flex zs-items-center zs-justify-center zs-font-bold zs-text-xs"
+      style={{ background: app?.data?.iconColor ?? background, color }}>
       {name.charAt(0).toUpperCase() || "A"}
     </div>
   );
@@ -47,16 +51,18 @@ const LAYER_COUNT = 3;
 const StackedIcon: React.FC<StackedIconProps> = ({
   onClick,
   className,
-  theme,
+  theme: explicitTheme,
   apps = [],
 }) => {
+  const theme = useSurfaceTheme(explicitTheme);
   const [isHovered, setIsHovered] = useState(false);
 
+  const base = baseTokens(theme);
   const iconTheme = theme?.token?.dock?.launchpad?.icon;
-  const backgroundColor = iconTheme?.backgroundColor ?? "rgba(40, 40, 40, 0.9)";
-  const borderColor = iconTheme?.borderColor ?? "rgba(255, 255, 255, 0.12)";
-  const shadowColor = iconTheme?.shadowColor ?? "rgba(0, 0, 0, 0.4)";
-  const hoverGlowColor = iconTheme?.hoverGlowColor ?? "rgba(255, 255, 255, 0.08)";
+  const backgroundColor = iconTheme?.backgroundColor ?? base.backgroundColor;
+  const borderColor = iconTheme?.borderColor ?? base.borderColor;
+  const shadowColor = iconTheme?.shadowColor ?? base.shadowColor;
+  const hoverGlowColor = iconTheme?.hoverGlowColor ?? base.highlightColor;
 
   const slots = Array.from({ length: 4 }, (_, i) => apps[i]);
 
@@ -92,15 +98,13 @@ const StackedIcon: React.FC<StackedIconProps> = ({
               css`
                 width: ${containerSize}px;
                 height: ${containerSize}px;
-                border-radius: 16px;
-                background:
-                  linear-gradient(145deg, rgba(255, 255, 255, ${isTop ? 0.12 : 0.08}), rgba(255, 255, 255, 0.02)),
-                  ${backgroundColor};
-                border: 0.5px solid ${borderColor};
-                box-shadow:
-                  0 7px 18px ${shadowColor},
-                  inset 0 1px 0 rgba(255, 255, 255, 0.16),
-                  0 0 ${isHovered && isTop ? "22px" : "0"} ${hoverGlowColor};
+                border-radius: ${theme?.token?.items?.iconBorderRadius ?? `${Math.round(containerSize * 0.235)}px`};
+                border: .5px solid transparent;
+                ${isTop ? desktopSurface(theme, { backgroundColor, borderColor, shadowColor }) : `
+                  background: ${backgroundColor};
+                  box-shadow: inset 0 0 0 1px ${borderColor};
+                `}
+                ${isTop && isHovered ? `filter: drop-shadow(0 0 6px ${hoverGlowColor});` : ""}
                 padding: 8px;
                 box-sizing: border-box;
                 z-index: ${layerIndex};
@@ -126,7 +130,7 @@ const StackedIcon: React.FC<StackedIconProps> = ({
                     key={app?.id ?? i}
                     className="zs-rounded-[4px] zs-overflow-hidden zs-w-full zs-h-full"
                   >
-                    <MiniAppIcon app={app} />
+                    <MiniAppIcon app={app} background={base.backgroundColor} color={iconTheme?.textColor ?? base.textColor} />
                   </div>
                 ))}
               </div>

@@ -1,7 +1,10 @@
+import { useSurfaceTheme } from "../contexts/config-context";
 import Drawer, { DrawerProps } from "rc-drawer";
 import "rc-drawer/assets/index.css";
 import { css, cx } from "@emotion/css";
 import { FC, ReactNode, useEffect, useState } from "react";
+import { baseTokens } from "../themes/base";
+import { fade, glassSurface, reducedTransparency } from "../themes/material";
 import { Theme } from "../themes";
 
 export type BaseDrawerProps = DrawerProps & {
@@ -25,10 +28,13 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
     maskClosable = true,
     className,
     contentClassName,
-    theme,
+    rootClassName,
+    theme: explicitTheme,
     ...rest
   } = props;
 
+  const theme = useSurfaceTheme(explicitTheme);
+  const base = baseTokens(theme);
   const modalTheme = theme?.token?.modal;
 
   const [open, setOpen] = useState(false);
@@ -56,22 +62,22 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
       ? { width }
       : { height: height ?? 300 };
 
-  const maskBg = modalTheme?.mask?.backgroundColor ?? "rgba(0,0,0,0.5)";
+  const maskBg = modalTheme?.mask?.backgroundColor ?? base.shadowColor;
   const maskBdFilter = modalTheme?.mask?.backdropFilter ?? "blur(8px)";
-  const bgColor = modalTheme?.content?.backgroundColor ?? "rgba(30,30,30,0.85)";
-  const bdFilter = modalTheme?.content?.backdropFilter ?? "blur(40px)";
-  const shadowColor = modalTheme?.content?.boxShadowColor ?? "rgba(0,0,0,0.4)";
+  const bgColor = modalTheme?.content?.backgroundColor ?? base.backgroundColor;
+  const bdFilter = modalTheme?.content?.backdropFilter ?? base.backdropFilter;
+  const shadowColor = modalTheme?.content?.boxShadowColor ?? base.shadowColor;
   const shadowBorderColor =
-    modalTheme?.content?.boxShadowBorderColor ?? "rgba(255,255,255,0.08)";
+    modalTheme?.content?.boxShadowBorderColor ?? base.boxShadowBorderColor;
   const borderColor =
-    modalTheme?.content?.borderColor ?? "rgba(255,255,255,0.1)";
+    modalTheme?.content?.borderColor ?? base.borderColor;
   const borderRadius = modalTheme?.content?.borderRadius ?? "20px";
-  const headerColor = modalTheme?.header?.textColor ?? "rgba(255,255,255,0.9)";
+  const headerColor = modalTheme?.header?.textColor ?? base.textColor;
   const sbWidth = modalTheme?.scrollbar?.width ?? "4px";
   const sbTrack = modalTheme?.scrollbar?.trackColor ?? "transparent";
-  const sbThumb = modalTheme?.scrollbar?.thumbColor ?? "rgba(255,255,255,0.15)";
+  const sbThumb = modalTheme?.scrollbar?.thumbColor ?? fade(base.textColor, 30);
   const sbThumbHover =
-    modalTheme?.scrollbar?.thumbHoverColor ?? "rgba(255,255,255,0.25)";
+    modalTheme?.scrollbar?.thumbHoverColor ?? fade(base.textColor, 48);
   const sbRadius = modalTheme?.scrollbar?.borderRadius ?? "2px";
 
   return externalOpen ? (
@@ -81,13 +87,15 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
       placement={placement}
       mask={mask}
       maskClosable={maskClosable}
-      className={cx(
-        "base-drawer",
+      className={cx("base-drawer", className)}
+      rootClassName={cx(
+        rootClassName,
         { "drawer-closing": isClosing },
         css`
           .drawer-mask,
           .rc-drawer-mask {
             background: ${maskBg};
+            ${reducedTransparency} { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
             backdrop-filter: ${maskBdFilter};
             animation: maskFadeIn 0.2s ease-out;
           }
@@ -116,9 +124,9 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
 
           .drawer-content-wrapper,
           .rc-drawer-content-wrapper {
-            background: ${bgColor};
-            backdrop-filter: ${bdFilter};
-            -webkit-backdrop-filter: ${bdFilter};
+            ${glassSurface(bgColor, bdFilter, base.highlightColor)}
+            color: ${base.textColor};
+            font-family: ${base.fontFamily};
             box-shadow:
               0 20px 40px ${shadowColor},
               0 0 0 0.75px ${shadowBorderColor};
@@ -187,7 +195,6 @@ const BaseDrawer: FC<BaseDrawerProps> = (props) => {
             scrollbar-color: ${sbThumb} ${sbTrack};
           }
         `,
-        className,
       )}
       {...contentWrapperSizeProps}
       {...rest}

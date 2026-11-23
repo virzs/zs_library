@@ -1,6 +1,9 @@
 import { css, cx } from "@emotion/css";
 import React from "react";
 import type { DesktopDndConfigContextValue } from "./contexts/types";
+import { useDesktopDndConfig } from "./contexts/config-context";
+import { baseTokens } from "./themes/base";
+import { desktopSurface } from "./themes/material";
 import type { DndPageItem } from "./types";
 
 export interface DesktopNextPagination {
@@ -27,12 +30,6 @@ const track = css`
   gap: ${gap}px;
   padding: 6px ${padding}px;
   border-radius: 999px;
-  &[data-variant="pill"] {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.08);
-  }
 `;
 
 const dot = css`
@@ -45,7 +42,6 @@ const dot = css`
   border: 0;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
   transition: width ${timing}, background-color ${timing};
   &::after { content: ""; position: absolute; inset: -6px -3px; }
   &:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
@@ -53,8 +49,7 @@ const dot = css`
 
 const marker = css`
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  align-self: center;
   pointer-events: none;
   border-radius: 999px;
   transition: inset-inline-start ${timing};
@@ -74,8 +69,13 @@ interface Props extends Pick<DesktopDndConfigContextValue, "pagingDotBuilder" | 
 export default function Pagination({ pages, currentPage, swipeRatio, goToPage, options, pagingDotBuilder, pagingDotsBuilder }: Props) {
   const variant = options?.variant ?? "pill";
   const { width, activeWidth, height } = sizes[variant];
-  const activeColor = options?.activeColor ?? "rgba(255, 255, 255, 0.9)";
-  const inactiveColor = options?.inactiveColor ?? "rgba(255, 255, 255, 0.34)";
+  const { theme } = useDesktopDndConfig();
+  const base = baseTokens(theme);
+  const palette = theme.token.desktop?.pagination;
+  const activeColor = options?.activeColor ?? palette?.activeColor ?? base.primaryColor;
+  const inactiveColor = options?.inactiveColor ?? palette?.inactiveColor ?? base.borderColor;
+  const activeEdge = `0 0 0 1px ${palette?.edgeColor ?? base.borderColor}`;
+  const pill = variant === "pill" && css`${desktopSurface(theme)}`;
   const progress = Math.max(0, Math.min(pages.length - 1, currentPage - swipeRatio));
   const sharedMarker = !pagingDotBuilder && !pagingDotsBuilder;
 
@@ -93,6 +93,7 @@ export default function Pagination({ pages, currentPage, swipeRatio, goToPage, o
         style={{
           width: width + weight * (activeWidth - width), height,
           backgroundColor: active && !sharedMarker ? activeColor : inactiveColor,
+          boxShadow: active && !sharedMarker ? activeEdge : undefined,
         }}
         onClick={() => goToPage(index)}
       />
@@ -103,12 +104,12 @@ export default function Pagination({ pages, currentPage, swipeRatio, goToPage, o
     return <div className="zs-flex zs-justify-center zs-items-center zs-gap-1.5 zs-py-2">{pagingDotsBuilder(nodes)}</div>;
   }
   return (
-    <div className={track} data-variant={variant}>
+    <div className={cx(track, pill)} data-variant={variant}>
       {nodes}
       {sharedMarker && (
         <span
           aria-hidden="true" className={cx(marker, swipeRatio !== 0 && immediate, reducedMotion)}
-          style={{ insetInlineStart: padding + progress * (width + gap), width: activeWidth, height, backgroundColor: activeColor }}
+          style={{ insetInlineStart: padding + progress * (width + gap), width: activeWidth, height, backgroundColor: activeColor, boxShadow: activeEdge }}
         />
       )}
     </div>
