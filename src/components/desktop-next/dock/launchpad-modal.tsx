@@ -1,6 +1,6 @@
 import { useSurfaceTheme } from "../contexts/config-context";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { css, cx } from "@emotion/css";
+import { useEffect, useLayoutEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { css, cx, keyframes } from "@emotion/css";
 import { motion, AnimatePresence } from "motion/react";
 import { RiCloseLine } from "@remixicon/react";
 
@@ -25,7 +25,55 @@ export interface LaunchpadModalProps {
 
 const noop = () => {};
 const GRID_GAP = 16;
-const GRID_PADDING_X = 26;
+const indexLetters = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ#");
+const LETTER_HINT_MS = 2000;
+const indexedApp = css`
+  [data-grid-item-id] { transition: filter 240ms ease-in-out; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-grid-item-id] { transition: none; }
+  }
+  &[data-muted="true"] [data-grid-item-id] { filter: grayscale(1) opacity(.48); }
+`;
+const compactQuery = "(max-width: 600px), (max-width: 960px) and (max-height: 500px)";
+function subscribeCompact(change: () => void) {
+  const media = window.matchMedia?.(compactQuery);
+  media?.addEventListener("change", change);
+  return () => media?.removeEventListener("change", change);
+}
+const matchesCompact = () => window.matchMedia?.(compactQuery).matches ?? false;
+const slideUp = keyframes`
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+`;
+const fullscreenDrawer = css`
+  &.rc-drawer-bottom {
+    height: 100vh;
+    height: 100dvh;
+  }
+  &.rc-drawer-bottom .rc-drawer-content-wrapper {
+    inset: 0;
+    width: 100%;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    animation: ${slideUp} 230ms cubic-bezier(.2,.8,.2,1);
+    @media (prefers-reduced-motion: reduce) { animation: none; }
+  }
+`;
+const drawerContent = css`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  .base-drawer-title {
+    flex: none;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 10px;
+  }
+  .base-drawer-content { flex: 1; min-height: 0; padding: 0 8px 0 0; }
+`;
 const DESKTOP_TARGET_COLS = 7;
 const MOBILE_TARGET_COLS = 4;
 const MIN_DYNAMIC_ICON_SIZE = 40;
@@ -81,12 +129,16 @@ const LaunchpadModal = ({
   const theme = useSurfaceTheme(explicitTheme);
   const { pages, iconSize, t } = useDesktopDnd();
   const [searchQuery, setSearchQuery] = useState("");
-  const isMobile = useIsMobile();
-  const contentScrollRef = useRef<HTMLDivElement>(null);
+  const [letterHint, setLetterHint] = useState<{ letter: string } | null>(null);
+  const phone = useIsMobile();
+  const compact = useSyncExternalStore(subscribeCompact, matchesCompact, () => false);
+  const isMobile = phone || compact;
+  const preferredIconSize = isMobile ? Math.max(52, Math.min(56, iconSize)) : iconSize;
+  const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(null);
   const [gridLayout, setGridLayout] = useState(() => ({
     cols: isMobile ? MOBILE_TARGET_COLS : DESKTOP_TARGET_COLS,
-    columnWidth: getGridItemVisualWidth(iconSize),
-    iconSize,
+    columnWidth: getGridItemVisualWidth(preferredIconSize),
+    iconSize: preferredIconSize,
   }));
 
   const { groupMap, groups } = useMemo(() => {
@@ -122,13 +174,7 @@ const LaunchpadModal = ({
       map.get(letter)!.push(app);
     });
 
-    const letters = Array.from(map.keys()).sort((a, b) => {
-      if (a === "#") return 1;
-      if (b === "#") return -1;
-      return a.localeCompare(b);
-    });
-
-    return { groupMap: map, groups: letters };
+    return { groupMap: map, groups: indexLetters.filter(letter => map.has(letter)) };
   }, [pages, searchQuery]);
 
   const totalApps = useMemo(
@@ -136,9 +182,28 @@ const LaunchpadModal = ({
     [groupMap],
   );
 
-  const scrollToLetter = (letter: string) => {
-    const el = document.getElementById(`launchpad-group-${letter}`);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const hasHintResults = letterHint !== null && groupMap.has(letterHint.letter);
+  useEffect(() => {
+    if (!letterHint) return;
+    if (!visible || !hasHintResults) {
+      setLetterHint(null);
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setLetterHint(current => current === letterHint ? null : current);
+    }, LETTER_HINT_MS);
+    return () => window.clearTimeout(timer);
+  }, [letterHint, visible, hasHintResults]);
+
+  const jumpToLetter = (letter: string) => {
+    if (!groupMap.has(letter)) return;
+    setLetterHint({ letter });
+    const anchor = scrollElement?.querySelector<HTMLElement>(`[data-letter="${CSS.escape(letter)}"]`);
+    if (anchor && scrollElement) {
+      const top = anchor.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top + scrollElement.scrollTop;
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      scrollElement.scrollTo({ top, behavior: reduceMotion ? "auto" : "smooth" });
+    }
   };
 
   const base = baseTokens(theme);
@@ -151,16 +216,17 @@ const LaunchpadModal = ({
     launchpadModalTheme?.letterIndexColor ??
     theme?.token?.items?.textColor ??
     base.textColor;
-  const showLetterIndex = groups.length > 1;
 
-  useEffect(() => {
-    const el = contentScrollRef.current;
+  useLayoutEffect(() => {
+    const el = scrollElement;
     if (!el) return;
 
     const computeGridLayout = () => {
-      const availableWidth = Math.max(0, el.clientWidth - GRID_PADDING_X);
+      const style = getComputedStyle(el);
+      // clientWidth 已扣除滚动条，再扣除滚动区内边距及网格两侧各 2px。
+      const availableWidth = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 4;
       if (availableWidth <= 0) return;
-      setGridLayout(getLaunchpadGridLayout(availableWidth, iconSize, isMobile));
+      setGridLayout(getLaunchpadGridLayout(availableWidth, preferredIconSize, isMobile));
     };
 
     computeGridLayout();
@@ -173,9 +239,9 @@ const LaunchpadModal = ({
 
     globalThis.addEventListener("resize", computeGridLayout);
     return () => globalThis.removeEventListener("resize", computeGridLayout);
-  }, [iconSize, isMobile, showLetterIndex]);
+  }, [scrollElement, preferredIconSize, isMobile]);
 
-  const letterIndexSpacer = showLetterIndex && (
+  const letterIndexSpacer = !isMobile && (
     <div
       aria-hidden
       className={cx(
@@ -187,59 +253,69 @@ const LaunchpadModal = ({
     />
   );
 
-  const letterIndex = showLetterIndex && (
+  const letterIndex = (
     <div
-      className={cx(
-        "zs-flex zs-flex-col zs-items-center zs-justify-start zs-shrink-0 zs-py-2",
-        css`
-          width: 20px;
-          gap: 2px;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          &::-webkit-scrollbar {
-            display: none;
-          }
-        `,
-      )}
+      data-launchpad-index=""
+      className={css`
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        align-items: center;
+        align-self: center;
+        width: ${isMobile ? 24 : 20}px;
+        max-height: 100%;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+        &::-webkit-scrollbar { display: none; }
+      `}
     >
-      <AnimatePresence>
-        {groups.map((letter, index) => (
+      {indexLetters.map(letter => {
+        return (
           <motion.button
             key={letter}
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              duration: 0.15,
-              delay: index * 0.02,
-              ease: "easeOut",
-            }}
-            whileHover={{ scale: 1.15, color: base.primaryColor }}
-            whileTap={{ scale: 0.9 }}
-            className={cx(
-              "zs-text-xs zs-cursor-pointer zs-rounded-md zs-w-5 zs-h-5 zs-flex zs-items-center zs-justify-center zs-bg-transparent zs-border-none zs-font-semibold zs-leading-none",
-              css`
-                color: ${letterIndexColor};
-                font-size: 10px;
-                transition: color 0.15s ease;
-              `,
-            )}
-            onClick={() => scrollToLetter(letter)}
+            type="button"
+            disabled={!groupMap.has(letter)}
+            whileHover={groupMap.has(letter) ? { scale: 1.1 } : undefined}
+            whileTap={groupMap.has(letter) ? { scale: 0.9 } : undefined}
+            className={css`
+              display: grid;
+              place-items: center;
+              flex: 0 1 21px;
+              min-height: 14px;
+              width: 100%;
+              padding: 0;
+              border: 0;
+              border-radius: 6px;
+              background: transparent;
+              color: ${letterIndexColor};
+              font: 600 10px/1 ${base.fontFamily};
+              cursor: pointer;
+              @media (hover: hover) {
+                &:enabled:hover { color: ${base.primaryColor}; }
+              }
+              &:focus-visible { outline: 1px solid ${base.primaryColor}; outline-offset: -1px; }
+              &:disabled { opacity: .46; cursor: default; }
+            `}
+            onClick={() => jumpToLetter(letter)}
           >
             {letter}
           </motion.button>
-        ))}
-      </AnimatePresence>
+        );
+      })}
     </div>
   );
 
   const appGrid = (
     <div
-      ref={contentScrollRef}
+      ref={setScrollElement}
+      data-launchpad-scroll=""
       className={cx(
         "zs-flex-1 zs-overflow-y-auto zs-overflow-x-hidden zs-min-w-0",
         css`
           box-sizing: border-box;
-          padding: 0 10px 0 16px;
+          padding: ${isMobile ? "8px 4px 0 16px" : "0 10px 0 16px"};
+          overscroll-behavior-y: contain;
           scrollbar-width: thin;
           scrollbar-color: ${sbThumb} ${sbTrack};
           scrollbar-gutter: stable;
@@ -294,6 +370,8 @@ const LaunchpadModal = ({
               return items.map((item, index) => (
                 <motion.div
                   key={item.id}
+                  className={indexedApp}
+                  data-muted={hasHintResults && letterHint?.letter !== letter}
                   layout
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -303,6 +381,7 @@ const LaunchpadModal = ({
                 >
                   {index === 0 && (
                     <span
+                      data-letter={letter}
                       id={`launchpad-group-${letter}`}
                       style={{
                         position: "absolute",
@@ -316,6 +395,7 @@ const LaunchpadModal = ({
                   )}
                   <GridItem
                     theme={theme}
+                    scrollable={isMobile}
                     item={item}
                     onDragStart={noop}
                     onItemClick={onItemClick}
@@ -335,7 +415,8 @@ const LaunchpadModal = ({
       className={cx(
         "zs-flex zs-items-center zs-gap-2 zs-py-3",
         css`
-          max-width: 480px;
+          max-width: ${isMobile ? "none" : "480px"};
+          ${isMobile && "padding-block: 0;"}
           width: 100%;
           margin: 0 auto;
         `,
@@ -343,22 +424,27 @@ const LaunchpadModal = ({
     >
       <SearchBox
         className="zs-grow"
+        variant={isMobile ? "drawer" : "default"}
         value={searchQuery}
-        onChange={setSearchQuery}
+        onChange={query => {
+          setSearchQuery(query);
+          setLetterHint(null);
+        }}
         placeholder={t("launchpad.searchPlaceholder")}
         theme={theme}
       />
       {isMobile && (
-        <RiCloseLine
-          onClick={onClose}
-          aria-label={t("launchpad.close")}
-          className={cx(
-            "zs-shrink-0 zs-cursor-pointer",
-            css`
-              color: ${base.textColor};
-            `,
-          )}
-        />
+        <button
+          type="button" onClick={onClose} aria-label={t("launchpad.close")}
+          className={css`
+            display: grid; place-items: center; flex: none;
+            width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
+            background: ${base.hoverColor}; color: ${base.textColor}; cursor: pointer;
+            &:focus-visible { outline: 2px solid ${base.primaryColor}; }
+          `}
+        >
+          <RiCloseLine aria-hidden="true" size={20} />
+        </button>
       )}
     </div>
   );
@@ -377,21 +463,11 @@ const LaunchpadModal = ({
         open={visible}
         onClose={onClose}
         placement="bottom"
-        width="100vw"
-        height="100vh"
+        height="100%"
+        rootClassName={fullscreenDrawer}
         title={searchBar}
         maskClosable
-        className="!zs-w-screen"
-        contentClassName={css`
-          height: 100vh;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          .base-drawer-content {
-            flex: 1;
-            min-height: 0;
-          }
-        `}
+        contentClassName={drawerContent}
         theme={theme}
       >
         {bodyContent}

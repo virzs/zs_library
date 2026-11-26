@@ -55,6 +55,7 @@ interface GridItemProps {
   iconSize?: number;
   floating?: boolean;
   folderPreview?: boolean;
+  scrollable?: boolean;
 }
 
 const LONG_PRESS_THRESHOLD = 300;
@@ -71,6 +72,7 @@ const GridItem = ({
   theme: explicitTheme,
   floating = true,
   folderPreview = false,
+  scrollable = false,
 }: GridItemProps) => {
   const {
     dragState,
@@ -207,6 +209,14 @@ const GridItem = ({
     [dragState.isDragging],
   );
 
+  const cancelPress = useCallback(() => {
+    clearPressTimer();
+    setIsPressed(false);
+    startPosRef.current = null;
+    isDraggingRef.current = false;
+    longPressReadyRef.current = false;
+  }, [clearPressTimer]);
+
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
       if (!startPosRef.current || isDraggingRef.current) return;
@@ -216,12 +226,16 @@ const GridItem = ({
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance > DRAG_DISTANCE_THRESHOLD) {
+        if (scrollable) {
+          cancelPress();
+          return;
+        }
         longPressReadyRef.current = false;
         clearPressTimer();
         startDrag(e.clientX, e.clientY, e.pointerId);
       }
     },
-    [clearPressTimer, startDrag],
+    [clearPressTimer, startDrag, scrollable, cancelPress],
   );
 
   const handlePointerUp = useCallback(
@@ -420,7 +434,8 @@ const GridItem = ({
         ref={elRef}
         data-grid-item-id={String(item.id)}
         className={cx(
-          "zs-relative zs-cursor-pointer zs-flex zs-flex-col zs-items-center zs-touch-none",
+          "zs-relative zs-cursor-pointer zs-flex zs-flex-col zs-items-center",
+          scrollable ? "zs-touch-pan-y" : "zs-touch-none",
           css`
             width: ${itemVisualWidth}px;
             min-height: ${itemHeight}px;
@@ -434,7 +449,7 @@ const GridItem = ({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
+        onPointerCancel={scrollable ? cancelPress : handlePointerUp}
         onContextMenu={handleContextMenu}
       >
         {iconContent}

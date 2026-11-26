@@ -771,6 +771,8 @@ const desktopI18n: DesktopNextI18n = {
 
 ### DockProps
 
+手机上的启动台从底部全屏展开。搜索框固定在顶部，应用列表可上下滑动，右侧索引始终列出 A–Z 和 #，中文名按拼音首字母分组。点击可用字母会跳到对应应用，其他分组的图标渐变为灰色，约两秒后自动恢复原色。连续点击按最后一次计时，修改搜索词会结束提示。430×932 等窄屏预览也使用抽屉，横竖屏切换时按实际宽度重排列数。
+
 ```typescript
 interface DockProps {
   items?: DndSortItem[];

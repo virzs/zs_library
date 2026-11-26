@@ -45,6 +45,9 @@ function initialPages() {
     case 'extras': return singlePage(...icons(6));
     case 'surfaces': return [...singlePage(app('A', 0, 0), { ...app('F', 0, 1, 'group'),
       children: [app('B', 0, 0), app('C', 0, 1)] }), { id: 'P2', children: [] }];
+    case 'app-drawer': return singlePage(...icons(64).map((item, i) => ({
+      ...item, data: { name: ({ 61: '地图', 62: '123 工具' })[i] ?? String.fromCharCode(65 + i % 16) + ' 应用 ' + i },
+    })));
     case 'menu-theme':
     case 'folder-sort': return singlePage({ ...app('F', 0, 0, 'group'), children: ['A', 'B', 'C'].map(id => ({ id, type: 'app', data: { name: id } })) });
     case 'photo': return singlePage(
@@ -102,7 +105,10 @@ function Fixture() {
     preserveGaps={!['compact', 'short'].includes(scenario)}
     autoPaginate={scenario !== 'scroll'} maxPages={scenario === 'limit' ? 1 : 0}
     extraItems={scenario === 'extras' ? extras : undefined}
-    dockProps={scenario === 'surfaces' ? { theme: dockTheme, showLaunchpad: true, fixedItems: [app('fixed', 0, 0)] } : undefined}
+    dockProps={['surfaces', 'app-drawer'].includes(scenario) ? {
+      theme: dockTheme, showLaunchpad: true, fixedItems: [app('fixed', 0, 0)],
+      onLaunchpadItemClick: scenario === 'app-drawer' ? item => { window.lastLaunch = item.id; } : undefined,
+    } : undefined}
     theme={theme} pagination={indicator}
     pagingDotBuilder={customDots ? (i, active, selectPage) =>
       <button type="button" onClick={selectPage} aria-pressed={active}>Page {i + 1}</button> : undefined}

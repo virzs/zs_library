@@ -11,6 +11,7 @@ import {
 } from "../i18n";
 
 export interface SearchBoxProps {
+  variant?: "default" | "drawer";
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
@@ -20,6 +21,7 @@ export interface SearchBoxProps {
 
 const SearchBox: React.FC<SearchBoxProps> = ({
   value,
+  variant = "default",
   onChange,
   placeholder = desktopNextI18nResources[desktopNextDefaultLanguage].desktopNext
     .launchpad.searchPlaceholder,
@@ -27,6 +29,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
   theme: explicitTheme,
 }) => {
   const theme = useSurfaceTheme(explicitTheme);
+  const drawer = variant === "drawer";
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -51,39 +54,24 @@ const SearchBox: React.FC<SearchBoxProps> = ({
     inputRef.current?.focus();
   };
 
+  const showPlaceholder = !value && !isFocused;
+  const leading = drawer || !showPlaceholder;
+
   return (
     <div className={`zs-relative zs-w-full ${className}`}>
       <div
+        aria-hidden="true"
         className={cx(
-          "zs-absolute zs-z-[1] zs-inset-0 zs-flex zs-items-center zs-justify-center zs-gap-1.5 zs-pointer-events-none",
+          "zs-absolute zs-z-[1] zs-inset-0 zs-flex zs-items-center zs-gap-1.5 zs-pointer-events-none",
           css`
-            color: ${isFocused || value ? "transparent" : placeholderColor};
-            transition: color 0.2s ease;
+            justify-content: ${leading ? "flex-start" : "center"};
+            padding-inline-start: ${leading ? (drawer ? 14 : 12) : 0}px;
+            color: ${placeholderColor};
           `,
         )}
       >
-        <RiSearchLine
-          size={15}
-          style={{ color: isFocused || value ? "transparent" : iconColor }}
-        />
-        <span
-          className="zs-text-[15px] zs-leading-none"
-        >
-          {!value && placeholder}
-        </span>
-      </div>
-
-      <div
-        className={cx(
-          "zs-absolute zs-z-[1] zs-left-3 zs-top-1/2 zs--translate-y-1/2 zs-pointer-events-none",
-          css`
-            color: ${isFocused ? iconFocusColor : iconColor};
-            transition: color 0.2s ease;
-            opacity: ${value ? 1 : 0};
-          `,
-        )}
-      >
-        <RiSearchLine size={15} />
+        <RiSearchLine size={15} style={{ color: isFocused ? iconFocusColor : iconColor }} />
+        {showPlaceholder && <span className="zs-text-[15px] zs-leading-none">{placeholder}</span>}
       </div>
 
       <input
@@ -91,13 +79,15 @@ const SearchBox: React.FC<SearchBoxProps> = ({
         className={cx(
           "zs-w-full zs-border-none zs-outline-none",
           css`
-            height: 36px;
-            border-radius: 18px;
+            height: ${drawer ? 46 : 36}px;
+            border-radius: ${drawer ? 23 : 18}px;
             border: 0.75px solid ${base.borderColor};
-            font-size: 15px;
+            font-size: ${drawer ? 16 : 15}px;
             letter-spacing: 0;
-            padding: 0 ${value ? "32px" : "12px"} 0 ${value ? "28px" : "12px"};
-            text-align: ${value ? "left" : "center"};
+            display: block;
+            padding-block: 0;
+            padding-inline: ${leading ? (drawer ? 36 : 34) : 12}px ${value ? 36 : 12}px;
+            text-align: ${leading ? "start" : "center"};
             ${glassSurface(isFocused ? focusBgColor : bgColor, base.backdropFilter, base.highlightColor)}
             color: ${textColor};
             box-shadow:
@@ -127,8 +117,11 @@ const SearchBox: React.FC<SearchBoxProps> = ({
         <button
           type="button"
           className={cx(
-            "zs-absolute zs-right-2.5 zs-top-1/2 zs--translate-y-1/2 zs-w-5 zs-h-5 zs-rounded-full zs-border-none zs-cursor-pointer zs-flex zs-items-center zs-justify-center",
+            "zs-absolute zs-w-5 zs-h-5 zs-rounded-full zs-border-none zs-cursor-pointer zs-flex zs-items-center zs-justify-center",
             css`
+              inset-block: 0;
+              inset-inline-end: 10px;
+              margin-block: auto;
               background-color: ${clearBg};
               color: ${clearTextColor};
               transition:
@@ -138,7 +131,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
                 background-color: ${clearHoverBg};
               }
               &:active {
-                transform: translateY(-50%) scale(0.9);
+                transform: scale(0.9);
               }
             `,
           )}

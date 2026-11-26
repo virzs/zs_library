@@ -1053,8 +1053,8 @@ scenario('手机启动台抽屉的遮罩、面板和关闭按钮随已打开的�
   } }));
   assert.equal(await bg(drawer), 'rgb(57, 35, 72)');
   assert.equal(await bg(page.locator('.rc-drawer-mask')), 'rgb(49, 34, 46)');
-  assert.equal(await drawer.locator('svg[aria-label]').evaluate(n => getComputedStyle(n).color), 'rgb(242, 222, 231)');
-  await drawer.locator('svg[aria-label]').tap();
+  assert.equal(await drawer.getByRole('button', { name: '关闭' }).evaluate(n => getComputedStyle(n).color), 'rgb(242, 222, 231)');
+  await drawer.getByRole('button', { name: '关闭' }).tap();
   await drawer.waitFor({ state: 'hidden' });
 }, { width: 390, height: 844 }, { isMobile: true, hasTouch: true,
   userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1' });
@@ -1132,3 +1132,157 @@ scenario('分页高亮与圆点在实际绘制时共用同一水平中心线', '
     assert.ok(Math.max(...centres) - Math.min(...centres) < 0.15, `${variant} 的像素中心为 ${centres}`);
   }
 });
+
+
+scenario('430×932 响应式预览打开全屏启动台，横竖屏图标完整且可滚动', 'app-drawer', async page => {
+  await page.locator('[data-grid-item-id="fixed"]').locator('xpath=ancestor::*[contains(@class,"zs-justify-between")][1]')
+    .locator('.zs-flex-shrink-0.zs-cursor-pointer').click();
+  const panel = page.locator('.rc-drawer-content-wrapper:visible, [data-base-modal-panel]:visible').last();
+  await panel.waitFor();
+  const search = panel.getByRole('textbox');
+  for (const size of [{ width: 430, height: 932 }, { width: 320, height: 640 }, { width: 932, height: 430 }]) {
+    await page.setViewportSize(size);
+    await panel.evaluate(async el => {
+      await new Promise(requestAnimationFrame);
+      await Promise.all(el.getAnimations().map(animation => animation.finished));
+    });
+    const bounds = await panel.boundingBox();
+    assert.deepEqual(Object.values(bounds).map(Math.round), [0, 0, size.width, size.height]);
+    const cells = panel.locator('[data-grid-item-id]');
+    assert.equal(await cells.count(), 64);
+    const rects = await cells.evaluateAll(nodes => nodes.map(n => {
+      const r = n.getBoundingClientRect();
+      return { x: r.x, y: r.y, right: r.right, bottom: r.bottom };
+    }));
+    const topRow = rects.filter(r => Math.abs(r.y - rects[0].y) < 1);
+    if (size.width === 430) assert.equal(topRow.length, 4);
+    for (const [i, rect] of rects.entries()) {
+      assert.ok(rect.x >= 0 && rect.right <= size.width);
+      if (i && Math.abs(rect.y - rects[i-1].y) < 1) assert.ok(rect.x >= rects[i-1].right - 1);
+    }
+  }
+  const scroller = panel.locator('[data-launchpad-scroll]');
+  const header = await search.boundingBox();
+  const firstCell = await center(scroller.locator('[data-grid-item-id]').nth(10));
+  const touch = await page.context().newCDPSession(page);
+  await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [firstCell] });
+  for (let dy = 15; dy <= 105; dy += 15) {
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: firstCell.x, y: firstCell.y - dy }] });
+  }
+  await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForFunction(() => document.querySelector('[data-launchpad-scroll]').scrollTop > 0);
+  assert.equal(await page.evaluate(() => window.lastLaunch), undefined);
+  await panel.getByRole('button', { name: 'P', exact: true }).click();
+  await page.waitForTimeout(450);
+  assert.ok(await scroller.evaluate(n => n.scrollTop > 0));
+  assert.equal(Math.round((await search.boundingBox()).y), Math.round(header.y));
+  await search.fill('P 应用 63');
+  await panel.locator('[data-grid-item-id="63"]').tap();
+  assert.equal(await page.evaluate(() => window.lastLaunch), '63');
+  await panel.getByRole('button', { name: '关闭' }).click();
+  await panel.waitFor({ state: 'hidden' });
+}, { width: 430, height: 932 }, { isMobile: true, hasTouch: true });
+
+scenario('抽屉搜索图标在聚焦、输入、清除时保持同一位置', 'app-drawer', async page => {
+  await page.locator('[data-grid-item-id="fixed"]').locator('xpath=ancestor::*[contains(@class,"zs-justify-between")][1]')
+    .locator('.zs-flex-shrink-0.zs-cursor-pointer').click();
+  const panel = page.locator('.rc-drawer-content-wrapper:visible');
+  const input = panel.getByRole('textbox');
+  await input.waitFor();
+  await page.waitForTimeout(300);
+  const measure = () => input.evaluate(node => {
+    const icon = [...node.parentElement.querySelectorAll('svg')].find(s => !s.closest('button')
+      && !['transparent', 'rgba(0, 0, 0, 0)'].includes(getComputedStyle(s).color)
+      && Number(getComputedStyle(s.parentElement).opacity) > 0);
+    const r = icon.getBoundingClientRect(), field = node.getBoundingClientRect();
+    return { x: r.left - field.left, dy: r.top + r.height / 2 - field.top - field.height / 2 };
+  });
+  const rest = await measure();
+  await input.focus();
+  await page.waitForTimeout(230);
+  const focused = await measure();
+  assert.ok(Math.abs(focused.dy) < 1 && Math.abs(focused.x - rest.x) < 1, JSON.stringify({ rest, focused }));
+  await input.fill('应用');
+  assert.deepEqual(await measure(), focused);
+  const clear = input.locator('..').getByRole('button');
+  const clearBox = await clear.boundingBox(), field = await input.boundingBox();
+  assert.ok(Math.abs(clearBox.y + clearBox.height/2 - field.y - field.height/2) < 1);
+  await clear.click();
+  assert.equal(await input.inputValue(), '');
+  assert.deepEqual(await measure(), focused);
+}, { width: 430, height: 932 }, { isMobile: true, hasTouch: true });
+
+scenario('启动台显示完整字母表，点选字母只弱化其他分组的图标', 'app-drawer', async page => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.locator('[data-grid-item-id="fixed"]').locator('xpath=ancestor::*[contains(@class,"zs-justify-between")][1]')
+    .locator('.zs-flex-shrink-0.zs-cursor-pointer').click();
+  const panel = page.locator('.rc-drawer-content-wrapper:visible');
+  const rail = panel.locator('[data-launchpad-index]');
+  await rail.waitFor();
+  assert.deepEqual(await rail.getByRole('button').allTextContents(), [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ#']);
+  assert.ok(await rail.getByRole('button', {name:'Z', exact:true}).isDisabled());
+  const a = rail.getByRole('button', {name:'A', exact:true}), b = rail.getByRole('button', {name:'B', exact:true});
+  const filter = id => panel.locator(`[data-grid-item-id="${id}"]`).evaluate(n => getComputedStyle(n).filter);
+  await a.click();
+  assert.equal(await a.getAttribute('aria-pressed'), null);
+  assert.equal(await filter('0'), 'none');
+  assert.match(await filter('1'), /grayscale\(1\)/);
+  assert.equal(await panel.locator('[data-grid-item-id]').count(), 64);
+  await b.click();
+  assert.match(await filter('0'), /grayscale\(1\)/);
+  assert.equal(await filter('1'), 'none');
+  await b.click();
+  assert.match(await filter('0'), /grayscale\(1\)/);
+  await a.click();
+  await panel.getByRole('textbox').fill('B 应用');
+  assert.ok(await a.isDisabled());
+  assert.equal(await filter('1'), 'none');
+  assert.deepEqual(await rail.getByRole('button').allTextContents(), [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ#']);
+  await panel.getByRole('textbox').fill('___');
+  assert.equal(await rail.locator('button:disabled').count(), 27);
+  await panel.getByRole('textbox').fill('');
+  await rail.getByRole('button', { name: '#', exact: true }).click();
+  assert.equal(await filter('62'), 'none');
+  assert.match(await filter('61'), /grayscale\(1\)/);
+  await rail.getByRole('button', { name: 'D', exact: true }).click();
+  assert.equal(await filter('61'), 'none'); // 地图按拼音归入 D。
+  assert.match(await filter('62'), /grayscale\(1\)/);
+  await panel.getByRole('button', { name: '关闭' }).click();
+  await panel.waitFor({ state: 'hidden' });
+  await page.locator('[data-grid-item-id="fixed"]').locator('xpath=ancestor::*[contains(@class,"zs-justify-between")][1]')
+    .locator('.zs-flex-shrink-0.zs-cursor-pointer').click();
+  await rail.waitFor();
+  assert.equal(await filter('62'), 'none');
+}, { width: 430, height: 932 }, { isMobile: true, hasTouch: true });
+
+
+scenario('字母提示渐变置灰，最后一次点击约两秒后自动渐变恢复', 'app-drawer', async page => {
+  await page.locator('[data-grid-item-id="fixed"]').locator('xpath=ancestor::*[contains(@class,"zs-justify-between")][1]')
+    .locator('.zs-flex-shrink-0.zs-cursor-pointer').click();
+  const panel = page.locator('.rc-drawer-content-wrapper:visible');
+  const a = panel.getByRole('button', {name: 'A', exact: true});
+  const other = panel.locator('[data-grid-item-id="1"]');
+  await a.waitFor();
+  await other.evaluate(el => {
+    window.letterSamples = [];
+    const sample = () => {
+      const filter = getComputedStyle(el).filter;
+      window.letterSamples.push(Number(/grayscale\(([.\d]+)\)/.exec(filter)?.[1] ?? 0));
+      if (el.isConnected && window.letterSamples.length < 1200) requestAnimationFrame(sample);
+    };
+    sample();
+  });
+  await a.click();
+  await page.waitForFunction(() => window.letterSamples.includes(1));
+  await page.waitForTimeout(1000);
+  await a.click();
+  await page.waitForTimeout(1150);
+  assert.match(await other.evaluate(n => getComputedStyle(n).filter), /grayscale\(1\)/);
+  await page.waitForFunction(() => window.letterSamples.at(-1) === 0, undefined, { timeout: 2800 });
+  const values = await page.evaluate(() => window.letterSamples);
+  const isIntermediate = n => n > 0 && n < 1;
+  assert.ok(values.slice(0, values.indexOf(1)).some(isIntermediate), '置灰应有过渡帧');
+  assert.ok(values.slice(values.lastIndexOf(1) + 1).some(isIntermediate), '恢复应有过渡帧');
+  assert.equal(await other.evaluate(n => getComputedStyle(n).filter), 'none');
+  assert.equal(await a.getAttribute('aria-pressed'), null);
+}, { width: 430, height: 932 }, { isMobile: true, hasTouch: true });
